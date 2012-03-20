@@ -21,7 +21,6 @@
         <use.compression>false</use.compression>
         <add.artifact.descriptors>false</add.artifact.descriptors>
         <maven.test.skip>true</maven.test.skip>
-        <output.filename.mapping>@{artifactId}@.@{extension}@</output.filename.mapping>
         <filtering.enabled>true</filtering.enabled>
     </properties>
 
@@ -32,15 +31,8 @@
     </scm>
 
     <build>
+        <defaultGoal>install</defaultGoal>
         <plugins>
-            <plugin>
-                <artifactId>maven-resources-plugin</artifactId>
-                <configuration>
-                    <delimiters>
-                        <delimiter>@</delimiter>
-                    </delimiters>
-                </configuration>
-            </plugin>
             <plugin>
                 <artifactId>maven-jar-plugin</artifactId>
                 <!-- Optimize performance for JAR plugin under development profile -->
@@ -58,7 +50,7 @@
             <plugin>
                 <artifactId>maven-war-plugin</artifactId>
                 <configuration>
-                    <warName>cas</warName>
+                    <!--<warName>${output.filename.mapping}</warName>-->
                 </configuration>
             </plugin>
         </plugins>
@@ -137,6 +129,11 @@
 
         <profile>
             <id>regression</id>
+            <properties>
+                <!-- Enable test compilation and execution -->
+                <maven.test.skip>false</maven.test.skip>
+                <log.level>ERROR</log.level>
+            </properties>
             <build>
                 <plugins>
                     <plugin>
@@ -157,6 +154,20 @@
     </profiles>
 
     <dependencies>
+        <dependency>
+            <groupId>org.testng</groupId>
+            <artifactId>testng</artifactId>
+            <version>5.14.2</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.infusionsoft</groupId>
+            <artifactId>test-setup</artifactId>
+            <version>1.11</version>
+            <scope>test</scope>
+        </dependency>
+
         <dependency>
             <groupId>org.jasig.cas</groupId>
             <artifactId>cas-server-webapp</artifactId>
@@ -225,7 +236,6 @@
             <artifactId>jackson-mapper-asl</artifactId>
             <version>1.9.4</version>
         </dependency>
-
     </dependencies>
 
 </project>
