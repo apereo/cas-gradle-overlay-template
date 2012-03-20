@@ -6,26 +6,55 @@
     <groupId>com.infusionsoft</groupId>
     <artifactId>cas</artifactId>
     <packaging>war</packaging>
-    <version>1.0.0.1</version>
+    <version>1.0.0.1-SNAPSHOT</version>
 
     <parent>
         <groupId>com.infusionsoft</groupId>
         <artifactId>infusionsoft-parent</artifactId>
         <version>0.5.0.40</version>
     </parent>
- 
+
     <properties>
         <cas.version>3.4.11</cas.version>
+        <!-- Development properties  -->
+        <strip.versions>true</strip.versions>
+        <use.compression>false</use.compression>
+        <add.artifact.descriptors>false</add.artifact.descriptors>
+        <maven.test.skip>true</maven.test.skip>
+        <output.filename.mapping>@{artifactId}@.@{extension}@</output.filename.mapping>
+        <filtering.enabled>true</filtering.enabled>
     </properties>
 
     <scm>
-        <connection>scm:svn:https://scm.infusiontest.com/svn/infusionsoft-cas/tags/cas-1.0.0.1</connection>
-        <developerConnection>scm:svn:https://scm.infusiontest.com/svn/infusionsoft-cas/tags/cas-1.0.0.1</developerConnection>
-        <url>https://scm.infusiontest.com/svn/infusionsoft-cas/tags/cas-1.0.0.1</url>
+        <connection>scm:svn:https://scm.infusiontest.com/svn/cas/trunk</connection>
+        <developerConnection>scm:svn:https://scm.infusiontest.com/svn/cas/trunk</developerConnection>
+        <url>https://scm.infusiontest.com/svn/cas/trunk</url>
     </scm>
- 
+
     <build>
         <plugins>
+            <plugin>
+                <artifactId>maven-resources-plugin</artifactId>
+                <configuration>
+                    <delimiters>
+                        <delimiter>@</delimiter>
+                    </delimiters>
+                </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-jar-plugin</artifactId>
+                <!-- Optimize performance for JAR plugin under development profile -->
+                <configuration>
+                    <archive>
+                        <compress>${use.compression}</compress>
+                        <addMavenDescriptor>${add.artifact.descriptors}</addMavenDescriptor>
+                    </archive>
+                </configuration>
+            </plugin>
+            <!-- Configure modules to be excluded when generating reports -->
+            <plugin>
+                <artifactId>maven-site-plugin</artifactId>
+            </plugin>
             <plugin>
                 <artifactId>maven-war-plugin</artifactId>
                 <configuration>
@@ -34,7 +63,99 @@
             </plugin>
         </plugins>
     </build>
- 
+
+    <profiles>
+        <profile>
+            <!-- Used only when invoking release:perform so as not to re-run tests as part of the deployment-->
+            <id>notest</id>
+            <properties>
+                <skipTests>true</skipTests>
+            </properties>
+        </profile>
+
+        <profile>
+            <id>development</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.zeroturnaround</groupId>
+                        <artifactId>jrebel-maven-plugin</artifactId>
+                        <version>1.0.7</version>
+                        <executions>
+                            <execution>
+                                <id>generate-rebel-xml</id>
+                                <phase>process-resources</phase>
+                                <goals>
+                                    <goal>generate</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <profile>
+            <id>klocwork</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>com.klocwork.ps</groupId>
+                        <artifactId>kwmaven</artifactId>
+                        <executions>
+                            <execution>
+                                <configuration>
+                                    <buildspec_filename>infusionsoft.out</buildspec_filename>
+                                </configuration>
+                                <phase>validate</phase>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <profile>
+            <id>continuous</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <configuration>
+                            <testFailureIgnore>true</testFailureIgnore>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <profile>
+            <id>regression</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <configuration>
+                            <testFailureIgnore>false</testFailureIgnore>
+                            <properties>
+                                <property>
+                                    <name>listener</name>
+                                    <value>com.infusionsoft.test.TestNGListener</value>
+                                </property>
+                            </properties>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+
     <dependencies>
         <dependency>
             <groupId>org.jasig.cas</groupId>
@@ -50,21 +171,6 @@
             <version>3.4.11</version>
             <scope>compile</scope>
         </dependency>
-
-<!--
-        <dependency>
-            <groupId>org.hibernate</groupId>
-            <artifactId>hibernate-core</artifactId>
-            <version>3.6.9.Final</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.hibernate</groupId>
-            <artifactId>hibernate-ehcache</artifactId>
-            <version>3.6.9.Final</version>
-        </dependency>
-
--->
 
         <dependency>
             <groupId>org.hibernate</groupId>
