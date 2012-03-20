@@ -1,0 +1,282 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+	| deployerConfigContext.xml centralizes into one file some of the declarative configuration that
+	| all CAS deployers will need to modify.
+	|
+	| This file declares some of the Spring-managed JavaBeans that make up a CAS deployment.  
+	| The beans declared in this file are instantiated at context initialization time by the Spring 
+	| ContextLoaderListener declared in web.xml.  It finds this file because this
+	| file is among those declared in the context parameter "contextConfigLocation".
+	|
+	| By far the most common change you will need to make in this file is to change the last bean
+	| declaration to replace the default SimpleTestUsernamePasswordAuthenticationHandler with
+	| one implementing your approach for authenticating usernames and passwords.
+	+-->
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:sec="http://www.springframework.org/schema/security"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+       http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-3.0.xsd
+       http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.0.xsd
+       http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.0.xsd">
+    <!--
+         | This bean declares our AuthenticationManager.  The CentralAuthenticationService service bean
+         | declared in applicationContext.xml picks up this AuthenticationManager by reference to its id,
+         | "authenticationManager".  Most deployers will be able to use the default AuthenticationManager
+         | implementation and so do not need to change the class of this bean.  We include the whole
+         | AuthenticationManager here in the userConfigContext.xml so that you can see the things you will
+         | need to change in context.
+         +-->
+    <bean id="authenticationManager"
+          class="org.jasig.cas.authentication.AuthenticationManagerImpl">
+        <!--
+              | This is the List of CredentialToPrincipalResolvers that identify what Principal is trying to authenticate.
+              | The AuthenticationManagerImpl considers them in order, finding a CredentialToPrincipalResolver which
+              | supports the presented credentials.
+              |
+              | AuthenticationManagerImpl uses these resolvers for two purposes.  First, it uses them to identify the Principal
+              | attempting to authenticate to CAS /login .  In the default configuration, it is the DefaultCredentialsToPrincipalResolver
+              | that fills this role.  If you are using some other kind of credentials than UsernamePasswordCredentials, you will need to replace
+              | DefaultCredentialsToPrincipalResolver with a CredentialsToPrincipalResolver that supports the credentials you are
+              | using.
+              |
+              | Second, AuthenticationManagerImpl uses these resolvers to identify a service requesting a proxy granting ticket.
+              | In the default configuration, it is the HttpBasedServiceCredentialsToPrincipalResolver that serves this purpose.
+              | You will need to change this list if you are identifying services by something more or other than their callback URL.
+              +-->
+        <property name="credentialsToPrincipalResolvers">
+            <list>
+                <!--
+                        | UsernamePasswordCredentialsToPrincipalResolver supports the UsernamePasswordCredentials that we use for /login
+                        | by default and produces SimplePrincipal instances conveying the username from the credentials.
+                        |
+                        | If you've changed your LoginFormAction to use credentials other than UsernamePasswordCredentials then you will also
+                        | need to change this bean declaration (or add additional declarations) to declare a CredentialsToPrincipalResolver that supports the
+                        | Credentials you are using.
+                        +-->
+                <!--
+                <bean class="com.infusionsoft.cas.auth.InfusionsoftCredentialsToPrincipalResolver">
+
+                </bean>
+                -->
+
+                <bean class="org.jasig.cas.authentication.principal.UsernamePasswordCredentialsToPrincipalResolver">
+                    <property name="attributeRepository" ref="attributeRepository"/>
+                </bean>
+
+                <!--
+                        | HttpBasedServiceCredentialsToPrincipalResolver supports HttpBasedCredentials.  It supports the CAS 2.0 approach of
+                        | authenticating services by SSL callback, extracting the callback URL from the Credentials and representing it as a
+                        | SimpleService identified by that callback URL.
+                        |
+                        | If you are representing services by something more or other than an HTTPS URL whereat they are able to
+                        | receive a proxy callback, you will need to change this bean declaration (or add additional declarations).
+                        +-->
+                <bean
+                        class="org.jasig.cas.authentication.principal.HttpBasedServiceCredentialsToPrincipalResolver"/>
+            </list>
+        </property>
+
+        <!--
+              | Whereas CredentialsToPrincipalResolvers identify who it is some Credentials might authenticate,
+              | AuthenticationHandlers actually authenticate credentials.  Here we declare the AuthenticationHandlers that
+              | authenticate the Principals that the CredentialsToPrincipalResolvers identified.  CAS will try these handlers in turn
+              | until it finds one that both supports the Credentials presented and succeeds in authenticating.
+              +-->
+        <property name="authenticationHandlers">
+            <list>
+                <!--
+                        | This is the authentication handler that authenticates services by means of callback via SSL, thereby validating
+                        | a server side SSL certificate.
+                        +-->
+                <bean class="org.jasig.cas.authentication.handler.support.HttpBasedServiceCredentialsAuthenticationHandler"
+                      p:httpClient-ref="httpClient">
+                    <property name="requireSecure" value="false"/>
+                </bean>
+                <!--
+                <bean class="org.jasig.cas.authentication.handler.support.SimpleTestUsernamePasswordAuthenticationHandler"/>
+                -->
+                <bean class="com.infusionsoft.cas.auth.InfusionsoftAuthenticationHandler">
+                    <property name="hibernateTemplate" ref="hibernateTemplate"/>
+                    <property name="passwordEncoder" ref="passwordEncoder"/>
+                </bean>
+            </list>
+        </property>
+    </bean>
+
+
+    <!--
+     This bean defines the security roles for the Services Management application.  Simple deployments can use the in-memory version.
+     More robust deployments will want to use another option, such as the Jdbc version.
+
+     The name of this should remain "userDetailsService" in order for Spring Security to find it.
+      -->
+    <!-- <sec:user name="@@THIS SHOULD BE REPLACED@@" password="notused" authorities="ROLE_ADMIN" />-->
+
+    <sec:user-service id="userDetailsService">
+        <sec:user name="andy" password="andy" authorities="ROLE_ADMIN"/>
+        <sec:user name="jipe" password="jipe" authorities="ROLE_ADMIN"/>
+    </sec:user-service>
+
+    <bean id="passwordEncoder" class="org.jasig.cas.authentication.handler.DefaultPasswordEncoder">
+        <constructor-arg index="0" value="SHA-256"/>
+    </bean>
+
+    <!--
+     Bean that defines the attributes that a service may return.  This example uses the Stub/Mock version.  A real implementation
+     may go against a database or LDAP server.  The id should remain "attributeRepository" though.
+      -->
+    <bean id="attributeRepository"
+          class="org.jasig.services.persondir.support.StubPersonAttributeDao">
+        <property name="backingMap">
+            <map>
+                <entry key="uid" value="uid"/>
+                <entry key="eduPersonAffiliation" value="eduPersonAffiliation"/>
+                <entry key="groupMembership" value="groupMembership"/>
+            </map>
+        </property>
+    </bean>
+
+    <!--
+     Sample, in-memory data store for the ServiceRegistry. A real implementation
+     would probably want to replace this with the JPA-backed ServiceRegistry DAO
+     The name of this bean should remain "serviceRegistryDao".
+      -->
+
+    <bean id="serviceRegistryDao" class="org.jasig.cas.services.JpaServiceRegistryDaoImpl"
+          p:entityManagerFactory-ref="entityManagerFactory"/>
+
+    <!-- This is the EntityManagerFactory configuration for Hibernate -->
+    <bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
+        <property name="dataSource" ref="dataSource"/>
+        <property name="jpaVendorAdapter">
+            <bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter">
+                <property name="generateDdl" value="true"/>
+                <property name="showSql" value="true"/>
+            </bean>
+        </property>
+        <property name="jpaProperties">
+            <props>
+                <prop key="hibernate.dialect">org.hibernate.dialect.MySQLDialect</prop>
+                <prop key="hibernate.hbm2ddl.auto">update</prop>
+            </props>
+        </property>
+    </bean>
+
+    <bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
+        <property name="entityManagerFactory" ref="entityManagerFactory"/>
+    </bean>
+
+    <tx:annotation-driven transaction-manager="transactionManager"/>
+
+    <!--
+    <bean id="dataSource"
+            class="com.mchange.v2.c3p0.ComboPooledDataSource"
+            p:driverClass="com.mysql.jdbc.Driver"
+            p:jdbcUrl="jdbc:mysql://localhost:3306/cas?autoReconnect=true"
+            p:password="cas"
+            p:user="cas"/>
+    -->
+
+    <bean id="dataSource" class="org.springframework.jndi.JndiObjectFactoryBean">
+        <property name="jndiName" value="java:comp/env/jdbc/CasDB"/>
+        <property name="resourceRef" value="true" /> 
+    </bean>
+
+    <bean id="oldServiceRegistryDao"
+            class="org.jasig.cas.services.InMemoryServiceRegistryDaoImpl">
+        <property name="registeredServices">
+            <list>
+                <bean class="org.jasig.cas.services.RegisteredServiceImpl">
+                    <property name="id" value="0"/>
+                    <property name="name" value="HTTP"/>
+                    <property name="description" value="Only Allows HTTP Urls"/>
+                    <property name="serviceId" value="http://**"/>
+                    <property name="evaluationOrder" value="10000001"/>
+                </bean>
+
+                <bean class="org.jasig.cas.services.RegisteredServiceImpl">
+                    <property name="id" value="1"/>
+                    <property name="name" value="HTTPS"/>
+                    <property name="description" value="Only Allows HTTPS Urls"/>
+                    <property name="serviceId" value="https://**"/>
+                    <property name="evaluationOrder" value="10000002"/>
+                </bean>
+
+                <bean class="org.jasig.cas.services.RegisteredServiceImpl">
+                    <property name="id" value="2"/>
+                    <property name="name" value="IMAPS"/>
+                    <property name="description" value="Only Allows HTTPS Urls"/>
+                    <property name="serviceId" value="imaps://**"/>
+                    <property name="evaluationOrder" value="10000003"/>
+                </bean>
+
+                <bean class="org.jasig.cas.services.RegisteredServiceImpl">
+                    <property name="id" value="3"/>
+                    <property name="name" value="IMAP"/>
+                    <property name="description" value="Only Allows IMAP Urls"/>
+                    <property name="serviceId" value="imap://**"/>
+                    <property name="evaluationOrder" value="10000004"/>
+                </bean>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="auditTrailManager" class="com.github.inspektr.audit.support.Slf4jLoggingAuditTrailManager"/>
+
+    <bean id="hibernateDataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close">
+        <property name="driverClass" value="com.mysql.jdbc.Driver"/>
+        <property name="jdbcUrl" value="jdbc:mysql://localhost/cas"/>
+        <property name="user" value="cas"/>
+        <property name="password" value="cas"/>
+        <property name="minPoolSize" value="1"/>
+        <property name="maxPoolSize" value="5"/>
+        <property name="maxStatements" value="50"/>
+        <property name="idleConnectionTestPeriod" value="3000"/>
+        <property name="loginTimeout" value="300"/>
+    </bean>
+
+    <bean id="hibernateSessionFactory"
+          class="org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean">
+        <property name="dataSource" ref="hibernateDataSource"/>
+        <property name="annotatedClasses">
+            <list>
+                <value>com.infusionsoft.cas.types.User</value>
+                <value>com.infusionsoft.cas.types.UserAccount</value>
+                <value>com.infusionsoft.cas.types.LegacyAccount</value>
+            </list>
+        </property>
+        <property name="hibernateProperties">
+            <props>
+                <prop key="hibernate.dialect">org.hibernate.dialect.MySQL5Dialect</prop>
+                <prop key="hibernate.show_sql">true</prop>
+                <prop key="hibernate.hbm2ddl.auto">create</prop>
+            </props>
+        </property>
+    </bean>
+
+    <bean id="hibernateTemplate" class="org.springframework.orm.hibernate3.HibernateTemplate">
+        <property name="sessionFactory" ref="hibernateSessionFactory"/>
+    </bean>
+
+    <bean id="hibernateTransactionManager" class="org.springframework.orm.hibernate3.HibernateTransactionManager">
+        <property name="sessionFactory" ref="hibernateSessionFactory"/>
+    </bean>
+
+    <tx:advice id="transactionAdvice" transaction-manager="hibernateTransactionManager">
+        <tx:attributes>
+            <tx:method name="get*" read-only="true"/>
+            <tx:method name="*"/>
+        </tx:attributes>
+    </tx:advice>
+
+    <aop:config>
+        <!--
+        <aop:pointcut id="fooServiceOperation" expression="execution(* x.y.service.FooService.*(..))"/>
+        <aop:advisor advice-ref="transactionAdvice" pointcut-ref="fooServiceOperation"/>
+        -->
+    </aop:config>
+</beans>
