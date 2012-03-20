@@ -182,7 +182,7 @@
     -->
 
     <bean id="dataSource" class="org.springframework.jndi.JndiObjectFactoryBean">
-        <property name="jndiName" value="java:comp/env/jdbc/CasDB"/>
+        <property name="jndiName" value="java:comp/env/jdbc/cas"/>
         <property name="resourceRef" value="true" /> 
     </bean>
 
@@ -227,6 +227,7 @@
 
     <bean id="auditTrailManager" class="com.github.inspektr.audit.support.Slf4jLoggingAuditTrailManager"/>
 
+    <!--
     <bean id="hibernateDataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close">
         <property name="driverClass" value="com.mysql.jdbc.Driver"/>
         <property name="jdbcUrl" value="jdbc:mysql://localhost/cas"/>
@@ -238,6 +239,12 @@
         <property name="idleConnectionTestPeriod" value="3000"/>
         <property name="loginTimeout" value="300"/>
     </bean>
+    -->
+    <bean id="hibernateDataSource" class="org.springframework.jndi.JndiObjectFactoryBean">
+        <property name="jndiName" value="java:comp/env/jdbc/cas"/>
+        <property name="resourceRef" value="true" /> 
+    </bean>
+
 
     <bean id="hibernateSessionFactory"
           class="org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean">
