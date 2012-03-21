@@ -59,10 +59,10 @@ public class RegistrationMultiActionController extends MultiActionController {
         String password1 = request.getParameter("password1");
         String password2 = request.getParameter("password2");
         Map<String, Object> model = new HashMap<String, Object>();
+        User user = null;
 
         try {
-            User user = new User();
-
+            user = new User();
             user.setUsername(username);
             user.setPassword(passwordEncoder.encode(password1));
             user.setEnabled(true);
@@ -90,9 +90,15 @@ public class RegistrationMultiActionController extends MultiActionController {
                 credentials.setPassword(password1);
 
                 String ticketGrantingTicket = centralAuthenticationService.createTicketGrantingTicket(credentials);
+                String contextPath = request.getContextPath();
+
+                if (!contextPath.endsWith("/")) {
+                    contextPath = contextPath + "/";
+                }
+
                 Cookie cookie = new Cookie("CASTGC", ticketGrantingTicket);
-                cookie.setPath("/");
-                cookie.setMaxAge(3600000);
+                cookie.setPath(contextPath);
+//                cookie.setMaxAge(3600000);
 
                 response.addCookie(cookie);
                 
@@ -105,7 +111,11 @@ public class RegistrationMultiActionController extends MultiActionController {
             model.put("error", "registration.error.exception");
         }
 
-        return new ModelAndView("default/ui/registration/register", model);
+        if (model.containsKey("error")) {
+            return new ModelAndView("default/ui/registration/welcome", model);
+        } else {
+            return new ModelAndView("redirect:manage?user=" + user.getId());
+        }
     }
 
     /**

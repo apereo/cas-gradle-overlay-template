@@ -10,6 +10,7 @@
 
 <script type="text/javascript">
 
+    // Old one... this is from when it was Ajax
     function registerAndLogin() {
         $.ajax({
             type: "POST",
@@ -18,13 +19,6 @@
             dataType: "json",
             success: function(response) {
                 if (response.status == "OK") {
-alert("created account");
-//                    $("#loginUsername").val($("#username").val());
-//                    $("#loginPassword").val($("#password1").val());
-//                    $("#loginForm").submit();
-                } else {
-                    $("#registerFormError").html(response.message);
-                    $("#registerFormError").show();
                 }
             }
         });
@@ -45,8 +39,12 @@ alert("created account");
         account after it's created.
     </p>
 
-    <form id="registerForm" onsubmit="return registerAndLogin()" method="post">
-        <div id="registerFormError" class="formerror" style="display: none"></div>
+    <form id="registerForm" action="register" method="post">
+        <div id="registerFormError" class="formerror">
+            <c:if test="${error != null}">
+                 <spring:message code="${error}"/>
+            </c:if>
+        </div>
 
         <p>
             <div class="label">Email</div>
