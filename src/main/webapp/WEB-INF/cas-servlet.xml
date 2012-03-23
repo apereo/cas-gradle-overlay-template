@@ -206,7 +206,8 @@
           p:hibernateTemplate-ref="hibernateTemplate"
           p:passwordEncoder-ref="passwordEncoder"
           p:ticketIdGenerator-ref="loginTicketUniqueIdGenerator"
-          p:centralAuthenticationService-ref="centralAuthenticationService"/>
+          p:centralAuthenticationService-ref="centralAuthenticationService"
+          p:ticketRegistry-ref="ticketRegistry"/>
 
     <bean id="restController" class="com.infusionsoft.cas.web.RestController"
           p:hibernateTemplate-ref="hibernateTemplate"

@@ -13,6 +13,9 @@ import org.jasig.cas.authentication.principal.SimpleWebApplicationServiceImpl;
 import org.jasig.cas.authentication.principal.UsernamePasswordCredentials;
 import org.jasig.cas.services.RegisteredService;
 import org.jasig.cas.services.ServiceRegistryDao;
+import org.jasig.cas.ticket.Ticket;
+import org.jasig.cas.ticket.TicketGrantingTicket;
+import org.jasig.cas.ticket.registry.TicketRegistry;
 import org.jasig.cas.util.UniqueTicketIdGenerator;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -39,7 +42,8 @@ public class RegistrationMultiActionController extends MultiActionController {
     private UniqueTicketIdGenerator ticketIdGenerator;
     private CentralAuthenticationService centralAuthenticationService;
     private ServiceRegistryDao serviceRegistryDao;
-    
+    private TicketRegistry ticketRegistry;
+
     /**
      * Shows the registration form.
      */
@@ -98,10 +102,9 @@ public class RegistrationMultiActionController extends MultiActionController {
 
                 Cookie cookie = new Cookie("CASTGC", ticketGrantingTicket);
                 cookie.setPath(contextPath);
-//                cookie.setMaxAge(3600000);
 
                 response.addCookie(cookie);
-                
+
                 logger.info("registered new user account " + username);
                 logger.info("set cookie CASTGC=" + ticketGrantingTicket);
             }
@@ -123,7 +126,35 @@ public class RegistrationMultiActionController extends MultiActionController {
      */
     public ModelAndView manage(HttpServletRequest request, HttpServletResponse response) {
         Map<String, Object> model = new HashMap<String, Object>();
-        User user = hibernateTemplate.get(User.class, Long.parseLong(request.getParameter("user")));
+        User user = null;
+
+        for (Cookie cookie : request.getCookies()) {
+            if (cookie.getName().equals("CASTGC")) {
+                logger.info("found CASTGC cookie with value " + cookie.getValue());
+
+                Ticket ticket = ticketRegistry.getTicket(cookie.getValue());
+                TicketGrantingTicket tgt = null;
+
+                if (ticket instanceof TicketGrantingTicket) {
+                    tgt = (TicketGrantingTicket) ticket;
+                } else {
+                    tgt = ticket.getGrantingTicket();
+                }
+
+                if (tgt != null) {
+                    Principal principal = tgt.getAuthentication().getPrincipal();
+                    List<User> users = (List<User>) hibernateTemplate.find("from User user where user.username = ?", principal.getId());
+
+                    if (users.size() > 0) {
+                        user = (User) users.get(0);
+
+                        logger.info("resolved user id=" + user.getId() + " for ticket " + tgt);
+                    } else {
+                        logger.warn("couldn't find a user for ticket " + tgt);
+                    }
+                }
+            }
+        }
 
         if (user != null) {
             model.put("user", user);
@@ -133,7 +164,7 @@ public class RegistrationMultiActionController extends MultiActionController {
             return new ModelAndView("redirect:welcome", model);
         }
     }
-    
+
     public ModelAndView associateForm(HttpServletRequest request, HttpServletResponse response) {
         return new ModelAndView("default/ui/registration/associate" + request.getParameter("type"));
     }
@@ -143,7 +174,7 @@ public class RegistrationMultiActionController extends MultiActionController {
 
         try {
             User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-            
+
             System.out.println("********* user is " + user);
 //            User user = getHibernateTemplate().get(User.class, Long.parseLong(request.getParameter("user")));
             UserAccount account = new UserAccount();
@@ -165,13 +196,13 @@ public class RegistrationMultiActionController extends MultiActionController {
 
             model.put("error", "registration.error.couldNotAssociate");
         }
-        
+
         if (model.containsKey("error")) {
             response.sendError(500, "failed to validate credentials");
         } else {
             response.getWriter().print("OK");
         }
-        
+
         return new ModelAndView();
     }
 
@@ -189,5 +220,9 @@ public class RegistrationMultiActionController extends MultiActionController {
 
     public void setCentralAuthenticationService(CentralAuthenticationService centralAuthenticationService) {
         this.centralAuthenticationService = centralAuthenticationService;
+    }
+
+    public void setTicketRegistry(TicketRegistry ticketRegistry) {
+        this.ticketRegistry = ticketRegistry;
     }
 }

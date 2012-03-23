@@ -117,8 +117,8 @@
     <!-- <sec:user name="@@THIS SHOULD BE REPLACED@@" password="notused" authorities="ROLE_ADMIN" />-->
 
     <sec:user-service id="userDetailsService">
-        <sec:user name="andy" password="andy" authorities="ROLE_ADMIN"/>
-        <sec:user name="jipe" password="jipe" authorities="ROLE_ADMIN"/>
+        <sec:user name="andy.hawkes@infusionsoft.com" password="notused" authorities="ROLE_ADMIN"/>
+        <sec:user name="juan.trujillo@infusionsoft.com" password="notused" authorities="ROLE_ADMIN"/>
     </sec:user-service>
 
     <bean id="passwordEncoder" class="org.jasig.cas.authentication.handler.DefaultPasswordEncoder">
