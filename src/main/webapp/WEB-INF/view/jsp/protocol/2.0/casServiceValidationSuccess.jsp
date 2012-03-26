@@ -18,7 +18,6 @@
         <c:if test="${fn:length(assertion.chainedAuthentications) > 0}">
             <cas:attributes>
                 <c:forEach var="auth" items="${assertion.chainedAuthentications}">
-                    <!-- Chained Authentication: ${auth.toString()} for principal ${auth.principal.toString()} (attributes ${auth.principal.attributes})-->
                     <c:forEach var="attr" items="${auth.principal.attributes}" >
                         <cas:${fn:escapeXml(attr.key)}>${fn:escapeXml(attr.value)}</cas:${fn:escapeXml(attr.key)}>
                     </c:forEach>
