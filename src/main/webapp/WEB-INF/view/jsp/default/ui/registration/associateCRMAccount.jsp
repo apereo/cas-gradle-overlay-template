@@ -1,12 +1,13 @@
 <!DOCTYPE html>
-<%@ page session="true" %>
-<%@ page pageEncoding="UTF-8" %>
-<%@ page contentType="text/html; charset=UTF-8" %>
+
 <%@ taglib prefix="c" uri="http://java.sun.com/jstl/core_rt" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jstl/fmt_rt" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
+<%@ page session="true" %>
+<%@ page pageEncoding="UTF-8" %>
+<%@ page contentType="text/html; charset=UTF-8" %>
 
 <form id="associateForm" action="associate" method="post">
     <input name="user" type="hidden" value="${user.getId()}"/>
