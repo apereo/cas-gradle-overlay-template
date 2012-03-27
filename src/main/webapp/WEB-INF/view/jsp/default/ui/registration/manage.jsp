@@ -40,17 +40,21 @@
 
 <div id="main">
     <h2>Your Infusionsoft applications</h2>
-    <c:if test="${user.getAccounts().size() == 0}">
+    <c:if test="${fn:length(user.accounts) == 0}">
         <p>
             No apps are associated with your account!
         </p>
     </c:if>
-    <c:if test="${user.getAccounts().size() > 0}">
-        <c:forEach var="account" items="${user.getAccounts()}">
-            <p>${account.getAppUsername()} at ${account.getAppName()}</p>
+    <c:if test="${fn:length(user.accounts) > 0}">
+        <c:forEach var="account" items="${user.accounts}">
+            <p>${account.appUsername} at ${account.appName}</p>
         </c:forEach>
     </c:if>
 
+    <p>
+      Note: The below don't completely work yet. We're waiting on mockups from
+      Clint before we burn time on these.
+    </p>
     <ul>
         <li><a href="javascript:showAssociateForm('CRMAccount')">Associate an Infusionsoft application</a></li>
         <li><a href="javascript:showAssociateForm('ForumAccount')">Associate an Infusionsoft Community Forum account</a></li>
