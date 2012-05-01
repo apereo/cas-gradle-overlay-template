@@ -126,35 +126,7 @@ public class RegistrationMultiActionController extends MultiActionController {
      */
     public ModelAndView manage(HttpServletRequest request, HttpServletResponse response) {
         Map<String, Object> model = new HashMap<String, Object>();
-        User user = null;
-
-        for (Cookie cookie : request.getCookies()) {
-            if (cookie.getName().equals("CASTGC")) {
-                logger.info("found CASTGC cookie with value " + cookie.getValue());
-
-                Ticket ticket = ticketRegistry.getTicket(cookie.getValue());
-                TicketGrantingTicket tgt = null;
-
-                if (ticket instanceof TicketGrantingTicket) {
-                    tgt = (TicketGrantingTicket) ticket;
-                } else {
-                    tgt = ticket.getGrantingTicket();
-                }
-
-                if (tgt != null) {
-                    Principal principal = tgt.getAuthentication().getPrincipal();
-                    List<User> users = (List<User>) hibernateTemplate.find("from User user where user.username = ?", principal.getId());
-
-                    if (users.size() > 0) {
-                        user = (User) users.get(0);
-
-                        logger.info("resolved user id=" + user.getId() + " for ticket " + tgt);
-                    } else {
-                        logger.warn("couldn't find a user for ticket " + tgt);
-                    }
-                }
-            }
-        }
+        User user = getCurrentUser(request);
 
         if (user != null) {
             model.put("user", user);
@@ -173,24 +145,26 @@ public class RegistrationMultiActionController extends MultiActionController {
         Map<String, Object> model = new HashMap<String, Object>();
 
         try {
-            User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            User currentUser = getCurrentUser(request);
+            if (currentUser != null) {
+                System.out.println("********* user is " + currentUser);
+    //            User user = getHibernateTemplate().get(User.class, Long.parseLong(request.getParameter("user")));
+                UserAccount account = new UserAccount();
 
-            System.out.println("********* user is " + user);
-//            User user = getHibernateTemplate().get(User.class, Long.parseLong(request.getParameter("user")));
-            UserAccount account = new UserAccount();
+                account.setUser(currentUser);
+                account.setAppType("CRM");
+                account.setAppName(request.getParameter("appName"));
+                account.setAppUsername(request.getParameter("appUsername"));
 
-            account.setUser(user);
-            account.setAppName(request.getParameter("appName"));
-            account.setAppUsername(request.getParameter("appUsername"));
+                // TODO - big security hole here! need to validate that one of the following is true before mapping:
+                // 1. email address matches the username on both accounts
+                // 2. we can log in to the app with their username and password, and validate it
 
-            // TODO - big security hole here! need to validate that one of the following is true before mapping:
-            // 1. email address matches the username on both accounts
-            // 2. we can log in to the app with their username and password, and validate it
+                currentUser.getAccounts().add(account);
 
-            user.getAccounts().add(account);
-
-            hibernateTemplate.save(account);
-            hibernateTemplate.update(user);
+                hibernateTemplate.save(account);
+                hibernateTemplate.update(currentUser);
+            }
         } catch (Exception e) {
             logger.error("failed to associate account", e);
 
@@ -224,5 +198,37 @@ public class RegistrationMultiActionController extends MultiActionController {
 
     public void setTicketRegistry(TicketRegistry ticketRegistry) {
         this.ticketRegistry = ticketRegistry;
+    }
+
+    private User getCurrentUser(HttpServletRequest request) {
+        User retVal = null;
+        for (Cookie cookie : request.getCookies()) {
+            if (cookie.getName().equals("CASTGC")) {
+                logger.info("found CASTGC cookie with value " + cookie.getValue());
+
+                Ticket ticket = ticketRegistry.getTicket(cookie.getValue());
+                TicketGrantingTicket tgt = null;
+
+                if (ticket instanceof TicketGrantingTicket) {
+                    tgt = (TicketGrantingTicket) ticket;
+                } else {
+                    tgt = ticket.getGrantingTicket();
+                }
+
+                if (tgt != null) {
+                    Principal principal = tgt.getAuthentication().getPrincipal();
+                    List<User> users = (List<User>) hibernateTemplate.find("from User user where user.username = ?", principal.getId());
+
+                    if (users.size() > 0) {
+                        retVal = (User) users.get(0);
+
+                        logger.info("resolved user id=" + retVal.getId() + " for ticket " + tgt);
+                    } else {
+                        logger.warn("couldn't find a user for ticket " + tgt);
+                    }
+                }
+            }
+        }
+        return retVal;
     }
 }

@@ -64,7 +64,7 @@
                 -->
 
                 <bean class="org.jasig.cas.authentication.principal.UsernamePasswordCredentialsToPrincipalResolver">
-                    <property name="attributeRepository" ref="attributeRepository"/>
+                    <property name="attributeRepository" ref="infusionsoftAttributeDao"/>
                 </bean>
 
                 <!--
@@ -136,9 +136,15 @@
                 <entry key="uid" value="uid"/>
                 <entry key="eduPersonAffiliation" value="eduPersonAffiliation"/>
                 <entry key="groupMembership" value="groupMembership"/>
+                <entry key="community.userName" value="Larry Stemle"/>
             </map>
         </property>
     </bean>
+
+    <bean id="infusionsoftAttributeDao" class="com.infusionsoft.cas.support.InfusionsoftAttributeDao">
+        <property name="hibernateTemplate" ref="hibernateTemplate"/>
+    </bean>
+
 
     <!--
      Sample, in-memory data store for the ServiceRegistry. A real implementation

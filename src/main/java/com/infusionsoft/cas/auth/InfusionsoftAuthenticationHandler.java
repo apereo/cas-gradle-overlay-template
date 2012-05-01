@@ -21,6 +21,7 @@ public class InfusionsoftAuthenticationHandler extends AbstractUsernamePasswordA
             return true;
         }
 
+
         return false;
     }
 

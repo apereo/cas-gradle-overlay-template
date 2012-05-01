@@ -9,6 +9,7 @@ import java.io.Serializable;
 public class UserAccount implements Serializable {
     private Long id;
     private User user;
+    private String appType;
     private String appName;
     private String appUsername;
 
@@ -50,4 +51,15 @@ public class UserAccount implements Serializable {
     public void setAppUsername(String appUsername) {
         this.appUsername = appUsername;
     }
+
+    @Column(name = "app_type", length = 255)
+    @NotNull
+    public String getAppType() {
+        return appType;
+    }
+
+    public void setAppType(String appType) {
+        this.appType = appType;
+    }
+
 }
