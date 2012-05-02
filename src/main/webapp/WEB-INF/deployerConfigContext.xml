@@ -64,7 +64,7 @@
                 -->
 
                 <bean class="org.jasig.cas.authentication.principal.UsernamePasswordCredentialsToPrincipalResolver">
-                    <property name="attributeRepository" ref="infusionsoftAttributeDao"/>
+                    <property name="attributeRepository" ref="attributeRepository"/>
                 </bean>
 
                 <!--
@@ -129,6 +129,7 @@
      Bean that defines the attributes that a service may return.  This example uses the Stub/Mock version.  A real implementation
      may go against a database or LDAP server.  The id should remain "attributeRepository" though.
       -->
+    <!--
     <bean id="attributeRepository"
           class="org.jasig.services.persondir.support.StubPersonAttributeDao">
         <property name="backingMap">
@@ -141,11 +142,11 @@
             </map>
         </property>
     </bean>
+    -->
 
-    <bean id="infusionsoftAttributeDao" class="com.infusionsoft.cas.support.InfusionsoftAttributeDao">
+    <bean id="attributeRepository" class="com.infusionsoft.cas.support.InfusionsoftAttributeDao">
         <property name="hibernateTemplate" ref="hibernateTemplate"/>
     </bean>
-
 
     <!--
      Sample, in-memory data store for the ServiceRegistry. A real implementation
