@@ -11,9 +11,8 @@
 <script type="text/javascript">
 
     function showAssociateForm(type) {
-        $("#associateDialog").load("associateForm", { type: type }, function(response) {
+        $("#associateDialog").load('<c:url value="/registration/associateForm"/>', { type: type }, function(response) {
             $("#associateDialog").dialog({
-                autoOpen: true,
                 title: "Associate an app",
                 resizable: false,
                 draggable: false,
@@ -21,17 +20,24 @@
                 minHeight: 200,
                 modal: true
             });
+            $("#associateDialog").dialog("open");
         });
     }
 
     function associate(opts) {
         $("#associateDialog").html("Validating your credentials...");
         $.ajax({
-            url: "associate",
+            url: '<c:url value="/registration/associate"/>',
             data: opts,
             type: "POST",
             success: function(data) {
-                alert("valid? " + data);
+                if ($.trim(data) == "OK") {
+                    // TODO - change to Ajax
+                    location.reload();
+                }
+            },
+            error: function() {
+                alert("error!");
             }
         });
     }
@@ -40,6 +46,9 @@
 
 <div id="main">
     <h2>Your Infusionsoft applications</h2>
+    <p>
+        Hello there, ${user.username}!
+    </p>
     <c:if test="${fn:length(user.accounts) == 0}">
         <p>
             No apps are associated with your account!
@@ -47,7 +56,14 @@
     </c:if>
     <c:if test="${fn:length(user.accounts) > 0}">
         <c:forEach var="account" items="${user.accounts}">
-            <p>${account.appUsername} at ${account.appName}</p>
+            <c:choose>
+                <c:when test="${account.appType == 'CRM'}">
+                    <p><a href="https://${account.appName}.infusiontest.com:8443">${account.appName}</a></p>
+                </c:when>
+                <c:otherwise>
+                    <p>${account.appUsername} at ${account.appName}</p>
+                </c:otherwise>
+            </c:choose>
         </c:forEach>
     </c:if>
 

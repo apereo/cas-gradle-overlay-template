@@ -4,21 +4,16 @@ import com.infusionsoft.cas.types.User;
 import com.infusionsoft.cas.types.UserAccount;
 import org.apache.commons.validator.EmailValidator;
 import org.jasig.cas.CentralAuthenticationService;
-import org.jasig.cas.authentication.Authentication;
-import org.jasig.cas.authentication.AuthenticationManager;
 import org.jasig.cas.authentication.handler.PasswordEncoder;
 import org.jasig.cas.authentication.principal.Principal;
-import org.jasig.cas.authentication.principal.Service;
-import org.jasig.cas.authentication.principal.SimpleWebApplicationServiceImpl;
 import org.jasig.cas.authentication.principal.UsernamePasswordCredentials;
-import org.jasig.cas.services.RegisteredService;
 import org.jasig.cas.services.ServiceRegistryDao;
 import org.jasig.cas.ticket.Ticket;
+import org.jasig.cas.ticket.TicketException;
 import org.jasig.cas.ticket.TicketGrantingTicket;
 import org.jasig.cas.ticket.registry.TicketRegistry;
 import org.jasig.cas.util.UniqueTicketIdGenerator;
 import org.springframework.orm.hibernate3.HibernateTemplate;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.multiaction.MultiActionController;
 
@@ -88,25 +83,7 @@ public class RegistrationMultiActionController extends MultiActionController {
             } else {
                 hibernateTemplate.save(user);
 
-                UsernamePasswordCredentials credentials = new UsernamePasswordCredentials();
-
-                credentials.setUsername(username);
-                credentials.setPassword(password1);
-
-                String ticketGrantingTicket = centralAuthenticationService.createTicketGrantingTicket(credentials);
-                String contextPath = request.getContextPath();
-
-                if (!contextPath.endsWith("/")) {
-                    contextPath = contextPath + "/";
-                }
-
-                Cookie cookie = new Cookie("CASTGC", ticketGrantingTicket);
-                cookie.setPath(contextPath);
-
-                response.addCookie(cookie);
-
-                logger.info("registered new user account " + username);
-                logger.info("set cookie CASTGC=" + ticketGrantingTicket);
+                createTicketGrantingTicket(username, password1, request, response);
             }
         } catch (Exception e) {
             logger.error("failed to create user account", e);
@@ -117,7 +94,7 @@ public class RegistrationMultiActionController extends MultiActionController {
         if (model.containsKey("error")) {
             return new ModelAndView("default/ui/registration/welcome", model);
         } else {
-            return new ModelAndView("redirect:manage?user=" + user.getId());
+            return new ModelAndView("redirect:manage");
         }
     }
 
@@ -128,12 +105,16 @@ public class RegistrationMultiActionController extends MultiActionController {
         Map<String, Object> model = new HashMap<String, Object>();
         User user = getCurrentUser(request);
 
+        System.out.println("****** in /manage, user is " + user);
+
         if (user != null) {
             model.put("user", user);
 
             return new ModelAndView("default/ui/registration/manage", model);
         } else {
-            return new ModelAndView("redirect:welcome", model);
+            model.put("service", "/cas/login"); // TODO - make this work regardless of context root
+
+            return new ModelAndView("redirect:/logout", model);
         }
     }
 
@@ -146,9 +127,8 @@ public class RegistrationMultiActionController extends MultiActionController {
 
         try {
             User currentUser = getCurrentUser(request);
+
             if (currentUser != null) {
-                System.out.println("********* user is " + currentUser);
-    //            User user = getHibernateTemplate().get(User.class, Long.parseLong(request.getParameter("user")));
                 UserAccount account = new UserAccount();
 
                 account.setUser(currentUser);
@@ -164,6 +144,11 @@ public class RegistrationMultiActionController extends MultiActionController {
 
                 hibernateTemplate.save(account);
                 hibernateTemplate.update(currentUser);
+
+                // Create a new one so attributes will be refreshed...?
+                createTicketGrantingTicket(currentUser.getUsername(), "bogus", request, response);
+            } else {
+                throw new RuntimeException("logged in user could not be resolved!");
             }
         } catch (Exception e) {
             logger.error("failed to associate account", e);
@@ -172,12 +157,12 @@ public class RegistrationMultiActionController extends MultiActionController {
         }
 
         if (model.containsKey("error")) {
-            response.sendError(500, "failed to validate credentials");
-        } else {
-            response.getWriter().print("OK");
-        }
+            response.sendError(500, "Failed to associate");
 
-        return new ModelAndView();
+            return null;
+        } else {
+            return new ModelAndView("default/ui/registration/associate", model);
+        }
     }
 
     public void setHibernateTemplate(HibernateTemplate hibernateTemplate) {
@@ -200,8 +185,35 @@ public class RegistrationMultiActionController extends MultiActionController {
         this.ticketRegistry = ticketRegistry;
     }
 
+    private void createTicketGrantingTicket(String username, String password, HttpServletRequest request, HttpServletResponse response) throws TicketException {
+        UsernamePasswordCredentials credentials = new UsernamePasswordCredentials();
+
+        credentials.setUsername(username);
+        credentials.setPassword(password);
+
+        String ticketGrantingTicket = centralAuthenticationService.createTicketGrantingTicket(credentials);
+        String contextPath = request.getContextPath();
+
+        if (!contextPath.endsWith("/")) {
+            contextPath = contextPath + "/";
+        }
+
+        Cookie cookie = new Cookie("CASTGC", ticketGrantingTicket);
+        cookie.setPath(contextPath);
+
+        response.addCookie(cookie);
+
+        logger.info("registered new user account " + username);
+        logger.info("set cookie CASTGC=" + ticketGrantingTicket);
+    }
+
     private User getCurrentUser(HttpServletRequest request) {
         User retVal = null;
+
+        if (request.getCookies() == null) {
+            return null;
+        }
+
         for (Cookie cookie : request.getCookies()) {
             if (cookie.getName().equals("CASTGC")) {
                 logger.info("found CASTGC cookie with value " + cookie.getValue());
@@ -209,7 +221,9 @@ public class RegistrationMultiActionController extends MultiActionController {
                 Ticket ticket = ticketRegistry.getTicket(cookie.getValue());
                 TicketGrantingTicket tgt = null;
 
-                if (ticket instanceof TicketGrantingTicket) {
+                if (ticket == null) {
+                    logger.warn("found a CASTGC cookie, but it doesn't match any known ticket!");
+                } else if (ticket instanceof TicketGrantingTicket) {
                     tgt = (TicketGrantingTicket) ticket;
                 } else {
                     tgt = ticket.getGrantingTicket();
@@ -229,6 +243,7 @@ public class RegistrationMultiActionController extends MultiActionController {
                 }
             }
         }
+
         return retVal;
     }
 }

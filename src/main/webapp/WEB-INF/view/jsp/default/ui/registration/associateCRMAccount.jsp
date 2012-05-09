@@ -13,11 +13,12 @@
     <input name="user" type="hidden" value="${user.getId()}"/>
 
     <p>
-        Enter your application URL, username, and password to link it to your Single Sign-on.
+        Enter your application URL, username, and current password to link it to your Infusionsoft ID. You only have to
+        do this once per app.
     </p>
 
     <p>
-        <div class="label">Infusionsoft application</div>
+        <div class="label">Your existing Infusionsoft application</div>
         <input name="appName" value="${fn:escapeXml(appName)}"/>.infusionsoft.com
 
         <div class="label">Username</div>
