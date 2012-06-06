@@ -10,10 +10,10 @@
 
 <script type="text/javascript">
 
-    function showAssociateForm(type) {
+    function showAssociateForm(type, title) {
         $("#associateDialog").load('<c:url value="/registration/associateForm"/>', { type: type }, function(response) {
             $("#associateDialog").dialog({
-                title: "Associate an app",
+                title: title,
                 resizable: false,
                 draggable: false,
                 minWidth: 500,
@@ -42,6 +42,46 @@
         });
     }
 
+    function associateForum(opts) {
+        $("#associateDialog").html("Validating your credentials...");
+        $.ajax({
+            url: '<c:url value="/registration/associateForum"/>',
+            data: opts,
+            type: "POST",
+            success: function(data) {
+                //alert("MESSAGE: " + $.trim(data));
+                if ($.trim(data) == "OK") {
+                    // TODO - change to Ajax
+                    location.reload();
+                }
+            },
+            error: function() {
+                alert("error!");
+            }
+        });
+    }
+
+    function createForum(opts) {
+        $("#associateDialog").html("Validating your credentials...");
+        $.ajax({
+            url: '<c:url value="/registration/createForum"/>',
+            data: opts,
+            type: "POST",
+            success: function(data) {
+                //alert("MESSAGE: " + $.trim(data));
+                if ($.trim(data) == "OK") {
+                    // TODO - change to Ajax
+                    location.reload();
+                }
+            },
+            error: function() {
+                alert("error!");
+            }
+        });
+    }
+
+
+
 </script>
 
 <div id="main">
@@ -49,6 +89,7 @@
     <p>
         Hello there, ${user.username}!
     </p>
+    <c:set var="needsForumAccount" value="true"/>
     <c:if test="${fn:length(user.accounts) == 0}">
         <p>
             No apps are associated with your account!
@@ -61,6 +102,9 @@
                     <p><a href="https://${account.appName}.infusiontest.com:8443">${account.appName}</a></p>
                 </c:when>
                 <c:otherwise>
+                    <c:if test="${account.appType == 'forum'}">
+                        <c:set var="needsForumAccount" value="false"/>
+                    </c:if>
                     <p>${account.appUsername} at ${account.appName}</p>
                 </c:otherwise>
             </c:choose>
@@ -72,9 +116,14 @@
       Clint before we burn time on these.
     </p>
     <ul>
-        <li><a href="javascript:showAssociateForm('CRMAccount')">Associate an Infusionsoft application</a></li>
-        <li><a href="javascript:showAssociateForm('ForumAccount')">Associate an Infusionsoft Community Forum account</a></li>
-        <li><a href="javascript:showAssociateForm('CustomerHubAccount')">Associate a CustomerHub account</a></li>
+        <li><a href="javascript:showAssociateForm('CRMAccount', 'Associate an app account')">Associate an Infusionsoft application</a></li>
+        <c:if test="${needsForumAccount}">
+            <li>
+                <a href="javascript:showAssociateForm('ForumAccount', 'Associate a community login')">Associate an Infusionsoft Community Forum account</a> or
+                <a href="javascript:showAssociateForm('CreateForumAccount', 'Create a community account')">Create an Infusionsoft Community Forum account</a>
+            </li>
+        </c:if>
+        <li><a href="javascript:showAssociateForm('CustomerHubAccount', 'Associate a Customer Hub account')">Associate a CustomerHub account</a></li>
     </ul>
 
 
