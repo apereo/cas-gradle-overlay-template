@@ -37,6 +37,7 @@ import java.util.Map;
 public class RegistrationMultiActionController extends MultiActionController {
     private static final int PASSWORD_LENGTH_MIN = 7;
     private static final int PASSWORD_LENGTH_MAX = 20;
+    private static final String FORUM_API_KEY = "bec0124123e5ab4c2ce362461cb46ff0";
 
     private HibernateTemplate hibernateTemplate;
     private PasswordEncoder passwordEncoder;
@@ -185,7 +186,7 @@ public class RegistrationMultiActionController extends MultiActionController {
 
                 RestTemplate restTemplate = new RestTemplate();
                 //TODO: parameterize this?
-                String result = restTemplate.getForObject("http://infusionsoft.infusiontest.com/forum/rest.php/user/isvaliduser/{user}/{md5password}", String.class, forumUser, md5Password);
+                String result = restTemplate.getForObject("http://infusionsoft.infusiontest.com/forum/rest.php/user/isvaliduser/{user}/{md5password}?key={apiKey}", String.class, forumUser, md5Password, FORUM_API_KEY);
 
                 System.out.println("REST CALL :: " + result);
 
@@ -247,7 +248,7 @@ public class RegistrationMultiActionController extends MultiActionController {
 
                     RestTemplate restTemplate = new RestTemplate();
                     //TODO: parameterize this?
-                    String result = restTemplate.getForObject("http://infusionsoft.infusiontest.com/forum/rest.php/user/addnewuser/{username}/{email}", String.class, forumUser, email);
+                    String result = restTemplate.getForObject("http://infusionsoft.infusiontest.com/forum/rest.php/user/addnewuser/{username}/{email}?key={apiKey}", String.class, forumUser, email, FORUM_API_KEY);
 
                     System.out.println("CREATE REST CALL :: " + result);
 
