@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<decorators defaultdir="/decorators">
+    <decorator name="anonymous" page="anonymous.jsp">
+        <pattern>/login</pattern>
+    </decorator>
+</decorators>

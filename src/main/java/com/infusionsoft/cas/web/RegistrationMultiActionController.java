@@ -54,7 +54,7 @@ public class RegistrationMultiActionController extends MultiActionController {
 
         model.put("loginTicket", ticketIdGenerator.getNewTicketId("LT"));
 
-        return new ModelAndView("default/ui/registration/welcome", model);
+        return new ModelAndView("infusionsoft/ui/registration/welcome", model);
     }
 
     /**
@@ -99,7 +99,7 @@ public class RegistrationMultiActionController extends MultiActionController {
         }
 
         if (model.containsKey("error")) {
-            return new ModelAndView("default/ui/registration/welcome", model);
+            return new ModelAndView("infusionsoft/ui/registration/welcome", model);
         } else {
             return new ModelAndView("redirect:manage");
         }
@@ -117,7 +117,7 @@ public class RegistrationMultiActionController extends MultiActionController {
         if (user != null) {
             model.put("user", user);
 
-            return new ModelAndView("default/ui/registration/manage", model);
+            return new ModelAndView("infusionsoft/ui/registration/manage", model);
         } else {
             model.put("service", "/cas/login"); // TODO - make this work regardless of context root
 
@@ -126,7 +126,7 @@ public class RegistrationMultiActionController extends MultiActionController {
     }
 
     public ModelAndView associateForm(HttpServletRequest request, HttpServletResponse response) {
-        return new ModelAndView("default/ui/registration/associate" + request.getParameter("type"));
+        return new ModelAndView("infusionsoft/ui/registration/associate" + request.getParameter("type"));
     }
 
     public ModelAndView associate(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -168,7 +168,7 @@ public class RegistrationMultiActionController extends MultiActionController {
 
             return null;
         } else {
-            return new ModelAndView("default/ui/registration/associate", model);
+            return new ModelAndView("infusionsoft/ui/registration/associate", model);
         }
     }
 
@@ -230,7 +230,7 @@ public class RegistrationMultiActionController extends MultiActionController {
 
             return null;
         } else {
-            return new ModelAndView("default/ui/registration/associate", model);
+            return new ModelAndView("infusionsoft/ui/registration/associate", model);
         }
     }
 
@@ -293,7 +293,7 @@ public class RegistrationMultiActionController extends MultiActionController {
             response.sendError(500, "Failed to associate");
             return null;
         } else {
-            return new ModelAndView("default/ui/registration/associate", model);
+            return new ModelAndView("infusionsoft/ui/registration/associate", model);
         }
 
     }

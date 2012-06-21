@@ -4,19 +4,19 @@ html,body {
 	border:0;
 	background:transparent;
 	color:#000;
-	}
+}
 
 body {font:normal 76% Arial,Helvetica,Verdana,sans-serif;}
 
 acronym {
 	border-bottom:1px dotted #ccc;
 	cursor:help;
-	}
+}
 
-a img,#header img {
+a img {
 	border:0;
 	display:block;
-	}
+}
 
 .bold {font-weight:bold;}
 
@@ -28,55 +28,72 @@ a img,#header img {
 
 .left {text-align:left;}
 
-/*************************************** HEADER */
-#header{
-	margin:0;
-	padding:20px 0;
-	width:100%;
-	clear:both;
-    text-align: center;
+#headerbg {
+    background: url(../images/header-gradient.png);
 }
 
-#header a {
-	display:block;
-	margin:0;
-	padding:0 0 0 3px;
-	text-decoration:none;
-	background-color:#b00;
-	color:#ffc;
-	font-size:1em;
-	line-height:19px;
+#header {
+	margin: 0 auto;
+    height: 48px;
+    line-height: 48px;
+	width: 960px;
+	clear: both;
+    position: relative;
 }
 
-#header a.task {
-	float:right;
-	margin:0 0 0 1px;
-	padding:0 5px 0 20px;
-	line-height:20px;
-	text-decoration:none;
-	color:#ffc;
+#header #logo {
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: block;
+    width: 150px;
+    height: 48px;
+    background: url(../images/header-logo.png) no-repeat;
 }
 
-#header a:hover.task, #header a:focus.task {background-color:#c33 !important;}
+#header #title {
+    margin: 0 0 0 150px;
+    font-family: arial, sans-serif;
+    font-size: 16px;
+    font-weight: normal;
+    color: #808384;
+}
 
-#header a.task#helpBtn {
-	background:#b00 url(../images/help.gif) 5px 5px  no-repeat scroll;
-/*	display:none; */
-	}
-	
-#header a.task#aboutBtn {background:#b00 url(../images/about.gif) 5px 5px  no-repeat scroll;}
+#header #userinfo {
+    float: right;
+    font-size: 12px;
+    line-height: 48px;
+    color: #808384;
+}
 
-#header a.task#menuBtn {background:#b00 url(../images/menu.gif) 5px 5px  no-repeat scroll;}
+#navbg {
+    background: url(../images/nav-gradient.png) repeat-x;
+}
 
-#header a.task#logoutBtn {background:#b00 url(../images/logout.gif) 5px 5px  no-repeat scroll;}
+#nav {
+    width: 960px;
+    margin: 0 auto;
+    height: 41px;
+}
 
-#header h1 {
-	margin:0 0 0 5%;
-	padding:0;
-	letter-spacing:1px;
-	background:transparent;
-	color:#000;
-	font-size:2.5em;
+#nav ul {
+    margin: 0;
+    padding: 0;
+    line-height: 41px;
+    list-style-type: none;
+}
+
+#nav li {
+    color: #fff;
+    float: left;
+    padding: 0 10px;
+    line-height: 41px;
+}
+
+#nav li.selected {
+    border-left: 1px solid #5c9e3c;
+    border-right: 1px solid #5c9e3c;
+    background: rgba(0, 0, 0, 0.05);
 }
 
 /*************************************** CONTENT */

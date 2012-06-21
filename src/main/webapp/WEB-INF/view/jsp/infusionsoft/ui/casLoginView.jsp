@@ -1,13 +1,13 @@
+<%@ page session="true" %>
+<%@ page pageEncoding="UTF-8" %>
 <%@ page contentType="text/html; charset=UTF-8" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jstl/core_rt" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jstl/fmt_rt" %>
+<%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
+<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 
-<jsp:directive.include file="includes/top.jsp" />
-
-<c:if test="${not pageContext.request.secure}">
-    <div id="msg" class="errors">
-        <h2>Non-secure Connection</h2>
-        <p>You are currently accessing CAS over a non-secure connection.  Single Sign On WILL NOT WORK.  In order to have single sign on work, you MUST log in over HTTPS.</p>
-    </div>
-</c:if>
+<!DOCTYPE html>
 
 <div id="login">
     <div id="loginleft">
@@ -57,11 +57,3 @@
     </div>
     <div style="clear: both"></div>
 </div>
-
-<%--
-<div id="sidebar">
-    <p class="fl-panel fl-note fl-bevel-white fl-font-size-80"><spring:message code="screen.welcome.security" /></p>
-</div>
---%>
-
-<jsp:directive.include file="includes/bottom.jsp" />
