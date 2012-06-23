@@ -2,20 +2,41 @@ html,body {
 	margin:0;
 	padding:0;
 	border:0;
-	background:transparent;
-	color:#000;
+	background:#F5F5F5;
+    color: #333;
 }
 
-body {font:normal 76% Arial,Helvetica,Verdana,sans-serif;}
+body {
+    font: 12px Arial,Helvetica,Verdana,sans-serif;
+}
 
 acronym {
 	border-bottom:1px dotted #ccc;
 	cursor:help;
 }
 
+p {
+    margin: 8px 0 12px 0;
+}
+
+a {
+    color: #006AAA;
+}
+
+a:hover {
+    color: #107ABA;
+}
+
 a img {
 	border:0;
 	display:block;
+}
+
+h2 {
+	margin: 0 0 14px 0;
+	padding: 0;
+    font-size: 15px;
+    font-weight: bold;
 }
 
 .bold {font-weight:bold;}
@@ -169,10 +190,11 @@ html>body .clear:after {
 	}
 
 #content h2 {
-	margin:0;
-	padding:0;
-	font-size:1.8em;
-	}
+	margin: 0 0 10px 0;
+	padding: 0;
+    font-size: 12px;
+    font-weight: bold;
+}
 
 #content h3 {
 	margin:0;
@@ -252,20 +274,7 @@ td {
 /*************************************** FORMS */
 form {display:inline;}
 
-input:focus, textarea:focus, select:focus {background:#fc3 !important;}
-
 input.numeric {text-align:right;}
-
-/*************************************** BUTTON STYLES */
-#content a.button, #content a.button:link, #content a.button:hover, #content a.button:active, #content .button {
-	text-decoration:none;
-	background-color:#d0d0d0;
-	border:1px outset #d0d0d0;
-	color: #000;
-	padding:1px 1em;
-	font-size:1.2em;
-	line-height:1.2em;
-	}
 
 /*************************************** HELP */
 #help {
@@ -323,13 +332,44 @@ fieldset div {padding-top:10px;}
 
 legend {color:#066;}
 
-input, select,textarea {
-    border: 1px solid #aaa;
+input[type=text], input[type=password], select, textarea {
+    border: 1px solid #CBCBCB;
+    border-radius: 4px;
+    padding: 6px 6px;
+    box-shadow: inset 0px 1px 2px rgba(0, 0, 0, 0.1);
     margin: 0;
 }
 
-input[type=submit], input[type=button] {
-    padding: 4px 8px;
+input[type=submit], input[type=button], a.ui-button {
+    font-family: arial, verdana, sans-serif;
+    background: url(../images/button-bg-white.png);
+    line-height: 27px;
+    height: 29px;
+    border: 1px solid #CBCBCB;
+    padding: 0 10px;
+    font-size: 11px;
+    font-weight: bold;
+    border-radius: 4px;
+    color: #333;
+}
+
+input[type=submit].primary, input[type=button].primary, a.ui-button.primary {
+    color: #fff;
+    border: 1px solid #57A938;
+    background: url(../images/button-bg-green.png);
+}
+
+input[type=submit]:hover, input[type=button]:hover, a.ui-button:hover {
+    background: url(../images/button-bg-white-h.png);
+}
+
+input[type=submit].primary:hover, input[type=button].primary:hover, a.ui-button.primary:hover {
+    background: url(../images/button-bg-green-h.png);
+}
+
+a.ui-button {
+    height: 27px;
+    line-height: 27px;
 }
 
 #content .button {
@@ -347,9 +387,10 @@ label {
 
 div.label {
     margin: 10px 0 2px 0;
+    font-weight: bold;
+    font-size: 11px;
 }
 
-.required {background:#ffc;}
 .important {color:#b00;font-family:monospace;font-weight:bold;font-size:1.2em;}
 .evenrow {background-color:#eee;}
 
@@ -391,4 +432,9 @@ table .appHeadingRow th {
 #main {
     width: 800px;
     margin: 0 auto;
+}
+
+#biglogo {
+    height: 150px;
+    background: url(../images/big-logo.png) center bottom no-repeat;
 }

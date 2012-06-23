@@ -4,4 +4,6 @@
     <decorator name="anonymous" page="anonymous.jsp">
         <pattern>/login</pattern>
     </decorator>
+    <decorator name="central" page="central.jsp">
+    </decorator>
 </decorators>

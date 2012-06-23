@@ -22,10 +22,32 @@
         <script type="text/javascript" src="<c:url value="/js/cas.js" />"></script>
     </head>
     <body>
-        <div class="wrapper">
-            <div id="biglogo">
+        <div id="headerbg">
+            <div id="header">
+                <a id="logo" href="<c:url value="/"/>"></a>
+                <div id="userinfo">
+                    <c:choose>
+                        <c:when test="${not empty sessionScope.username}">
+                            Signed in as: <strong>${session.getAttribute("username")}</strong> | Sign Out
+                        </c:when>
+                        <c:otherwise>
+                            Not signed in
+                        </c:otherwise>
+                    </c:choose>
+                </div>
+                <span id="title">App Central</span>
             </div>
-            <div>
+        </div>
+        <div id="navbg">
+            <div id="nav">
+              <ul>
+                <li class="selected">YOUR APPS</li>
+                <li>EDIT YOUR ID</li>
+              </ul>
+            </div>
+        </div>
+        <div class="wrapper">
+            <div id="content">
                 <decorator:body/>
             </div>
         </div>
