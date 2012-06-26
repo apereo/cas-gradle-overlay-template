@@ -3,7 +3,9 @@
 <decorators defaultdir="/decorators">
     <decorator name="anonymous" page="anonymous.jsp">
         <pattern>/login</pattern>
+        <pattern>/registration</pattern>
     </decorator>
     <decorator name="central" page="central.jsp">
+        <pattern>/registration/manage</pattern>
     </decorator>
 </decorators>

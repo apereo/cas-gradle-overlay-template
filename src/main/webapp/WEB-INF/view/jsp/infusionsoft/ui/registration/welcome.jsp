@@ -1,12 +1,9 @@
+<%@ page session="true" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jstl/core_rt" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jstl/fmt_rt" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
-
-<%@ page contentType="text/html; charset=UTF-8" %>
-
-<jsp:directive.include file="../includes/top.jsp" />
 
 <script type="text/javascript">
 
@@ -48,7 +45,7 @@
 
         <p>
             <div class="label">Email</div>
-            <input id="username" name="username" value="${fn:escapeXml(user != null ? user.username : '')}"/>
+            <input id="username" name="username" value="${fn:escapeXml(user != null ? user.username : '')}" type="text"/>
 
             <div class="label">Password</div>
             <input id="password1" name="password1" value="" type="password"/>
@@ -70,5 +67,3 @@
         <input type="hidden" name="_eventId" value="submit" />
     </form>
 </div>
-
-<jsp:directive.include file="../includes/bottom.jsp" />

@@ -57,7 +57,7 @@ h2 {
 	margin: 0 auto;
     height: 48px;
     line-height: 48px;
-	width: 960px;
+	width: 962px;
 	clear: both;
     position: relative;
 }
@@ -92,7 +92,7 @@ h2 {
 }
 
 #nav {
-    width: 960px;
+    width: 962px;
     margin: 0 auto;
     height: 41px;
 }
@@ -430,8 +430,12 @@ table .appHeadingRow th {
 }
 
 #main {
-    width: 800px;
+    width: 900px;
     margin: 0 auto;
+    padding: 30px;
+    background: #fff;
+    border: 1px solid #dddddd;
+    border-top: none;
 }
 
 #biglogo {

@@ -51,6 +51,7 @@ public class RegistrationMultiActionController extends MultiActionController {
      */
     public ModelAndView welcome(HttpServletRequest request, HttpServletResponse response) {
         Map<String, Object> model = new HashMap<String, Object>();
+        System.out.println("*** " + request.getServletPath());
 
         model.put("loginTicket", ticketIdGenerator.getNewTicketId("LT"));
 

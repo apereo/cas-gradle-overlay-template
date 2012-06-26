@@ -6,7 +6,7 @@
 
 <%@ page contentType="text/html; charset=UTF-8" %>
 
-<jsp:directive.include file="../includes/top.jsp" />
+<meta name="decorator" content="central"/>
 
 <script type="text/javascript">
 
@@ -85,7 +85,7 @@
 </script>
 
 <div id="main">
-    <h2>Your Infusionsoft applications</h2>
+    <h2 class="apps">Your Apps</h2>
     <p>
         Hello there, ${user.username}!
     </p>
@@ -130,5 +130,3 @@
     <div id="associateDialog" style="display: none">
     </div>
 </div>
-
-<jsp:directive.include file="../includes/bottom.jsp"/>
