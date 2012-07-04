@@ -98,6 +98,11 @@
 
     <filter-mapping>
         <filter-name>springSecurityFilterChain</filter-name>
+        <url-pattern>/central/*</url-pattern>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>springSecurityFilterChain</filter-name>
         <url-pattern>/rest/*</url-pattern>
     </filter-mapping>
 

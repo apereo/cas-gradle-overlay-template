@@ -49,9 +49,7 @@
 
     <bean class="org.springframework.web.servlet.mvc.SimpleControllerHandlerAdapter"/>
 
-    <bean
-            id="handlerMappingC"
-            class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+    <bean id="handlerMappingC" class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
         <property
                 name="mappings">
             <props>
@@ -100,6 +98,7 @@
                 </prop>
 
                 <prop key="/registration/*">registrationMultiActionController</prop>
+                <prop key="/central/*">centralMultiActionController</prop>
                 <prop key="/rest/*">restController</prop>
                 <prop key="/services/*">manageRegisteredServicesMultiActionController</prop>
                 <prop key="/openid/*">openIdProviderController</prop>
@@ -206,8 +205,10 @@
           p:hibernateTemplate-ref="hibernateTemplate"
           p:passwordEncoder-ref="passwordEncoder"
           p:ticketIdGenerator-ref="loginTicketUniqueIdGenerator"
-          p:centralAuthenticationService-ref="centralAuthenticationService"
-          p:ticketRegistry-ref="ticketRegistry"/>
+          p:infusionsoftAuthenticationService-ref="infusionsoftAuthenticationService"/>
+
+    <bean id="centralMultiActionController" class="com.infusionsoft.cas.web.CentralMultiActionController"
+          p:infusionsoftAuthenticationService-ref="infusionsoftAuthenticationService"/>
 
     <bean id="restController" class="com.infusionsoft.cas.web.RestController"
           p:hibernateTemplate-ref="hibernateTemplate"

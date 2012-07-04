@@ -1,57 +1,41 @@
 package com.infusionsoft.cas.web;
 
 import com.infusionsoft.cas.types.User;
-import com.infusionsoft.cas.types.UserAccount;
-import org.apache.commons.codec.digest.DigestUtils;
+import com.infusionsoft.cas.services.InfusionsoftAuthenticationService;
 import org.apache.commons.validator.EmailValidator;
-import org.jasig.cas.CentralAuthenticationService;
+import org.apache.log4j.Logger;
 import org.jasig.cas.authentication.handler.PasswordEncoder;
-import org.jasig.cas.authentication.principal.Principal;
-import org.jasig.cas.authentication.principal.UsernamePasswordCredentials;
-import org.jasig.cas.services.ServiceRegistryDao;
-import org.jasig.cas.ticket.Ticket;
-import org.jasig.cas.ticket.TicketException;
-import org.jasig.cas.ticket.TicketGrantingTicket;
-import org.jasig.cas.ticket.registry.TicketRegistry;
 import org.jasig.cas.util.UniqueTicketIdGenerator;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.JSONValue;
 import org.springframework.orm.hibernate3.HibernateTemplate;
-import org.springframework.web.client.RestTemplate;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.multiaction.MultiActionController;
 
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.security.MessageDigest;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
  * Controller that powers the registration and association pages.
  */
 public class RegistrationMultiActionController extends MultiActionController {
+    private static final Logger log = Logger.getLogger(RegistrationMultiActionController.class);
+
     private static final int PASSWORD_LENGTH_MIN = 7;
     private static final int PASSWORD_LENGTH_MAX = 20;
     private static final String FORUM_API_KEY = "bec0124123e5ab4c2ce362461cb46ff0";
 
+    private InfusionsoftAuthenticationService infusionsoftAuthenticationService;
+
     private HibernateTemplate hibernateTemplate;
     private PasswordEncoder passwordEncoder;
     private UniqueTicketIdGenerator ticketIdGenerator;
-    private CentralAuthenticationService centralAuthenticationService;
-    private ServiceRegistryDao serviceRegistryDao;
-    private TicketRegistry ticketRegistry;
 
     /**
      * Shows the registration form.
      */
     public ModelAndView welcome(HttpServletRequest request, HttpServletResponse response) {
         Map<String, Object> model = new HashMap<String, Object>();
-        System.out.println("*** " + request.getServletPath());
 
         model.put("loginTicket", ticketIdGenerator.getNewTicketId("LT"));
 
@@ -62,6 +46,8 @@ public class RegistrationMultiActionController extends MultiActionController {
      * Registers a new user account.
      */
     public ModelAndView register(HttpServletRequest request, HttpServletResponse response) {
+        String firstName = request.getParameter("firstName");
+        String lastName = request.getParameter("lastName");
         String username = request.getParameter("username");
         String password1 = request.getParameter("password1");
         String password2 = request.getParameter("password2");
@@ -70,6 +56,8 @@ public class RegistrationMultiActionController extends MultiActionController {
 
         try {
             user = new User();
+            user.setFirstName(firstName);
+            user.setLastName(lastName);
             user.setUsername(username);
             user.setPassword(passwordEncoder.encode(password1));
             user.setEnabled(true);
@@ -87,14 +75,14 @@ public class RegistrationMultiActionController extends MultiActionController {
             }
 
             if (model.containsKey("error")) {
-                logger.warn("couldn't create new user account: " + model.get("error"));
+                log.warn("couldn't create new user account: " + model.get("error"));
             } else {
                 hibernateTemplate.save(user);
 
-                createTicketGrantingTicket(username, password1, request, response);
+                infusionsoftAuthenticationService.createTicketGrantingTicket(username, password1, request, response);
             }
         } catch (Exception e) {
-            logger.error("failed to create user account", e);
+            log.error("failed to create user account", e);
 
             model.put("error", "registration.error.exception");
         }
@@ -102,201 +90,24 @@ public class RegistrationMultiActionController extends MultiActionController {
         if (model.containsKey("error")) {
             return new ModelAndView("infusionsoft/ui/registration/welcome", model);
         } else {
-            return new ModelAndView("redirect:manage");
+            return new ModelAndView("redirect:success");
         }
     }
 
     /**
-     * Shows the management page.
+     * Shows the registration success page.
      */
-    public ModelAndView manage(HttpServletRequest request, HttpServletResponse response) {
+    public ModelAndView success(HttpServletRequest request, HttpServletResponse response) {
         Map<String, Object> model = new HashMap<String, Object>();
-        User user = getCurrentUser(request);
+        User user = infusionsoftAuthenticationService.getCurrentUser(request);
 
-        System.out.println("****** in /manage, user is " + user);
-
-        if (user != null) {
+        if (user == null) {
+            return new ModelAndView("redirect:welcome");
+        } else {
             model.put("user", user);
 
-            return new ModelAndView("infusionsoft/ui/registration/manage", model);
-        } else {
-            model.put("service", "/cas/login"); // TODO - make this work regardless of context root
-
-            return new ModelAndView("redirect:/logout", model);
+            return new ModelAndView("infusionsoft/ui/registration/success", model);
         }
-    }
-
-    public ModelAndView associateForm(HttpServletRequest request, HttpServletResponse response) {
-        return new ModelAndView("infusionsoft/ui/registration/associate" + request.getParameter("type"));
-    }
-
-    public ModelAndView associate(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        Map<String, Object> model = new HashMap<String, Object>();
-
-        try {
-            User currentUser = getCurrentUser(request);
-
-            if (currentUser != null) {
-                UserAccount account = new UserAccount();
-
-                account.setUser(currentUser);
-                account.setAppType("CRM");
-                account.setAppName(request.getParameter("appName"));
-                account.setAppUsername(request.getParameter("appUsername"));
-
-                // TODO - big security hole here! need to validate that one of the following is true before mapping:
-                // 1. email address matches the username on both accounts
-                // 2. we can log in to the app with their username and password, and validate it
-
-                currentUser.getAccounts().add(account);
-
-                hibernateTemplate.save(account);
-                hibernateTemplate.update(currentUser);
-
-                // Create a new one so attributes will be refreshed...?
-                createTicketGrantingTicket(currentUser.getUsername(), "bogus", request, response);
-            } else {
-                throw new RuntimeException("logged in user could not be resolved!");
-            }
-        } catch (Exception e) {
-            logger.error("failed to associate account", e);
-
-            model.put("error", "registration.error.couldNotAssociate");
-        }
-
-        if (model.containsKey("error")) {
-            response.sendError(500, "Failed to associate");
-
-            return null;
-        } else {
-            return new ModelAndView("infusionsoft/ui/registration/associate", model);
-        }
-    }
-
-    public ModelAndView associateForum(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        Map<String, Object> model = new HashMap<String, Object>();
-        try {
-            User currentUser = getCurrentUser(request);
-            if (currentUser != null) {
-                //get parameter
-                String forumUser = request.getParameter("forumUsername");
-                String plainTextPassword = request.getParameter("forumPassword");
-
-                //we need an MD5 version of the password
-                String md5Password = DigestUtils.md5Hex(plainTextPassword);
-
-                RestTemplate restTemplate = new RestTemplate();
-                //TODO: parameterize this?
-                String result = restTemplate.getForObject("http://infusionsoft.infusiontest.com/forum/rest.php/user/isvaliduser/{user}/{md5password}?key={apiKey}", String.class, forumUser, md5Password, FORUM_API_KEY);
-
-                System.out.println("REST CALL :: " + result);
-
-                JSONObject returnValue =(JSONObject)JSONValue.parse(result);
-
-                Boolean isValidUser = (Boolean)returnValue.get("valid");
-
-                if (isValidUser) {
-
-                    UserAccount account = new UserAccount();
-
-                    account.setUser(currentUser);
-                    account.setAppType("forum");
-                    account.setAppName("Infusionsoft Communities");
-                    account.setAppUsername(String.valueOf(returnValue.get("username")));
-
-                    currentUser.getAccounts().add(account);
-
-                    hibernateTemplate.save(account);
-                    hibernateTemplate.update(currentUser);
-
-                    // Create a new one so attributes will be refreshed...?
-                    createTicketGrantingTicket(currentUser.getUsername(), "bogus", request, response);
-                    model.put("data", "OK");
-                } else {
-                    model.put("error", "Invalid User");
-                }
-
-            } else {
-                model.put("error", "Could not find user!");
-                logger.error("failed to find a valid user account");
-            }
-
-        } catch (Exception e) {
-            logger.error("failed to associate account", e);
-            model.put("error", "registration.error.couldNotAssociate");
-        }
-
-        if (model.containsKey("error")) {
-            response.sendError(500, "Failed to associate");
-
-            return null;
-        } else {
-            return new ModelAndView("infusionsoft/ui/registration/associate", model);
-        }
-    }
-
-
-    public ModelAndView createForum(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        Map<String, Object> model = new HashMap<String, Object>();
-        try {
-            User currentUser = getCurrentUser(request);
-            if (currentUser != null) {
-                           //get parameter
-                String forumUser = request.getParameter("forumUsername");
-                String email = request.getParameter("forumEmail");
-
-                if (forumUser != null && email != null) {
-
-                    RestTemplate restTemplate = new RestTemplate();
-                    //TODO: parameterize this?
-                    String result = restTemplate.getForObject("http://infusionsoft.infusiontest.com/forum/rest.php/user/addnewuser/{username}/{email}?key={apiKey}", String.class, forumUser, email, FORUM_API_KEY);
-
-                    System.out.println("CREATE REST CALL :: " + result);
-
-                    JSONObject returnValue =(JSONObject)JSONValue.parse(result);
-
-                    Boolean hasError = (Boolean)returnValue.get("error");
-
-                    if (hasError) {
-                        System.out.println("ERROR! - could not create user: " + returnValue.get("message"));
-                        model.put("error", returnValue.get("message"));
-                    } else {
-                        UserAccount account = new UserAccount();
-
-                        account.setUser(currentUser);
-                        account.setAppType("forum");
-                        account.setAppName("Infusionsoft Communities");
-                        account.setAppUsername(String.valueOf(returnValue.get("username")));
-
-                        currentUser.getAccounts().add(account);
-
-                        hibernateTemplate.save(account);
-                        hibernateTemplate.update(currentUser);
-
-                        // Create a new one so attributes will be refreshed...?
-                        createTicketGrantingTicket(currentUser.getUsername(), "bogus", request, response);
-                        model.put("data", "OK");
-                    }
-                } else {
-                    model.put("error", "Please supply a valid username and email address");
-                }
-            } else {
-                model.put("error", "Could not find user!");
-                logger.error("failed to find a valid user account");
-            }
-        } catch (Exception e) {
-            logger.error("failed to associate account", e);
-            model.put("error", "registration.error.couldNotAssociate");
-
-        }
-
-        if (model.containsKey("error")) {
-            response.sendError(500, "Failed to associate");
-            return null;
-        } else {
-            return new ModelAndView("infusionsoft/ui/registration/associate", model);
-        }
-
     }
 
     public void setHibernateTemplate(HibernateTemplate hibernateTemplate) {
@@ -311,73 +122,7 @@ public class RegistrationMultiActionController extends MultiActionController {
         this.passwordEncoder = passwordEncoder;
     }
 
-    public void setCentralAuthenticationService(CentralAuthenticationService centralAuthenticationService) {
-        this.centralAuthenticationService = centralAuthenticationService;
-    }
-
-    public void setTicketRegistry(TicketRegistry ticketRegistry) {
-        this.ticketRegistry = ticketRegistry;
-    }
-
-    private void createTicketGrantingTicket(String username, String password, HttpServletRequest request, HttpServletResponse response) throws TicketException {
-        UsernamePasswordCredentials credentials = new UsernamePasswordCredentials();
-
-        credentials.setUsername(username);
-        credentials.setPassword(password);
-
-        String ticketGrantingTicket = centralAuthenticationService.createTicketGrantingTicket(credentials);
-        String contextPath = request.getContextPath();
-
-        if (!contextPath.endsWith("/")) {
-            contextPath = contextPath + "/";
-        }
-
-        Cookie cookie = new Cookie("CASTGC", ticketGrantingTicket);
-        cookie.setPath(contextPath);
-
-        response.addCookie(cookie);
-
-        logger.info("registered new user account " + username);
-        logger.info("set cookie CASTGC=" + ticketGrantingTicket);
-    }
-
-    private User getCurrentUser(HttpServletRequest request) {
-        User retVal = null;
-
-        if (request.getCookies() == null) {
-            return null;
-        }
-
-        for (Cookie cookie : request.getCookies()) {
-            if (cookie.getName().equals("CASTGC")) {
-                logger.info("found CASTGC cookie with value " + cookie.getValue());
-
-                Ticket ticket = ticketRegistry.getTicket(cookie.getValue());
-                TicketGrantingTicket tgt = null;
-
-                if (ticket == null) {
-                    logger.warn("found a CASTGC cookie, but it doesn't match any known ticket!");
-                } else if (ticket instanceof TicketGrantingTicket) {
-                    tgt = (TicketGrantingTicket) ticket;
-                } else {
-                    tgt = ticket.getGrantingTicket();
-                }
-
-                if (tgt != null) {
-                    Principal principal = tgt.getAuthentication().getPrincipal();
-                    List<User> users = (List<User>) hibernateTemplate.find("from User user where user.username = ?", principal.getId());
-
-                    if (users.size() > 0) {
-                        retVal = (User) users.get(0);
-
-                        logger.info("resolved user id=" + retVal.getId() + " for ticket " + tgt);
-                    } else {
-                        logger.warn("couldn't find a user for ticket " + tgt);
-                    }
-                }
-            }
-        }
-
-        return retVal;
+    public void setInfusionsoftAuthenticationService(InfusionsoftAuthenticationService infusionsoftAuthenticationService) {
+        this.infusionsoftAuthenticationService = infusionsoftAuthenticationService;
     }
 }

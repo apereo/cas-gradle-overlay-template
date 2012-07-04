@@ -12,6 +12,8 @@ import java.util.Set;
 @Table(name = "user")
 public class User implements Serializable {
     private Long id;
+    private String firstName;
+    private String lastName;
     private String username;
     private String password;
     private boolean enabled;
@@ -25,6 +27,26 @@ public class User implements Serializable {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    @Column(name = "first_name", length = 60)
+    @Length(min = 1, max = 60)
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    @Column(name = "last_name", length = 60)
+    @Length(min = 1, max = 60)
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
     }
 
     @Column(name = "username", unique = true, length = 120)

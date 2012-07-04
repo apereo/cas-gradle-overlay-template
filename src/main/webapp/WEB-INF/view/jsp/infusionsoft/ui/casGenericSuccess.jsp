@@ -10,7 +10,7 @@
 <html>
     <head>
         <title>Login Successful</title>
-        <meta http-equiv='REFRESH' content="0;url=<c:url value="/registration/manage"/>"/>
+        <zzmeta http-equiv='REFRESH' content="0;url=<c:url value="/central/manage"/>"/>
     </head>
     <body>
     </body>

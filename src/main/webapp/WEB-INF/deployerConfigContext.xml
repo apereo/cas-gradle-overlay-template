@@ -242,6 +242,23 @@
         <property name="sessionFactory" ref="hibernateSessionFactory"/>
     </bean>
 
+    <bean id="infusionsoftAuthenticationService" class="com.infusionsoft.cas.services.InfusionsoftAuthenticationService">
+        <property name="centralAuthenticationService" ref="centralAuthenticationService"/>
+        <property name="hibernateTemplate" ref="hibernateTemplate"/>
+        <property name="serviceRegistryDao" ref="serviceRegistryDao"/>
+        <property name="ticketRegistry" ref="ticketRegistry"/>
+        <property name="passwordEncoder" ref="passwordEncoder"/>
+        <property name="ticketIdGenerator" ref="loginTicketUniqueIdGenerator"/>
+    </bean>
+
+    <!--
+    private CentralAuthenticationService centralAuthenticationService;
+    private ServiceRegistryDao serviceRegistryDao;
+    private TicketRegistry ticketRegistry;
+    private HibernateTemplate hibernateTemplate;
+    private PasswordEncoder passwordEncoder;
+    private UniqueTicketIdGenerator ticketIdGenerator;
+-->
     <tx:advice id="transactionAdvice" transaction-manager="hibernateTransactionManager">
         <tx:attributes>
             <tx:method name="get*" read-only="true"/>
