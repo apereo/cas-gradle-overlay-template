@@ -29,9 +29,10 @@
         </c:choose>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
         <link rel="icon" href="<c:url value="/favicon.ico" />" type="image/x-icon" />
-        <link type="text/css" rel="stylesheet" href="<c:url value="/css/custom-theme/jquery-ui-1.8.18.custom.css"/>"/>
-        <script type="text/javascript" src="<c:url value="/js/jquery-1.7.1.min.js"/>"></script>
-        <script type="text/javascript" src="<c:url value="/js/jquery-ui-1.8.18.custom.min.js"/>"></script>
+        <link type="text/css" rel="stylesheet" href="<c:url value="/css/custom-theme/jquery-ui-1.8.21.custom.css"/>"/>
+        <script type="text/javascript" src="<c:url value="/js/jquery-1.7.2.min.js"/>"></script>
+        <script type="text/javascript" src="<c:url value="/js/jquery-ui-1.8.21.custom.min.js"/>"></script>
+        <script type="text/javascript" src="<c:url value="/js/ui.selectmenu.js" />"></script>
     </head>
     <body id="cas">
         <div id="headerbg">

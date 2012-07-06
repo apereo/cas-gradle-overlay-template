@@ -462,3 +462,9 @@ table .appHeadingRow th {
     font-size: 14px;
     margin: 7px 0 0 70px;
 }
+
+.buttonbar {
+    padding: 10px;
+    background: #f5f5f5;
+    margin: 30px 0 0 0;
+}

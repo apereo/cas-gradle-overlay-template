@@ -17,7 +17,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Controller that powers the registration and association pages.
+ * Controller that powers the central "hub" and association features.
  */
 public class CentralMultiActionController extends MultiActionController {
     private static final Logger log = Logger.getLogger(CentralMultiActionController.class);
@@ -28,25 +28,33 @@ public class CentralMultiActionController extends MultiActionController {
 
     private InfusionsoftAuthenticationService infusionsoftAuthenticationService;
 
-    public ModelAndView manage(HttpServletRequest request, HttpServletResponse response) {
+    public ModelAndView home(HttpServletRequest request, HttpServletResponse response) {
         Map<String, Object> model = new HashMap<String, Object>();
         User user = infusionsoftAuthenticationService.getCurrentUser(request);
 
-        System.out.println("****** in /manage, user is " + user);
+        System.out.println("****** in /home, user is " + user);
 
         if (user != null) {
             model.put("user", user);
 
-            return new ModelAndView("infusionsoft/ui/registration/manage", model);
+            return new ModelAndView("infusionsoft/ui/central/home", model);
         } else {
-            model.put("service", "/cas/login"); // TODO - make this work regardless of context root
+            model.put("service", request.getContextPath() + "/login");
 
             return new ModelAndView("redirect:/logout", model);
         }
     }
 
-    public ModelAndView associateForm(HttpServletRequest request, HttpServletResponse response) {
-        return new ModelAndView("infusionsoft/ui/registration/associate" + request.getParameter("type"));
+    public ModelAndView linkInfusionsoftAppAccount(HttpServletRequest request, HttpServletResponse response) {
+        return new ModelAndView("infusionsoft/ui/central/linkInfusionsoftAppAccount");
+    }
+
+    public ModelAndView linkCustomerHubAccount(HttpServletRequest request, HttpServletResponse response) {
+        return new ModelAndView("infusionsoft/ui/central/linkCustomerHubAccount");
+    }
+
+    public ModelAndView linkCommunityAccount(HttpServletRequest request, HttpServletResponse response) {
+        return new ModelAndView("infusionsoft/ui/central/linkCommunityAccount");
     }
 
     public ModelAndView associate(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -54,15 +62,15 @@ public class CentralMultiActionController extends MultiActionController {
 
         try {
             User currentUser = infusionsoftAuthenticationService.getCurrentUser(request);
+            String appType = request.getParameter("appType");
+            String appName = request.getParameter("appName");
+            String appUsername = request.getParameter("appUsername");
+            String appPassword = request.getParameter("appPassword");
 
             if (currentUser != null) {
-                // TODO - big security hole here! need to validate that one of the following is true before mapping:
-                // 1. email address matches the username on both accounts
-                // 2. we can log in to the app with their username and password, and validate it
+                // TODO - big security hole here! need to validate they really have access before mapping
 
-                infusionsoftAuthenticationService.associateAccountToUser(currentUser, "CRM", request.getParameter("appName"), request.getParameter("appUsername"));
-
-                // Create a new one so attributes will be refreshed...?
+                infusionsoftAuthenticationService.associateAccountToUser(currentUser, appType, appName, appUsername);
                 infusionsoftAuthenticationService.createTicketGrantingTicket(currentUser.getUsername(), "bogus", request, response);
             } else {
                 throw new RuntimeException("logged in user could not be resolved!");
@@ -78,7 +86,7 @@ public class CentralMultiActionController extends MultiActionController {
 
             return null;
         } else {
-            return new ModelAndView("infusionsoft/ui/registration/associate", model);
+            return new ModelAndView("redirect:home");
         }
     }
 
@@ -130,7 +138,7 @@ public class CentralMultiActionController extends MultiActionController {
 
             return null;
         } else {
-            return new ModelAndView("infusionsoft/ui/registration/associate", model);
+            return new ModelAndView("infusionsoft/ui/central/associate", model);
         }
     }
 
@@ -180,7 +188,7 @@ public class CentralMultiActionController extends MultiActionController {
             response.sendError(500, "Failed to associate");
             return null;
         } else {
-            return new ModelAndView("infusionsoft/ui/registration/associate", model);
+            return new ModelAndView("infusionsoft/ui/central/associate", model);
         }
     }
 
