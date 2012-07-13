@@ -251,6 +251,9 @@
         <property name="ticketIdGenerator" ref="loginTicketUniqueIdGenerator"/>
     </bean>
 
+    <bean id="userFilter" name="userFilter" class="com.infusionsoft.cas.web.UserFilter"
+          p:infusionsoftAuthenticationService-ref="infusionsoftAuthenticationService"/>
+
     <!--
     private CentralAuthenticationService centralAuthenticationService;
     private ServiceRegistryDao serviceRegistryDao;

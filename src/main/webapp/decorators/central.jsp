@@ -27,8 +27,10 @@
                 <a id="logo" href="<c:url value="/"/>"></a>
                 <div id="userinfo">
                     <c:choose>
-                        <c:when test="${not empty sessionScope.username}">
-                            Signed in as: <strong>${session.getAttribute("username")}</strong> | Sign Out
+                        <c:when test="${not empty sessionScope.user}">
+                            <c:url var="logoutUrl" value="/logout"/>
+                            Signed in as: <strong>${sessionScope.user.firstName} ${sessionScope.user.lastName}</strong> |
+                            <a href="${logoutUrl}">Sign Out</a>
                         </c:when>
                         <c:otherwise>
                             Not signed in

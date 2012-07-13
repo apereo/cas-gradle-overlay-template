@@ -38,18 +38,23 @@
         });
     }
 
-    $(document).ready(function() {
-        $(".ui-dropdown-menu").hide();
-        $(".ui-dropdown-button").click(function() {
-            $(this).parent(".ui-dropdown").find(".ui-dropdown-menu").show();
-        });
-
-        $(".ui-dropdown").mouseleave(function() {
-           $(this).find(".ui-dropdown-menu").hide();
-        });
-    });
-
 </script>
+
+<style type="text/css">
+
+    .accounts {
+        border: 1px solid #DDD;
+    }
+
+    .accounts .account {
+        border-top: 1px solid #DDD;
+    }
+
+    .accounts .account:first-child {
+        border-top: 1px solid #DDD;
+    }
+
+</style>
 
 <c:set var="needsForumAccount" value="true"/>
 
@@ -58,22 +63,22 @@
         <h2 class="apps" style="float: left">
             Your Apps
         </h2>
-        <div style="float: right; width: 200px">
-            <div class="ui-dropdown">
-                <a class="btn ui-dropdown-button">Link an App</a>
-                <div class="ui-dropdown-menu">
-                    <a href="${linkInfusionsoftAppAccount}">Infusionsoft App</a>
-                    <a onclick="${linkCustomerHubAccount}">CustomerHub App</a>
-                    <a onclick="${linkCommunityAccount}">Community Profile</a>
-                </div>
+        <div style="float: right; width: 100px">
+            <div class="btn-group">
+                <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
+                    Link an App
+                    <span class="caret"></span>
+                </a>
+                <ul class="dropdown-menu">
+                    <li><a href="${linkInfusionsoftAppAccount}">Infusionsoft App</a></li>
+                    <li><a onclick="${linkCustomerHubAccount}">CustomerHub App</a></li>
+                    <li><a onclick="${linkCommunityAccount}">Community Profile</a></li>
+                </ul>
             </div>
         </div>
         <div style="clear: both"></div>
     </div>
 
-    <p>
-        Hello there, ${user.username}!
-    </p>
     <c:if test="${fn:length(user.accounts) > 0}">
         <c:forEach var="account" items="${user.accounts}">
             <c:choose>

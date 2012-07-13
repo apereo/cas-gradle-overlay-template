@@ -35,6 +35,10 @@
         width: 316px;
     }
 
+    .alert {
+        margin: -20px -20px 20px -20px;
+    }
+
 </style>
 
 <div id="welcome">
@@ -45,16 +49,17 @@
 <div id="register">
     <c:url var="loginUrl" value="/login"/>
 
-    <div id="hey">
+    <div class="alert alert-info">
         Already have an Infusionsoft ID? <a href="${loginUrl}">Sign in</a> to link this app to your ID.
     </div>
 
     <form id="registerForm" action="register" method="post" class="form-vertical">
-        <div id="registerFormError" class="formerror">
-            <c:if test="${error != null}">
+
+        <c:if test="${error != null}">
+            <div class="alert">
                 <spring:message code="${error}"/>
-            </c:if>
-        </div>
+            </div>
+        </c:if>
 
         <fieldset>
             <div class="control-group">

@@ -53,6 +53,6 @@
     </div>
 
     <div style="text-align: right; margin-top: 15px">
-        <a class="btn-primary" href="${centralUrl}">Go To Your App</a>
+        <a class="btn btn-primary" href="${centralUrl}">Go To Your App</a>
     </div>
 </div>

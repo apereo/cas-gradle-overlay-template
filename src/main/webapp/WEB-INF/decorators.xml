@@ -3,6 +3,7 @@
 <decorators defaultdir="/decorators">
     <decorator name="anonymous" page="anonymous.jsp">
         <pattern>/login</pattern>
+        <pattern>/logout</pattern>
     </decorator>
     <decorator name="modal" page="modal.jsp">
         <pattern>/registration</pattern>
