@@ -5,26 +5,6 @@
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 
-<script type="text/javascript">
-
-    // Old one... this is from when it was Ajax
-    function registerAndLogin() {
-        $.ajax({
-            type:"POST",
-            url:"register",
-            data:$("#registerForm").serialize(),
-            dataType:"json",
-            success:function (response) {
-                if (response.status == "OK") {
-                }
-            }
-        });
-
-        return false;
-    }
-
-</script>
-
 <style type="text/css">
 
     #welcome {
@@ -43,16 +23,16 @@
         border-radius: 4px;
     }
 
-    #register table.form input {
-        width: 185px;
-    }
-
     #instructions {
         font-size: 11px;
         font-style: italic;
         color: #ccc;
         text-align: center;
         margin: 15px auto;
+    }
+
+    .controls input {
+        width: 316px;
     }
 
 </style>
@@ -69,50 +49,48 @@
         Already have an Infusionsoft ID? <a href="${loginUrl}">Sign in</a> to link this app to your ID.
     </div>
 
-    <form id="registerForm" action="register" method="post">
+    <form id="registerForm" action="register" method="post" class="form-vertical">
         <div id="registerFormError" class="formerror">
             <c:if test="${error != null}">
                 <spring:message code="${error}"/>
             </c:if>
         </div>
 
-        <table class="form" cellpadding="0" cellspacing="0">
-            <tr>
-                <th style="width: 200px">First Name</th>
-                <td>
-                    <input id="firstName" name="firstName" value="${fn:escapeXml(user != null ? user.firstName : '')}"
-                           type="text"/>
-                </td>
-            </tr>
-            <tr>
-                <th>Last Name</th>
-                <td>
-                    <input id="lastName" name="lastName" value="${fn:escapeXml(user != null ? user.lastName : '')}"
-                           type="text"/>
-                </td>
-            </tr>
-            <tr>
-                <th>Email Address</th>
-                <td>
+        <fieldset>
+            <div class="control-group">
+                <label class="control-label" for="firstName">First Name</label>
+                <div class="controls">
+                    <input id="firstName" name="firstName" value="${fn:escapeXml(user != null ? user.firstName : '')}" type="text"/>
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label" for="lastName">Last Name</label>
+                <div class="controls">
+                    <input id="lastName" name="lastName" value="${fn:escapeXml(user != null ? user.lastName : '')}" type="text"/>
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label" for="username">Email Address <span style="font-weight: normal">(this is your username)</span></label>
+                <div class="controls">
                     <input id="username" name="username" value="${fn:escapeXml(user != null ? user.username : '')}" type="text"/>
-                </td>
-            </tr>
-            <tr>
-                <th>Password</th>
-                <td>
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label" for="username">Password</label>
+                <div class="controls">
                     <input id="password1" name="password1" value="" type="password"/>
-                </td>
-            </tr>
-            <tr>
-                <th>Confirm Password</th>
-                <td>
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label" for="username">Confirm Password</label>
+                <div class="controls">
                     <input id="password2" name="password2" value="" type="password"/>
-                </td>
-            </tr>
-        </table>
+                </div>
+            </div>
+        </fieldset>
 
         <div style="text-align: right; margin-top: 15px">
-            <input type="submit" value="Create ID" class="primary"/>
+            <input type="submit" value="Create ID" class="btn btn-primary"/>
         </div>
     </form>
 

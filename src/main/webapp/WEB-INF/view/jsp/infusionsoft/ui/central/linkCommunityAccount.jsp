@@ -44,8 +44,8 @@
         </table>
 
         <div class="buttonbar">
-            <input type="submit" value="Link Account" class="primary"/>
-            <a href="${centralUrl}" class="ui-button">Cancel</a>
+            <input type="submit" value="Link Account" class="btn-primary"/>
+            <a href="${centralUrl}" class="btn">Cancel</a>
         </div>
     </form>
 </div>

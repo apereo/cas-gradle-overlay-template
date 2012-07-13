@@ -38,6 +38,17 @@
         });
     }
 
+    $(document).ready(function() {
+        $(".ui-dropdown-menu").hide();
+        $(".ui-dropdown-button").click(function() {
+            $(this).parent(".ui-dropdown").find(".ui-dropdown-menu").show();
+        });
+
+        $(".ui-dropdown").mouseleave(function() {
+           $(this).find(".ui-dropdown-menu").hide();
+        });
+    });
+
 </script>
 
 <c:set var="needsForumAccount" value="true"/>
@@ -47,11 +58,15 @@
         <h2 class="apps" style="float: left">
             Your Apps
         </h2>
-        <div style="float: right">
-            Link an App:
-            <a href="javascript:goto('${linkInfusionsoftAppAccount}')">Infusionsoft App</a> |
-            <a href="javascript:goto('${linkCustomerHubAccount}')">CustomerHub App</a> |
-            <a href="javascript:goto('${linkCommunityAccount}')">Community Account</a>
+        <div style="float: right; width: 200px">
+            <div class="ui-dropdown">
+                <a class="btn ui-dropdown-button">Link an App</a>
+                <div class="ui-dropdown-menu">
+                    <a href="${linkInfusionsoftAppAccount}">Infusionsoft App</a>
+                    <a onclick="${linkCustomerHubAccount}">CustomerHub App</a>
+                    <a onclick="${linkCommunityAccount}">Community Profile</a>
+                </div>
+            </div>
         </div>
         <div style="clear: both"></div>
     </div>

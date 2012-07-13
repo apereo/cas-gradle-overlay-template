@@ -37,35 +37,35 @@
 
 <div id="login-or-register">
     <div id="login-or-register-left">
-        <form:form method="post" id="fm1" cssClass="fm-v clearfix" commandName="${commandName}" htmlEscape="true">
+        <form:form method="post" id="fm1" cssClass="form-vertical" commandName="${commandName}" htmlEscape="true">
             <form:errors path="*" id="msg" cssClass="errors" element="div" />
+
             <h2>Sign In With Your Infusionsoft ID</h2>
 
-            <p>
-                <div class="label">Email</div>
-                <c:if test="${not empty sessionScope.openIdLocalId}">
-                    <strong>${sessionScope.openIdLocalId}</strong>
-                    <input type="hidden" id="username" name="username" value="${sessionScope.openIdLocalId}" style="width: 266px" />
-                </c:if>
-                <c:if test="${empty sessionScope.openIdLocalId}">
-                    <spring:message code="screen.welcome.label.netid.accesskey" var="userNameAccessKey" />
+            <div class="control-group">
+                <label for="username" class="control-label">Email Address</label>
+                <div class="controls">
                     <form:input cssClass="required" cssErrorClass="error" id="username" size="25" tabindex="1" accesskey="${userNameAccessKey}" path="username" autocomplete="false" htmlEscape="true" style="width: 266px" />
-                </c:if>
+                </div>
+            </div>
 
-                <div class="label">Password</div>
-                <spring:message code="screen.welcome.label.password.accesskey" var="passwordAccessKey" />
-                <form:password cssClass="required" cssErrorClass="error" id="password" size="25" tabindex="2" path="password"  accesskey="${passwordAccessKey}" htmlEscape="true" autocomplete="off" style="width: 266px" />
-            </p>
+            <div class="control-group">
+                <label for="password" class="control-label">Password</label>
+                <div class="controls">
+                    <form:password cssClass="required" cssErrorClass="error" id="password" size="25" tabindex="2" path="password" accesskey="${passwordAccessKey}" htmlEscape="true" autocomplete="off" style="width: 266px" />
+                </div>
+            </div>
 
             <div class="row btn-row" style="text-align: right">
                 <input type="hidden" name="lt" value="${loginTicket}" />
                 <input type="hidden" name="execution" value="${flowExecutionKey}" />
                 <input type="hidden" name="_eventId" value="submit" />
 
-                <input class="primary btn-submit" name="submit" accesskey="l" value="Sign In" tabindex="4" type="submit" />
+                <input class="btn btn-primary" name="submit" accesskey="l" value="Sign In" tabindex="4" type="submit" />
             </div>
         </form:form>
     </div>
+
     <div id="login-or-register-right">
         <h2>Don't have an Infusionsoft ID?</h2>
         <p>
@@ -77,7 +77,7 @@
             <a href="#">Learn more</a>
         </p>
         <div style="text-align: center">
-          <a class="ui-button" href="registration/welcome">Create Your ID</a>
+          <a class="btn" href="registration/welcome">Create Your ID</a>
         </div>
     </div>
     <div style="clear: both"></div>

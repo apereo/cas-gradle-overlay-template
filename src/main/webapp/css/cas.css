@@ -302,16 +302,6 @@ input.numeric {
     text-align: right;
 }
 
-fieldset {
-    border-top: solid 1px #ccc;
-    border-bottom: 0;
-    border-right: 0;
-    border-left: 0;
-    margin: 0;
-    padding: 0;
-    padding-bottom: 1.5em;
-}
-
 input[type=text], input[type=password], select, textarea {
     border: 1px solid #CBCBCB;
     border-radius: 4px;
@@ -320,56 +310,12 @@ input[type=text], input[type=password], select, textarea {
     margin: 0;
 }
 
-input[type=submit], input[type=button], a.ui-button {
-    font-family: arial, verdana, sans-serif;
-    background: url(../images/button-bg-white.png);
-    line-height: 27px;
-    height: 29px;
-    border: 1px solid #CBCBCB;
-    padding: 0 10px;
-    font-size: 11px;
-    font-weight: bold;
-    border-radius: 4px;
-    color: #333;
-    margin: 0;
-}
-
-input[type=submit].primary, input[type=button].primary, a.ui-button.primary {
-    color: #fff;
-    border: 1px solid #57A938;
-    background: url(../images/button-bg-green.png);
-}
-
-input[type=submit]:hover, input[type=button]:hover, a.ui-button:hover {
-    background: url(../images/button-bg-white-h.png);
-}
-
-input[type=submit].primary:hover, input[type=button].primary:hover, a.ui-button.primary:hover {
-    background: url(../images/button-bg-green-h.png);
-}
-
-a.ui-button {
-    height: 27px;
-    line-height: 27px;
-}
 
 #content .button {
     padding: 3px 0px;
     font-size: 11px;
     width: 11em;
     cursor: pointer;
-}
-
-label {
-    margin: 0 5px 0 0;
-    font-weight: bold;
-    cursor: pointer;
-}
-
-div.label {
-    margin: 10px 0 2px 0;
-    font-weight: bold;
-    font-size: 11px;
 }
 
 table.form {
@@ -468,3 +414,41 @@ table .appHeadingRow th {
     background: #f5f5f5;
     margin: 30px 0 0 0;
 }
+
+.ui-dropdown {
+    position: relative;
+}
+
+.ui-dropdown-button {
+    display: block;
+}
+
+.ui-dropdown-menu {
+    position: absolute;
+    z-index: 100;
+    margin: 0;
+    padding: 0;
+    display: none;
+}
+
+.ui-dropdown-menu a {
+    display: block;
+    margin: 0;
+    padding: 4px;
+}
+
+.ui-dropdown-menu a:hover {
+    background: #ccc;
+    color: #fff;
+}
+
+.btn {
+    font-size: 11px;
+    font-weight: bold;
+}
+
+label {
+    font-weight: bold;
+    font-size: 12px;
+}
+
