@@ -32,10 +32,9 @@ public class CentralMultiActionController extends MultiActionController {
         Map<String, Object> model = new HashMap<String, Object>();
         User user = infusionsoftAuthenticationService.getCurrentUser(request);
 
-        System.out.println("****** in /home, user is " + user);
-
         if (user != null) {
             model.put("user", user);
+            model.put("hasCommunityAccount", infusionsoftAuthenticationService.hasCommunityAccount(user));
 
             return new ModelAndView("infusionsoft/ui/central/home", model);
         } else {
@@ -66,6 +65,10 @@ public class CentralMultiActionController extends MultiActionController {
             String appName = request.getParameter("appName");
             String appUsername = request.getParameter("appUsername");
             String appPassword = request.getParameter("appPassword");
+
+            if (appType.equals("community")) {
+                appName = "community";
+            }
 
             if (currentUser != null) {
                 // TODO - big security hole here! need to validate they really have access before mapping

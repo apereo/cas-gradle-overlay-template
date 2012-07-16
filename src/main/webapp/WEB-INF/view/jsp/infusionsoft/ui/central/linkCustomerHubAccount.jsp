@@ -50,7 +50,7 @@
         </table>
 
         <div class="buttonbar">
-            <input type="submit" value="Link App" class="btn-primary"/>
+            <input type="submit" value="Link App" class="btn btn-primary"/>
             <a href="${centralUrl}" class="btn">Cancel</a>
         </div>
     </form>

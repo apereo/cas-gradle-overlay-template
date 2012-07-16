@@ -134,8 +134,9 @@ h2.apps {
 
 #nav li {
     color: #fff;
+    font-weight: bold;
     float: left;
-    padding: 0 10px;
+    padding: 0 0px;
     line-height: 41px;
 }
 
@@ -143,6 +144,21 @@ h2.apps {
     border-left: 1px solid #5c9e3c;
     border-right: 1px solid #5c9e3c;
     background: rgba(0, 0, 0, 0.05);
+}
+
+#nav li a {
+    display: block;
+    color: #fff;
+    line-height: 41px;
+    padding: 0 10px;
+}
+
+#nav li a:hover {
+    display: block;
+    color: #fff;
+    line-height: 41px;
+    padding: 0 10px;
+    text-decoration: none;
 }
 
 /*************************************** CONTENT */
@@ -283,3 +299,49 @@ label {
     font-size: 12px;
 }
 
+.accounts {
+    border: 1px solid #DDD;
+}
+
+.accounts .account {
+    border-top: 1px solid #DDD;
+    height: 115px;
+    display: block;
+    color: #333;
+}
+
+.accounts .account:first-child {
+    border-top: none;
+}
+
+.accounts .account.crm-account {
+    background: #fff url(../images/app-central-infusionsoft.png) 15px 15px no-repeat;
+}
+
+.accounts .account.forum-account {
+    background: #fff url(../images/app-central-community.png) 15px 15px no-repeat;
+}
+
+.accounts .account.customerhub-account {
+    background: #fff url(../images/app-central-customerhub.png) 15px 15px no-repeat;
+}
+
+.accounts .account:hover {
+    text-decoration: none;
+    color: #333;
+    background-color: #F5F5F5;
+}
+.accounts .account-info {
+    padding: 15px 0 15px 115px;
+    background: url(../images/more-arrow.png) 870px center no-repeat;
+}
+
+.accounts .account-title {
+    font-size: 20px;
+    line-height: 35px;
+}
+
+.accounts .account-detail {
+    font-size: 14px;
+    line-height: 25px;
+}

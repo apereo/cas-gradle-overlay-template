@@ -42,17 +42,6 @@
 
 <style type="text/css">
 
-    .accounts {
-        border: 1px solid #DDD;
-    }
-
-    .accounts .account {
-        border-top: 1px solid #DDD;
-    }
-
-    .accounts .account:first-child {
-        border-top: 1px solid #DDD;
-    }
 
 </style>
 
@@ -63,36 +52,58 @@
         <h2 class="apps" style="float: left">
             Your Apps
         </h2>
-        <div style="float: right; width: 100px">
-            <div class="btn-group">
-                <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
-                    Link an App
-                    <span class="caret"></span>
-                </a>
-                <ul class="dropdown-menu">
-                    <li><a href="${linkInfusionsoftAppAccount}">Infusionsoft App</a></li>
-                    <li><a onclick="${linkCustomerHubAccount}">CustomerHub App</a></li>
-                    <li><a onclick="${linkCommunityAccount}">Community Profile</a></li>
-                </ul>
-            </div>
+        <div class="btn-group" style="float: right">
+            <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
+                Link an App
+                <span class="caret"></span>
+            </a>
+            <ul class="dropdown-menu">
+                <li><a href="${linkInfusionsoftAppAccount}">Link an Infusionsoft App</a></li>
+                <li><a href="${linkCustomerHubAccount}">Link a CustomerHub App</a></li>
+                <c:if test="${!hasCommunityAccount}">
+                    <li><a href="${linkCommunityAccount}">Link a Community Profile</a></li>
+                    <li class="divider"></li>
+                    <li><a href="${createCommunityAccount}">Create a Community Profile</a></li>
+                </c:if>
+            </ul>
         </div>
         <div style="clear: both"></div>
     </div>
 
     <c:if test="${fn:length(user.accounts) > 0}">
-        <c:forEach var="account" items="${user.accounts}">
-            <c:choose>
-                <c:when test="${account.appType == 'CRM'}">
-                    <p><a href="https://${account.appName}.infusiontest.com:8443">${account.appName}</a></p>
-                </c:when>
-                <c:otherwise>
-                    <c:if test="${account.appType == 'forum'}">
-                        <c:set var="needsForumAccount" value="false"/>
-                    </c:if>
-                    <p>${account.appUsername} at ${account.appName}</p>
-                </c:otherwise>
-            </c:choose>
-        </c:forEach>
+        <div class="accounts">
+            <c:forEach var="account" items="${user.accounts}">
+                <c:choose>
+                    <c:when test="${account.appType == 'crm'}">
+                        <a href="https://${account.appName}.infusiontest.com:8443" class="account crm-account">
+                            <div class="account-info">
+                                <div class="account-title">${account.appName}</div>
+                                <div class="account-detail">Infusionsoft App</div>
+                                <div class="account-detail">${account.appName}.infusionsoft.com</div>
+                            </div>
+                        </a>
+                    </c:when>
+                    <c:when test="${account.appType == 'community'}">
+                        <a href="http://community.infusionsoft.com" class="account forum-account">
+                            <div class="account-info">
+                                <div class="account-title">Infusionsoft Community</div>
+                                <div class="account-detail">Display Name: ${account.appUsername}</div>
+                                <div class="account-detail">community.infusionsoft.com</div>
+                            </div>
+                        </a>
+                    </c:when>
+                    <c:otherwise>
+                        <a href="https://${account.appName}.infusiontest.com:8443" class="account customerhub-account">
+                            <div class="account-info">
+                                <div class="account-title">${account.appName}</div>
+                                <div class="account-detail">CustomerHub App</div>
+                                <div class="account-detail">${account.appName}.customerhub.net</div>
+                            </div>
+                        </a>
+                    </c:otherwise>
+                </c:choose>
+            </c:forEach>
+        </div>
     </c:if>
 
     <div id="associateDialog" style="display: none">

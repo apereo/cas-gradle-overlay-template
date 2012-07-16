@@ -121,6 +121,16 @@ public class InfusionsoftAuthenticationService {
         return retVal;
     }
 
+    public boolean hasCommunityAccount(User user) {
+        for (UserAccount account : user.getAccounts()) {
+            if (account.getAppType().equals("community")) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     public void setCentralAuthenticationService(CentralAuthenticationService centralAuthenticationService) {
         this.centralAuthenticationService = centralAuthenticationService;
     }
