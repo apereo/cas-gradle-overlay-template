@@ -1,59 +1,42 @@
-<%@ page session="true" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jstl/core_rt" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jstl/fmt_rt" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
-<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
+<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
+
+<%@ page contentType="text/html; charset=UTF-8" %>
+
+<meta name="decorator" content="central"/>
+
+<c:url var="centralUrl" value="/central/home"/>
+
+<script type="text/javascript">
+
+</script>
 
 <style type="text/css">
 
-    #welcome {
-        width: 390px;
-        margin: 100px auto 0 auto;
-        text-align: center;
-        font-size: 18px;
+    .form-horizontal .control-label {
+        width: 120px;
     }
 
-    #register {
-        width: 330px;
-        padding: 30px;
-        margin: 10px auto;
-        background: #fff;
-        border: 1px solid #DDDDDD;
-        border-radius: 4px;
-    }
-
-    #instructions {
-        font-size: 11px;
-        font-style: italic;
-        color: #ccc;
-        text-align: center;
-        margin: 15px auto;
-    }
-
-    .controls input {
-        width: 316px;
-    }
-
-    .alert {
-        margin: -20px -20px 20px -20px;
+    .form-horizontal .controls {
+        margin-left: 135px;
     }
 
 </style>
 
-<div id="welcome">
-    Welcome!<br/>
-    Please Create Your Infusionsoft ID
-</div>
+<div id="main">
+    <h2 class="apps">
+        Edit Your Infusionsoft ID
+    </h2>
 
-<div id="register">
-    <c:url var="loginUrl" value="/login"/>
+    <p>
+        Edit the information that you use to sign into all of your apps.
+    </p>
 
-    <div class="alert alert-info">
-        Already have an Infusionsoft ID? <a href="${loginUrl}">Sign in</a> to link this app to your ID.
-    </div>
-
-    <form id="registerForm" action="register" method="post" class="form-vertical">
+    <form id="editProfileForm" action="updateProfile" method="post" class="form-horizontal">
+        <input name="id" value="${user.id}" type="hidden"/>
 
         <c:if test="${error != null}">
             <div class="alert">
@@ -75,7 +58,7 @@
                 </div>
             </div>
             <div class="control-group">
-                <label class="control-label" for="username">Email Address <span style="font-weight: normal">(this is your username)</span></label>
+                <label class="control-label" for="username">Email Address</label>
                 <div class="controls">
                     <input id="username" name="username" value="${fn:escapeXml(user != null ? user.username : '')}" type="text"/>
                 </div>
@@ -94,12 +77,9 @@
             </div>
         </fieldset>
 
-        <div style="text-align: right; margin-top: 15px">
-            <input type="submit" value="Create ID" class="btn btn-primary"/>
+        <div class="buttonbar">
+            <input type="submit" value="Save" class="btn btn-primary"/>
+            <a class="btn" href="${homeLink}">Cancel</a>
         </div>
-    </form
-</div>
-
-<div id="instructions">
-    You will use this information to sign into your Infusionsoft app.
+    </form>
 </div>

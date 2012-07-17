@@ -208,7 +208,9 @@
           p:infusionsoftAuthenticationService-ref="infusionsoftAuthenticationService"/>
 
     <bean id="centralMultiActionController" class="com.infusionsoft.cas.web.CentralMultiActionController"
-          p:infusionsoftAuthenticationService-ref="infusionsoftAuthenticationService"/>
+          p:infusionsoftAuthenticationService-ref="infusionsoftAuthenticationService"
+          p:hibernateTemplate-ref="hibernateTemplate"
+          p:passwordEncoder-ref="passwordEncoder"/>
 
     <bean id="restController" class="com.infusionsoft.cas.web.RestController"
           p:hibernateTemplate-ref="hibernateTemplate"

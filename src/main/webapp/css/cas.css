@@ -136,14 +136,9 @@ h2.apps {
     color: #fff;
     font-weight: bold;
     float: left;
-    padding: 0 0px;
+    padding: 0;
+    margin: 0;
     line-height: 41px;
-}
-
-#nav li.selected {
-    border-left: 1px solid #5c9e3c;
-    border-right: 1px solid #5c9e3c;
-    background: rgba(0, 0, 0, 0.05);
 }
 
 #nav li a {
@@ -151,14 +146,18 @@ h2.apps {
     color: #fff;
     line-height: 41px;
     padding: 0 10px;
+    margin: 0;
+}
+
+#nav li a.selected {
+    border-left: 1px solid #5c9e3c;
+    border-right: 1px solid #5c9e3c;
+    background: rgba(0, 0, 0, 0.05);
 }
 
 #nav li a:hover {
-    display: block;
-    color: #fff;
-    line-height: 41px;
-    padding: 0 10px;
     text-decoration: none;
+    background: rgba(0, 0, 0, 0.05);
 }
 
 /*************************************** CONTENT */

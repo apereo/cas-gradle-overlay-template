@@ -42,10 +42,12 @@
         </div>
         <div id="navbg">
             <div id="nav">
-              <ul>
-                <li class="selected">YOUR APPS</li>
-                <li>EDIT YOUR ID</li>
-              </ul>
+                <ul>
+                    <c:url var="homeLink" value="/central/home"/>
+                    <c:url var="editProfileLink" value="/central/editProfile"/>
+                    <li><a href="${homeLink}" class="${homeLinkSelected}">YOUR APPS</a></li>
+                    <li><a href="${editProfileLink}" class="${editProfileLinkSelected}">EDIT YOUR ID</a></li>
+                </ul>
             </div>
         </div>
         <div class="wrapper">
