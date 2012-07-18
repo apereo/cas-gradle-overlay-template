@@ -104,6 +104,11 @@
         <appender-ref ref="cas" />
     </logger>
 
+    <logger name="com.infusionsoft">
+        <level value="DEBUG" />
+        <appender-ref ref="cas" />
+    </logger>
+
     <!--
         WARNING: Setting the flow package to DEBUG will display
         the parameters posted to the login servlet including

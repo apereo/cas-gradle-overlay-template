@@ -34,6 +34,22 @@ public class InfusionsoftAuthenticationService {
     private UniqueTicketIdGenerator ticketIdGenerator;
 
     /**
+     * Builds a URL for redirecting users to an app.
+     */
+    public String buildAppUrl(String appType, String appName) {
+        // TODO
+        return "http://www.google.com";
+    }
+
+    /**
+     * Checks the legacy credentials of an app.
+     */
+    public boolean verifyAppCredentials(String appType, String appName, String appUsername, String appPassword) {
+        // TODO
+        return true;
+    }
+
+    /**
      * Associates an external account to a CAS user.
      */
     public UserAccount associateAccountToUser(User user, String appType, String appName, String appUsername) {
@@ -121,6 +137,22 @@ public class InfusionsoftAuthenticationService {
         return retVal;
     }
 
+    /**
+     * Tells if a user is currently associated to a given app.
+     */
+    public boolean isUserAssociated(User user, String appType, String appName) {
+        for (UserAccount account : user.getAccounts()) {
+            if (account.getAppType().equals(appType) && account.getAppName().equals(appName)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Tells if a user has a community account associated.
+     */
     public boolean hasCommunityAccount(User user) {
         for (UserAccount account : user.getAccounts()) {
             if (account.getAppType().equals("community")) {

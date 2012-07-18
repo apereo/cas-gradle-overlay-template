@@ -56,7 +56,7 @@
     <form id="registerForm" action="register" method="post" class="form-vertical">
 
         <c:if test="${error != null}">
-            <div class="alert">
+            <div class="alert alert-error">
                 <spring:message code="${error}"/>
             </div>
         </c:if>
@@ -98,8 +98,4 @@
             <input type="submit" value="Create ID" class="btn btn-primary"/>
         </div>
     </form
-</div>
-
-<div id="instructions">
-    You will use this information to sign into your Infusionsoft app.
 </div>

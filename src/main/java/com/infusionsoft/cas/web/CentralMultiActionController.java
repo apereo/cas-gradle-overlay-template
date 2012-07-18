@@ -16,6 +16,7 @@ import org.springframework.web.servlet.mvc.multiaction.MultiActionController;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -33,6 +34,29 @@ public class CentralMultiActionController extends MultiActionController {
     private InfusionsoftAuthenticationService infusionsoftAuthenticationService;
     private HibernateTemplate hibernateTemplate;
     private PasswordEncoder passwordEncoder;
+
+    public ModelAndView index(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        User user = infusionsoftAuthenticationService.getCurrentUser(request);
+        HttpSession session = request.getSession(true);
+        String appType = (String) session.getAttribute("refererAppType");
+        String appName = (String) session.getAttribute("refererAppName");
+
+        if (StringUtils.isNotEmpty(appType) && StringUtils.isNotEmpty(appName)) {
+            if (infusionsoftAuthenticationService.isUserAssociated(user, appType, appName)) {
+                String appUrl = infusionsoftAuthenticationService.buildAppUrl(appType, appName);
+
+                log.info("redirecting user " + user.getId() + " to " + appUrl);
+
+                response.sendRedirect(appUrl);
+
+                return null;
+            } else {
+                return new ModelAndView("redirect:home");
+            }
+        } else {
+            return new ModelAndView("redirect:home");
+        }
+    }
 
     public ModelAndView home(HttpServletRequest request, HttpServletResponse response) {
         Map<String, Object> model = new HashMap<String, Object>();

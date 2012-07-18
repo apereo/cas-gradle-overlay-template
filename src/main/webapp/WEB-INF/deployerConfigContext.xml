@@ -22,6 +22,9 @@
        http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-3.0.xsd
        http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.0.xsd
        http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.0.xsd">
+
+    <import resource="spring-configuration/propertyFileConfigurer.xml"/>
+
     <!--
          | This bean declares our AuthenticationManager.  The CentralAuthenticationService service bean
          | declared in applicationContext.xml picks up this AuthenticationManager by reference to its id,
@@ -252,7 +255,10 @@
     </bean>
 
     <bean id="userFilter" name="userFilter" class="com.infusionsoft.cas.web.UserFilter"
-          p:infusionsoftAuthenticationService-ref="infusionsoftAuthenticationService"/>
+          p:infusionsoftAuthenticationService-ref="infusionsoftAuthenticationService"
+          p:crmDomain="${infusionsoft.crm.domain}"
+          p:communityDomain="${infusionsoft.community.domain}"
+          p:customerHubDomain="${infusionsoft.customerhub.domain}"/>
 
     <!--
     private CentralAuthenticationService centralAuthenticationService;

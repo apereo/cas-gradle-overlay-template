@@ -2,6 +2,7 @@ package com.infusionsoft.cas.web;
 
 import com.infusionsoft.cas.types.User;
 import com.infusionsoft.cas.services.InfusionsoftAuthenticationService;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.validator.EmailValidator;
 import org.apache.log4j.Logger;
 import org.jasig.cas.authentication.handler.PasswordEncoder;
@@ -12,6 +13,7 @@ import org.springframework.web.servlet.mvc.multiaction.MultiActionController;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -89,8 +91,53 @@ public class RegistrationMultiActionController extends MultiActionController {
 
         if (model.containsKey("error")) {
             return new ModelAndView("infusionsoft/ui/registration/welcome", model);
+        } else if (StringUtils.isNotEmpty((String) request.getSession(true).getAttribute("refererAppName"))) {
+            return new ModelAndView("redirect:verification");
         } else {
             return new ModelAndView("redirect:success");
+        }
+    }
+
+    /**
+     * If the user came here from an app, verify that they are already associated to it. If so, send them to the
+     * success action. If not, show the form to get their credentials.
+     */
+    public ModelAndView verification(HttpServletRequest request, HttpServletResponse response) {
+        User user = infusionsoftAuthenticationService.getCurrentUser(request);
+        HttpSession session = request.getSession(true);
+        String appName = (String) session.getAttribute("refererAppName");
+        String appType = (String) session.getAttribute("refererAppType");
+
+        if (StringUtils.isNotEmpty(appName) && StringUtils.isNotEmpty(appType)) {
+            if (infusionsoftAuthenticationService.isUserAssociated(user, appType, appName)) {
+                return new ModelAndView("redirect:success");
+            } else {
+                return new ModelAndView("infusionsoft/ui/registration/verification");
+            }
+        } else {
+            return new ModelAndView("redirect:success");
+        }
+    }
+
+    public ModelAndView verify(HttpServletRequest request, HttpServletResponse response) {
+        User user = infusionsoftAuthenticationService.getCurrentUser(request);
+        HttpSession session = request.getSession(true);
+        String appName = (String) session.getAttribute("refererAppName");
+        String appType = (String) session.getAttribute("refererAppType");
+        String appUsername = request.getParameter("appUsername");
+        String appPassword = request.getParameter("appPassword");
+
+        if (infusionsoftAuthenticationService.verifyAppCredentials(appType, appName, appUsername, appPassword)) {
+            infusionsoftAuthenticationService.associateAccountToUser(user, appType, appName, appUsername);
+
+            return new ModelAndView("redirect:success");
+        } else {
+            Map<String, Object> model = new HashMap<String, Object>();
+
+            model.put("appUsername", appUsername);
+            model.put("error", "registration.error.invalidLegacyCredentials");
+
+            return new ModelAndView("infusionsoft/ui/registration/verification", model);
         }
     }
 
