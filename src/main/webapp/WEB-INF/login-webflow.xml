@@ -4,7 +4,8 @@
       xsi:schemaLocation="http://www.springframework.org/schema/webflow
                           http://www.springframework.org/schema/webflow/spring-webflow-2.0.xsd">
 
-    <var name="credentials" class="org.jasig.cas.authentication.principal.UsernamePasswordCredentials" />
+    <var name="credentials" class="org.jasig.cas.authentication.principal.RememberMeUsernamePasswordCredentials" />
+
     <on-start>
         <evaluate expression="initialFlowSetupAction" />
     </on-start>
@@ -46,19 +47,20 @@
         <evaluate expression="generateLoginTicketAction.generate(flowRequestContext)" />
 		<transition on="success" to="viewLoginForm" />
 	</action-state>
-    
-	<view-state id="viewLoginForm" view="casLoginView" model="credentials">
+
+    <view-state id="viewLoginForm" view="casLoginView" model="credentials">
         <binder>
             <binding property="username" />
             <binding property="password" />
+            <binding property="rememberMe" />
         </binder>
         <on-entry>
             <set name="viewScope.commandName" value="'credentials'" />
         </on-entry>
-		<transition on="submit" bind="true" validate="true" to="realSubmit">
+        <transition on="submit" bind="true" validate="true" to="realSubmit">
             <evaluate expression="authenticationViaFormAction.doBind(flowRequestContext, flowScope.credentials)" />
         </transition>
-	</view-state>
+    </view-state>
 
 	<action-state id="realSubmit">
         <evaluate expression="authenticationViaFormAction.submit(flowRequestContext, flowScope.credentials, messageContext)" />

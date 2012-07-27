@@ -51,6 +51,8 @@ public class CentralMultiActionController extends MultiActionController {
 
                 return null;
             } else {
+                // TODO - do we want to force them to complete the association here?
+
                 return new ModelAndView("redirect:home");
             }
         } else {

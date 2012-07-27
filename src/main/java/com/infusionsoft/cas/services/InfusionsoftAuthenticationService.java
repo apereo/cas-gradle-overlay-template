@@ -2,6 +2,7 @@ package com.infusionsoft.cas.services;
 
 import com.infusionsoft.cas.types.User;
 import com.infusionsoft.cas.types.UserAccount;
+import org.apache.commons.lang.RandomStringUtils;
 import org.apache.log4j.Logger;
 import org.jasig.cas.CentralAuthenticationService;
 import org.jasig.cas.authentication.handler.PasswordEncoder;
@@ -32,6 +33,36 @@ public class InfusionsoftAuthenticationService {
     private HibernateTemplate hibernateTemplate;
     private PasswordEncoder passwordEncoder;
     private UniqueTicketIdGenerator ticketIdGenerator;
+
+    /**
+     * Creates a unique, random password recovery code for a user.
+     */
+    public synchronized String createPasswordRecoveryCode(User user) {
+        String recoveryCode = RandomStringUtils.random(12, "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+
+        while (findUserByRecoveryCode(recoveryCode) != null) {
+            recoveryCode = RandomStringUtils.random(12, "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+        }
+
+        user.setPasswordRecoveryCode(recoveryCode);
+
+        hibernateTemplate.update(user);
+
+        return user.getPasswordRecoveryCode();
+    }
+
+    /**
+     * Attempts to find a user by their recovery code.
+     */
+    public User findUserByRecoveryCode(String recoveryCode) {
+        List<User> users = (List<User>) hibernateTemplate.find("from User where passwordRecoveryCode = ?", recoveryCode);
+
+        if (users.size() > 0) {
+            return users.get(0);
+        } else {
+            return null;
+        }
+    }
 
     /**
      * Builds a URL for redirecting users to an app.

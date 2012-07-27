@@ -16,6 +16,7 @@ public class User implements Serializable {
     private String lastName;
     private String username;
     private String password;
+    private String passwordRecoveryCode;
     private boolean enabled;
     private Set<UserAccount> accounts = new HashSet<UserAccount>();
 
@@ -67,6 +68,15 @@ public class User implements Serializable {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    @Column(name = "password_recovery_code", length = 32, nullable = true)
+    public String getPasswordRecoveryCode() {
+        return passwordRecoveryCode;
+    }
+
+    public void setPasswordRecoveryCode(String passwordRecoveryCode) {
+        this.passwordRecoveryCode = passwordRecoveryCode;
     }
 
     @Column(name = "enabled")

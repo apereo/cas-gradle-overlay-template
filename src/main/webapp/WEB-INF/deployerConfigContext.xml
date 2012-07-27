@@ -108,6 +108,13 @@
                 </bean>
             </list>
         </property>
+
+        <!-- For "remember me" functionality. -->
+        <property name="authenticationMetaDataPopulators">
+            <list>
+                <bean class="org.jasig.cas.authentication.principal.RememberMeAuthenticationMetaDataPopulator" />
+            </list>
+        </property>
     </bean>
 
 

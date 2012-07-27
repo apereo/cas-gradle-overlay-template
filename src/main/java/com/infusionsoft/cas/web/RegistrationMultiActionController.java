@@ -15,6 +15,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -154,6 +155,83 @@ public class RegistrationMultiActionController extends MultiActionController {
             model.put("user", user);
 
             return new ModelAndView("infusionsoft/ui/registration/success", model);
+        }
+    }
+
+    /**
+     * Shows the "forgot password" dialog.
+     */
+    public ModelAndView forgot(HttpServletRequest request, HttpServletResponse response) {
+        return new ModelAndView("infusionsoft/ui/registration/forgot");
+    }
+
+    /**
+     * Shows the password recovery dialog.
+     */
+    public ModelAndView recover(HttpServletRequest request, HttpServletResponse response) {
+        String email = request.getParameter("username");
+        String recoveryCode = request.getParameter("recoveryCode");
+        String password1 = request.getParameter("password1");
+        String password2 = request.getParameter("password2");
+
+        log.info("password recovery request for email " + email);
+
+        if (StringUtils.isNotEmpty(recoveryCode)) {
+            User user = infusionsoftAuthenticationService.findUserByRecoveryCode(recoveryCode);
+
+            if (user == null) {
+                log.warn("invalid password recovery code was entered: " + recoveryCode);
+
+                return new ModelAndView("infusionsoft/ui/registration/recover", "error", "forgotpassword.noSuchCode");
+            } else {
+                log.info("correct password recovery code was entered for user " + user.getId());
+
+                return new ModelAndView("infusionsoft/ui/registration/reset", "recoveryCode", recoveryCode);
+            }
+        } else if (StringUtils.isNotEmpty(email)) {
+            List<User> users = (List<User>) hibernateTemplate.find("from User where username = ?", email);
+
+            if (users.size() > 0) {
+                recoveryCode = infusionsoftAuthenticationService.createPasswordRecoveryCode(users.get(0));
+
+                log.info("password recovery code " + recoveryCode + " created for user " + users.get(0).getId());
+
+                return new ModelAndView("infusionsoft/ui/registration/recover", "recoveryCode", recoveryCode);
+            } else {
+                log.warn("password recovery attempted for non-existent user: " + email);
+
+                return new ModelAndView("infusionsoft/ui/registration/forgot", "error", "forgotpassword.noSuchUser");
+            }
+        } else {
+            return new ModelAndView("infusionsoft/ui/registration/forgot");
+        }
+    }
+
+    public ModelAndView reset(HttpServletRequest request, HttpServletResponse response) {
+        String recoveryCode = request.getParameter("recoveryCode");
+        String password1 = request.getParameter("password1");
+        String password2 = request.getParameter("password2");
+        Map<String, Object> model = new HashMap<String, Object>();
+        User user = infusionsoftAuthenticationService.findUserByRecoveryCode(recoveryCode);
+
+        if (user == null) {
+            model.put("error", "forgotpassword.noSuchCode");
+        } else if (password1 == null || password1.length() < PASSWORD_LENGTH_MIN || password1.length() > PASSWORD_LENGTH_MAX) {
+            model.put("error", "registration.error.invalidPassword");
+        } else if (!password1.equals(password2)) {
+            model.put("error", "registration.error.passwordsNoMatch");
+        }
+
+        if (model.containsKey("error")) {
+            model.put("recoveryCode", recoveryCode);
+
+            return new ModelAndView("infusionsoft/ui/registration/reset", model);
+        } else {
+            user.setPassword(passwordEncoder.encode(password1));
+
+            log.info("reset password for user " + user.getId());
+
+            return new ModelAndView("redirect:/login");
         }
     }
 

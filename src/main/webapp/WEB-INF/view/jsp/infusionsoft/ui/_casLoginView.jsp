@@ -19,6 +19,11 @@
         padding: 30px;
     }
 
+    #forgot-password {
+        width: 336px;
+        margin: 5px auto;
+    }
+
 </style>
 
 <div id="login">
@@ -39,12 +44,19 @@
             </div>
         </div>
 
-        <div class="row btn-row" style="text-align: right">
-            <input type="hidden" name="lt" value="${loginTicket}" />
-            <input type="hidden" name="execution" value="${flowExecutionKey}" />
-            <input type="hidden" name="_eventId" value="submit" />
+        <input type="hidden" name="lt" value="${loginTicket}" />
+        <input type="hidden" name="execution" value="${flowExecutionKey}" />
+        <input type="hidden" name="_eventId" value="submit" />
+
+        <div class="control-group" style="text-align: right">
+            <span style="text-align: left; float: left; font-weight: normal; padding: 4px 0"><input type="checkbox" name="rememberMe" id="rememberMe" value="true" /> Stay signed in</span>
 
             <input class="btn btn-primary" name="submit" accesskey="l" value="Sign In" tabindex="4" type="submit" />
         </div>
     </form:form>
+</div>
+
+<div id="forgot-password">
+    <c:url var="forgotPasswordUrl" value="/registration/forgot"/>
+    <a href="${forgotPasswordUrl}">Forgot your password?</a>
 </div>
