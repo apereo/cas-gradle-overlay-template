@@ -9,6 +9,7 @@ import java.io.Serializable;
 public class UserAccount implements Serializable {
     private Long id;
     private User user;
+    private String alias;
     private String appType;
     private String appName;
     private String appUsername;
@@ -30,6 +31,15 @@ public class UserAccount implements Serializable {
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+    @Column(name = "alias", length = 60)
+    public String getAlias() {
+        return alias;
+    }
+
+    public void setAlias(String alias) {
+        this.alias = alias;
     }
 
     @Column(name = "app_name", length = 255)

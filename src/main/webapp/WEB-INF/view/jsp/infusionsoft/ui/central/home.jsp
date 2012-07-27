@@ -12,8 +12,19 @@
 <c:url var="linkCustomerHubAccount" value="/central/linkCustomerHubAccount"/>
 <c:url var="linkCommunityAccount" value="/central/linkCommunityAccount"/>
 <c:url var="createCommunityAccount" value="/central/createCommunityAccount"/>
+<c:url var="renameAccount" value="/central/renameAccount"/>
 
 <script type="text/javascript">
+
+    $(document).ready(function() {
+        $(".jeditable").editable("${renameAccount}", { height: "29px" });
+
+        $(".account").click(function() {
+            // Yes that's right, a div with an href, to avoid 
+            // silly nested propagation issues.
+        	document.location.href = $(this).attr("href");
+        });
+    });
 
     function goto(url) {
         document.location.href = url;
@@ -70,36 +81,36 @@
         <div style="clear: both"></div>
     </div>
 
-    <c:if test="${fn:length(user.accounts) > 0}">
+    <c:if test="${fn:length(accounts) > 0}">
         <div class="accounts">
-            <c:forEach var="account" items="${user.accounts}">
+            <c:forEach var="account" items="${accounts}">
                 <c:choose>
                     <c:when test="${account.appType == 'crm'}">
-                        <a href="https://${account.appName}.infusiontest.com:8443" class="account crm-account">
+                        <div href="https://${account.appName}.infusiontest.com:8443" class="account crm-account">
                             <div class="account-info">
-                                <div class="account-title">${account.appName}</div>
+                                <div id="account_${account.id}" class="account-title jeditable">${empty account.alias ? account.appName : account.alias}</div>
                                 <div class="account-detail">Infusionsoft App</div>
                                 <div class="account-detail">${account.appName}.infusionsoft.com</div>
                             </div>
-                        </a>
+                        </div>
                     </c:when>
                     <c:when test="${account.appType == 'community'}">
-                        <a href="http://community.infusionsoft.com" class="account forum-account">
+                        <div href="http://community.infusionsoft.com" class="account forum-account">
                             <div class="account-info">
                                 <div class="account-title">Infusionsoft Community</div>
                                 <div class="account-detail">Display Name: ${account.appUsername}</div>
                                 <div class="account-detail">community.infusionsoft.com</div>
                             </div>
-                        </a>
+                        </div>
                     </c:when>
                     <c:otherwise>
-                        <a href="https://${account.appName}.infusiontest.com:8443" class="account customerhub-account">
+                        <div href="https://${account.appName}.infusiontest.com:8443" class="account customerhub-account">
                             <div class="account-info">
                                 <div class="account-title">${account.appName}</div>
                                 <div class="account-detail">CustomerHub App</div>
                                 <div class="account-detail">${account.appName}.customerhub.net</div>
                             </div>
-                        </a>
+                        </div>
                     </c:otherwise>
                 </c:choose>
             </c:forEach>

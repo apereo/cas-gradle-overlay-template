@@ -1,7 +1,13 @@
 package com.infusionsoft.cas.web;
 
-import com.infusionsoft.cas.types.User;
-import com.infusionsoft.cas.services.InfusionsoftAuthenticationService;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.validator.EmailValidator;
@@ -10,16 +16,16 @@ import org.jasig.cas.authentication.handler.PasswordEncoder;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 import org.springframework.orm.hibernate3.HibernateTemplate;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.multiaction.MultiActionController;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
+import com.infusionsoft.cas.services.InfusionsoftAuthenticationService;
+import com.infusionsoft.cas.types.User;
+import com.infusionsoft.cas.types.UserAccount;
 
 /**
  * Controller that powers the central "hub" and association features.
@@ -51,6 +57,8 @@ public class CentralMultiActionController extends MultiActionController {
 
                 return null;
             } else {
+            	log.warn("user was referred from an unassociated app: " + appName + ", " + appType);
+            	
                 // TODO - do we want to force them to complete the association here?
 
                 return new ModelAndView("redirect:home");
@@ -68,7 +76,8 @@ public class CentralMultiActionController extends MultiActionController {
             model.put("user", user);
             model.put("homeLinkSelected", "selected");
             model.put("hasCommunityAccount", infusionsoftAuthenticationService.hasCommunityAccount(user));
-
+            model.put("accounts", infusionsoftAuthenticationService.getSortedUserAccounts(user));
+            
             return new ModelAndView("infusionsoft/ui/central/home", model);
         } else {
             model.put("service", request.getContextPath() + "/login");
@@ -128,7 +137,12 @@ public class CentralMultiActionController extends MultiActionController {
 
     public ModelAndView editProfile(HttpServletRequest request, HttpServletResponse response) throws IOException {
         try {
-            return new ModelAndView("infusionsoft/ui/central/editProfile", "user", infusionsoftAuthenticationService.getCurrentUser(request));
+            HashMap<String, Object> model = new HashMap<String, Object>();
+
+            model.put("user", infusionsoftAuthenticationService.getCurrentUser(request));
+            model.put("editProfileLinkSelected", "selected");
+
+            return new ModelAndView("infusionsoft/ui/central/editProfile", model);
         } catch (Exception e) {
             log.error("unable to load user for current request!", e);
 
@@ -286,6 +300,33 @@ public class CentralMultiActionController extends MultiActionController {
             return null;
         } else {
             return new ModelAndView("infusionsoft/ui/central/associate", model);
+        }
+    }
+
+    /**
+     * Called from the AJAX quick edit to rename an account alias.
+     */
+    @RequestMapping(method = RequestMethod.POST)
+    @ResponseBody
+    public String renameAccount(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String elementId = request.getParameter("id");
+        String alias = request.getParameter("value");
+        Long accountId = new Long(elementId.split("_")[1]);
+        User user = infusionsoftAuthenticationService.getCurrentUser(request);
+        UserAccount account = infusionsoftAuthenticationService.findUserAccount(user, accountId);
+
+        try {
+            account.setAlias(alias);
+
+            hibernateTemplate.update(account);
+
+            return alias;
+        } catch (Exception e) {
+            log.error("failed to update alias for account " + accountId, e);
+
+            response.sendError(500);
+
+            return null;
         }
     }
 

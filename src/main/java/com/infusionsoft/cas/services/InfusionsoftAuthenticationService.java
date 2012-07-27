@@ -1,7 +1,12 @@
 package com.infusionsoft.cas.services;
 
-import com.infusionsoft.cas.types.User;
-import com.infusionsoft.cas.types.UserAccount;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.log4j.Logger;
 import org.jasig.cas.CentralAuthenticationService;
@@ -16,10 +21,8 @@ import org.jasig.cas.ticket.registry.TicketRegistry;
 import org.jasig.cas.util.UniqueTicketIdGenerator;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.util.List;
+import com.infusionsoft.cas.types.User;
+import com.infusionsoft.cas.types.UserAccount;
 
 /**
  * Utility that handles Spring Security and CAS native authentication tricks.
@@ -62,6 +65,33 @@ public class InfusionsoftAuthenticationService {
         } else {
             return null;
         }
+    }
+
+    /**
+     * Finds a user account by id, but only if it belongs to a given user.
+     */
+    public UserAccount findUserAccount(User user, Long accountId) {
+        List<UserAccount> accounts = (List<UserAccount>) hibernateTemplate.find("from UserAccount where user = ? and id = ?", user, accountId);
+
+        if (accounts.size() > 0) {
+            return accounts.get(0);
+        } else {
+            return null;
+        }
+    }
+    
+    /**
+     * Returns a user's accounts, sorted by type and name for consistency.
+     */
+    public List<UserAccount> getSortedUserAccounts(User user) {
+    	List<UserAccount> accounts = new ArrayList<UserAccount>();
+    	
+    	// TODO - combine these, someday when we're feeling really virtuous
+    	accounts.addAll(hibernateTemplate.find("from UserAccount where user = ? and appType = ? order by appName", user, "crm"));
+    	accounts.addAll(hibernateTemplate.find("from UserAccount where user = ? and appType = ? order by appName", user, "community"));
+    	accounts.addAll(hibernateTemplate.find("from UserAccount where user = ? and appType = ? order by appName", user, "customerhub"));
+    	
+    	return accounts;
     }
 
     /**

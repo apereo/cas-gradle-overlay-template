@@ -152,6 +152,7 @@ h2.apps {
 #nav li a.selected {
     border-left: 1px solid #5c9e3c;
     border-right: 1px solid #5c9e3c;
+    padding: 0 9px;
     background: rgba(0, 0, 0, 0.05);
 }
 
@@ -247,6 +248,7 @@ h2.apps {
     background: #fff;
     border: 1px solid #dddddd;
     border-top: none;
+    min-height: 400px;
 }
 
 #biglogo {
@@ -307,6 +309,8 @@ label {
     height: 115px;
     display: block;
     color: #333;
+    cursor: hand;
+    cursor: pointer;
 }
 
 .accounts .account:first-child {
@@ -330,6 +334,12 @@ label {
     color: #333;
     background-color: #F5F5F5;
 }
+
+.accounts .account form {
+	margin: 0;
+	padding: 0;
+}
+
 .accounts .account-info {
     padding: 15px 0 15px 115px;
     background: url(../images/more-arrow.png) 870px center no-repeat;
@@ -338,6 +348,7 @@ label {
 .accounts .account-title {
     font-size: 20px;
     line-height: 35px;
+    width: 400px;
 }
 
 .accounts .account-detail {
