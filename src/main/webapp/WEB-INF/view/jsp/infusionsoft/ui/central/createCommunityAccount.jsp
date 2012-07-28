@@ -76,25 +76,22 @@
     </c:if>
 
     <form id="createForm" action="createCommunityAccount" method="post" class="form-horizontal">
-        <input name="appType" type="hidden" value="community"/>
-        <input name="user" type="hidden" value="${user.getId()}"/>
-
         <h2>Required Information</h2>
         <fieldset>
             <div class="control-group">
                 <label for="displayName" class="control-label">Display Name</label>
                 <div class="controls">
-                    <input id="displayName" name="displayName" type="text" value="${fn:escapeXml(displayName)}"/>
+                    <input id="displayName" name="displayName" type="text" value="${fn:escapeXml(details.displayName)}"/>
                 </div>
             </div>
             <div class="control-group">
                 <label for="infusionsoftExperience" class="control-label">Infusionsoft Experience</label>
                 <div class="controls">
                     <c:forEach var="i" items="${infusionsoftExperienceLevels}">
-                        <c:if test="${i == infusionsoftExperience}">
+                        <c:if test="${i == details.infusionsoftExperience}">
                             <label class="radio"><input id="infusionsoftExperience" name="infusionsoftExperience" type="radio" value="${i}" checked="checked"/> <spring:message code="community.infusionsoftExperience.${i}"/></label>
                         </c:if>
-                        <c:if test="${i != infusionsoftExperience}">
+                        <c:if test="${i != details.infusionsoftExperience}">
                             <label class="radio"><input id="infusionsoftExperience" name="infusionsoftExperience" type="radio" value="${i}"/> <spring:message code="community.infusionsoftExperience.${i}"/></label>
                         </c:if>
                     </c:forEach>
@@ -147,13 +144,13 @@
             <div class="control-group">
                 <label for="notificationEmailAddress" class="control-label">Notification Email Address</label>
                 <div class="controls">
-                    <input id="notificationEmailAddress" name="notificationEmailAddress" type="text" value="${fn:escapeXml(notificationEmailAddress)}"/>
+                    <input id="notificationEmailAddress" name="notificationEmailAddress" type="text" value="${fn:escapeXml(details.notificationEmailAddress)}"/>
                 </div>
             </div>
             <div class="control-group">
                 <label for="twitterHandle" class="control-label">Twitter Handle</label>
                 <div class="controls">
-                    <input id="twitterHandle" name="twitterHandle" type="text" value="${fn:escapeXml(twitterHandle)}"/>
+                    <input id="twitterHandle" name="twitterHandle" type="text" value="${fn:escapeXml(details.twitterHandle)}"/>
                 </div>
             </div>
         </fieldset>

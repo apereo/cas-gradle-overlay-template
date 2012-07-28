@@ -1,6 +1,7 @@
 package com.infusionsoft.cas.services;
 
 import com.infusionsoft.cas.exceptions.UsernameTakenException;
+import com.infusionsoft.cas.types.CommunityAccountDetails;
 import com.infusionsoft.cas.types.User;
 import com.infusionsoft.cas.types.UserAccount;
 import org.apache.commons.lang.RandomStringUtils;
@@ -73,6 +74,19 @@ public class InfusionsoftAuthenticationService {
     }
 
     /**
+     * Fetches details for a community account, if available.
+     */
+    public CommunityAccountDetails findCommunityAccountDetails(UserAccount account) {
+        List<CommunityAccountDetails> details = (List<CommunityAccountDetails>) hibernateTemplate.find("from CommunityAccountDetails where userAccount = ?", account);
+
+        if (details.size() > 0) {
+            return details.get(0);
+        } else {
+            return null;
+        }
+    }
+
+    /**
      * Finds a user account by id, but only if it belongs to a given user.
      */
     public UserAccount findUserAccount(User user, Long accountId) {
@@ -137,25 +151,63 @@ public class InfusionsoftAuthenticationService {
     /**
      * Calls out to the Community web service to try to create a new user.
      */
-    public UserAccount registerCommunityUserAccount(User user, String forumDisplayName, String forumEmail, String forumExperienceLevel) throws RestClientException, UsernameTakenException {
+    public UserAccount registerCommunityUserAccount(User user, CommunityAccountDetails details) throws RestClientException, UsernameTakenException {
         RestTemplate restTemplate = new RestTemplate();
 
         log.info("preparing REST call to " + forumBase);
 
+        // TODO - re-enable this
         // TODO - shouldn't be a get, use POST here...
-        String result = restTemplate.getForObject("{base}/rest.php/user/addnewuser/{username}/{email}?key={apiKey}", String.class, forumBase, forumDisplayName, forumEmail, forumApiKey);
+        //String result = restTemplate.getForObject("{base}/rest.php/user/addnewuser/{username}/{email}?key={apiKey}", String.class, forumBase, details.getDisplayName(), details.getNotificationEmailAddress(), forumApiKey);
 
-        log.debug("REST response: " + result);
+        //log.debug("REST response: " + result);
 
-        JSONObject returnValue = (JSONObject) JSONValue.parse(result);
-        Boolean hasError = (Boolean) returnValue.get("error");
+        //JSONObject returnValue = (JSONObject) JSONValue.parse(result);
+        //Boolean hasError = (Boolean) returnValue.get("error");
 
-        if (hasError) {
-            throw new UsernameTakenException("the display name [" + forumDisplayName + "] is already taken");
-        } else {
-            return associateAccountToUser(user, "community", "Infusionsoft Community", String.valueOf(returnValue.get("username")));
-        }
+        //if (hasError) {
+        //    throw new UsernameTakenException("the display name [" + forumDisplayName + "] is already taken");
+        //} else {
+//            return associateAccountToUser(user, "community", "Infusionsoft Community", String.valueOf(returnValue.get("username")));
+        //}
+
+        UserAccount account = associateAccountToUser(user, "community", "Infusionsoft Community", details.getDisplayName());
+
+        details.setUserAccount(account);
+
+        hibernateTemplate.save(details);
+
+        return account;
     }
+
+    /**
+     * Calls out to the Community web service to try to update a user profile.
+     */
+    public void updateCommunityUserAccount(User user, CommunityAccountDetails details) throws RestClientException, UsernameTakenException {
+        RestTemplate restTemplate = new RestTemplate();
+
+        log.info("preparing REST call to " + forumBase);
+
+        // TODO - re-enable this with the correct service call
+        // TODO - shouldn't be a get, use POST here...
+        //String result = restTemplate.getForObject("{base}/rest.php/user/addnewuser/{username}/{email}?key={apiKey}", String.class, forumBase, details.getDisplayName(), details.getNotificationEmailAddress(), forumApiKey);
+
+        //log.debug("REST response: " + result);
+
+        //JSONObject returnValue = (JSONObject) JSONValue.parse(result);
+        //Boolean hasError = (Boolean) returnValue.get("error");
+
+        //if (hasError) {
+        //    throw new UsernameTakenException("the display name [" + forumDisplayName + "] is already taken");
+        //} else {
+//            return associateAccountToUser(user, "community", "Infusionsoft Community", String.valueOf(returnValue.get("username")));
+        //}
+
+        details.getUserAccount().setAppUsername(details.getDisplayName());
+        hibernateTemplate.update(details.getUserAccount());
+        hibernateTemplate.update(details);
+    }
+
 
     /**
      * Creates (or updates) a CAS ticket granting ticket. Sometimes this needs to be called after an attributes change,

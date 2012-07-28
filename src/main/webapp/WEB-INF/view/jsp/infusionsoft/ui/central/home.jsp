@@ -12,6 +12,7 @@
 <c:url var="linkCustomerHubAccount" value="/central/linkCustomerHubAccount"/>
 <c:url var="linkCommunityAccount" value="/central/linkCommunityAccount"/>
 <c:url var="createCommunityAccount" value="/central/createCommunityAccount"/>
+<c:url var="editCommunityAccount" value="/central/editCommunityAccount"/>
 <c:url var="renameAccount" value="/central/renameAccount"/>
 
 <script type="text/javascript">
@@ -107,7 +108,7 @@
                         <div href="http://community.infusionsoft.com" class="account forum-account">
                             <div class="account-info">
                                 <div class="account-title">Infusionsoft Community</div>
-                                <div class="account-detail">Display Name: ${account.appUsername}</div>
+                                <div class="account-detail">Display Name: ${account.appUsername} | <a href="${editCommunityAccount}?id=${account.id}">Edit</a></div>
                                 <div class="account-detail">community.infusionsoft.com</div>
                             </div>
                         </div>

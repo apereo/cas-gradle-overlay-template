@@ -2,6 +2,8 @@ package com.infusionsoft.cas.web;
 
 import com.infusionsoft.cas.exceptions.UsernameTakenException;
 import com.infusionsoft.cas.services.InfusionsoftAuthenticationService;
+import com.infusionsoft.cas.services.InfusionsoftMailService;
+import com.infusionsoft.cas.types.CommunityAccountDetails;
 import com.infusionsoft.cas.types.User;
 import com.infusionsoft.cas.types.UserAccount;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -37,6 +39,7 @@ public class CentralMultiActionController extends MultiActionController {
     private static final String FORUM_API_KEY = "bec0124123e5ab4c2ce362461cb46ff0";
 
     private InfusionsoftAuthenticationService infusionsoftAuthenticationService;
+    private InfusionsoftMailService infusionsoftMailService;
     private HibernateTemplate hibernateTemplate;
     private PasswordEncoder passwordEncoder;
 
@@ -97,60 +100,47 @@ public class CentralMultiActionController extends MultiActionController {
         return new ModelAndView("infusionsoft/ui/central/linkCommunityAccount");
     }
 
-    // TODO - this would benefit from a form bean instead of plain old request/response
     public ModelAndView createCommunityAccount(HttpServletRequest request, HttpServletResponse response) {
         Map<String, Object> model = new HashMap<String, Object>();
         User user = infusionsoftAuthenticationService.getCurrentUser(request);
+        CommunityAccountDetails details = new CommunityAccountDetails();
 
         model.put("infusionsoftExperienceLevels", new int[]{1, 2, 3, 4, 5});
-        model.put("infusionsoftExperience", 1); // default
+        model.put("details", details);
 
         if (request.getMethod().equalsIgnoreCase("POST")) {
-            String displayName = request.getParameter("displayName");
-            String infusionsoftExperience = request.getParameter("infusionsoftExperience");
-            String timeZone = request.getParameter("timeZone");
-            String notificationEmailAddress = request.getParameter("notificationEmailAddress");
-            String twitterHandle = request.getParameter("twitterHandle");
             boolean agreeToRules = Boolean.valueOf(request.getParameter("agreeToRules"));
 
-            model.put("displayName", displayName);
-            model.put("infusionsoftExperience", infusionsoftExperience);
-            model.put("timeZone", timeZone);
-            model.put("notificationEmailAddress", notificationEmailAddress);
-            model.put("twitterHandle", twitterHandle);
-            model.put("agreeToRules", agreeToRules);
+            details.setDisplayName(request.getParameter("displayName"));
+            details.setInfusionsoftExperience(Integer.parseInt(request.getParameter("infusionsoftExperience")));
+            details.setTimeZone(request.getParameter("timeZone"));
+            details.setNotificationEmailAddress(request.getParameter("notificationEmailAddress"));
+            details.setTwitterHandle(request.getParameter("twitterHandle"));
 
-            if (StringUtils.isEmpty(displayName) || displayName.length() < 4 || displayName.length() > 30) {
+            if (StringUtils.isEmpty(details.getDisplayName()) || details.getDisplayName().length() < 4 || details.getDisplayName().length() > 30) {
                 model.put("error", "community.error.displayNameInvalid");
-            } else if (StringUtils.isNotEmpty(notificationEmailAddress) && !EmailValidator.getInstance().isValid(notificationEmailAddress)) {
+            } else if (StringUtils.isNotEmpty(details.getNotificationEmailAddress()) && !EmailValidator.getInstance().isValid(details.getNotificationEmailAddress())) {
                 model.put("error", "community.error.notificationEmailAddressInvalid");
             } else if (!agreeToRules) {
                 model.put("error", "community.error.agreeToRules");
             }
 
-            if (model.containsKey("error")) {
-                return new ModelAndView("infusionsoft/ui/central/createCommunityAccount", model);
-            } else {
+            if (!model.containsKey("error")) {
                 log.info("attempting to register a forum account for user " + user.getId());
 
                 try {
-                    infusionsoftAuthenticationService.registerCommunityUserAccount(user, displayName, notificationEmailAddress, infusionsoftExperience);
+                    infusionsoftAuthenticationService.registerCommunityUserAccount(user, details);
                     infusionsoftAuthenticationService.createTicketGrantingTicket(user.getUsername(), "bogus", request, response);
-                } catch (UsernameTakenException e) {
-                    model.put("error", "community.error.displayNameTaken");
 
-                    log.error("failed to register community account for user " + user.getId(), e);
-                } catch (Exception e) {
-                    // TODO - add this error back in when we have a web service to talk to
-//                    model.put("error", "community.error.unknown");
-
-                    log.error("unexpected error while registering community account for user " + user.getId(), e);
-                }
-
-                if (model.containsKey("error")) {
-                    return new ModelAndView("infusionsoft/ui/central/createCommunityAccount", model);
-                } else {
                     return new ModelAndView("redirect:index");
+                } catch (UsernameTakenException e) {
+                    log.error("failed to register community account for user " + user.getId(), e);
+
+                    model.put("error", "community.error.displayNameTaken");
+                } catch (Exception e) {
+                    log.error("unexpected error while registering community account for user " + user.getId(), e);
+
+                    model.put("error", "community.error.unknown");
                 }
             }
         }
@@ -265,6 +255,64 @@ public class CentralMultiActionController extends MultiActionController {
         }
     }
 
+    public ModelAndView editCommunityAccount(HttpServletRequest request, HttpServletResponse response) {
+        Long accountId = new Long(request.getParameter("id"));
+        User user = infusionsoftAuthenticationService.getCurrentUser(request);
+        UserAccount account = infusionsoftAuthenticationService.findUserAccount(user, accountId);
+        Map<String, Object> model = new HashMap<String, Object>();
+
+        model.put("user", user);
+        model.put("account", account);
+        model.put("details", infusionsoftAuthenticationService.findCommunityAccountDetails(account));
+        model.put("infusionsoftExperienceLevels", new int[]{1, 2, 3, 4, 5});
+
+        return new ModelAndView("infusionsoft/ui/central/editCommunityAccount", model);
+    }
+
+    public ModelAndView updateCommunityAccount(HttpServletRequest request, HttpServletResponse response) {
+        Map<String, Object> model = new HashMap<String, Object>();
+        User user = infusionsoftAuthenticationService.getCurrentUser(request);
+        UserAccount account = infusionsoftAuthenticationService.findUserAccount(user, new Long(request.getParameter("id")));
+        CommunityAccountDetails details = infusionsoftAuthenticationService.findCommunityAccountDetails(account);
+
+        details.setDisplayName(request.getParameter("displayName"));
+        details.setInfusionsoftExperience(Integer.parseInt(request.getParameter("infusionsoftExperience")));
+        details.setTimeZone(request.getParameter("timeZone"));
+        details.setNotificationEmailAddress(request.getParameter("notificationEmailAddress"));
+        details.setTwitterHandle(request.getParameter("twitterHandle"));
+
+        if (StringUtils.isEmpty(details.getDisplayName()) || details.getDisplayName().length() < 4 || details.getDisplayName().length() > 30) {
+            model.put("error", "community.error.displayNameInvalid");
+        } else if (StringUtils.isNotEmpty(details.getNotificationEmailAddress()) && !EmailValidator.getInstance().isValid(details.getNotificationEmailAddress())) {
+            model.put("error", "community.error.notificationEmailAddressInvalid");
+        }
+
+        model.put("account", account);
+        model.put("details", details);
+
+        if (!model.containsKey("error")) {
+            log.info("attempting to update a forum account for user " + user.getId());
+
+            try {
+                infusionsoftAuthenticationService.updateCommunityUserAccount(user, details);
+                infusionsoftAuthenticationService.createTicketGrantingTicket(user.getUsername(), "bogus", request, response);
+
+                return new ModelAndView("redirect:index");
+            } catch (UsernameTakenException e) {
+                model.put("error", "community.error.displayNameTaken");
+
+                log.error("failed to register community account for user " + user.getId(), e);
+            } catch (Exception e) {
+                model.put("error", "community.error.unknown");
+
+                log.error("unexpected error while registering community account for user " + user.getId(), e);
+            }
+        }
+
+        return new ModelAndView("infusionsoft/ui/central/editCommunityAccount", model);
+    }
+
+    // TODO - still needed?
     public ModelAndView associateForum(HttpServletRequest request, HttpServletResponse response) throws IOException {
         Map<String, Object> model = new HashMap<String, Object>();
 
@@ -317,6 +365,7 @@ public class CentralMultiActionController extends MultiActionController {
         }
     }
 
+    // TODO - still needed?
     public ModelAndView createForum(HttpServletRequest request, HttpServletResponse response) throws IOException {
         Map<String, Object> model = new HashMap<String, Object>();
         try {
@@ -403,5 +452,9 @@ public class CentralMultiActionController extends MultiActionController {
 
     public void setPasswordEncoder(PasswordEncoder passwordEncoder) {
         this.passwordEncoder = passwordEncoder;
+    }
+
+    public void setInfusionsoftMailService(InfusionsoftMailService infusionsoftMailService) {
+        this.infusionsoftMailService = infusionsoftMailService;
     }
 }

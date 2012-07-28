@@ -205,12 +205,14 @@
           p:hibernateTemplate-ref="hibernateTemplate"
           p:passwordEncoder-ref="passwordEncoder"
           p:ticketIdGenerator-ref="loginTicketUniqueIdGenerator"
-          p:infusionsoftAuthenticationService-ref="infusionsoftAuthenticationService"/>
+          p:infusionsoftAuthenticationService-ref="infusionsoftAuthenticationService"
+          p:infusionsoftMailService-ref="infusionsoftMailService"/>
 
     <bean id="centralMultiActionController" class="com.infusionsoft.cas.web.CentralMultiActionController"
           p:infusionsoftAuthenticationService-ref="infusionsoftAuthenticationService"
           p:hibernateTemplate-ref="hibernateTemplate"
-          p:passwordEncoder-ref="passwordEncoder"/>
+          p:passwordEncoder-ref="passwordEncoder"
+          p:infusionsoftMailService-ref="infusionsoftMailService"/>
 
     <bean id="restController" class="com.infusionsoft.cas.web.RestController"
           p:hibernateTemplate-ref="hibernateTemplate"

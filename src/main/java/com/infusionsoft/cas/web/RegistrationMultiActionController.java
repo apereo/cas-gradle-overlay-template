@@ -1,5 +1,6 @@
 package com.infusionsoft.cas.web;
 
+import com.infusionsoft.cas.services.InfusionsoftMailService;
 import com.infusionsoft.cas.types.User;
 import com.infusionsoft.cas.services.InfusionsoftAuthenticationService;
 import org.apache.commons.lang.StringUtils;
@@ -29,7 +30,7 @@ public class RegistrationMultiActionController extends MultiActionController {
     private static final String FORUM_API_KEY = "bec0124123e5ab4c2ce362461cb46ff0";
 
     private InfusionsoftAuthenticationService infusionsoftAuthenticationService;
-
+    private InfusionsoftMailService infusionsoftMailService;
     private HibernateTemplate hibernateTemplate;
     private PasswordEncoder passwordEncoder;
     private UniqueTicketIdGenerator ticketIdGenerator;
@@ -196,6 +197,8 @@ public class RegistrationMultiActionController extends MultiActionController {
 
                 log.info("password recovery code " + recoveryCode + " created for user " + users.get(0).getId());
 
+                infusionsoftMailService.sendPasswordResetEmail(users.get(0));
+
                 return new ModelAndView("infusionsoft/ui/registration/recover", "recoveryCode", recoveryCode);
             } else {
                 log.warn("password recovery attempted for non-existent user: " + email);
@@ -251,5 +254,9 @@ public class RegistrationMultiActionController extends MultiActionController {
 
     public void setInfusionsoftAuthenticationService(InfusionsoftAuthenticationService infusionsoftAuthenticationService) {
         this.infusionsoftAuthenticationService = infusionsoftAuthenticationService;
+    }
+
+    public void setInfusionsoftMailService(InfusionsoftMailService infusionsoftMailService) {
+        this.infusionsoftMailService = infusionsoftMailService;
     }
 }

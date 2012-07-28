@@ -232,6 +232,7 @@
             <list>
                 <value>com.infusionsoft.cas.types.User</value>
                 <value>com.infusionsoft.cas.types.UserAccount</value>
+                <value>com.infusionsoft.cas.types.CommunityAccountDetails</value>
                 <value>com.infusionsoft.cas.types.LegacyAccount</value>
             </list>
         </property>
@@ -263,11 +264,25 @@
         <property name="forumApiKey" value="${infusionsoft.community.apikey}"/>
     </bean>
 
+    <bean id="infusionsoftMailService" class="com.infusionsoft.cas.services.InfusionsoftMailService">
+        <property name="mailSender" ref="mailSender"/>
+        <property name="templateMessage" ref="templateMessage"/>
+    </bean>
+
     <bean id="userFilter" name="userFilter" class="com.infusionsoft.cas.web.UserFilter"
           p:infusionsoftAuthenticationService-ref="infusionsoftAuthenticationService"
           p:crmDomain="${infusionsoft.crm.domain}"
           p:communityDomain="${infusionsoft.community.domain}"
           p:customerHubDomain="${infusionsoft.customerhub.domain}"/>
+
+    <bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
+        <property name="host" value="${infusionsoft.mail.host}"/>
+    </bean>
+
+    <bean id="templateMessage" class="org.springframework.mail.SimpleMailMessage">
+        <property name="from" value="info@infusionsoft.com"/>
+        <property name="subject" value="Important message from Infusionsoft"/>
+    </bean>
 
     <!--
     private CentralAuthenticationService centralAuthenticationService;
