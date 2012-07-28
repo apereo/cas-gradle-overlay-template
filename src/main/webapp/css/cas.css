@@ -33,7 +33,7 @@ a img {
 }
 
 h2 {
-    margin: 0 0 14px 0;
+    margin: 0 0 5px 0;
     padding: 0;
     font-size: 15px;
     font-weight: bold;
@@ -296,7 +296,6 @@ h2.apps {
 }
 
 label {
-    font-weight: bold;
     font-size: 12px;
 }
 
@@ -354,4 +353,29 @@ label {
 .accounts .account-detail {
     font-size: 14px;
     line-height: 25px;
+}
+
+.alert-info {
+    background: #D5EEF6;
+    border: 1px solid #A9CFDA;
+    padding: 12px 10px;
+    color: #333;
+}
+
+.modal-title {
+    margin: 100px auto 0 auto;
+    text-align: center;
+    font-size: 20px;
+}
+
+.modal-header h3 {
+    font-weight: normal;
+}
+
+.form-vertical label.control-label {
+    font-weight: bold;
+}
+
+.modal-body {
+    padding: 10px 30px;
 }

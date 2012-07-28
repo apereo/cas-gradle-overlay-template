@@ -7,13 +7,6 @@
 
 <style type="text/css">
 
-    #welcome {
-        width: 390px;
-        margin: 100px auto 0 auto;
-        text-align: center;
-        font-size: 18px;
-    }
-
     #register {
         width: 330px;
         padding: 30px;
@@ -41,7 +34,7 @@
 
 </style>
 
-<div id="welcome">
+<div class="modal-title">
     Welcome!<br/>
     Please Create Your Infusionsoft ID
 </div>

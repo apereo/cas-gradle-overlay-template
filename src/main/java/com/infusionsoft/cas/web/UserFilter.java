@@ -23,8 +23,10 @@ public class UserFilter implements Filter {
     private String crmDomain;
     private String communityDomain;
     private String customerHubDomain;
+    private String contextPath = null;
 
     public void init(FilterConfig filterConfig) throws ServletException {
+        contextPath = filterConfig.getServletContext().getContextPath();
     }
 
     /**
@@ -80,7 +82,13 @@ public class UserFilter implements Filter {
             }
         }
 
-        filterChain.doFilter(request, response);
+        log.debug("servlet path is " + request.getServletPath());
+
+        if (session.getAttribute("user") == null && request.getServletPath().startsWith("/central")) {
+            response.sendRedirect(contextPath + "/login");
+        } else {
+            filterChain.doFilter(request, response);
+        }
     }
 
     public void destroy() {

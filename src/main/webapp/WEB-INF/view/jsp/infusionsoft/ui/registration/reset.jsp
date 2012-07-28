@@ -35,25 +35,28 @@
         </div>
     </c:if>
 
-    <c:if test="${empty error}">
-        <div class="alert alert-info" style="margin: -20px -20px 20px -20px">
-            We have emailed you a recovery code. Copy and paste the recovery code into the field below and
-            click "Next".
-        </div>
-    </c:if>
+    <form action="reset" method="post" id="fm1" class="form-vertical">
+        <h2>Please Create A New Password</h2>
 
-    <form action="recover" method="post" id="fm1" class="form-vertical">
-        <div class="control-group">
-            <label for="recoveryCode" class="control-label">Recovery Code</label>
-            <div class="controls">
-                <input type="text" class="required" id="recoveryCode" name="recoveryCode" size="25" tabindex="1" style="width: 266px" />
+        <fieldset>
+            <div class="control-group">
+                <label class="control-label" for="password1">Password</label>
+                <div class="controls">
+                    <input id="password1" name="password1" value="" type="password"/>
+                </div>
             </div>
-        </div>
+            <div class="control-group">
+                <label class="control-label" for="password2">Confirm Password</label>
+                <div class="controls">
+                    <input id="password2" name="password2" value="" type="password"/>
+                </div>
+            </div>
+        </fieldset>
 
         <input name="recoveryCode" type="hidden" value="${recoveryCode}"/>
 
         <div class="control-group" style="text-align: right">
-            <input class="btn btn-primary" name="submit" accesskey="l" value="Next" tabindex="4" type="submit" />
+            <input class="btn btn-primary" name="submit" accesskey="l" value="Change Password" tabindex="4" type="submit" />
         </div>
     </form>
 </div>

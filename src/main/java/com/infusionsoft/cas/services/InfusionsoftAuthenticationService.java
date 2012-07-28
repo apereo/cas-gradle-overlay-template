@@ -1,12 +1,8 @@
 package com.infusionsoft.cas.services;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import com.infusionsoft.cas.exceptions.UsernameTakenException;
+import com.infusionsoft.cas.types.User;
+import com.infusionsoft.cas.types.UserAccount;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.log4j.Logger;
 import org.jasig.cas.CentralAuthenticationService;
@@ -19,10 +15,17 @@ import org.jasig.cas.ticket.TicketException;
 import org.jasig.cas.ticket.TicketGrantingTicket;
 import org.jasig.cas.ticket.registry.TicketRegistry;
 import org.jasig.cas.util.UniqueTicketIdGenerator;
+import org.json.simple.JSONObject;
+import org.json.simple.JSONValue;
 import org.springframework.orm.hibernate3.HibernateTemplate;
+import org.springframework.web.client.RestClientException;
+import org.springframework.web.client.RestTemplate;
 
-import com.infusionsoft.cas.types.User;
-import com.infusionsoft.cas.types.UserAccount;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Utility that handles Spring Security and CAS native authentication tricks.
@@ -36,6 +39,8 @@ public class InfusionsoftAuthenticationService {
     private HibernateTemplate hibernateTemplate;
     private PasswordEncoder passwordEncoder;
     private UniqueTicketIdGenerator ticketIdGenerator;
+    private String forumBase;
+    private String forumApiKey;
 
     /**
      * Creates a unique, random password recovery code for a user.
@@ -79,19 +84,19 @@ public class InfusionsoftAuthenticationService {
             return null;
         }
     }
-    
+
     /**
      * Returns a user's accounts, sorted by type and name for consistency.
      */
     public List<UserAccount> getSortedUserAccounts(User user) {
-    	List<UserAccount> accounts = new ArrayList<UserAccount>();
-    	
-    	// TODO - combine these, someday when we're feeling really virtuous
-    	accounts.addAll(hibernateTemplate.find("from UserAccount where user = ? and appType = ? order by appName", user, "crm"));
-    	accounts.addAll(hibernateTemplate.find("from UserAccount where user = ? and appType = ? order by appName", user, "community"));
-    	accounts.addAll(hibernateTemplate.find("from UserAccount where user = ? and appType = ? order by appName", user, "customerhub"));
-    	
-    	return accounts;
+        List<UserAccount> accounts = new ArrayList<UserAccount>();
+
+        // TODO - combine these, someday when we're feeling really virtuous
+        accounts.addAll(hibernateTemplate.find("from UserAccount where user = ? and appType = ? order by appName", user, "crm"));
+        accounts.addAll(hibernateTemplate.find("from UserAccount where user = ? and appType = ? order by appName", user, "community"));
+        accounts.addAll(hibernateTemplate.find("from UserAccount where user = ? and appType = ? order by appName", user, "customerhub"));
+
+        return accounts;
     }
 
     /**
@@ -127,6 +132,29 @@ public class InfusionsoftAuthenticationService {
         hibernateTemplate.update(user);
 
         return account;
+    }
+
+    /**
+     * Calls out to the Community web service to try to create a new user.
+     */
+    public UserAccount registerCommunityUserAccount(User user, String forumDisplayName, String forumEmail, String forumExperienceLevel) throws RestClientException, UsernameTakenException {
+        RestTemplate restTemplate = new RestTemplate();
+
+        log.info("preparing REST call to " + forumBase);
+
+        // TODO - shouldn't be a get, use POST here...
+        String result = restTemplate.getForObject("{base}/rest.php/user/addnewuser/{username}/{email}?key={apiKey}", String.class, forumBase, forumDisplayName, forumEmail, forumApiKey);
+
+        log.debug("REST response: " + result);
+
+        JSONObject returnValue = (JSONObject) JSONValue.parse(result);
+        Boolean hasError = (Boolean) returnValue.get("error");
+
+        if (hasError) {
+            throw new UsernameTakenException("the display name [" + forumDisplayName + "] is already taken");
+        } else {
+            return associateAccountToUser(user, "community", "Infusionsoft Community", String.valueOf(returnValue.get("username")));
+        }
     }
 
     /**
@@ -246,5 +274,13 @@ public class InfusionsoftAuthenticationService {
 
     public void setTicketIdGenerator(UniqueTicketIdGenerator ticketIdGenerator) {
         this.ticketIdGenerator = ticketIdGenerator;
+    }
+
+    public void setForumBase(String forumBase) {
+        this.forumBase = forumBase;
+    }
+
+    public void setForumApiKey(String forumApiKey) {
+        this.forumApiKey = forumApiKey;
     }
 }

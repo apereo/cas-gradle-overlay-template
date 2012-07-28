@@ -259,6 +259,8 @@
         <property name="ticketRegistry" ref="ticketRegistry"/>
         <property name="passwordEncoder" ref="passwordEncoder"/>
         <property name="ticketIdGenerator" ref="loginTicketUniqueIdGenerator"/>
+        <property name="forumBase" value="${infusionsoft.community.baseurl}"/>
+        <property name="forumApiKey" value="${infusionsoft.community.apikey}"/>
     </bean>
 
     <bean id="userFilter" name="userFilter" class="com.infusionsoft.cas.web.UserFilter"

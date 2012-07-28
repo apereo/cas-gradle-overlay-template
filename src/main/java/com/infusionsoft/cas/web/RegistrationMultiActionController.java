@@ -229,7 +229,9 @@ public class RegistrationMultiActionController extends MultiActionController {
         } else {
             user.setPassword(passwordEncoder.encode(password1));
 
-            log.info("reset password for user " + user.getId());
+            hibernateTemplate.update(user);
+
+            log.info("reset password for user " + user.getId() + " to " + user.getPassword());
 
             return new ModelAndView("redirect:/login");
         }

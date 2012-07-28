@@ -31,7 +31,7 @@
 
 </style>
 
-<div id="welcome">
+<div class="modal-title">
     Welcome, ${user.firstName}!<br/>
     Please Create Your Infusionsoft ID
 </div>

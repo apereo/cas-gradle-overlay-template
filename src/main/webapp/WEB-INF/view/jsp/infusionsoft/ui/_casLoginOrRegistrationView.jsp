@@ -64,7 +64,7 @@
             <input type="hidden" name="_eventId" value="submit" />
 
             <div class="control-group" style="text-align: right">
-                <span style="text-align: left; float: left; font-weight: normal; padding: 4px 0"><input type="checkbox" name="rememberMe" id="rememberMe" value="true" /> Stay signed in</span>
+                <label class="checkbox" style="float: left"><input type="checkbox" name="rememberMe" id="rememberMe" value="true" /> Stay signed in</label>
 
                 <input class="btn btn-primary" name="submit" accesskey="l" value="Sign In" tabindex="4" type="submit" />
             </div>
