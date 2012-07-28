@@ -347,7 +347,6 @@ label {
 .accounts .account-title {
     font-size: 20px;
     line-height: 35px;
-    width: 400px;
 }
 
 .accounts .account-detail {
@@ -378,4 +377,21 @@ label {
 
 .modal-body {
     padding: 10px 30px;
+}
+
+.quick-editable {
+    padding-right: 30px;
+}
+
+.quick-editable:hover {
+    background: url(../images/pencil.png) right center no-repeat;
+}
+
+#quick-editor {
+    display: none;
+    position: absolute;
+    width: 270px;
+    height: 130px;
+    padding: 20px 20px 20px 30px;
+    background: url(../images/quickedit-bubble.png) no-repeat;
 }

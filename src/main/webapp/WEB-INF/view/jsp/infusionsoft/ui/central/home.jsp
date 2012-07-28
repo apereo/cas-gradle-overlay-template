@@ -17,14 +17,39 @@
 <script type="text/javascript">
 
     $(document).ready(function() {
-        $(".jeditable").editable("${renameAccount}", { height: "29px" });
-
         $(".account").click(function() {
             // Yes that's right, a div with an href, to avoid 
             // silly nested propagation issues.
         	document.location.href = $(this).attr("href");
         });
     });
+
+    function editAlias(userAccountId) {
+        $("#quick-editor").show();
+        $("#quick-editor").css("left", $(this).offset().left + $(this).width());
+        $("#quick-editor").css("top", $(this).offset().top - 50);
+
+        event.stopPropagation();
+
+        return false;
+    }
+
+    function updateAlias() {
+        var userAccountId = -99; // TODO
+        var alias = $("#quick-editor input[type=text]").val();
+
+        $.ajax("${renameAccount}", {
+            type: "POST",
+            data: { id: userAccountId, value: alias },
+            success: function(response) {
+                // TODO - handle it
+            }
+        });
+    }
+
+    function hideQuickEditor() {
+        $("#quick-editor").hide();
+    }
 
     function goto(url) {
         document.location.href = url;
@@ -52,6 +77,7 @@
 </script>
 
 <style type="text/css">
+
 
 
 </style>
@@ -88,7 +114,9 @@
                     <c:when test="${account.appType == 'crm'}">
                         <div href="https://${account.appName}.infusiontest.com:8443" class="account crm-account">
                             <div class="account-info">
-                                <div id="account_${account.id}" class="account-title jeditable">${empty account.alias ? account.appName : account.alias}</div>
+                                <div id="account_${account.id}" class="account-title">
+                                    <span class="quick-editable" onclick="return editAlias(${account.id})">${empty account.alias ? account.appName : account.alias}</span>
+                                </div>
                                 <div class="account-detail">Infusionsoft App</div>
                                 <div class="account-detail">${account.appName}.infusionsoft.com</div>
                             </div>
@@ -119,4 +147,19 @@
 
     <div id="associateDialog" style="display: none">
     </div>
+</div>
+
+<div id="quick-editor">
+    <form class="form-vertical">
+        <fieldset>
+            <label for="alias" class="form-label">App Alias</label>
+            <div class="controls">
+                <input type="text" name="alias" id="alias" style="width: 200px"/>
+            </div>
+            <div class="controls">
+                <a href="javascript:updateAlias()" class="btn btn-primary">Save</a>
+                <a href="javascript:hideQuickEditor()" class="btn">Cancel</a>
+            </div>
+        </fieldset>
+    </form>
 </div>
