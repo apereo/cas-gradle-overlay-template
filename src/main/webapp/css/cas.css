@@ -380,18 +380,22 @@ label {
 }
 
 .quick-editable {
-    padding-right: 30px;
+    padding-right: 20px;
 }
 
 .quick-editable:hover {
     background: url(../images/pencil.png) right center no-repeat;
 }
 
+.quick-editable.editing {
+    background: url(../images/pencil.png) right center no-repeat;
+}
+
 #quick-editor {
     display: none;
     position: absolute;
-    width: 270px;
+    width: 240px;
     height: 130px;
-    padding: 20px 20px 20px 30px;
-    background: url(../images/quickedit-bubble.png) no-repeat;
+    padding: 20px 0 0 60px;
+    background: url(../images/quickedit-bubble.png) right top no-repeat;
 }

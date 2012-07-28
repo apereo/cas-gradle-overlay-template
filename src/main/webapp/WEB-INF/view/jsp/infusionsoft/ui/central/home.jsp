@@ -25,9 +25,17 @@
     });
 
     function editAlias(userAccountId) {
+        hideQuickEditor();
+
+        var editable = $("#quick-editable-" + userAccountId);
+
+        $(editable).addClass("editing");
+        $("#quick-editor #account").val(userAccountId);
+        $("#quick-editor #alias").val(editable.html());
         $("#quick-editor").show();
-        $("#quick-editor").css("left", $(this).offset().left + $(this).width());
-        $("#quick-editor").css("top", $(this).offset().top - 50);
+        $("#quick-editor").css("left", editable.offset().left + editable.width());
+        $("#quick-editor").css("top", editable.offset().top - 50);
+        $("#quick-editor #alias").focus();
 
         event.stopPropagation();
 
@@ -35,54 +43,27 @@
     }
 
     function updateAlias() {
-        var userAccountId = -99; // TODO
-        var alias = $("#quick-editor input[type=text]").val();
+        var id = $("#quick-editor #account").val();
+        var alias = $("#quick-editor #alias").val();
 
         $.ajax("${renameAccount}", {
             type: "POST",
-            data: { id: userAccountId, value: alias },
+            data: { id: id, value: alias },
             success: function(response) {
-                // TODO - handle it
+                $(".quick-editable").removeClass("editing");
+                $("#quick-editor").hide();
+                $("#quick-editable-" + id).html(alias);
             }
         });
+
+        return false;
     }
 
     function hideQuickEditor() {
         $("#quick-editor").hide();
     }
 
-    function goto(url) {
-        document.location.href = url;
-    }
-
-    function createForum(opts) {
-        $("#associateDialog").html("Validating your credentials...");
-        $.ajax({
-            url: '<c:url value="/registration/createForum"/>',
-            data: opts,
-            type: "POST",
-            success: function(data) {
-                //alert("MESSAGE: " + $.trim(data));
-                if ($.trim(data) == "OK") {
-                    // TODO - change to Ajax
-                    location.reload();
-                }
-            },
-            error: function() {
-                alert("error!");
-            }
-        });
-    }
-
 </script>
-
-<style type="text/css">
-
-
-
-</style>
-
-<c:set var="needsForumAccount" value="true"/>
 
 <div id="main">
     <div class="titlebar">
@@ -115,7 +96,7 @@
                         <div href="https://${account.appName}.infusiontest.com:8443" class="account crm-account">
                             <div class="account-info">
                                 <div id="account_${account.id}" class="account-title">
-                                    <span class="quick-editable" onclick="return editAlias(${account.id})">${empty account.alias ? account.appName : account.alias}</span>
+                                    <span id="quick-editable-${account.id}" class="quick-editable" onclick="return editAlias(${account.id})">${empty account.alias ? account.appName : account.alias}</span>
                                 </div>
                                 <div class="account-detail">Infusionsoft App</div>
                                 <div class="account-detail">${account.appName}.infusionsoft.com</div>
@@ -134,7 +115,9 @@
                     <c:otherwise>
                         <div href="https://${account.appName}.infusiontest.com:8443" class="account customerhub-account">
                             <div class="account-info">
-                                <div class="account-title">${account.appName}</div>
+                                <div id="account_${account.id}" class="account-title">
+                                    <span id="quick-editable-${account.id}" class="quick-editable" onclick="return editAlias(${account.id})">${empty account.alias ? account.appName : account.alias}</span>
+                                </div>
                                 <div class="account-detail">CustomerHub App</div>
                                 <div class="account-detail">${account.appName}.customerhub.net</div>
                             </div>
@@ -144,20 +127,18 @@
             </c:forEach>
         </div>
     </c:if>
-
-    <div id="associateDialog" style="display: none">
-    </div>
 </div>
 
 <div id="quick-editor">
-    <form class="form-vertical">
+    <form action="${renameAccount}" class="form-vertical" onsubmit="return updateAlias()">
         <fieldset>
             <label for="alias" class="form-label">App Alias</label>
             <div class="controls">
+                <input type="hidden" name="account" id="account"/>
                 <input type="text" name="alias" id="alias" style="width: 200px"/>
             </div>
             <div class="controls">
-                <a href="javascript:updateAlias()" class="btn btn-primary">Save</a>
+                <input type="submit" value="Save" class="btn btn-primary"/>
                 <a href="javascript:hideQuickEditor()" class="btn">Cancel</a>
             </div>
         </fieldset>

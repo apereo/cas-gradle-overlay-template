@@ -373,9 +373,8 @@ public class CentralMultiActionController extends MultiActionController {
     @RequestMapping(method = RequestMethod.POST)
     @ResponseBody
     public String renameAccount(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        String elementId = request.getParameter("id");
+        Long accountId = new Long(request.getParameter("id"));
         String alias = request.getParameter("value");
-        Long accountId = new Long(elementId.split("_")[1]);
         User user = infusionsoftAuthenticationService.getCurrentUser(request);
         UserAccount account = infusionsoftAuthenticationService.findUserAccount(user, accountId);
 
