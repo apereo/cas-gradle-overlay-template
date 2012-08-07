@@ -94,13 +94,13 @@
             <c:forEach var="account" items="${accounts}">
                 <c:choose>
                     <c:when test="${account.appType == 'crm'}">
-                        <div href="https://${account.appName}.infusiontest.com:8443" class="account crm-account">
+                        <div href="${crmProtocol}://${account.appName}.${crmDomain}:${crmPort}" class="account crm-account">
                             <div class="account-info">
                                 <div id="account_${account.id}" class="account-title">
                                     <span id="quick-editable-${account.id}" class="quick-editable" onclick="return editAlias(${account.id})">${empty account.alias ? account.appName : account.alias}</span>
                                 </div>
                                 <div class="account-detail">Infusionsoft App</div>
-                                <div class="account-detail">${account.appName}.infusionsoft.com</div>
+                                <div class="account-detail">${account.appName}.${crmDomain}</div>
                             </div>
                         </div>
                     </c:when>
@@ -109,18 +109,18 @@
                             <div class="account-info">
                                 <div class="account-title">Infusionsoft Community</div>
                                 <div class="account-detail">Display Name: ${account.appUsername} | <a href="${editCommunityAccount}?id=${account.id}">Edit</a></div>
-                                <div class="account-detail">community.infusionsoft.com</div>
+                                <div class="account-detail">community.${communityDomain}</div>
                             </div>
                         </div>
                     </c:when>
                     <c:otherwise>
-                        <div href="https://${account.appName}.infusiontest.com:8443" class="account customerhub-account">
+                        <div href="https://${account.appName}.${customerHubDomain}" class="account customerhub-account">
                             <div class="account-info">
                                 <div id="account_${account.id}" class="account-title">
                                     <span id="quick-editable-${account.id}" class="quick-editable" onclick="return editAlias(${account.id})">${empty account.alias ? account.appName : account.alias}</span>
                                 </div>
                                 <div class="account-detail">CustomerHub App</div>
-                                <div class="account-detail">${account.appName}.customerhub.net</div>
+                                <div class="account-detail">${account.appName}.${customerHubDomain}</div>
                             </div>
                         </div>
                     </c:otherwise>

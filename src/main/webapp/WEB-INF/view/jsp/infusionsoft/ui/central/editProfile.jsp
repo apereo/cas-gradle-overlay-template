@@ -9,9 +9,42 @@
 <meta name="decorator" content="central"/>
 
 <c:url var="centralUrl" value="/central/home"/>
+<c:url var="verifyExistingPasswordUrl" value="/central/verifyExistingPassword"/>
 
 <script type="text/javascript">
 
+    function submitUpdates() {
+        if ($("#currentPassword").val()) {
+            return true;
+        } else {
+            return promptCurrentPassword();
+        }
+    }
+
+    function promptCurrentPassword() {
+        $("#currentPasswordDialog").modal();
+
+        return false;
+    }
+
+    function confirmCurrentPassword() {
+        var currentPassword = $("#currentPasswordVisible").val();
+
+        $.ajax("${verifyExistingPasswordUrl}", {
+            type: "POST",
+            data: { currentPassword: currentPassword },
+            success: function(response) {
+                $("#currentPassword").val($("#currentPasswordVisible").val());
+                $("#currentPasswordDialog").modal("hide");
+                $("#editProfileForm").submit();
+            },
+            error: function(response) {
+                $("#currentPasswordError").show();
+            }
+        });
+
+        return false;
+    }
 </script>
 
 <style type="text/css">
@@ -35,8 +68,9 @@
         Edit the information that you use to sign into all of your apps.
     </p>
 
-    <form id="editProfileForm" action="updateProfile" method="post" class="form-horizontal">
+    <form id="editProfileForm" action="updateProfile" method="post" class="form-horizontal" onsubmit="return submitUpdates()">
         <input name="id" value="${user.id}" type="hidden"/>
+        <input id="currentPassword" name="currentPassword" value="" type="hidden"/>
 
         <c:if test="${error != null}">
             <div class="alert">
@@ -82,4 +116,28 @@
             <a class="btn" href="${homeLink}">Cancel</a>
         </div>
     </form>
+</div>
+
+<div class="modal hide" id="currentPasswordDialog" style="width: 300px; margin-left: -150px">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h3>Confirm Your Changes</h3>
+    </div>
+    <div class="modal-body">
+        <div id="currentPasswordError" class="alert alert-error" style="display: none; margin-top: 0">
+            You've entered an incorrect password. For security reasons, you have <span id="remainingTries">a few</span>
+            more tries before your account is locked.
+        </div>
+        <form class="form-vertical" onsubmit="return confirmCurrentPassword()">
+            <fieldset>
+                <label class="control-label" for="currentPasswordVisible">Current Password</label>
+                <div class="controls">
+                    <input type="password" id="currentPasswordVisible" name="currentPasswordVisible" style="width: 230px"/>
+                </div>
+            </fieldset>
+        </form>
+    </div>
+    <div class="modal-footer">
+        <a href="javascript:confirmCurrentPassword()" class="btn btn-primary">Confirm</a>
+    </div>
 </div>

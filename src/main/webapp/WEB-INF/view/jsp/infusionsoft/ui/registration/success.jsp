@@ -53,6 +53,11 @@
     </div>
 
     <div style="text-align: right; margin-top: 15px">
-        <a class="btn btn-primary" href="${centralUrl}">Go To Your App</a>
+        <c:if test="${not empty appUrl}">
+            <a class="btn btn-primary" href="${appUrl}">Go To Your App</a>
+        </c:if>
+        <c:if test="${empty appUrl}">
+            <a class="btn btn-primary" href="${centralUrl}">Go To Your App</a>
+        </c:if>
     </div>
 </div>

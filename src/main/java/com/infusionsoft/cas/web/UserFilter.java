@@ -14,7 +14,8 @@ import java.net.URL;
 
 /**
  * Filter that sets the user object in the session, if available. We need this because CAS uses its own bowels for
- * user authentication, and it's too big a pain to hook into them.
+ * user authentication, and it's too big a pain to hook into them. This filter also keeps track of a registration
+ * code if one is sent on the initial request.
  */
 public class UserFilter implements Filter {
     private static final Logger log = Logger.getLogger(UserFilter.class);
@@ -29,61 +30,28 @@ public class UserFilter implements Filter {
         contextPath = filterConfig.getServletContext().getContextPath();
     }
 
-    /**
-     * Attempts to set a few important session attributes (user, refererAppName, refererAppType).
-     */
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
         HttpServletRequest request = (HttpServletRequest) servletRequest;
         HttpServletResponse response = (HttpServletResponse) servletResponse;
         HttpSession session = request.getSession(true);
         User user = infusionsoftAuthenticationService.getCurrentUser(request);
+        String registrationCode = request.getParameter("registrationCode");
 
+        // Set or unset the user object (since the CAS security layer doesn't make this easy).
         if (user != null) {
             request.getSession(true).setAttribute("user", user);
         } else {
             request.getSession(true).removeAttribute("user");
         }
 
-        if (session.getAttribute("refererAppName") == null) {
-            String referer = request.getParameter("service");
+        // If there's a registration code, use it to map their account.
+        if (StringUtils.isNotEmpty(registrationCode)) {
+            request.getSession(true).setAttribute("registrationCode", registrationCode);
 
-            if (StringUtils.isNotEmpty(referer)) {
-                log.info("parsing referer: " + referer);
-
-                try {
-                    URL refererUrl = new URL(referer);
-                    String refererHost = refererUrl.getHost().toLowerCase();
-                    String refererAppName = "";
-                    String refererAppType = "";
-
-                    log.debug("crm domain is " + crmDomain);
-                    log.debug("community domain is " + communityDomain);
-                    log.debug("customerhub domain is " + customerHubDomain);
-
-                    if (refererHost.equals(communityDomain)) {
-                        refererAppName = "community";
-                        refererAppType = "community";
-                    } else if (refererHost.endsWith("." + crmDomain)) {
-                        refererAppName = refererHost.replace("." + crmDomain, "");
-                        refererAppType = "crm";
-                    } else if (refererHost.endsWith("." + customerHubDomain)) {
-                        refererAppName = refererHost.replace("." + customerHubDomain, "");
-                        refererAppType = "customerhub";
-                    }
-
-                    log.info("setting refererAppName to " + refererAppName);
-                    log.info("setting refererAppType to " + refererAppType);
-
-                    session.setAttribute("refererAppName", refererAppName);
-                    session.setAttribute("refererAppType", refererAppType);
-                } catch (Exception e) {
-                    log.warn("unable to parse referer: " + referer, e);
-                }
-            }
+            log.debug("registration code " + registrationCode + " has been saved in the session");
         }
 
-        log.debug("servlet path is " + request.getServletPath());
-
+        // Protect the central controller, logged in users only!
         if (session.getAttribute("user") == null && request.getServletPath().startsWith("/central")) {
             response.sendRedirect(contextPath + "/login");
         } else {

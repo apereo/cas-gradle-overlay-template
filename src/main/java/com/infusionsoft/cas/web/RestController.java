@@ -1,8 +1,13 @@
 package com.infusionsoft.cas.web;
 
+import com.infusionsoft.cas.services.InfusionsoftAuthenticationService;
+import com.infusionsoft.cas.types.PendingUserAccount;
 import com.infusionsoft.cas.types.User;
 import com.infusionsoft.cas.types.UserAccount;
+import org.apache.commons.lang.RandomStringUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.validator.EmailValidator;
+import org.apache.log4j.Logger;
 import org.jasig.cas.CentralAuthenticationService;
 import org.jasig.cas.authentication.handler.PasswordEncoder;
 import org.jasig.cas.services.ServiceRegistryDao;
@@ -15,6 +20,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.multiaction.MultiActionController;
 
@@ -31,6 +37,8 @@ import java.util.Map;
  */
 @Controller
 public class RestController extends MultiActionController {
+    private static final Logger log = Logger.getLogger(RestController.class);
+
     private static final int PASSWORD_LENGTH_MIN = 7;
     private static final int PASSWORD_LENGTH_MAX = 20;
 
@@ -38,13 +46,13 @@ public class RestController extends MultiActionController {
     private PasswordEncoder passwordEncoder;
     private UniqueTicketIdGenerator ticketIdGenerator;
     private CentralAuthenticationService centralAuthenticationService;
+    private InfusionsoftAuthenticationService infusionsoftAuthenticationService;
     private ServiceRegistryDao serviceRegistryDao;
-    private String requiredApiKey = "bl4h"; // TODO - inject this
+    private String requiredApiKey;
 
     /**
      * Registers a new user account and returns a simple JSON object.
      */
-    @RequestMapping(value="/registerUser", method = RequestMethod.POST)
     public ModelAndView register(HttpServletRequest request, HttpServletResponse response) throws IOException {
         Map<String, Object> model = new HashMap<String, Object>();
         String apiKey = request.getParameter("apiKey");
@@ -90,6 +98,7 @@ public class RestController extends MultiActionController {
 
         // Render the response
         try {
+            // TODO - include an error message
             if (model.containsKey("error")) {
                 model.put("status", "error");
             } else {
@@ -103,6 +112,138 @@ public class RestController extends MultiActionController {
         } catch (Exception e) {
             logger.error("Failed to render JSON response", e);
         }
+
+        return null;
+    }
+
+    /**
+     * Registers a new user account mapped to an app account,
+     * and returns a simple JSON object.
+     */
+    public ModelAndView registerUserWithApp(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        Map<String, Object> model = new HashMap<String, Object>();
+        String apiKey = request.getParameter("apiKey");
+        String username = request.getParameter("username");
+        String password = request.getParameter("password");
+        String appUsername = request.getParameter("appUsername");
+        String appName = request.getParameter("appName");
+        String appType = request.getParameter("appType"); // crm, community, customerhub
+
+        // Validate the API key
+        if (!requiredApiKey.equals(apiKey)) {
+            logger.warn("Invalid API access: apiKey = " + apiKey);
+            response.sendError(401);
+
+            return null;
+        }
+
+        // Attempt the registration
+        try {
+            User user = new User();
+
+            user.setUsername(username);
+            user.setPassword(passwordEncoder.encode(password));
+            user.setEnabled(true);
+
+            if (username == null || username.isEmpty() || !EmailValidator.getInstance().isValid(username)) {
+                model.put("error", "registration.error.invalidUsername");
+            } else if (hibernateTemplate.find("from User u where u.username = ?", username).size() > 0) {
+                model.put("error", "registration.error.usernameInUse");
+            } else if (password == null || password.length() < PASSWORD_LENGTH_MIN || password.length() > PASSWORD_LENGTH_MAX) {
+                model.put("error", "registration.error.invalidPassword");
+            } else if (!appType.equals("crm") || appType.equals("community") || appType.equals("customerhub")) {
+                model.put("error", "registration.error.invalidAppType");
+            } else if (StringUtils.isEmpty(appName)) {
+                model.put("error", "registration.error.invalidAppName");
+            }
+
+            if (model.containsKey("error")) {
+                logger.warn("couldn't create new user account via REST service for API key " + apiKey + ": " + model.get("error"));
+            } else {
+                UserAccount account = new UserAccount();
+
+                account.setAppName(appName);
+                account.setAppType(appType);
+                account.setAppUsername(appUsername);
+                account.setUser(user);
+
+                model.put("user", user);
+
+                user.getAccounts().add(account);
+
+                hibernateTemplate.save(user);
+            }
+        } catch (Exception e) {
+            logger.error("failed to create user account", e);
+
+            model.put("error", "registration.error.exception");
+        }
+
+        // Render the response
+        try {
+            // TODO - include an error message
+            if (model.containsKey("error")) {
+                model.put("status", "error");
+            } else {
+                model.put("status", "ok");
+            }
+
+            MappingJacksonHttpMessageConverter jsonConverter = new MappingJacksonHttpMessageConverter();
+            MediaType jsonMimeType = MediaType.APPLICATION_JSON;
+
+            jsonConverter.write(model, jsonMimeType, new ServletServerHttpResponse(response));
+        } catch (Exception e) {
+            logger.error("Failed to render JSON response", e);
+        }
+
+        return null;
+    }
+
+    /**
+     * Called from CAM or other clients to predefine a user account mapping.
+     * They can then supply the user with a link including the registration code.
+     * When the user follows that link and registers, their account will automatically
+     * be associated.
+     */
+    public ModelAndView scheduleNewUserRegistration(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        Map<String, Object> model = new HashMap<String, Object>();
+        String apiKey = request.getParameter("apiKey");
+        String appName = request.getParameter("appName");
+        String appType = request.getParameter("appType");
+        String appUsername = request.getParameter("appUsername");
+        PendingUserAccount account = new PendingUserAccount();
+
+        // Validate the API key
+        if (!requiredApiKey.equals(apiKey)) {
+            logger.warn("Invalid API access: apiKey = " + apiKey);
+            response.sendError(401);
+
+            return null;
+        }
+
+        account.setAppName(appName);
+        account.setAppType(appType);
+        account.setAppUsername(appUsername);
+        account.setRegistrationCode(appName + "-" + RandomStringUtils.random(16, true, true));
+
+        // Create the pending registration and return the code
+        try {
+            hibernateTemplate.save(account);
+
+            log.info("created new user registration code " + account.getRegistrationCode() + " for app " + appName);
+
+            model.put("status", "ok");
+            model.put("registrationCode", account.getRegistrationCode());
+        } catch (Exception e) {
+            log.error("failed to schedule new user registration", e);
+
+            model.put("status", "error");
+        }
+
+        MappingJacksonHttpMessageConverter jsonConverter = new MappingJacksonHttpMessageConverter();
+        MediaType jsonMimeType = MediaType.APPLICATION_JSON;
+
+        jsonConverter.write(model, jsonMimeType, new ServletServerHttpResponse(response));
 
         return null;
     }
@@ -121,5 +262,13 @@ public class RestController extends MultiActionController {
 
     public void setCentralAuthenticationService(CentralAuthenticationService centralAuthenticationService) {
         this.centralAuthenticationService = centralAuthenticationService;
+    }
+
+    public void setInfusionsoftAuthenticationService(InfusionsoftAuthenticationService infusionsoftAuthenticationService) {
+        this.infusionsoftAuthenticationService = infusionsoftAuthenticationService;
+    }
+
+    public void setRequiredApiKey(String requiredApiKey) {
+        this.requiredApiKey = requiredApiKey;
     }
 }

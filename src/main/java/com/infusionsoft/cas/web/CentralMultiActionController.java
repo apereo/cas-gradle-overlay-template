@@ -13,6 +13,8 @@ import org.apache.log4j.Logger;
 import org.jasig.cas.authentication.handler.PasswordEncoder;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -25,7 +27,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
+import java.net.URL;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -43,31 +47,51 @@ public class CentralMultiActionController extends MultiActionController {
     private HibernateTemplate hibernateTemplate;
     private PasswordEncoder passwordEncoder;
 
+    /**
+     * Gatekeeper that checks if the requested service is associated. If it's an unassociated app,
+     * redirects the user to a page where they can link it up. If it's already pending association, make
+     * the association and then redirect to a landing page.
+     */
     public ModelAndView index(HttpServletRequest request, HttpServletResponse response) throws IOException {
         User user = infusionsoftAuthenticationService.getCurrentUser(request);
         HttpSession session = request.getSession(true);
-        String appType = (String) session.getAttribute("refererAppType");
-        String appName = (String) session.getAttribute("refererAppName");
+        String service = request.getParameter("service");
+        String registrationCode = (String) session.getAttribute("registrationCode");
 
-        if (StringUtils.isNotEmpty(appType) && StringUtils.isNotEmpty(appName)) {
-            if (infusionsoftAuthenticationService.isUserAssociated(user, appType, appName)) {
-                String appUrl = infusionsoftAuthenticationService.buildAppUrl(appType, appName);
+        if (StringUtils.isNotEmpty(registrationCode)) {
+            try {
+                UserAccount account = infusionsoftAuthenticationService.associateNewUser(user, registrationCode);
 
-                log.info("redirecting user " + user.getId() + " to " + appUrl);
+                request.getSession().removeAttribute("registrationCode");
+                infusionsoftAuthenticationService.createTicketGrantingTicket(account.getAppUsername(), "bogus", request, response);
 
-                response.sendRedirect(appUrl);
-
-                return null;
-            } else {
-                log.warn("user was referred from an unassociated app: " + appName + ", " + appType);
-
-                // TODO - do we want to force them to complete the association here?
-
-                return new ModelAndView("redirect:home");
+                return new ModelAndView("redirect:" + infusionsoftAuthenticationService.buildAppUrl(account.getAppType(), account.getAppName()));
+            } catch (Exception e) {
+                log.error("failed to associate new user to registration code " + registrationCode, e);
             }
-        } else {
-            return new ModelAndView("redirect:home");
+        } else if (StringUtils.isNotEmpty(service)) {
+            if (infusionsoftAuthenticationService.isAppAssociated(user, new URL(service))) {
+                return new ModelAndView("redirect:" + service);
+            } else {
+                String appName = infusionsoftAuthenticationService.guessAppName(new URL(service));
+                String appType = infusionsoftAuthenticationService.guessAppType(new URL(service));
+
+                if (appName != null && appType != null) {
+                    log.info("user " + user.getId() + " was referred from an unassociated app: " + service);
+
+                    Map<String, Object> model = new HashMap<String, Object>();
+
+                    model.put("appName", appName);
+                    model.put("appType", appType);
+
+                    return new ModelAndView("redirect:linkReferer", model);
+                } else {
+                    return new ModelAndView("redirect:home");
+                }
+            }
         }
+
+        return new ModelAndView("redirect:home");
     }
 
     public ModelAndView home(HttpServletRequest request, HttpServletResponse response) {
@@ -78,6 +102,11 @@ public class CentralMultiActionController extends MultiActionController {
             model.put("user", user);
             model.put("homeLinkSelected", "selected");
             model.put("hasCommunityAccount", infusionsoftAuthenticationService.hasCommunityAccount(user));
+            model.put("crmDomain", infusionsoftAuthenticationService.getCrmDomain());
+            model.put("crmProtocol", infusionsoftAuthenticationService.getCrmProtocol());
+            model.put("crmPort", infusionsoftAuthenticationService.getCrmPort());
+            model.put("communityDomain", infusionsoftAuthenticationService.getCommunityDomain());
+            model.put("customerHubDomain", infusionsoftAuthenticationService.getCustomerHubDomain());
             model.put("accounts", infusionsoftAuthenticationService.getSortedUserAccounts(user));
 
             return new ModelAndView("infusionsoft/ui/central/home", model);
@@ -98,6 +127,15 @@ public class CentralMultiActionController extends MultiActionController {
 
     public ModelAndView linkCommunityAccount(HttpServletRequest request, HttpServletResponse response) {
         return new ModelAndView("infusionsoft/ui/central/linkCommunityAccount");
+    }
+
+    public ModelAndView linkReferer(HttpServletRequest request, HttpServletResponse response) {
+        Map<String, Object> model = new HashMap<String, Object>();
+
+        model.put("appName", request.getParameter("appName"));
+        model.put("appType", request.getParameter("appType"));
+
+        return new ModelAndView("infusionsoft/ui/central/linkReferer", model);
     }
 
     public ModelAndView createCommunityAccount(HttpServletRequest request, HttpServletResponse response) {
@@ -208,6 +246,7 @@ public class CentralMultiActionController extends MultiActionController {
         String firstName = request.getParameter("firstName");
         String lastName = request.getParameter("lastName");
         String username = request.getParameter("username");
+        String existingPassword = request.getParameter("currentPassword");
         String password1 = request.getParameter("password1");
         String password2 = request.getParameter("password2");
         Map<String, Object> model = new HashMap<String, Object>();
@@ -223,6 +262,8 @@ public class CentralMultiActionController extends MultiActionController {
                 model.put("error", "editprofile.error.invalidUsername");
             } else if (hibernateTemplate.find("from User u where u.username = ? and u.id != ?", username, user.getId()).size() > 0) {
                 model.put("error", "editprofile.error.usernameInUse");
+            } else if (!infusionsoftAuthenticationService.isPasswordValid(user, existingPassword)) {
+                model.put("error", "editprofile.error.incorrectCurrentPassword");
             } else if (StringUtils.isNotEmpty(password1) || StringUtils.isNotEmpty(password2)) {
                 user.setPassword(passwordEncoder.encode(password1));
 
@@ -240,7 +281,11 @@ public class CentralMultiActionController extends MultiActionController {
             } else {
                 hibernateTemplate.update(user);
 
-                infusionsoftAuthenticationService.createTicketGrantingTicket(username, password1, request, response);
+                if (StringUtils.isNotEmpty(password1)) {
+                    infusionsoftAuthenticationService.createTicketGrantingTicket(username, password1, request, response);
+                } else {
+                    infusionsoftAuthenticationService.createTicketGrantingTicket(username, "bogus", request, response);
+                }
             }
         } catch (Exception e) {
             log.error("failed to update user account", e);
@@ -429,14 +474,31 @@ public class CentralMultiActionController extends MultiActionController {
 
         try {
             account.setAlias(alias);
-
             hibernateTemplate.update(account);
 
             return alias;
         } catch (Exception e) {
             log.error("failed to update alias for account " + accountId, e);
 
-            response.sendError(500);
+            response.sendError(500); // TODO
+
+            return null;
+        }
+    }
+
+    /**
+     * Called from AJAX to validate the existing password.
+     */
+    @RequestMapping(method = RequestMethod.POST)
+    @ResponseBody
+    public String verifyExistingPassword(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        User user = infusionsoftAuthenticationService.getCurrentUser(request);
+        String password = request.getParameter("currentPassword");
+
+        if (infusionsoftAuthenticationService.isPasswordValid(user, password)) {
+            return "OK";
+        } else {
+            response.sendError(500); // TODO
 
             return null;
         }

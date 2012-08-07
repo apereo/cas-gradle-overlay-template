@@ -232,6 +232,7 @@
             <list>
                 <value>com.infusionsoft.cas.types.User</value>
                 <value>com.infusionsoft.cas.types.UserAccount</value>
+                <value>com.infusionsoft.cas.types.PendingUserAccount</value>
                 <value>com.infusionsoft.cas.types.CommunityAccountDetails</value>
                 <value>com.infusionsoft.cas.types.LegacyAccount</value>
             </list>
@@ -262,6 +263,12 @@
         <property name="ticketIdGenerator" ref="loginTicketUniqueIdGenerator"/>
         <property name="forumBase" value="${infusionsoft.community.baseurl}"/>
         <property name="forumApiKey" value="${infusionsoft.community.apikey}"/>
+        <property name="serverPrefix" value="https://infusionsoft.infusiontest.com:7443/cas"/>
+        <property name="crmDomain" value="infusiontest.com"/>
+        <property name="crmProtocol" value="https"/>
+        <property name="crmPort" value="8443"/>
+        <property name="communityDomain" value="community.infusiontest.com"/>
+        <property name="customerHubDomain" value="customerhub.net"/>
     </bean>
 
     <bean id="infusionsoftMailService" class="com.infusionsoft.cas.services.InfusionsoftMailService">

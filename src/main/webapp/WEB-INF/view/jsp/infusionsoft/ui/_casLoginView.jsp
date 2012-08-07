@@ -24,11 +24,15 @@
         margin: 5px auto;
     }
 
+    .alert {
+        margin: -20px -20px 20px -20px;
+    }
+
 </style>
 
 <div id="login">
     <form:form method="post" id="fm1" cssClass="form-vertical" commandName="${commandName}" htmlEscape="true">
-        <form:errors path="*" id="msg" cssClass="errors" element="div" />
+        <form:errors path="*" id="msg" cssClass="alert alert-error" element="div" />
 
         <div class="control-group">
             <label for="username" class="control-label">Email Address</label>

@@ -218,7 +218,9 @@
           p:hibernateTemplate-ref="hibernateTemplate"
           p:passwordEncoder-ref="passwordEncoder"
           p:ticketIdGenerator-ref="loginTicketUniqueIdGenerator"
-          p:centralAuthenticationService-ref="centralAuthenticationService"/>
+          p:centralAuthenticationService-ref="centralAuthenticationService"
+          p:infusionsoftAuthenticationService-ref="infusionsoftAuthenticationService"
+          p:requiredApiKey="bl4hbl4hbl4h"/>
 
     <bean id="logoutController" class="org.jasig.cas.web.LogoutController"
           p:centralAuthenticationService-ref="centralAuthenticationService"

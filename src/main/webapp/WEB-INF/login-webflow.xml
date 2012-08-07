@@ -80,7 +80,7 @@
 	
 	<action-state id="generateServiceTicket">
         <evaluate expression="generateServiceTicketAction" />
-		<transition on="success" to ="warn" />
+		<transition on="success" to="warn" />
 		<transition on="error" to="generateLoginTicket" />
 		<transition on="gateway" to="gatewayServicesManagementCheck" />
 	</action-state>
@@ -122,10 +122,13 @@
 		The "redirect" end state allows CAS to properly end the workflow while still redirecting
 		the user back to the service required.
 	-->
+    <end-state id="redirectView" view="externalRedirect:contextRelative:/central/index?service=${requestScope.response.url}" />
     <!--
 	<end-state id="redirectView" view="externalRedirect:${requestScope.response.url}" />
 	-->
+    <!--
     <end-state id="redirectView" view="casLoginGenericSuccessView" />
+	-->
 
     <end-state id="viewServiceErrorView" view="viewServiceErrorView" />
     

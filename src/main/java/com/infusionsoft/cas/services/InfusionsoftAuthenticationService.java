@@ -1,7 +1,9 @@
 package com.infusionsoft.cas.services;
 
+import com.infusionsoft.cas.exceptions.CASMappingException;
 import com.infusionsoft.cas.exceptions.UsernameTakenException;
 import com.infusionsoft.cas.types.CommunityAccountDetails;
+import com.infusionsoft.cas.types.PendingUserAccount;
 import com.infusionsoft.cas.types.User;
 import com.infusionsoft.cas.types.UserAccount;
 import org.apache.commons.lang.RandomStringUtils;
@@ -25,6 +27,7 @@ import org.springframework.web.client.RestTemplate;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,8 +43,72 @@ public class InfusionsoftAuthenticationService {
     private HibernateTemplate hibernateTemplate;
     private PasswordEncoder passwordEncoder;
     private UniqueTicketIdGenerator ticketIdGenerator;
+    private String serverPrefix;
+    private String crmProtocol;
+    private String crmDomain;
+    private String crmPort;
+    private String customerHubDomain;
+    private String communityDomain;
     private String forumBase;
     private String forumApiKey;
+
+    /**
+     * Guesses an app name from a URL, or null if there isn't one to be found.
+     */
+    public String guessAppName(URL url) {
+        String host = url.getHost().toLowerCase();
+
+        if (url.toString().startsWith(serverPrefix)) {
+            return null; // it's us!
+        } else if (host.endsWith(communityDomain)) {
+            return host.replace("." + communityDomain, "");
+        } else if (host.endsWith(crmDomain)) {
+            return host.replace("." + crmDomain, "");
+        } else if (host.endsWith(customerHubDomain)) {
+            return host.replace("." + customerHubDomain, "");
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * Guesses an app name from a URL, or null if there isn't one to be found.
+     */
+    public String guessAppType(URL url) {
+        String host = url.getHost().toLowerCase();
+
+        if (url.toString().startsWith(serverPrefix)) {
+            return null; // it's us!
+        } else if (host.endsWith(communityDomain)) {
+            return "community";
+        } else if (host.endsWith(crmDomain)) {
+            return "crm";
+        } else if (host.endsWith(customerHubDomain)) {
+            return "customerhub";
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * Checks whether a user is associated to an app at a particular URL. This method actually only compares
+     * hostnames, so if there's multiple apps on the same hostname it could be wrong.
+     */
+    public boolean isAppAssociated(User user, URL url) {
+        for (UserAccount account : user.getAccounts()) {
+            try {
+                URL appUrl = new URL(buildAppUrl(account.getAppType(), account.getAppName()));
+
+                if (url.getHost().toLowerCase().equals(url.getHost().toLowerCase())) {
+                    return true;
+                }
+            } catch (Exception e) {
+                log.error("unexpected exception constructing app url", e);
+            }
+        }
+
+        return false;
+    }
 
     /**
      * Creates a unique, random password recovery code for a user.
@@ -117,8 +184,17 @@ public class InfusionsoftAuthenticationService {
      * Builds a URL for redirecting users to an app.
      */
     public String buildAppUrl(String appType, String appName) {
-        // TODO
-        return "http://www.google.com";
+        // TODO - parameterize protocol, port, etc...
+        if (appType.equals("crm")) {
+            return crmProtocol + "://" + appName + "." + crmDomain + ":" + crmPort;
+        } else if (appType.equals("community")) {
+            return "http://" + communityDomain;
+        } else if (appType.equals("customerhub")) {
+            return "https://" + appName + "." + customerHubDomain;
+        } else {
+            // TODO
+            return "/";
+        }
     }
 
     /**
@@ -132,7 +208,7 @@ public class InfusionsoftAuthenticationService {
     /**
      * Associates an external account to a CAS user.
      */
-    public UserAccount associateAccountToUser(User user, String appType, String appName, String appUsername) {
+    public UserAccount associateAccountToUser(User user, String appType, String appName, String appUsername) throws CASMappingException {
         UserAccount account = new UserAccount();
 
         account.setUser(user);
@@ -142,16 +218,73 @@ public class InfusionsoftAuthenticationService {
 
         user.getAccounts().add(account);
 
-        hibernateTemplate.save(account);
-        hibernateTemplate.update(user);
+        try {
+            hibernateTemplate.save(account);
+            hibernateTemplate.update(user);
+        } catch (Exception e) {
+            throw new CASMappingException("failed to associate user to app account", e);
+        }
+
 
         return account;
     }
 
     /**
+     * Tries to associate a user with a pending registration. If successful, this
+     * will return the newly associated user account.
+     */
+    public UserAccount associateNewUser(User user, String registrationCode) throws CASMappingException {
+        PendingUserAccount pendingAccount = findPendingUserAccount(registrationCode);
+        UserAccount account = new UserAccount();
+
+        account.setUser(user);
+        account.setAppName(pendingAccount.getAppName());
+        account.setAppType(pendingAccount.getAppType());
+        account.setAppUsername(pendingAccount.getAppUsername());
+
+        user.getAccounts().add(account);
+
+        try {
+            hibernateTemplate.save(account);
+            hibernateTemplate.update(user);
+            hibernateTemplate.delete(pendingAccount);
+
+            log.info("associated new user to " + account.getAppName() + "/" + account.getAppType());
+        } catch (Exception e) {
+            throw new CASMappingException("failed to associate new user to registration code " + registrationCode, e);
+        }
+
+        return account;
+    }
+
+    /**
+     * Finds a pending user account by its unique registration code.
+     */
+    public PendingUserAccount findPendingUserAccount(String registrationCode) {
+        List<PendingUserAccount> accounts = hibernateTemplate.find("from PendingUserAccount where registrationCode = ?", registrationCode);
+
+        if (accounts.size() > 0) {
+            return accounts.get(0);
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * Checks if a user's existing password is valid. We need this for when an already logged in user wants
+     * to update his user profile.
+     */
+    public boolean isPasswordValid(User user, String password) {
+        String passwordEncoded = passwordEncoder.encode(password);
+        List<User> users = (List<User>) hibernateTemplate.find("from User where username = ? and password = ?", user.getUsername(), passwordEncoded);
+
+        return users.size() > 0;
+    }
+
+    /**
      * Calls out to the Community web service to try to create a new user.
      */
-    public UserAccount registerCommunityUserAccount(User user, CommunityAccountDetails details) throws RestClientException, UsernameTakenException {
+    public UserAccount registerCommunityUserAccount(User user, CommunityAccountDetails details) throws RestClientException, UsernameTakenException, CASMappingException {
         RestTemplate restTemplate = new RestTemplate();
 
         log.info("preparing REST call to " + forumBase);
@@ -334,5 +467,53 @@ public class InfusionsoftAuthenticationService {
 
     public void setForumApiKey(String forumApiKey) {
         this.forumApiKey = forumApiKey;
+    }
+
+    public String getServerPrefix() {
+        return serverPrefix;
+    }
+
+    public void setServerPrefix(String serverPrefix) {
+        this.serverPrefix = serverPrefix;
+    }
+
+    public String getCrmProtocol() {
+        return crmProtocol;
+    }
+
+    public void setCrmProtocol(String crmProtocol) {
+        this.crmProtocol = crmProtocol;
+    }
+
+    public String getCrmDomain() {
+        return crmDomain;
+    }
+
+    public void setCrmDomain(String crmDomain) {
+        this.crmDomain = crmDomain;
+    }
+
+    public String getCrmPort() {
+        return crmPort;
+    }
+
+    public void setCrmPort(String crmPort) {
+        this.crmPort = crmPort;
+    }
+
+    public String getCustomerHubDomain() {
+        return customerHubDomain;
+    }
+
+    public void setCustomerHubDomain(String customerHubDomain) {
+        this.customerHubDomain = customerHubDomain;
+    }
+
+    public String getCommunityDomain() {
+        return communityDomain;
+    }
+
+    public void setCommunityDomain(String communityDomain) {
+        this.communityDomain = communityDomain;
     }
 }

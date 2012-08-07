@@ -1,13 +1,19 @@
 package com.infusionsoft.cas.web;
 
 import com.infusionsoft.cas.services.InfusionsoftMailService;
+import com.infusionsoft.cas.types.PendingUserAccount;
 import com.infusionsoft.cas.types.User;
 import com.infusionsoft.cas.services.InfusionsoftAuthenticationService;
+import com.infusionsoft.cas.types.UserAccount;
+import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.validator.EmailValidator;
 import org.apache.log4j.Logger;
 import org.jasig.cas.authentication.handler.PasswordEncoder;
 import org.jasig.cas.util.UniqueTicketIdGenerator;
+import org.springframework.http.MediaType;
+import org.springframework.http.converter.json.MappingJacksonHttpMessageConverter;
+import org.springframework.http.server.ServletServerHttpResponse;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.multiaction.MultiActionController;
@@ -15,6 +21,8 @@ import org.springframework.web.servlet.mvc.multiaction.MultiActionController;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -55,6 +63,7 @@ public class RegistrationMultiActionController extends MultiActionController {
         String username = request.getParameter("username");
         String password1 = request.getParameter("password1");
         String password2 = request.getParameter("password2");
+        String registrationCode = (String) request.getSession(true).getAttribute("registrationCode");
         Map<String, Object> model = new HashMap<String, Object>();
         User user = null;
 
@@ -84,6 +93,17 @@ public class RegistrationMultiActionController extends MultiActionController {
                 hibernateTemplate.save(user);
 
                 infusionsoftAuthenticationService.createTicketGrantingTicket(username, password1, request, response);
+
+                if (StringUtils.isNotEmpty(registrationCode)) {
+                    try {
+                        UserAccount account = infusionsoftAuthenticationService.associateNewUser(user, registrationCode);
+
+                        request.getSession().removeAttribute("registrationCode");
+                        infusionsoftAuthenticationService.createTicketGrantingTicket(username, password1, request, response);
+                    } catch (Exception e) {
+                        log.error("failed to associate new user to registration code " + registrationCode, e);
+                    }
+                }
             }
         } catch (Exception e) {
             log.error("failed to create user account", e);
@@ -128,19 +148,22 @@ public class RegistrationMultiActionController extends MultiActionController {
         String appType = (String) session.getAttribute("refererAppType");
         String appUsername = request.getParameter("appUsername");
         String appPassword = request.getParameter("appPassword");
+        Map<String, Object> model = new HashMap<String, Object>();
 
         if (infusionsoftAuthenticationService.verifyAppCredentials(appType, appName, appUsername, appPassword)) {
-            infusionsoftAuthenticationService.associateAccountToUser(user, appType, appName, appUsername);
+            try {
+                UserAccount account = infusionsoftAuthenticationService.associateAccountToUser(user, appType, appName, appUsername);
 
-            return new ModelAndView("redirect:success");
-        } else {
-            Map<String, Object> model = new HashMap<String, Object>();
-
-            model.put("appUsername", appUsername);
-            model.put("error", "registration.error.invalidLegacyCredentials");
-
-            return new ModelAndView("infusionsoft/ui/registration/verification", model);
+                return new ModelAndView("redirect:success", "appUrl", infusionsoftAuthenticationService.buildAppUrl(account.getAppType(), account.getAppName()));
+            } catch (Exception e) {
+                log.error("failed to associate verified credentials", e);
+            }
         }
+
+        model.put("appUsername", appUsername);
+        model.put("error", "registration.error.invalidLegacyCredentials");
+
+        return new ModelAndView("infusionsoft/ui/registration/verification", model);
     }
 
     /**
@@ -154,6 +177,12 @@ public class RegistrationMultiActionController extends MultiActionController {
             return new ModelAndView("redirect:welcome");
         } else {
             model.put("user", user);
+
+            if (user.getAccounts().size() == 1) {
+                UserAccount primary = new ArrayList<UserAccount>(user.getAccounts()).get(0);
+
+                model.put("appUrl", infusionsoftAuthenticationService.buildAppUrl(primary.getAppType(), primary.getAppName()));
+            }
 
             return new ModelAndView("infusionsoft/ui/registration/success", model);
         }
