@@ -1,12 +1,23 @@
 package com.infusionsoft.cas.types;
 
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+
 import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.Length;
-
-import javax.persistence.*;
-import java.io.Serializable;
-import java.util.HashSet;
-import java.util.Set;
 
 @Entity
 @Table(name = "user")
@@ -15,10 +26,10 @@ public class User implements Serializable {
     private String firstName;
     private String lastName;
     private String username;
-    private String password;
     private String passwordRecoveryCode;
     private boolean enabled;
     private Set<UserAccount> accounts = new HashSet<UserAccount>();
+    private List<UserPassword> passwords = new ArrayList<UserPassword>();
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -96,4 +107,13 @@ public class User implements Serializable {
     public void setAccounts(Set<UserAccount> accounts) {
         this.accounts = accounts;
     }
+
+    @OneToMany(targetEntity = UserPassword.class, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    public List<UserPassword> getPasswords() {
+		return passwords;
+	}
+
+	public void setPasswords(List<UserPassword> passwords) {
+		this.passwords = passwords;
+	}
 }
