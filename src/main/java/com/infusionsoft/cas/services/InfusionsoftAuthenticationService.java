@@ -1,25 +1,21 @@
 package com.infusionsoft.cas.services;
 
+import com.infusionsoft.cas.auth.LetMeInCredentials;
 import com.infusionsoft.cas.exceptions.CASMappingException;
 import com.infusionsoft.cas.exceptions.UsernameTakenException;
 import com.infusionsoft.cas.types.CommunityAccountDetails;
-import com.infusionsoft.cas.types.PendingUserAccount;
 import com.infusionsoft.cas.types.User;
 import com.infusionsoft.cas.types.UserAccount;
-import org.apache.commons.lang.RandomStringUtils;
 import org.apache.log4j.Logger;
 import org.jasig.cas.CentralAuthenticationService;
 import org.jasig.cas.authentication.handler.PasswordEncoder;
 import org.jasig.cas.authentication.principal.Principal;
-import org.jasig.cas.authentication.principal.UsernamePasswordCredentials;
 import org.jasig.cas.services.ServiceRegistryDao;
 import org.jasig.cas.ticket.Ticket;
 import org.jasig.cas.ticket.TicketException;
 import org.jasig.cas.ticket.TicketGrantingTicket;
 import org.jasig.cas.ticket.registry.TicketRegistry;
 import org.jasig.cas.util.UniqueTicketIdGenerator;
-import org.json.simple.JSONObject;
-import org.json.simple.JSONValue;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
@@ -28,7 +24,6 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -38,6 +33,7 @@ public class InfusionsoftAuthenticationService {
     private static final Logger log = Logger.getLogger(InfusionsoftAuthenticationService.class);
 
     private CentralAuthenticationService centralAuthenticationService;
+    private InfusionsoftDataService infusionsoftDataService;
     private ServiceRegistryDao serviceRegistryDao;
     private TicketRegistry ticketRegistry;
     private HibernateTemplate hibernateTemplate;
@@ -51,6 +47,23 @@ public class InfusionsoftAuthenticationService {
     private String communityDomain;
     private String forumBase;
     private String forumApiKey;
+
+    /**
+     * Builds a URL for redirecting users to an app.
+     */
+    public String buildAppUrl(String appType, String appName) {
+        // TODO - parameterize protocol, port, etc...
+        if (appType.equals("crm")) {
+            return crmProtocol + "://" + appName + "." + crmDomain + ":" + crmPort;
+        } else if (appType.equals("community")) {
+            return "http://" + communityDomain;
+        } else if (appType.equals("customerhub")) {
+            return "https://" + appName + "." + customerHubDomain;
+        } else {
+            // TODO
+            return "/";
+        }
+    }
 
     /**
      * Guesses an app name from a URL, or null if there isn't one to be found.
@@ -111,93 +124,6 @@ public class InfusionsoftAuthenticationService {
     }
 
     /**
-     * Creates a unique, random password recovery code for a user.
-     */
-    public synchronized String createPasswordRecoveryCode(User user) {
-        String recoveryCode = RandomStringUtils.random(12, "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
-
-        while (findUserByRecoveryCode(recoveryCode) != null) {
-            recoveryCode = RandomStringUtils.random(12, "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
-        }
-
-        user.setPasswordRecoveryCode(recoveryCode);
-
-        hibernateTemplate.update(user);
-
-        return user.getPasswordRecoveryCode();
-    }
-
-    /**
-     * Attempts to find a user by their recovery code.
-     */
-    public User findUserByRecoveryCode(String recoveryCode) {
-        List<User> users = (List<User>) hibernateTemplate.find("from User where passwordRecoveryCode = ?", recoveryCode);
-
-        if (users.size() > 0) {
-            return users.get(0);
-        } else {
-            return null;
-        }
-    }
-
-    /**
-     * Fetches details for a community account, if available.
-     */
-    public CommunityAccountDetails findCommunityAccountDetails(UserAccount account) {
-        List<CommunityAccountDetails> details = (List<CommunityAccountDetails>) hibernateTemplate.find("from CommunityAccountDetails where userAccount = ?", account);
-
-        if (details.size() > 0) {
-            return details.get(0);
-        } else {
-            return null;
-        }
-    }
-
-    /**
-     * Finds a user account by id, but only if it belongs to a given user.
-     */
-    public UserAccount findUserAccount(User user, Long accountId) {
-        List<UserAccount> accounts = (List<UserAccount>) hibernateTemplate.find("from UserAccount where user = ? and id = ?", user, accountId);
-
-        if (accounts.size() > 0) {
-            return accounts.get(0);
-        } else {
-            return null;
-        }
-    }
-
-    /**
-     * Returns a user's accounts, sorted by type and name for consistency.
-     */
-    public List<UserAccount> getSortedUserAccounts(User user) {
-        List<UserAccount> accounts = new ArrayList<UserAccount>();
-
-        // TODO - combine these, someday when we're feeling really virtuous
-        accounts.addAll(hibernateTemplate.find("from UserAccount where user = ? and appType = ? order by appName", user, "crm"));
-        accounts.addAll(hibernateTemplate.find("from UserAccount where user = ? and appType = ? order by appName", user, "community"));
-        accounts.addAll(hibernateTemplate.find("from UserAccount where user = ? and appType = ? order by appName", user, "customerhub"));
-
-        return accounts;
-    }
-
-    /**
-     * Builds a URL for redirecting users to an app.
-     */
-    public String buildAppUrl(String appType, String appName) {
-        // TODO - parameterize protocol, port, etc...
-        if (appType.equals("crm")) {
-            return crmProtocol + "://" + appName + "." + crmDomain + ":" + crmPort;
-        } else if (appType.equals("community")) {
-            return "http://" + communityDomain;
-        } else if (appType.equals("customerhub")) {
-            return "https://" + appName + "." + customerHubDomain;
-        } else {
-            // TODO
-            return "/";
-        }
-    }
-
-    /**
      * Checks the legacy credentials of an app.
      */
     public boolean verifyAppCredentials(String appType, String appName, String appUsername, String appPassword) {
@@ -205,81 +131,6 @@ public class InfusionsoftAuthenticationService {
         return true;
     }
 
-    /**
-     * Associates an external account to a CAS user.
-     */
-    public UserAccount associateAccountToUser(User user, String appType, String appName, String appUsername) throws CASMappingException {
-        UserAccount account = new UserAccount();
-
-        account.setUser(user);
-        account.setAppType(appType);
-        account.setAppName(appName);
-        account.setAppUsername(appUsername);
-
-        user.getAccounts().add(account);
-
-        try {
-            hibernateTemplate.save(account);
-            hibernateTemplate.update(user);
-        } catch (Exception e) {
-            throw new CASMappingException("failed to associate user to app account", e);
-        }
-
-
-        return account;
-    }
-
-    /**
-     * Tries to associate a user with a pending registration. If successful, this
-     * will return the newly associated user account.
-     */
-    public UserAccount associateNewUser(User user, String registrationCode) throws CASMappingException {
-        PendingUserAccount pendingAccount = findPendingUserAccount(registrationCode);
-        UserAccount account = new UserAccount();
-
-        account.setUser(user);
-        account.setAppName(pendingAccount.getAppName());
-        account.setAppType(pendingAccount.getAppType());
-        account.setAppUsername(pendingAccount.getAppUsername());
-
-        user.getAccounts().add(account);
-
-        try {
-            hibernateTemplate.save(account);
-            hibernateTemplate.update(user);
-            hibernateTemplate.delete(pendingAccount);
-
-            log.info("associated new user to " + account.getAppName() + "/" + account.getAppType());
-        } catch (Exception e) {
-            throw new CASMappingException("failed to associate new user to registration code " + registrationCode, e);
-        }
-
-        return account;
-    }
-
-    /**
-     * Finds a pending user account by its unique registration code.
-     */
-    public PendingUserAccount findPendingUserAccount(String registrationCode) {
-        List<PendingUserAccount> accounts = hibernateTemplate.find("from PendingUserAccount where registrationCode = ?", registrationCode);
-
-        if (accounts.size() > 0) {
-            return accounts.get(0);
-        } else {
-            return null;
-        }
-    }
-
-    /**
-     * Checks if a user's existing password is valid. We need this for when an already logged in user wants
-     * to update his user profile.
-     */
-    public boolean isPasswordValid(User user, String password) {
-        String passwordEncoded = passwordEncoder.encode(password);
-        List<User> users = (List<User>) hibernateTemplate.find("from User where username = ? and password = ?", user.getUsername(), passwordEncoded);
-
-        return users.size() > 0;
-    }
 
     /**
      * Calls out to the Community web service to try to create a new user.
@@ -304,7 +155,7 @@ public class InfusionsoftAuthenticationService {
 //            return associateAccountToUser(user, "community", "Infusionsoft Community", String.valueOf(returnValue.get("username")));
         //}
 
-        UserAccount account = associateAccountToUser(user, "community", "Infusionsoft Community", details.getDisplayName());
+        UserAccount account = infusionsoftDataService.associateAccountToUser(user, "community", "Infusionsoft Community", details.getDisplayName());
 
         details.setUserAccount(account);
 
@@ -344,13 +195,14 @@ public class InfusionsoftAuthenticationService {
 
     /**
      * Creates (or updates) a CAS ticket granting ticket. Sometimes this needs to be called after an attributes change,
-     * so they are refreshed properly.
+     * so they are refreshed properly. It should only be called when the user is already authenticated and trusted,
+     * since it automatically creates a new session without validating the password.
      */
-    public void createTicketGrantingTicket(String username, String password, HttpServletRequest request, HttpServletResponse response) throws TicketException {
-        UsernamePasswordCredentials credentials = new UsernamePasswordCredentials();
+    public void createTicketGrantingTicket(String username, HttpServletRequest request, HttpServletResponse response) throws TicketException {
+        LetMeInCredentials credentials = new LetMeInCredentials();
 
         credentials.setUsername(username);
-        credentials.setPassword(password);
+        credentials.setPassword("bogus");
 
         String ticketGrantingTicket = centralAuthenticationService.createTicketGrantingTicket(credentials);
         String contextPath = request.getContextPath();
@@ -437,6 +289,17 @@ public class InfusionsoftAuthenticationService {
         return false;
     }
 
+    /**
+     * Checks if a user's existing password is valid. We need this for when an already logged in user wants
+     * to update his user profile.
+     */
+    public boolean isPasswordValid(User user, String password) {
+        String passwordEncoded = passwordEncoder.encode(password);
+        List<User> users = (List<User>) hibernateTemplate.find("from User where username = ? and password = ?", user.getUsername(), passwordEncoded);
+
+        return users.size() > 0;
+    }
+
     public void setCentralAuthenticationService(CentralAuthenticationService centralAuthenticationService) {
         this.centralAuthenticationService = centralAuthenticationService;
     }
@@ -515,5 +378,13 @@ public class InfusionsoftAuthenticationService {
 
     public void setCommunityDomain(String communityDomain) {
         this.communityDomain = communityDomain;
+    }
+
+    public InfusionsoftDataService getInfusionsoftDataService() {
+        return infusionsoftDataService;
+    }
+
+    public void setInfusionsoftDataService(InfusionsoftDataService infusionsoftDataService) {
+        this.infusionsoftDataService = infusionsoftDataService;
     }
 }

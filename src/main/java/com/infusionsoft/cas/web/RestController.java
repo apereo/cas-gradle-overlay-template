@@ -1,10 +1,11 @@
 package com.infusionsoft.cas.web;
 
 import com.infusionsoft.cas.services.InfusionsoftAuthenticationService;
+import com.infusionsoft.cas.services.InfusionsoftDataService;
+import com.infusionsoft.cas.services.InfusionsoftPasswordService;
 import com.infusionsoft.cas.types.PendingUserAccount;
 import com.infusionsoft.cas.types.User;
 import com.infusionsoft.cas.types.UserAccount;
-import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.validator.EmailValidator;
 import org.apache.log4j.Logger;
@@ -16,11 +17,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJacksonHttpMessageConverter;
 import org.springframework.http.server.ServletServerHttpResponse;
 import org.springframework.orm.hibernate3.HibernateTemplate;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.multiaction.MultiActionController;
 
@@ -47,8 +44,13 @@ public class RestController extends MultiActionController {
     private UniqueTicketIdGenerator ticketIdGenerator;
     private CentralAuthenticationService centralAuthenticationService;
     private InfusionsoftAuthenticationService infusionsoftAuthenticationService;
+    private InfusionsoftDataService infusionsoftDataService;
+    private InfusionsoftPasswordService infusionsoftPasswordService;
     private ServiceRegistryDao serviceRegistryDao;
     private String requiredApiKey;
+
+    public RestController() {
+    }
 
     /**
      * Registers a new user account and returns a simple JSON object.
@@ -72,7 +74,6 @@ public class RestController extends MultiActionController {
             User user = new User();
 
             user.setUsername(username);
-            user.setPassword(passwordEncoder.encode(password));
             user.setEnabled(true);
 
             if (username == null || username.isEmpty() || !EmailValidator.getInstance().isValid(username)) {
@@ -81,6 +82,12 @@ public class RestController extends MultiActionController {
                 model.put("error", "registration.error.usernameInUse");
             } else if (password == null || password.length() < PASSWORD_LENGTH_MIN || password.length() > PASSWORD_LENGTH_MAX) {
                 model.put("error", "registration.error.invalidPassword");
+            } else {
+                String passwordError = infusionsoftPasswordService.validatePassword(user, username, password);
+
+                if (passwordError != null) {
+                    model.put("error", passwordError);
+                }
             }
 
             if (model.containsKey("error")) {
@@ -89,6 +96,7 @@ public class RestController extends MultiActionController {
                 model.put("user", user);
 
                 hibernateTemplate.save(user);
+                infusionsoftPasswordService.setPasswordForUser(user, password);
             }
         } catch (Exception e) {
             logger.error("failed to create user account", e);
@@ -142,7 +150,6 @@ public class RestController extends MultiActionController {
             User user = new User();
 
             user.setUsername(username);
-            user.setPassword(passwordEncoder.encode(password));
             user.setEnabled(true);
 
             if (username == null || username.isEmpty() || !EmailValidator.getInstance().isValid(username)) {
@@ -155,6 +162,12 @@ public class RestController extends MultiActionController {
                 model.put("error", "registration.error.invalidAppType");
             } else if (StringUtils.isEmpty(appName)) {
                 model.put("error", "registration.error.invalidAppName");
+            } else {
+                String passwordError = infusionsoftPasswordService.validatePassword(user, username, password);
+
+                if (passwordError != null) {
+                    model.put("error", passwordError);
+                }
             }
 
             if (model.containsKey("error")) {
@@ -172,6 +185,7 @@ public class RestController extends MultiActionController {
                 user.getAccounts().add(account);
 
                 hibernateTemplate.save(user);
+                infusionsoftPasswordService.setPasswordForUser(user, password);
             }
         } catch (Exception e) {
             logger.error("failed to create user account", e);
@@ -211,7 +225,6 @@ public class RestController extends MultiActionController {
         String appName = request.getParameter("appName");
         String appType = request.getParameter("appType");
         String appUsername = request.getParameter("appUsername");
-        PendingUserAccount account = new PendingUserAccount();
 
         // Validate the API key
         if (!requiredApiKey.equals(apiKey)) {
@@ -221,14 +234,9 @@ public class RestController extends MultiActionController {
             return null;
         }
 
-        account.setAppName(appName);
-        account.setAppType(appType);
-        account.setAppUsername(appUsername);
-        account.setRegistrationCode(appName + "-" + RandomStringUtils.random(16, true, true));
-
         // Create the pending registration and return the code
         try {
-            hibernateTemplate.save(account);
+            PendingUserAccount account = infusionsoftDataService.createPendingUserAccount(appType, appName, appUsername);
 
             log.info("created new user registration code " + account.getRegistrationCode() + " for app " + appName);
 
@@ -266,6 +274,14 @@ public class RestController extends MultiActionController {
 
     public void setInfusionsoftAuthenticationService(InfusionsoftAuthenticationService infusionsoftAuthenticationService) {
         this.infusionsoftAuthenticationService = infusionsoftAuthenticationService;
+    }
+
+    public void setInfusionsoftPasswordService(InfusionsoftPasswordService infusionsoftPasswordService) {
+        this.infusionsoftPasswordService = infusionsoftPasswordService;
+    }
+
+    public void setInfusionsoftDataService(InfusionsoftDataService infusionsoftDataService) {
+        this.infusionsoftDataService = infusionsoftDataService;
     }
 
     public void setRequiredApiKey(String requiredApiKey) {

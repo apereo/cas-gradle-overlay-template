@@ -206,12 +206,15 @@
           p:passwordEncoder-ref="passwordEncoder"
           p:ticketIdGenerator-ref="loginTicketUniqueIdGenerator"
           p:infusionsoftAuthenticationService-ref="infusionsoftAuthenticationService"
+          p:infusionsoftPasswordService-ref="infusionsoftPasswordService"
+          p:infusionsoftDataService-ref="infusionsoftDataService"
           p:infusionsoftMailService-ref="infusionsoftMailService"/>
 
     <bean id="centralMultiActionController" class="com.infusionsoft.cas.web.CentralMultiActionController"
           p:infusionsoftAuthenticationService-ref="infusionsoftAuthenticationService"
+          p:infusionsoftDataService-ref="infusionsoftDataService"
           p:hibernateTemplate-ref="hibernateTemplate"
-          p:passwordEncoder-ref="passwordEncoder"
+          p:infusionsoftPasswordService-ref="infusionsoftPasswordService"
           p:infusionsoftMailService-ref="infusionsoftMailService"/>
 
     <bean id="restController" class="com.infusionsoft.cas.web.RestController"
@@ -220,6 +223,8 @@
           p:ticketIdGenerator-ref="loginTicketUniqueIdGenerator"
           p:centralAuthenticationService-ref="centralAuthenticationService"
           p:infusionsoftAuthenticationService-ref="infusionsoftAuthenticationService"
+          p:infusionsoftDataService-ref="infusionsoftDataService"
+          p:infusionsoftPasswordService-ref="infusionsoftPasswordService"
           p:requiredApiKey="bl4hbl4hbl4h"/>
 
     <bean id="logoutController" class="org.jasig.cas.web.LogoutController"
@@ -234,8 +239,10 @@
           p:warnCookieGenerator-ref="warnCookieGenerator"
           p:ticketGrantingTicketCookieGenerator-ref="ticketGrantingTicketCookieGenerator"/>
 
-    <bean id="authenticationViaFormAction" class="org.jasig.cas.web.flow.AuthenticationViaFormAction"
+    <bean id="authenticationViaFormAction" class="com.infusionsoft.cas.web.webflow.InfusionsoftAuthenticationViaFormAction"
           p:centralAuthenticationService-ref="centralAuthenticationService"
+          p:infusionsoftAuthenticationService-ref="infusionsoftAuthenticationService"
+          p:infusionsoftDataService-ref="infusionsoftDataService"
           p:warnCookieGenerator-ref="warnCookieGenerator"/>
 
     <bean id="generateServiceTicketAction" class="org.jasig.cas.web.flow.GenerateServiceTicketAction"

@@ -36,6 +36,7 @@ public class UserFilter implements Filter {
         HttpSession session = request.getSession(true);
         User user = infusionsoftAuthenticationService.getCurrentUser(request);
         String registrationCode = request.getParameter("registrationCode");
+        String service = request.getParameter("service");
 
         // Set or unset the user object (since the CAS security layer doesn't make this easy).
         if (user != null) {
@@ -49,6 +50,13 @@ public class UserFilter implements Filter {
             request.getSession(true).setAttribute("registrationCode", registrationCode);
 
             log.debug("registration code " + registrationCode + " has been saved in the session");
+        }
+
+        // If there's a service url, save that in the session too.
+        if (StringUtils.isNotEmpty(service)) {
+            request.getSession(true).setAttribute("serviceUrl", service);
+
+            log.debug("service url " + service + " has been saved in the session");
         }
 
         // Protect the central controller, logged in users only!

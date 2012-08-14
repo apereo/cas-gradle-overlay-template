@@ -1,19 +1,16 @@
 package com.infusionsoft.cas.web;
 
+import com.infusionsoft.cas.services.InfusionsoftDataService;
 import com.infusionsoft.cas.services.InfusionsoftMailService;
-import com.infusionsoft.cas.types.PendingUserAccount;
+import com.infusionsoft.cas.services.InfusionsoftPasswordService;
 import com.infusionsoft.cas.types.User;
 import com.infusionsoft.cas.services.InfusionsoftAuthenticationService;
 import com.infusionsoft.cas.types.UserAccount;
-import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.validator.EmailValidator;
 import org.apache.log4j.Logger;
 import org.jasig.cas.authentication.handler.PasswordEncoder;
 import org.jasig.cas.util.UniqueTicketIdGenerator;
-import org.springframework.http.MediaType;
-import org.springframework.http.converter.json.MappingJacksonHttpMessageConverter;
-import org.springframework.http.server.ServletServerHttpResponse;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.multiaction.MultiActionController;
@@ -21,7 +18,6 @@ import org.springframework.web.servlet.mvc.multiaction.MultiActionController;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -38,6 +34,8 @@ public class RegistrationMultiActionController extends MultiActionController {
     private static final String FORUM_API_KEY = "bec0124123e5ab4c2ce362461cb46ff0";
 
     private InfusionsoftAuthenticationService infusionsoftAuthenticationService;
+    private InfusionsoftDataService infusionsoftDataService;
+    private InfusionsoftPasswordService infusionsoftPasswordService;
     private InfusionsoftMailService infusionsoftMailService;
     private HibernateTemplate hibernateTemplate;
     private PasswordEncoder passwordEncoder;
@@ -72,7 +70,6 @@ public class RegistrationMultiActionController extends MultiActionController {
             user.setFirstName(firstName);
             user.setLastName(lastName);
             user.setUsername(username);
-            user.setPassword(passwordEncoder.encode(password1));
             user.setEnabled(true);
 
             model.put("user", user);
@@ -85,6 +82,12 @@ public class RegistrationMultiActionController extends MultiActionController {
                 model.put("error", "registration.error.invalidPassword");
             } else if (!password1.equals(password2)) {
                 model.put("error", "registration.error.passwordsNoMatch");
+            } else {
+                String passwordError = infusionsoftPasswordService.validatePassword(user, username, password1);
+
+                if (passwordError != null) {
+                    model.put("error", passwordError);
+                }
             }
 
             if (model.containsKey("error")) {
@@ -92,14 +95,15 @@ public class RegistrationMultiActionController extends MultiActionController {
             } else {
                 hibernateTemplate.save(user);
 
-                infusionsoftAuthenticationService.createTicketGrantingTicket(username, password1, request, response);
+                infusionsoftPasswordService.setPasswordForUser(user, password1);
+                infusionsoftAuthenticationService.createTicketGrantingTicket(username, request, response);
 
                 if (StringUtils.isNotEmpty(registrationCode)) {
                     try {
-                        UserAccount account = infusionsoftAuthenticationService.associateNewUser(user, registrationCode);
+                        UserAccount account = infusionsoftDataService.associatePendingAccountToUser(user, registrationCode);
 
                         request.getSession().removeAttribute("registrationCode");
-                        infusionsoftAuthenticationService.createTicketGrantingTicket(username, password1, request, response);
+                        infusionsoftAuthenticationService.createTicketGrantingTicket(username, request, response);
                     } catch (Exception e) {
                         log.error("failed to associate new user to registration code " + registrationCode, e);
                     }
@@ -152,7 +156,7 @@ public class RegistrationMultiActionController extends MultiActionController {
 
         if (infusionsoftAuthenticationService.verifyAppCredentials(appType, appName, appUsername, appPassword)) {
             try {
-                UserAccount account = infusionsoftAuthenticationService.associateAccountToUser(user, appType, appName, appUsername);
+                UserAccount account = infusionsoftDataService.associateAccountToUser(user, appType, appName, appUsername);
 
                 return new ModelAndView("redirect:success", "appUrl", infusionsoftAuthenticationService.buildAppUrl(account.getAppType(), account.getAppName()));
             } catch (Exception e) {
@@ -207,7 +211,7 @@ public class RegistrationMultiActionController extends MultiActionController {
         log.info("password recovery request for email " + email);
 
         if (StringUtils.isNotEmpty(recoveryCode)) {
-            User user = infusionsoftAuthenticationService.findUserByRecoveryCode(recoveryCode);
+            User user = infusionsoftDataService.findUserByRecoveryCode(recoveryCode);
 
             if (user == null) {
                 log.warn("invalid password recovery code was entered: " + recoveryCode);
@@ -222,7 +226,7 @@ public class RegistrationMultiActionController extends MultiActionController {
             List<User> users = (List<User>) hibernateTemplate.find("from User where username = ?", email);
 
             if (users.size() > 0) {
-                recoveryCode = infusionsoftAuthenticationService.createPasswordRecoveryCode(users.get(0));
+                recoveryCode = infusionsoftDataService.createPasswordRecoveryCode(users.get(0));
 
                 log.info("password recovery code " + recoveryCode + " created for user " + users.get(0).getId());
 
@@ -244,7 +248,7 @@ public class RegistrationMultiActionController extends MultiActionController {
         String password1 = request.getParameter("password1");
         String password2 = request.getParameter("password2");
         Map<String, Object> model = new HashMap<String, Object>();
-        User user = infusionsoftAuthenticationService.findUserByRecoveryCode(recoveryCode);
+        User user = infusionsoftDataService.findUserByRecoveryCode(recoveryCode);
 
         if (user == null) {
             model.put("error", "forgotpassword.noSuchCode");
@@ -254,16 +258,20 @@ public class RegistrationMultiActionController extends MultiActionController {
             model.put("error", "registration.error.passwordsNoMatch");
         }
 
+        if (!model.containsKey("error")) {
+            String passwordError = infusionsoftPasswordService.validatePassword(user, user.getUsername(), password1);
+
+            if (passwordError != null) {
+                model.put("error", passwordError);
+            }
+        }
+
         if (model.containsKey("error")) {
             model.put("recoveryCode", recoveryCode);
 
             return new ModelAndView("infusionsoft/ui/registration/reset", model);
         } else {
-            user.setPassword(passwordEncoder.encode(password1));
-
-            hibernateTemplate.update(user);
-
-            log.info("reset password for user " + user.getId() + " to " + user.getPassword());
+            infusionsoftPasswordService.setPasswordForUser(user, password1);
 
             return new ModelAndView("redirect:/login");
         }
@@ -287,5 +295,13 @@ public class RegistrationMultiActionController extends MultiActionController {
 
     public void setInfusionsoftMailService(InfusionsoftMailService infusionsoftMailService) {
         this.infusionsoftMailService = infusionsoftMailService;
+    }
+
+    public void setInfusionsoftDataService(InfusionsoftDataService infusionsoftDataService) {
+        this.infusionsoftDataService = infusionsoftDataService;
+    }
+
+    public void setInfusionsoftPasswordService(InfusionsoftPasswordService infusionsoftPasswordService) {
+        this.infusionsoftPasswordService = infusionsoftPasswordService;
     }
 }

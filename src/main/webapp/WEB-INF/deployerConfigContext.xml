@@ -25,16 +25,7 @@
 
     <import resource="spring-configuration/propertyFileConfigurer.xml"/>
 
-    <!--
-         | This bean declares our AuthenticationManager.  The CentralAuthenticationService service bean
-         | declared in applicationContext.xml picks up this AuthenticationManager by reference to its id,
-         | "authenticationManager".  Most deployers will be able to use the default AuthenticationManager
-         | implementation and so do not need to change the class of this bean.  We include the whole
-         | AuthenticationManager here in the userConfigContext.xml so that you can see the things you will
-         | need to change in context.
-         +-->
-    <bean id="authenticationManager"
-          class="org.jasig.cas.authentication.AuthenticationManagerImpl">
+    <bean id="authenticationManager" class="org.jasig.cas.authentication.AuthenticationManagerImpl">
         <!--
               | This is the List of CredentialToPrincipalResolvers that identify what Principal is trying to authenticate.
               | The AuthenticationManagerImpl considers them in order, finding a CredentialToPrincipalResolver which
@@ -78,8 +69,7 @@
                         | If you are representing services by something more or other than an HTTPS URL whereat they are able to
                         | receive a proxy callback, you will need to change this bean declaration (or add additional declarations).
                         +-->
-                <bean
-                        class="org.jasig.cas.authentication.principal.HttpBasedServiceCredentialsToPrincipalResolver"/>
+                <bean class="org.jasig.cas.authentication.principal.HttpBasedServiceCredentialsToPrincipalResolver"/>
             </list>
         </property>
 
@@ -91,17 +81,13 @@
               +-->
         <property name="authenticationHandlers">
             <list>
-                <!--
-                        | This is the authentication handler that authenticates services by means of callback via SSL, thereby validating
-                        | a server side SSL certificate.
-                        +-->
+                <!-- Authenticates services via an SSL callback. -->
                 <bean class="org.jasig.cas.authentication.handler.support.HttpBasedServiceCredentialsAuthenticationHandler"
                       p:httpClient-ref="httpClient">
                     <property name="requireSecure" value="false"/>
                 </bean>
-                <!--
-                <bean class="org.jasig.cas.authentication.handler.support.SimpleTestUsernamePasswordAuthenticationHandler"/>
-                -->
+
+                <!-- Authenticates a username and password. -->
                 <bean class="com.infusionsoft.cas.auth.InfusionsoftAuthenticationHandler">
                     <property name="hibernateTemplate" ref="hibernateTemplate"/>
                     <property name="passwordEncoder" ref="passwordEncoder"/>
@@ -112,7 +98,7 @@
         <!-- For "remember me" functionality. -->
         <property name="authenticationMetaDataPopulators">
             <list>
-                <bean class="org.jasig.cas.authentication.principal.RememberMeAuthenticationMetaDataPopulator" />
+                <bean class="org.jasig.cas.authentication.principal.RememberMeAuthenticationMetaDataPopulator"/>
             </list>
         </property>
     </bean>
@@ -135,39 +121,13 @@
         <constructor-arg index="0" value="SHA-256"/>
     </bean>
 
-    <!--
-     Bean that defines the attributes that a service may return.  This example uses the Stub/Mock version.  A real implementation
-     may go against a database or LDAP server.  The id should remain "attributeRepository" though.
-      -->
-    <!--
-    <bean id="attributeRepository"
-          class="org.jasig.services.persondir.support.StubPersonAttributeDao">
-        <property name="backingMap">
-            <map>
-                <entry key="uid" value="uid"/>
-                <entry key="eduPersonAffiliation" value="eduPersonAffiliation"/>
-                <entry key="groupMembership" value="groupMembership"/>
-                <entry key="community.userName" value="Larry Stemle"/>
-                <entry key="accounts" value=""/>
-            </map>
-        </property>
-    </bean>
-    -->
-
     <bean id="attributeRepository" class="com.infusionsoft.cas.support.InfusionsoftAttributeDao">
         <property name="hibernateTemplate" ref="hibernateTemplate"/>
     </bean>
 
-    <!--
-     Sample, in-memory data store for the ServiceRegistry. A real implementation
-     would probably want to replace this with the JPA-backed ServiceRegistry DAO
-     The name of this bean should remain "serviceRegistryDao".
-      -->
-
     <bean id="serviceRegistryDao" class="org.jasig.cas.services.JpaServiceRegistryDaoImpl"
           p:entityManagerFactory-ref="entityManagerFactory"/>
 
-    <!-- This is the EntityManagerFactory configuration for Hibernate -->
     <bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
         <property name="dataSource" ref="dataSource"/>
         <property name="jpaVendorAdapter">
@@ -190,38 +150,16 @@
 
     <tx:annotation-driven transaction-manager="transactionManager"/>
 
-    <!--
-    <bean id="dataSource"
-            class="com.mchange.v2.c3p0.ComboPooledDataSource"
-            p:driverClass="com.mysql.jdbc.Driver"
-            p:jdbcUrl="jdbc:mysql://localhost:3306/cas?autoReconnect=true"
-            p:password="cas"
-            p:user="cas"/>
-    -->
-
     <bean id="dataSource" class="org.springframework.jndi.JndiObjectFactoryBean">
         <property name="jndiName" value="java:comp/env/jdbc/cas"/>
-        <property name="resourceRef" value="true" /> 
+        <property name="resourceRef" value="true"/>
     </bean>
 
     <bean id="auditTrailManager" class="com.github.inspektr.audit.support.Slf4jLoggingAuditTrailManager"/>
 
-    <!--
-    <bean id="hibernateDataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close">
-        <property name="driverClass" value="com.mysql.jdbc.Driver"/>
-        <property name="jdbcUrl" value="jdbc:mysql://localhost/cas"/>
-        <property name="user" value="cas"/>
-        <property name="password" value="cas"/>
-        <property name="minPoolSize" value="1"/>
-        <property name="maxPoolSize" value="5"/>
-        <property name="maxStatements" value="50"/>
-        <property name="idleConnectionTestPeriod" value="3000"/>
-        <property name="loginTimeout" value="300"/>
-    </bean>
-    -->
     <bean id="hibernateDataSource" class="org.springframework.jndi.JndiObjectFactoryBean">
         <property name="jndiName" value="java:comp/env/jdbc/cas"/>
-        <property name="resourceRef" value="true" /> 
+        <property name="resourceRef" value="true"/>
     </bean>
 
 
@@ -232,6 +170,7 @@
             <list>
                 <value>com.infusionsoft.cas.types.User</value>
                 <value>com.infusionsoft.cas.types.UserAccount</value>
+                <value>com.infusionsoft.cas.types.UserPassword</value>
                 <value>com.infusionsoft.cas.types.PendingUserAccount</value>
                 <value>com.infusionsoft.cas.types.CommunityAccountDetails</value>
                 <value>com.infusionsoft.cas.types.LegacyAccount</value>
@@ -256,6 +195,7 @@
 
     <bean id="infusionsoftAuthenticationService" class="com.infusionsoft.cas.services.InfusionsoftAuthenticationService">
         <property name="centralAuthenticationService" ref="centralAuthenticationService"/>
+        <property name="infusionsoftDataService" ref="infusionsoftDataService"/>
         <property name="hibernateTemplate" ref="hibernateTemplate"/>
         <property name="serviceRegistryDao" ref="serviceRegistryDao"/>
         <property name="ticketRegistry" ref="ticketRegistry"/>
@@ -269,6 +209,15 @@
         <property name="crmPort" value="8443"/>
         <property name="communityDomain" value="community.infusiontest.com"/>
         <property name="customerHubDomain" value="customerhub.net"/>
+    </bean>
+
+    <bean id="infusionsoftPasswordService" class="com.infusionsoft.cas.services.InfusionsoftPasswordService">
+        <property name="hibernateTemplate" ref="hibernateTemplate"/>
+        <property name="passwordEncoder" ref="passwordEncoder"/>
+    </bean>
+
+    <bean id="infusionsoftDataService" class="com.infusionsoft.cas.services.InfusionsoftDataService">
+        <property name="hibernateTemplate" ref="hibernateTemplate"/>
     </bean>
 
     <bean id="infusionsoftMailService" class="com.infusionsoft.cas.services.InfusionsoftMailService">
@@ -291,14 +240,6 @@
         <property name="subject" value="Important message from Infusionsoft"/>
     </bean>
 
-    <!--
-    private CentralAuthenticationService centralAuthenticationService;
-    private ServiceRegistryDao serviceRegistryDao;
-    private TicketRegistry ticketRegistry;
-    private HibernateTemplate hibernateTemplate;
-    private PasswordEncoder passwordEncoder;
-    private UniqueTicketIdGenerator ticketIdGenerator;
--->
     <tx:advice id="transactionAdvice" transaction-manager="hibernateTransactionManager">
         <tx:attributes>
             <tx:method name="get*" read-only="true"/>

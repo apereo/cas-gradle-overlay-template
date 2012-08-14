@@ -1,20 +1,17 @@
 package com.infusionsoft.cas.services;
 
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
 import org.jasig.cas.authentication.handler.PasswordEncoder;
 import org.springframework.orm.hibernate3.HibernateTemplate;
-import org.testng.log4testng.Logger;
 
 import com.infusionsoft.cas.types.User;
 import com.infusionsoft.cas.types.UserPassword;
 
-public class PasswordService {
-	private static final Logger log = Logger.getLogger(PasswordService.class);
+public class InfusionsoftPasswordService {
+	private static final Logger log = Logger.getLogger(InfusionsoftPasswordService.class);
 
 	private static final String UPPERCASE_LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 	private static final String LOWERCASE_LETTERS = "abcdefghijklmnopqrstuvwxyz";
@@ -60,9 +57,8 @@ public class PasswordService {
 	 * Fetches the current encoded password for this user, or null if none is
 	 * valid.
 	 */
-	@SuppressWarnings("unchecked")
 	public UserPassword getPasswordForUser(User user) {
-		List<UserPassword> passwords = (List<UserPassword>) hibernateTemplate.find("from Password where user = ? and active = true order by dateCreated desc", user);
+		List<UserPassword> passwords = (List<UserPassword>) hibernateTemplate.find("from UserPassword where user = ? and active = true order by dateCreated desc", user);
 
 		if (passwords.size() > 0) {
 			return passwords.get(0);
@@ -91,29 +87,29 @@ public class PasswordService {
 
 		hibernateTemplate.save(userPassword);
 		hibernateTemplate.update(user);
-	}
+
+        log.info("set password for user " + user.getId());
+    }
 
 	/**
-	 * Validates a password and returns any validation errors.
+	 * Validates a password and returns a validation error, if any.
 	 */
-	public Set<String> validatePassword(User user, String username, String password) {
-		Set<String> errors = new HashSet<String>();
-
-		if (StringUtils.isEmpty(password) || password.length() < 7) {
-			errors.add(PASSWORD_TOOSHORT_CODE);
+	public String validatePassword(User user, String username, String password) {
+        if (StringUtils.isEmpty(password) || password.length() < 7) {
+			return PASSWORD_TOOSHORT_CODE;
 		}
 
 		if (password != null) {
 			if (containsNonAsciiChars(password)) {
-				errors.add(PASSWORD_WEIRDCHARS_CODE);
+				return PASSWORD_WEIRDCHARS_CODE;
 			}
 
-			if (!StringUtils.containsAny(password, LETTERS) || !StringUtils.contains(password, DIGITS)) {
-				errors.add(PASSWORD_NUMBERANDLETTER_CODE);
+			if (!StringUtils.containsAny(password, LETTERS) || !StringUtils.containsAny(password, DIGITS)) {
+				return PASSWORD_NUMBERANDLETTER_CODE;
 			}
 
 			if (!StringUtils.containsAny(password, "ABCDEFGHIJKLMNOPQRSTUVWXYZ")) {
-				errors.add(PASSWORD_UPPERCASE_CODE);
+				return PASSWORD_UPPERCASE_CODE;
 			}
 		}
 
@@ -122,15 +118,15 @@ public class PasswordService {
 			String passwordLower = password.toLowerCase();
 
 			if (passwordLower.equals(usernameLower) || passwordLower.contains(usernameLower)) {
-				errors.add(PASSWORD_CONTAINUSERNAME_CODE);
+				return PASSWORD_CONTAINUSERNAME_CODE;
 			}
 		}
 
-		if (lastFourPasswordsContains(user, password)) {
-			errors.add(PASSWORD_CANTMATCH_CODE);
+		if (user.getId() != null && lastFourPasswordsContains(user, password)) {
+			return PASSWORD_CANTMATCH_CODE;
 		}
 
-		return errors;
+		return null;
 	}
 
 	/**
@@ -139,7 +135,7 @@ public class PasswordService {
 	@SuppressWarnings("unchecked")
 	private boolean lastFourPasswordsContains(User user, String password) {
 		String passwordEncoded = passwordEncoder.encode(password);
-		List<UserPassword> passwords = (List<UserPassword>) hibernateTemplate.find("from Password where user = ? order by dateCreated desc", user);
+		List<UserPassword> passwords = (List<UserPassword>) hibernateTemplate.find("from UserPassword where user = ? order by dateCreated desc", user);
 
 		for (int i = 0; i < passwords.size() && i < 4; i++) {
 			if (passwords.get(i).getPasswordEncoded().equals(passwordEncoded)) {
@@ -163,4 +159,12 @@ public class PasswordService {
 
 		return rtn;
 	}
+
+    public void setHibernateTemplate(HibernateTemplate hibernateTemplate) {
+        this.hibernateTemplate = hibernateTemplate;
+    }
+
+    public void setPasswordEncoder(PasswordEncoder passwordEncoder) {
+        this.passwordEncoder = passwordEncoder;
+    }
 }

@@ -2,7 +2,9 @@ package com.infusionsoft.cas.web;
 
 import com.infusionsoft.cas.exceptions.UsernameTakenException;
 import com.infusionsoft.cas.services.InfusionsoftAuthenticationService;
+import com.infusionsoft.cas.services.InfusionsoftDataService;
 import com.infusionsoft.cas.services.InfusionsoftMailService;
+import com.infusionsoft.cas.services.InfusionsoftPasswordService;
 import com.infusionsoft.cas.types.CommunityAccountDetails;
 import com.infusionsoft.cas.types.User;
 import com.infusionsoft.cas.types.UserAccount;
@@ -13,8 +15,6 @@ import org.apache.log4j.Logger;
 import org.jasig.cas.authentication.handler.PasswordEncoder;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -31,6 +31,7 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Controller that powers the central "hub" and association features.
@@ -43,9 +44,10 @@ public class CentralMultiActionController extends MultiActionController {
     private static final String FORUM_API_KEY = "bec0124123e5ab4c2ce362461cb46ff0";
 
     private InfusionsoftAuthenticationService infusionsoftAuthenticationService;
+    private InfusionsoftDataService infusionsoftDataService;
+    private InfusionsoftPasswordService infusionsoftPasswordService;
     private InfusionsoftMailService infusionsoftMailService;
     private HibernateTemplate hibernateTemplate;
-    private PasswordEncoder passwordEncoder;
 
     /**
      * Gatekeeper that checks if the requested service is associated. If it's an unassociated app,
@@ -60,10 +62,10 @@ public class CentralMultiActionController extends MultiActionController {
 
         if (StringUtils.isNotEmpty(registrationCode)) {
             try {
-                UserAccount account = infusionsoftAuthenticationService.associateNewUser(user, registrationCode);
+                UserAccount account = infusionsoftDataService.associatePendingAccountToUser(user, registrationCode);
 
                 request.getSession().removeAttribute("registrationCode");
-                infusionsoftAuthenticationService.createTicketGrantingTicket(account.getAppUsername(), "bogus", request, response);
+                infusionsoftAuthenticationService.createTicketGrantingTicket(account.getAppUsername(), request, response);
 
                 return new ModelAndView("redirect:" + infusionsoftAuthenticationService.buildAppUrl(account.getAppType(), account.getAppName()));
             } catch (Exception e) {
@@ -107,7 +109,7 @@ public class CentralMultiActionController extends MultiActionController {
             model.put("crmPort", infusionsoftAuthenticationService.getCrmPort());
             model.put("communityDomain", infusionsoftAuthenticationService.getCommunityDomain());
             model.put("customerHubDomain", infusionsoftAuthenticationService.getCustomerHubDomain());
-            model.put("accounts", infusionsoftAuthenticationService.getSortedUserAccounts(user));
+            model.put("accounts", infusionsoftDataService.findSortedUserAccounts(user));
 
             return new ModelAndView("infusionsoft/ui/central/home", model);
         } else {
@@ -168,7 +170,7 @@ public class CentralMultiActionController extends MultiActionController {
 
                 try {
                     infusionsoftAuthenticationService.registerCommunityUserAccount(user, details);
-                    infusionsoftAuthenticationService.createTicketGrantingTicket(user.getUsername(), "bogus", request, response);
+                    infusionsoftAuthenticationService.createTicketGrantingTicket(user.getUsername(), request, response);
 
                     return new ModelAndView("redirect:index");
                 } catch (UsernameTakenException e) {
@@ -207,8 +209,8 @@ public class CentralMultiActionController extends MultiActionController {
             } else if (currentUser != null) {
                 // TODO - big security hole here! need to validate they really have access before mapping
 
-                infusionsoftAuthenticationService.associateAccountToUser(currentUser, appType, appName, appUsername);
-                infusionsoftAuthenticationService.createTicketGrantingTicket(currentUser.getUsername(), "bogus", request, response);
+                infusionsoftDataService.associateAccountToUser(currentUser, appType, appName, appUsername);
+                infusionsoftAuthenticationService.createTicketGrantingTicket(currentUser.getUsername(), request, response);
             } else {
                 throw new RuntimeException("logged in user could not be resolved!");
             }
@@ -258,6 +260,8 @@ public class CentralMultiActionController extends MultiActionController {
             user.setLastName(lastName);
             user.setUsername(username);
 
+            model.put("user", user);
+
             if (username == null || username.isEmpty() || !EmailValidator.getInstance().isValid(username)) {
                 model.put("error", "editprofile.error.invalidUsername");
             } else if (hibernateTemplate.find("from User u where u.username = ? and u.id != ?", username, user.getId()).size() > 0) {
@@ -265,27 +269,20 @@ public class CentralMultiActionController extends MultiActionController {
             } else if (!infusionsoftAuthenticationService.isPasswordValid(user, existingPassword)) {
                 model.put("error", "editprofile.error.incorrectCurrentPassword");
             } else if (StringUtils.isNotEmpty(password1) || StringUtils.isNotEmpty(password2)) {
-                user.setPassword(passwordEncoder.encode(password1));
+                String passwordError = infusionsoftPasswordService.validatePassword(user, username, password1);
 
-                if (password1.length() < PASSWORD_LENGTH_MIN || password1.length() > PASSWORD_LENGTH_MAX) {
-                    model.put("error", "editprofile.error.invalidPassword");
-                } else if (!password1.equals(password2)) {
-                    model.put("error", "editprofile.error.passwordsNoMatch");
+                if (passwordError != null) {
+                    model.put("error", passwordError);
                 }
             }
-
-            model.put("user", user);
 
             if (model.containsKey("error")) {
                 log.info("couldn't update user account for user " + user.getId() + ": " + model.get("error"));
             } else {
+                infusionsoftPasswordService.setPasswordForUser(user, password1);
                 hibernateTemplate.update(user);
 
-                if (StringUtils.isNotEmpty(password1)) {
-                    infusionsoftAuthenticationService.createTicketGrantingTicket(username, password1, request, response);
-                } else {
-                    infusionsoftAuthenticationService.createTicketGrantingTicket(username, "bogus", request, response);
-                }
+                infusionsoftAuthenticationService.createTicketGrantingTicket(username, request, response);
             }
         } catch (Exception e) {
             log.error("failed to update user account", e);
@@ -303,12 +300,12 @@ public class CentralMultiActionController extends MultiActionController {
     public ModelAndView editCommunityAccount(HttpServletRequest request, HttpServletResponse response) {
         Long accountId = new Long(request.getParameter("id"));
         User user = infusionsoftAuthenticationService.getCurrentUser(request);
-        UserAccount account = infusionsoftAuthenticationService.findUserAccount(user, accountId);
+        UserAccount account = infusionsoftDataService.findUserAccount(user, accountId);
         Map<String, Object> model = new HashMap<String, Object>();
 
         model.put("user", user);
         model.put("account", account);
-        model.put("details", infusionsoftAuthenticationService.findCommunityAccountDetails(account));
+        model.put("details", infusionsoftDataService.findCommunityAccountDetails(account));
         model.put("infusionsoftExperienceLevels", new int[]{1, 2, 3, 4, 5});
 
         return new ModelAndView("infusionsoft/ui/central/editCommunityAccount", model);
@@ -317,8 +314,8 @@ public class CentralMultiActionController extends MultiActionController {
     public ModelAndView updateCommunityAccount(HttpServletRequest request, HttpServletResponse response) {
         Map<String, Object> model = new HashMap<String, Object>();
         User user = infusionsoftAuthenticationService.getCurrentUser(request);
-        UserAccount account = infusionsoftAuthenticationService.findUserAccount(user, new Long(request.getParameter("id")));
-        CommunityAccountDetails details = infusionsoftAuthenticationService.findCommunityAccountDetails(account);
+        UserAccount account = infusionsoftDataService.findUserAccount(user, new Long(request.getParameter("id")));
+        CommunityAccountDetails details = infusionsoftDataService.findCommunityAccountDetails(account);
 
         details.setDisplayName(request.getParameter("displayName"));
         details.setInfusionsoftExperience(Integer.parseInt(request.getParameter("infusionsoftExperience")));
@@ -340,7 +337,7 @@ public class CentralMultiActionController extends MultiActionController {
 
             try {
                 infusionsoftAuthenticationService.updateCommunityUserAccount(user, details);
-                infusionsoftAuthenticationService.createTicketGrantingTicket(user.getUsername(), "bogus", request, response);
+                infusionsoftAuthenticationService.createTicketGrantingTicket(user.getUsername(), request, response);
 
                 return new ModelAndView("redirect:index");
             } catch (UsernameTakenException e) {
@@ -383,8 +380,8 @@ public class CentralMultiActionController extends MultiActionController {
                 Boolean isValidUser = (Boolean) returnValue.get("valid");
 
                 if (isValidUser) {
-                    infusionsoftAuthenticationService.associateAccountToUser(currentUser, "forum", "Infusionsoft Communities", String.valueOf(returnValue.get("username")));
-                    infusionsoftAuthenticationService.createTicketGrantingTicket(currentUser.getUsername(), "bogus", request, response);
+                    infusionsoftDataService.associateAccountToUser(currentUser, "forum", "Infusionsoft Communities", String.valueOf(returnValue.get("username")));
+                    infusionsoftAuthenticationService.createTicketGrantingTicket(currentUser.getUsername(), request, response);
 
                     model.put("data", "OK");
                 } else {
@@ -436,8 +433,8 @@ public class CentralMultiActionController extends MultiActionController {
                         System.out.println("ERROR! - could not create user: " + returnValue.get("message"));
                         model.put("error", returnValue.get("message"));
                     } else {
-                        infusionsoftAuthenticationService.associateAccountToUser(currentUser, "forum", "Infusionsoft Communities", String.valueOf(returnValue.get("username")));
-                        infusionsoftAuthenticationService.createTicketGrantingTicket(currentUser.getUsername(), "bogus", request, response);
+                        infusionsoftDataService.associateAccountToUser(currentUser, "forum", "Infusionsoft Communities", String.valueOf(returnValue.get("username")));
+                        infusionsoftAuthenticationService.createTicketGrantingTicket(currentUser.getUsername(), request, response);
 
                         model.put("data", "OK");
                     }
@@ -470,7 +467,7 @@ public class CentralMultiActionController extends MultiActionController {
         Long accountId = new Long(request.getParameter("id"));
         String alias = request.getParameter("value");
         User user = infusionsoftAuthenticationService.getCurrentUser(request);
-        UserAccount account = infusionsoftAuthenticationService.findUserAccount(user, accountId);
+        UserAccount account = infusionsoftDataService.findUserAccount(user, accountId);
 
         try {
             account.setAlias(alias);
@@ -512,11 +509,19 @@ public class CentralMultiActionController extends MultiActionController {
         this.hibernateTemplate = hibernateTemplate;
     }
 
-    public void setPasswordEncoder(PasswordEncoder passwordEncoder) {
-        this.passwordEncoder = passwordEncoder;
-    }
-
     public void setInfusionsoftMailService(InfusionsoftMailService infusionsoftMailService) {
         this.infusionsoftMailService = infusionsoftMailService;
+    }
+
+    public InfusionsoftDataService getInfusionsoftDataService() {
+        return infusionsoftDataService;
+    }
+
+    public void setInfusionsoftDataService(InfusionsoftDataService infusionsoftDataService) {
+        this.infusionsoftDataService = infusionsoftDataService;
+    }
+
+    public void setInfusionsoftPasswordService(InfusionsoftPasswordService infusionsoftPasswordService) {
+        this.infusionsoftPasswordService = infusionsoftPasswordService;
     }
 }
