@@ -42,13 +42,13 @@
             <div class="control-group">
                 <label class="control-label" for="password1">Password</label>
                 <div class="controls">
-                    <input id="password1" name="password1" value="" type="password"/>
+                    <input id="password1" name="password1" value="" type="password" style="width: 266px"/>
                 </div>
             </div>
             <div class="control-group">
                 <label class="control-label" for="password2">Confirm Password</label>
                 <div class="controls">
-                    <input id="password2" name="password2" value="" type="password"/>
+                    <input id="password2" name="password2" value="" type="password" style="width: 266px"/>
                 </div>
             </div>
         </fieldset>

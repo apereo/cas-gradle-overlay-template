@@ -5,7 +5,8 @@
 <%--
  If CAS doesn't know what service people were trying to log into, they come here. Let's just send
  them all to the bouncer and let it figure it out.
- TODO - meta tag redirects are cheesy. Someday we should figure out how to do this in Web Flow.
+
+ TODO: This may not be needed anymore since changing to a WebFlow redirect...
 --%>
 <html>
     <head>

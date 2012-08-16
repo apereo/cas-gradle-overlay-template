@@ -8,18 +8,13 @@ import com.infusionsoft.cas.services.InfusionsoftPasswordService;
 import com.infusionsoft.cas.types.CommunityAccountDetails;
 import com.infusionsoft.cas.types.User;
 import com.infusionsoft.cas.types.UserAccount;
-import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.validator.EmailValidator;
 import org.apache.log4j.Logger;
-import org.jasig.cas.authentication.handler.PasswordEncoder;
-import org.json.simple.JSONObject;
-import org.json.simple.JSONValue;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.client.RestTemplate;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.multiaction.MultiActionController;
 
@@ -29,19 +24,13 @@ import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.net.URL;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
- * Controller that powers the central "hub" and association features.
+ * Controller that powers the central "hub" along with account association and profile management.
  */
 public class CentralMultiActionController extends MultiActionController {
     private static final Logger log = Logger.getLogger(CentralMultiActionController.class);
-
-    private static final int PASSWORD_LENGTH_MIN = 7;
-    private static final int PASSWORD_LENGTH_MAX = 20;
-    private static final String FORUM_API_KEY = "bec0124123e5ab4c2ce362461cb46ff0";
 
     private InfusionsoftAuthenticationService infusionsoftAuthenticationService;
     private InfusionsoftDataService infusionsoftDataService;
@@ -52,7 +41,7 @@ public class CentralMultiActionController extends MultiActionController {
     /**
      * Gatekeeper that checks if the requested service is associated. If it's an unassociated app,
      * redirects the user to a page where they can link it up. If it's already pending association, make
-     * the association and then redirect to a landing page.
+     * the association and then redirect to a landing page. Otherwise, simply redirect to the home page.
      */
     public ModelAndView index(HttpServletRequest request, HttpServletResponse response) throws IOException {
         User user = infusionsoftAuthenticationService.getCurrentUser(request);
@@ -96,6 +85,9 @@ public class CentralMultiActionController extends MultiActionController {
         return new ModelAndView("redirect:home");
     }
 
+    /**
+     * Renders the Infusionsoft Central home page.
+     */
     public ModelAndView home(HttpServletRequest request, HttpServletResponse response) {
         Map<String, Object> model = new HashMap<String, Object>();
         User user = infusionsoftAuthenticationService.getCurrentUser(request);
@@ -119,18 +111,30 @@ public class CentralMultiActionController extends MultiActionController {
         }
     }
 
+    /**
+     * Displays the form to link up an existing Infusionsoft CRM account.
+     */
     public ModelAndView linkInfusionsoftAppAccount(HttpServletRequest request, HttpServletResponse response) {
         return new ModelAndView("infusionsoft/ui/central/linkInfusionsoftAppAccount");
     }
 
+    /**
+     * Displays the form to link up an existing CustomerHub account.
+     */
     public ModelAndView linkCustomerHubAccount(HttpServletRequest request, HttpServletResponse response) {
         return new ModelAndView("infusionsoft/ui/central/linkCustomerHubAccount");
     }
 
+    /**
+     * Displays the form to link up an existing community account.
+     */
     public ModelAndView linkCommunityAccount(HttpServletRequest request, HttpServletResponse response) {
         return new ModelAndView("infusionsoft/ui/central/linkCommunityAccount");
     }
 
+    /**
+     * Displays a short form to get legacy app credentials before linking up the referring app.
+     */
     public ModelAndView linkReferer(HttpServletRequest request, HttpServletResponse response) {
         Map<String, Object> model = new HashMap<String, Object>();
 
@@ -140,6 +144,9 @@ public class CentralMultiActionController extends MultiActionController {
         return new ModelAndView("infusionsoft/ui/central/linkReferer", model);
     }
 
+    /**
+     * Creates a brand new community account and associates it to the CAS account.
+     */
     public ModelAndView createCommunityAccount(HttpServletRequest request, HttpServletResponse response) {
         Map<String, Object> model = new HashMap<String, Object>();
         User user = infusionsoftAuthenticationService.getCurrentUser(request);
@@ -188,6 +195,9 @@ public class CentralMultiActionController extends MultiActionController {
         return new ModelAndView("infusionsoft/ui/central/createCommunityAccount", model);
     }
 
+    /**
+     * Associates the current user to a legacy account, after first validating the legacy username and password.
+     */
     public ModelAndView associate(HttpServletRequest request, HttpServletResponse response) throws IOException {
         Map<String, Object> model = new HashMap<String, Object>();
 
@@ -206,14 +216,14 @@ public class CentralMultiActionController extends MultiActionController {
                 model.put("error", "registration.error.invalidUsername");
             } else if (StringUtils.isEmpty(appPassword)) {
                 model.put("error", "registration.error.invalidPassword");
-            } else if (currentUser != null) {
-                // TODO - big security hole here! need to validate they really have access before mapping
-
+            } else if (infusionsoftAuthenticationService.verifyAppCredentials(appType, appName, appUsername, appPassword)) {
                 infusionsoftDataService.associateAccountToUser(currentUser, appType, appName, appUsername);
                 infusionsoftAuthenticationService.createTicketGrantingTicket(currentUser.getUsername(), request, response);
             } else {
-                throw new RuntimeException("logged in user could not be resolved!");
+                model.put("error", "registration.error.invalidLegacyCredentials");
             }
+
+            model.put("appUrl", infusionsoftAuthenticationService.buildAppUrl(appType, appName));
         } catch (Exception e) {
             log.error("failed to associate account", e);
 
@@ -224,11 +234,16 @@ public class CentralMultiActionController extends MultiActionController {
             response.sendError(500, "Failed to associate");
 
             return null;
+        } else if (StringUtils.equals("app", request.getParameter("destination"))) {
+            return new ModelAndView("redirect:" + model.get("appUrl"));
         } else {
             return new ModelAndView("redirect:home");
         }
     }
 
+    /**
+     * Brings up the form to edit the user profile.
+     */
     public ModelAndView editProfile(HttpServletRequest request, HttpServletResponse response) throws IOException {
         try {
             HashMap<String, Object> model = new HashMap<String, Object>();
@@ -244,6 +259,9 @@ public class CentralMultiActionController extends MultiActionController {
         }
     }
 
+    /**
+     * Updates the user profile.
+     */
     public ModelAndView updateProfile(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String firstName = request.getParameter("firstName");
         String lastName = request.getParameter("lastName");
@@ -297,6 +315,9 @@ public class CentralMultiActionController extends MultiActionController {
         }
     }
 
+    /**
+     * Brings up the form to edit a community user profile.
+     */
     public ModelAndView editCommunityAccount(HttpServletRequest request, HttpServletResponse response) {
         Long accountId = new Long(request.getParameter("id"));
         User user = infusionsoftAuthenticationService.getCurrentUser(request);
@@ -311,6 +332,9 @@ public class CentralMultiActionController extends MultiActionController {
         return new ModelAndView("infusionsoft/ui/central/editCommunityAccount", model);
     }
 
+    /**
+     * Updates the user profile and other data for a community account.
+     */
     public ModelAndView updateCommunityAccount(HttpServletRequest request, HttpServletResponse response) {
         Map<String, Object> model = new HashMap<String, Object>();
         User user = infusionsoftAuthenticationService.getCurrentUser(request);
@@ -352,110 +376,6 @@ public class CentralMultiActionController extends MultiActionController {
         }
 
         return new ModelAndView("infusionsoft/ui/central/editCommunityAccount", model);
-    }
-
-    // TODO - still needed?
-    public ModelAndView associateForum(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        Map<String, Object> model = new HashMap<String, Object>();
-
-        try {
-            User currentUser = infusionsoftAuthenticationService.getCurrentUser(request);
-
-            if (currentUser != null) {
-                //get parameter
-                String forumUser = request.getParameter("forumUsername");
-                String plainTextPassword = request.getParameter("forumPassword");
-
-                //we need an MD5 version of the password
-                String md5Password = DigestUtils.md5Hex(plainTextPassword);
-
-                RestTemplate restTemplate = new RestTemplate();
-                //TODO: parameterize this?
-                String result = restTemplate.getForObject("http://infusionsoft.infusiontest.com/forum/rest.php/user/isvaliduser/{user}/{md5password}?key={apiKey}", String.class, forumUser, md5Password, FORUM_API_KEY);
-
-                System.out.println("REST CALL :: " + result);
-
-                JSONObject returnValue = (JSONObject) JSONValue.parse(result);
-
-                Boolean isValidUser = (Boolean) returnValue.get("valid");
-
-                if (isValidUser) {
-                    infusionsoftDataService.associateAccountToUser(currentUser, "forum", "Infusionsoft Communities", String.valueOf(returnValue.get("username")));
-                    infusionsoftAuthenticationService.createTicketGrantingTicket(currentUser.getUsername(), request, response);
-
-                    model.put("data", "OK");
-                } else {
-                    model.put("error", "Invalid User");
-                }
-
-            } else {
-                model.put("error", "Could not find user!");
-                log.error("failed to find a valid user account");
-            }
-
-        } catch (Exception e) {
-            log.error("failed to associate account", e);
-            model.put("error", "registration.error.couldNotAssociate");
-        }
-
-        if (model.containsKey("error")) {
-            response.sendError(500, "Failed to associate");
-
-            return null;
-        } else {
-            return new ModelAndView("infusionsoft/ui/central/associate", model);
-        }
-    }
-
-    // TODO - still needed?
-    public ModelAndView createForum(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        Map<String, Object> model = new HashMap<String, Object>();
-        try {
-            User currentUser = infusionsoftAuthenticationService.getCurrentUser(request);
-            if (currentUser != null) {
-                //get parameter
-                String forumUser = request.getParameter("forumUsername");
-                String email = request.getParameter("forumEmail");
-
-                if (forumUser != null && email != null) {
-
-                    RestTemplate restTemplate = new RestTemplate();
-                    //TODO: parameterize this?
-                    String result = restTemplate.getForObject("http://infusionsoft.infusiontest.com/forum/rest.php/user/addnewuser/{username}/{email}?key={apiKey}", String.class, forumUser, email, FORUM_API_KEY);
-
-                    System.out.println("CREATE REST CALL :: " + result);
-
-                    JSONObject returnValue = (JSONObject) JSONValue.parse(result);
-
-                    Boolean hasError = (Boolean) returnValue.get("error");
-
-                    if (hasError) {
-                        System.out.println("ERROR! - could not create user: " + returnValue.get("message"));
-                        model.put("error", returnValue.get("message"));
-                    } else {
-                        infusionsoftDataService.associateAccountToUser(currentUser, "forum", "Infusionsoft Communities", String.valueOf(returnValue.get("username")));
-                        infusionsoftAuthenticationService.createTicketGrantingTicket(currentUser.getUsername(), request, response);
-
-                        model.put("data", "OK");
-                    }
-                } else {
-                    model.put("error", "Please supply a valid username and email address");
-                }
-            } else {
-                model.put("error", "Could not find user!");
-                log.error("failed to find a valid user account");
-            }
-        } catch (Exception e) {
-            log.error("failed to associate account", e);
-            model.put("error", "registration.error.couldNotAssociate");
-        }
-
-        if (model.containsKey("error")) {
-            response.sendError(500, "Failed to associate");
-            return null;
-        } else {
-            return new ModelAndView("infusionsoft/ui/central/associate", model);
-        }
     }
 
     /**

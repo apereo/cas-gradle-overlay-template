@@ -174,6 +174,7 @@
                 <value>com.infusionsoft.cas.types.PendingUserAccount</value>
                 <value>com.infusionsoft.cas.types.CommunityAccountDetails</value>
                 <value>com.infusionsoft.cas.types.LegacyAccount</value>
+                <value>com.infusionsoft.cas.types.LoginAttempt</value>
             </list>
         </property>
         <property name="hibernateProperties">
@@ -207,6 +208,7 @@
         <property name="crmDomain" value="infusiontest.com"/>
         <property name="crmProtocol" value="https"/>
         <property name="crmPort" value="8443"/>
+        <property name="crmVendorKey" value="b060285efac5cea228374fa9e2e90ea7"/>
         <property name="communityDomain" value="community.infusiontest.com"/>
         <property name="customerHubDomain" value="customerhub.net"/>
     </bean>

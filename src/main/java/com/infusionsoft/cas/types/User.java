@@ -90,7 +90,7 @@ public class User implements Serializable {
         this.accounts = accounts;
     }
 
-    @OneToMany(targetEntity = UserPassword.class, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(targetEntity = UserPassword.class, cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     public List<UserPassword> getPasswords() {
 		return passwords;
 	}

@@ -44,6 +44,7 @@
     <form action="${associateUrl}" method="post" id="fm1" class="form-vertical">
         <input type="hidden" name="appName" value="${appName}"/>
         <input type="hidden" name="appType" value="${appType}"/>
+        <input type="hidden" name="destination" value="app"/>
 
         <h2>Verify That You Are A User Of This App</h2>
 

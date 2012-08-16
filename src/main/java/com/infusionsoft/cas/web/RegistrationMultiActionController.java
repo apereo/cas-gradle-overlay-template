@@ -24,14 +24,10 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Controller that powers the registration and association pages.
+ * Controller that powers the registration and "forgot password" flows.
  */
 public class RegistrationMultiActionController extends MultiActionController {
     private static final Logger log = Logger.getLogger(RegistrationMultiActionController.class);
-
-    private static final int PASSWORD_LENGTH_MIN = 7;
-    private static final int PASSWORD_LENGTH_MAX = 20;
-    private static final String FORUM_API_KEY = "bec0124123e5ab4c2ce362461cb46ff0";
 
     private InfusionsoftAuthenticationService infusionsoftAuthenticationService;
     private InfusionsoftDataService infusionsoftDataService;
@@ -78,7 +74,7 @@ public class RegistrationMultiActionController extends MultiActionController {
                 model.put("error", "registration.error.invalidUsername");
             } else if (hibernateTemplate.find("from User u where u.username = ?", username).size() > 0) {
                 model.put("error", "registration.error.usernameInUse");
-            } else if (password1 == null || password1.length() < PASSWORD_LENGTH_MIN || password1.length() > PASSWORD_LENGTH_MAX) {
+            } else if (StringUtils.isEmpty(password1) || StringUtils.isEmpty(password2)) {
                 model.put("error", "registration.error.invalidPassword");
             } else if (!password1.equals(password2)) {
                 model.put("error", "registration.error.passwordsNoMatch");
@@ -118,6 +114,7 @@ public class RegistrationMultiActionController extends MultiActionController {
         if (model.containsKey("error")) {
             return new ModelAndView("infusionsoft/ui/registration/welcome", model);
         } else if (StringUtils.isNotEmpty((String) request.getSession(true).getAttribute("refererAppName"))) {
+            // TODO - this may not be needed since moving the login form before the registration form
             return new ModelAndView("redirect:verification");
         } else {
             return new ModelAndView("redirect:success");
@@ -200,7 +197,8 @@ public class RegistrationMultiActionController extends MultiActionController {
     }
 
     /**
-     * Shows the password recovery dialog.
+     * If a valid recovery code is supplied, render the password reset form so they can enter a new
+     * password. If not, make them try again.
      */
     public ModelAndView recover(HttpServletRequest request, HttpServletResponse response) {
         String email = request.getParameter("username");
@@ -243,6 +241,9 @@ public class RegistrationMultiActionController extends MultiActionController {
         }
     }
 
+    /**
+     * Resets the user's password, if the recovery code is valid and the new password meets the rules.
+     */
     public ModelAndView reset(HttpServletRequest request, HttpServletResponse response) {
         String recoveryCode = request.getParameter("recoveryCode");
         String password1 = request.getParameter("password1");
@@ -252,7 +253,7 @@ public class RegistrationMultiActionController extends MultiActionController {
 
         if (user == null) {
             model.put("error", "forgotpassword.noSuchCode");
-        } else if (password1 == null || password1.length() < PASSWORD_LENGTH_MIN || password1.length() > PASSWORD_LENGTH_MAX) {
+        } else if (StringUtils.isEmpty(password1) || StringUtils.isEmpty(password2)) {
             model.put("error", "registration.error.invalidPassword");
         } else if (!password1.equals(password2)) {
             model.put("error", "registration.error.passwordsNoMatch");

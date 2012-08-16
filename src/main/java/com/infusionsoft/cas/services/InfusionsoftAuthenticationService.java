@@ -4,9 +4,14 @@ import com.infusionsoft.cas.auth.LetMeInCredentials;
 import com.infusionsoft.cas.exceptions.CASMappingException;
 import com.infusionsoft.cas.exceptions.UsernameTakenException;
 import com.infusionsoft.cas.types.CommunityAccountDetails;
+import com.infusionsoft.cas.types.LoginAttempt;
 import com.infusionsoft.cas.types.User;
 import com.infusionsoft.cas.types.UserAccount;
+import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+import org.apache.xmlrpc.XmlRpcClient;
+import org.apache.xmlrpc.XmlRpcException;
 import org.jasig.cas.CentralAuthenticationService;
 import org.jasig.cas.authentication.handler.PasswordEncoder;
 import org.jasig.cas.authentication.principal.Principal;
@@ -23,14 +28,21 @@ import org.springframework.web.client.RestTemplate;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Date;
 import java.util.List;
+import java.util.Vector;
 
 /**
  * Utility that handles Spring Security and CAS native authentication tricks.
  */
 public class InfusionsoftAuthenticationService {
     private static final Logger log = Logger.getLogger(InfusionsoftAuthenticationService.class);
+
+    private static final long LOCK_PERIOD_MS = 1800000; // 30 minutes
+    private static final int LOCK_ATTEMPTS = 5; // how many tries before locked
 
     private CentralAuthenticationService centralAuthenticationService;
     private InfusionsoftDataService infusionsoftDataService;
@@ -43,6 +55,7 @@ public class InfusionsoftAuthenticationService {
     private String crmProtocol;
     private String crmDomain;
     private String crmPort;
+    private String crmVendorKey;
     private String customerHubDomain;
     private String communityDomain;
     private String forumBase;
@@ -104,6 +117,16 @@ public class InfusionsoftAuthenticationService {
     }
 
     /**
+     * Checks if an account is locked due to too many login failures.
+     */
+    public boolean isAccountLocked(String username) {
+        Date lockWindow = new Date(System.currentTimeMillis() - LOCK_PERIOD_MS);
+        List<LoginAttempt> locksInPeriod = hibernateTemplate.find("from LoginAttempt a where a.username = ? and a.dateAttempted >= ? and a.consecutiveFailureCount > ?", username, lockWindow, LOCK_ATTEMPTS);
+
+        return locksInPeriod.size() > 0;
+    }
+
+    /**
      * Checks whether a user is associated to an app at a particular URL. This method actually only compares
      * hostnames, so if there's multiple apps on the same hostname it could be wrong.
      */
@@ -127,10 +150,44 @@ public class InfusionsoftAuthenticationService {
      * Checks the legacy credentials of an app.
      */
     public boolean verifyAppCredentials(String appType, String appName, String appUsername, String appPassword) {
-        // TODO
-        return true;
+        boolean valid = false;
+
+        if (StringUtils.equals(appType, "crm")) {
+            valid = verifyCRMCredentials(appName, appUsername, appPassword);
+        } else {
+            // TODO - add verification for forum and community
+            log.warn("we don't know how to verify credentials for app type " + appType);
+        }
+
+        return valid;
     }
 
+    private boolean verifyCRMCredentials(String appName, String appUsername, String appPassword) {
+        try {
+            XmlRpcClient client = new XmlRpcClient(crmProtocol + "://" + appName + crmDomain + ":" + crmPort + "/api/xmlrpc");
+            Vector<String> params = new Vector<String>();
+
+            params.add(crmVendorKey);
+            params.add("andy@andyhawkes.com");
+            params.add(DigestUtils.md5Hex("Test123"));
+
+            String tempKey = (String) client.execute("DataService.getTemporaryKey", params);
+
+            if (tempKey != null) {
+                log.debug("web service produced a temp key: " + tempKey);
+
+                return true;
+            }
+        } catch (MalformedURLException e) {
+            log.error("couldn't verify app credentials: xml-rpc url is invalid!", e);
+        } catch (IOException e) {
+            log.warn("web service call failed", e);
+        } catch (XmlRpcException e) {
+            log.info("app credentials are invalid", e);
+        }
+
+        return false;
+    }
 
     /**
      * Calls out to the Community web service to try to create a new user.
@@ -386,5 +443,9 @@ public class InfusionsoftAuthenticationService {
 
     public void setInfusionsoftDataService(InfusionsoftDataService infusionsoftDataService) {
         this.infusionsoftDataService = infusionsoftDataService;
+    }
+
+    public void setCrmVendorKey(String crmVendorKey) {
+        this.crmVendorKey = crmVendorKey;
     }
 }

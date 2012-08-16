@@ -9,6 +9,7 @@ import org.apache.log4j.Logger;
 import org.jasig.cas.authentication.handler.AuthenticationException;
 import org.jasig.cas.authentication.principal.Credentials;
 import org.jasig.cas.web.flow.AuthenticationViaFormAction;
+import org.springframework.binding.message.MessageBuilder;
 import org.springframework.binding.message.MessageContext;
 import org.springframework.webflow.execution.RequestContext;
 
@@ -25,17 +26,30 @@ public class InfusionsoftAuthenticationViaFormAction extends AuthenticationViaFo
     private InfusionsoftAuthenticationService infusionsoftAuthenticationService;
     private InfusionsoftDataService infusionsoftDataService;
 
+    // TODO - this method is a big turd, break it up
     public String submitWithFallback(final RequestContext context, final Credentials creds, final MessageContext messageContext) throws Exception {
+        if (creds instanceof InfusionsoftCredentials) {
+            if (infusionsoftAuthenticationService.isAccountLocked(((InfusionsoftCredentials) creds).getUsername())) {
+                try {
+                    messageContext.addMessage(new MessageBuilder().error().code("login.failed1").build());
+                } catch (final Exception e) {
+                    log.error("couldn't build a useful message", e);
+                }
+
+                return "error";
+            }
+        }
+
         String result = submit(context, creds, messageContext);
 
-        if (result.equals("error")) {
-            if (creds instanceof InfusionsoftCredentials) {
-                InfusionsoftCredentials credentials = (InfusionsoftCredentials) creds;
+        if (result.equals("error") && creds instanceof InfusionsoftCredentials) {
+            InfusionsoftCredentials credentials = (InfusionsoftCredentials) creds;
+            String service = credentials.getService();
 
+            if (StringUtils.isNotEmpty(service)) {
                 try {
                     log.debug("primary auth failed; attempting fallback authentication");
 
-                    String service = credentials.getService();
                     String appUsername = credentials.getUsername();
                     String appPassword = credentials.getPassword();
                     String appName = infusionsoftAuthenticationService.guessAppName(new URL(service));
@@ -67,26 +81,6 @@ public class InfusionsoftAuthenticationViaFormAction extends AuthenticationViaFo
         }
 
         return result;
-    }
-
-    private boolean authenticateLegacyUser(InfusionsoftCredentials credentials) throws AuthenticationException {
-        log.debug("attempting to pass-through authenticate user with service " + credentials.getService());
-
-        try {
-            String appName = infusionsoftAuthenticationService.guessAppName(new URL(credentials.getService()));
-            String appType = infusionsoftAuthenticationService.guessAppType(new URL(credentials.getService()));
-            boolean valid = infusionsoftAuthenticationService.verifyAppCredentials(appType, appName, credentials.getUsername(), credentials.getPassword());
-
-            if (valid) {
-                // TODO - hang on to them so we can complete proper registration/linkage
-            }
-
-            return valid;
-        } catch (Exception e) {
-            log.error("failed to do pass-through authentication to app", e);
-        }
-
-        return false;
     }
 
     public void setInfusionsoftDataService(InfusionsoftDataService infusionsoftDataService) {
