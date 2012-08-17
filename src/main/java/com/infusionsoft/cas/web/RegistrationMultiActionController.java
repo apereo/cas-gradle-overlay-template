@@ -257,9 +257,7 @@ public class RegistrationMultiActionController extends MultiActionController {
             model.put("error", "registration.error.invalidPassword");
         } else if (!password1.equals(password2)) {
             model.put("error", "registration.error.passwordsNoMatch");
-        }
-
-        if (!model.containsKey("error")) {
+        } else {
             String passwordError = infusionsoftPasswordService.validatePassword(user, user.getUsername(), password1);
 
             if (passwordError != null) {

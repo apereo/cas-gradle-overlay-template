@@ -1,12 +1,10 @@
 package com.infusionsoft.cas.services;
 
+import com.infusionsoft.cas.auth.InfusionsoftCredentials;
 import com.infusionsoft.cas.auth.LetMeInCredentials;
 import com.infusionsoft.cas.exceptions.CASMappingException;
 import com.infusionsoft.cas.exceptions.UsernameTakenException;
-import com.infusionsoft.cas.types.CommunityAccountDetails;
-import com.infusionsoft.cas.types.LoginAttempt;
-import com.infusionsoft.cas.types.User;
-import com.infusionsoft.cas.types.UserAccount;
+import com.infusionsoft.cas.types.*;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -43,6 +41,7 @@ public class InfusionsoftAuthenticationService {
 
     private static final long LOCK_PERIOD_MS = 1800000; // 30 minutes
     private static final int LOCK_ATTEMPTS = 5; // how many tries before locked
+    private static final long PASSWORD_VALIDITY_MS = 86400000L * 90; // 90 days
 
     private CentralAuthenticationService centralAuthenticationService;
     private InfusionsoftDataService infusionsoftDataService;
@@ -117,13 +116,83 @@ public class InfusionsoftAuthenticationService {
     }
 
     /**
+     * Records a login attempt, and whether it was successful or not. This is used for account locking
+     * in the case of too many failures.
+     */
+    public void recordLoginAttempt(InfusionsoftCredentials credentials, boolean success) {
+        LoginAttempt attempt = new LoginAttempt();
+
+        attempt.setUsername(credentials.getUsername());
+        attempt.setDateAttempted(new Date());
+        attempt.setSuccess(success);
+
+        hibernateTemplate.save(attempt);
+    }
+
+    /**
+     * Returns all login attempts within the last 30 days, for a particular username.
+     */
+    public List<LoginAttempt> getRecentLoginAttempts(InfusionsoftCredentials credentials) {
+        Date oneMoonAgo = new Date(System.currentTimeMillis() - (86400000L * 30));
+
+        return hibernateTemplate.find("from LoginAttempt a where a.username = ? and a.dateAttempted > ? order by a.dateAttempted desc", credentials.getUsername(), oneMoonAgo);
+    }
+
+    /**
+     * Tells how many consecutive failed login attempts there are for a particular user name.
+     */
+    public int countConsecutiveFailedLogins(InfusionsoftCredentials credentials) {
+        List<LoginAttempt> attempts = getRecentLoginAttempts(credentials);
+        int failures = 0;
+
+        log.debug("recent login attempts: " + attempts.size());
+
+        for (int i = 0; i < attempts.size(); i++) {
+            LoginAttempt attempt = attempts.get(i);
+
+            if (attempt.isSuccess()) {
+                break;
+            } else {
+                failures++;
+            }
+        }
+
+        log.debug("consecutive failed login attempts: " + failures);
+
+        return failures;
+    }
+
+    /**
+     * Returns the most recent failed login attempt.
+     */
+    public LoginAttempt getMostRecentFailedLogin(InfusionsoftCredentials credentials) {
+        List<LoginAttempt> attempts = getRecentLoginAttempts(credentials);
+
+        for (LoginAttempt attempt : attempts) {
+            if (!attempt.isSuccess()) {
+                return attempt;
+            }
+        }
+
+        return null;
+    }
+
+    /**
      * Checks if an account is locked due to too many login failures.
      */
-    public boolean isAccountLocked(String username) {
-        Date lockWindow = new Date(System.currentTimeMillis() - LOCK_PERIOD_MS);
-        List<LoginAttempt> locksInPeriod = hibernateTemplate.find("from LoginAttempt a where a.username = ? and a.dateAttempted >= ? and a.consecutiveFailureCount > ?", username, lockWindow, LOCK_ATTEMPTS);
+    public boolean isAccountLocked(InfusionsoftCredentials credentials) {
+        if (countConsecutiveFailedLogins(credentials) > LOCK_ATTEMPTS) {
+            LoginAttempt mostRecent = getMostRecentFailedLogin(credentials);
+            Date lockPeriodStart = new Date(System.currentTimeMillis() - LOCK_PERIOD_MS);
 
-        return locksInPeriod.size() > 0;
+            if (mostRecent.getDateAttempted().after(lockPeriodStart)) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -164,7 +233,7 @@ public class InfusionsoftAuthenticationService {
 
     private boolean verifyCRMCredentials(String appName, String appUsername, String appPassword) {
         try {
-            XmlRpcClient client = new XmlRpcClient(crmProtocol + "://" + appName + crmDomain + ":" + crmPort + "/api/xmlrpc");
+            XmlRpcClient client = new XmlRpcClient(buildAppUrl("crm", appName) + "/api/xmlrpc");
             Vector<String> params = new Vector<String>();
 
             params.add(crmVendorKey);
@@ -344,17 +413,6 @@ public class InfusionsoftAuthenticationService {
         }
 
         return false;
-    }
-
-    /**
-     * Checks if a user's existing password is valid. We need this for when an already logged in user wants
-     * to update his user profile.
-     */
-    public boolean isPasswordValid(User user, String password) {
-        String passwordEncoded = passwordEncoder.encode(password);
-        List<User> users = (List<User>) hibernateTemplate.find("from User where username = ? and password = ?", user.getUsername(), passwordEncoded);
-
-        return users.size() > 0;
     }
 
     public void setCentralAuthenticationService(CentralAuthenticationService centralAuthenticationService) {

@@ -6,13 +6,13 @@ import com.infusionsoft.cas.services.InfusionsoftDataService;
 import com.infusionsoft.cas.types.PendingUserAccount;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-import org.jasig.cas.authentication.handler.AuthenticationException;
 import org.jasig.cas.authentication.principal.Credentials;
 import org.jasig.cas.web.flow.AuthenticationViaFormAction;
 import org.springframework.binding.message.MessageBuilder;
 import org.springframework.binding.message.MessageContext;
 import org.springframework.webflow.execution.RequestContext;
 
+import java.net.MalformedURLException;
 import java.net.URL;
 
 /**
@@ -26,61 +26,84 @@ public class InfusionsoftAuthenticationViaFormAction extends AuthenticationViaFo
     private InfusionsoftAuthenticationService infusionsoftAuthenticationService;
     private InfusionsoftDataService infusionsoftDataService;
 
-    // TODO - this method is a big turd, break it up
     public String submitWithFallback(final RequestContext context, final Credentials creds, final MessageContext messageContext) throws Exception {
-        if (creds instanceof InfusionsoftCredentials) {
-            if (infusionsoftAuthenticationService.isAccountLocked(((InfusionsoftCredentials) creds).getUsername())) {
-                try {
-                    messageContext.addMessage(new MessageBuilder().error().code("login.failed1").build());
-                } catch (final Exception e) {
-                    log.error("couldn't build a useful message", e);
-                }
+        InfusionsoftCredentials credentials = (InfusionsoftCredentials) creds;
 
-                return "error";
+        log.info("processing form authentication for username " + credentials.getUsername());
+
+        // If the account is locked, stop right there.
+        if (infusionsoftAuthenticationService.isAccountLocked(credentials)) {
+            try {
+                log.info("account is locked for username " + credentials.getUsername());
+                messageContext.addMessage(new MessageBuilder().error().code("login.lockedTooManyFailures").defaultText("login.lockedTooManyFailures").build());
+            } catch (final Exception e) {
+                log.error("couldn't build a useful message", e);
             }
+
+            return "error";
         }
 
+        // Attempt normal authentication with CAS.
         String result = submit(context, creds, messageContext);
 
-        if (result.equals("error") && creds instanceof InfusionsoftCredentials) {
-            InfusionsoftCredentials credentials = (InfusionsoftCredentials) creds;
-            String service = credentials.getService();
+        // If that failed, attempt the fallback. If that fails, set a helpful error message.
+        if (result.equals("success")) {
+            infusionsoftAuthenticationService.recordLoginAttempt(credentials, true);
+        } else if (result.equals("error") && authenticateWithApp(credentials, credentials.getService(), context)) {
+            log.info("username " + credentials.getUsername() + " was accepted by the app! let's have them register");
 
-            if (StringUtils.isNotEmpty(service)) {
-                try {
-                    log.debug("primary auth failed; attempting fallback authentication");
+            return "register";
+        } else if (result.equals("error")) {
+            infusionsoftAuthenticationService.recordLoginAttempt(credentials, false);
 
-                    String appUsername = credentials.getUsername();
-                    String appPassword = credentials.getPassword();
-                    String appName = infusionsoftAuthenticationService.guessAppName(new URL(service));
-                    String appType = infusionsoftAuthenticationService.guessAppType(new URL(service));
+            int recentFailures = Math.min(6, infusionsoftAuthenticationService.countConsecutiveFailedLogins(credentials));
+            String messageCode = "login.failed" + recentFailures;
 
-                    if (StringUtils.isNotEmpty(appName) && StringUtils.isNotEmpty(appType)) {
-                        boolean valid = infusionsoftAuthenticationService.verifyAppCredentials(appType, appName, appUsername, appPassword);
-
-                        if (valid) {
-                            log.info("verified that " + appUsername + " is a legacy user at " + service);
-
-                            PendingUserAccount account = infusionsoftDataService.createPendingUserAccount(appType, appName, appUsername);
-
-                            log.info("created registration code " + account.getRegistrationCode());
-
-                            context.getRequestScope().put("registrationCode", account.getRegistrationCode());
-
-                            return "register";
-                        } else {
-                            log.info("unable to verify " + appUsername + " at " + service);
-                        }
-                    } else {
-                        log.info("not proceeding with fallback authentication: we couldn't parse an appName/appType from service url " + service);
-                    }
-                } catch (Exception e) {
-                    log.warn("attempted fallback authentication, but failed for user " + credentials.getUsername(), e);
-                }
-            }
+            messageContext.clearMessages();
+            messageContext.addMessage(new MessageBuilder().error().code(messageCode).defaultText(messageCode).build());
         }
 
         return result;
+    }
+
+    /**
+     * Attempts to validate the credentials against the legacy app/service instead. Returns true if successful.
+     */
+    private boolean authenticateWithApp(InfusionsoftCredentials credentials, String service, RequestContext context) {
+        try {
+            log.debug("primary auth failed; attempting fallback authentication");
+
+            String appUsername = credentials.getUsername();
+            String appPassword = credentials.getPassword();
+            String appName = infusionsoftAuthenticationService.guessAppName(new URL(service));
+            String appType = infusionsoftAuthenticationService.guessAppType(new URL(service));
+
+            if (StringUtils.isNotEmpty(appName) && StringUtils.isNotEmpty(appType)) {
+                boolean valid = infusionsoftAuthenticationService.verifyAppCredentials(appType, appName, appUsername, appPassword);
+
+                if (valid) {
+                    log.info("verified that " + appUsername + " is a legacy user at " + service);
+
+                    PendingUserAccount account = infusionsoftDataService.createPendingUserAccount(appType, appName, appUsername);
+
+                    log.info("created registration code " + account.getRegistrationCode());
+
+                    context.getRequestScope().put("registrationCode", account.getRegistrationCode());
+
+                    return true;
+                } else {
+                    log.info("unable to verify " + appUsername + " at " + service);
+                }
+            } else {
+                log.info("not proceeding with fallback authentication: we couldn't parse an appName/appType from service url " + service);
+            }
+        } catch (MalformedURLException e) {
+            log.warn("skipping fallback authentication because there's no valid service url");
+        } catch (Exception e) {
+            log.warn("attempted fallback authentication, but failed for user " + credentials.getUsername(), e);
+        }
+
+        return false;
     }
 
     public void setInfusionsoftDataService(InfusionsoftDataService infusionsoftDataService) {

@@ -11,7 +11,7 @@ public class LoginAttempt {
     private Long id;
     private String username;
     private Date dateAttempted;
-    int consecutiveFailureCount;
+    boolean success;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -42,12 +42,12 @@ public class LoginAttempt {
         this.dateAttempted = dateAttempted;
     }
 
-    @Column(name = "consecutive_failure_count")
-    public int getConsecutiveFailureCount() {
-        return consecutiveFailureCount;
+    @Column(name = "success")
+    public boolean isSuccess() {
+        return success;
     }
 
-    public void setConsecutiveFailureCount(int consecutiveFailureCount) {
-        this.consecutiveFailureCount = consecutiveFailureCount;
+    public void setSuccess(boolean success) {
+        this.success = success;
     }
 }

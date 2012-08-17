@@ -49,7 +49,11 @@ public class CentralMultiActionController extends MultiActionController {
         String service = request.getParameter("service");
         String registrationCode = (String) session.getAttribute("registrationCode");
 
-        if (StringUtils.isNotEmpty(registrationCode)) {
+        System.out.println("is password expired? " + infusionsoftPasswordService.isPasswordExpired(user));
+
+        if (infusionsoftPasswordService.isPasswordExpired(user)) {
+            return new ModelAndView("redirect:passwordExpired");
+        } else if (StringUtils.isNotEmpty(registrationCode)) {
             try {
                 UserAccount account = infusionsoftDataService.associatePendingAccountToUser(user, registrationCode);
 
@@ -284,7 +288,7 @@ public class CentralMultiActionController extends MultiActionController {
                 model.put("error", "editprofile.error.invalidUsername");
             } else if (hibernateTemplate.find("from User u where u.username = ? and u.id != ?", username, user.getId()).size() > 0) {
                 model.put("error", "editprofile.error.usernameInUse");
-            } else if (!infusionsoftAuthenticationService.isPasswordValid(user, existingPassword)) {
+            } else if (!infusionsoftPasswordService.isPasswordValid(user, existingPassword)) {
                 model.put("error", "editprofile.error.incorrectCurrentPassword");
             } else if (StringUtils.isNotEmpty(password1) || StringUtils.isNotEmpty(password2)) {
                 String passwordError = infusionsoftPasswordService.validatePassword(user, username, password1);
@@ -312,6 +316,42 @@ public class CentralMultiActionController extends MultiActionController {
             return new ModelAndView("infusionsoft/ui/central/editProfile", model);
         } else {
             return new ModelAndView("redirect:home");
+        }
+    }
+
+    /**
+     * Shows a form demanding that the user reset their expired password.
+     */
+    public ModelAndView passwordExpired(HttpServletRequest request, HttpServletResponse response) {
+        User user = infusionsoftAuthenticationService.getCurrentUser(request);
+
+        return new ModelAndView("infusionsoft/ui/central/passwordExpired", "user", user);
+    }
+
+    public ModelAndView updatePassword(HttpServletRequest request, HttpServletResponse response) {
+        User user = infusionsoftAuthenticationService.getCurrentUser(request);
+        String password1 = request.getParameter("password1");
+        String password2 = request.getParameter("password2");
+        Map<String, Object> model = new HashMap<String, Object>();
+
+        if (StringUtils.isEmpty(password1) || StringUtils.isEmpty(password2)) {
+            model.put("error", "registration.error.invalidPassword");
+        } else if (!password1.equals(password2)) {
+            model.put("error", "registration.error.passwordsNoMatch");
+        } else {
+            String passwordError = infusionsoftPasswordService.validatePassword(user, user.getUsername(), password1);
+
+            if (passwordError != null) {
+                model.put("error", passwordError);
+            }
+        }
+
+        if (model.containsKey("error")) {
+            return new ModelAndView("infusionsoft/ui/central/passwordExpired", model);
+        } else {
+            infusionsoftPasswordService.setPasswordForUser(user, password1);
+
+            return new ModelAndView("redirect:index");
         }
     }
 
@@ -412,7 +452,7 @@ public class CentralMultiActionController extends MultiActionController {
         User user = infusionsoftAuthenticationService.getCurrentUser(request);
         String password = request.getParameter("currentPassword");
 
-        if (infusionsoftAuthenticationService.isPasswordValid(user, password)) {
+        if (infusionsoftPasswordService.isPasswordValid(user, password)) {
             return "OK";
         } else {
             response.sendError(500); // TODO
