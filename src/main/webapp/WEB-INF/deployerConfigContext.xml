@@ -206,9 +206,9 @@
         <property name="forumApiKey" value="${infusionsoft.community.apikey}"/>
         <property name="serverPrefix" value="https://infusionsoft.infusiontest.com:7443/cas"/>
         <property name="crmDomain" value="infusiontest.com"/>
-        <property name="crmProtocol" value="https"/>
-        <property name="crmPort" value="8443"/>
-        <property name="crmVendorKey" value="b060285efac5cea228374fa9e2e90ea7"/>
+        <property name="crmProtocol" value="${infusionsoft.crm.protocol}"/>
+        <property name="crmPort" value="${infusionsoft.crm.port}"/>
+        <property name="crmVendorKey" value="${infusionsoft.crm.vendorkey}"/>
         <property name="communityDomain" value="community.infusiontest.com"/>
         <property name="customerHubDomain" value="customerhub.net"/>
     </bean>
