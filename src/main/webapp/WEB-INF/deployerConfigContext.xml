@@ -204,13 +204,13 @@
         <property name="ticketIdGenerator" ref="loginTicketUniqueIdGenerator"/>
         <property name="forumBase" value="${infusionsoft.community.baseurl}"/>
         <property name="forumApiKey" value="${infusionsoft.community.apikey}"/>
-        <property name="serverPrefix" value="https://infusionsoft.infusiontest.com:7443/cas"/>
-        <property name="crmDomain" value="infusiontest.com"/>
+        <property name="serverPrefix" value="${server.prefix}/cas"/>
+        <property name="crmDomain" value="${infusionsoft.crm.domain}"/>
         <property name="crmProtocol" value="${infusionsoft.crm.protocol}"/>
         <property name="crmPort" value="${infusionsoft.crm.port}"/>
         <property name="crmVendorKey" value="${infusionsoft.crm.vendorkey}"/>
-        <property name="communityDomain" value="community.infusiontest.com"/>
-        <property name="customerHubDomain" value="customerhub.net"/>
+        <property name="communityDomain" value="${infusionsoft.community.domain}"/>
+        <property name="customerHubDomain" value="${infusionsoft.customerhub.domain}"/>
     </bean>
 
     <bean id="infusionsoftPasswordService" class="com.infusionsoft.cas.services.InfusionsoftPasswordService">
