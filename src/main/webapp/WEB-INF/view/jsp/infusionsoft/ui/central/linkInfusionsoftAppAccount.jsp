@@ -37,7 +37,7 @@
 
     <form id="associateForm" action="associate" method="post" class="form-horizontal">
         <input name="appType" type="hidden" value="crm"/>
-        <input name="user" type="hidden" value="${user.getId()}"/>
+        <input name="user" type="hidden" value="${user.id}"/>
 
         <fieldset>
             <div class="control-group">

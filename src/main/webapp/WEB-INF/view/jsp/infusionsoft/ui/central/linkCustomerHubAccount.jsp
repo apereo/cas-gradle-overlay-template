@@ -21,7 +21,7 @@
 
     <form id="associateForm" action="associate" method="post">
         <input name="appType" type="hidden" value="customerhub"/>
-        <input name="user" type="hidden" value="${user.getId()}"/>
+        <input name="user" type="hidden" value="${user.id}"/>
 
         <p>
             Enter the username and password you were using before you created your Infusionsoft ID to link your app.
