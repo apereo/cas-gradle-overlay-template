@@ -236,9 +236,11 @@ public class InfusionsoftAuthenticationService {
             XmlRpcClient client = new XmlRpcClient(buildAppUrl("crm", appName) + "/api/xmlrpc");
             Vector<String> params = new Vector<String>();
 
+            log.debug("attempting to verify crm credentials at url " + client.getURL());
+
             params.add(crmVendorKey);
-            params.add("andy@andyhawkes.com");
-            params.add(DigestUtils.md5Hex("Test123"));
+            params.add(appUsername);
+            params.add(DigestUtils.md5Hex(appPassword));
 
             String tempKey = (String) client.execute("DataService.getTemporaryKey", params);
 
