@@ -162,7 +162,6 @@
         <property name="resourceRef" value="true"/>
     </bean>
 
-
     <bean id="hibernateSessionFactory"
           class="org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean">
         <property name="dataSource" ref="hibernateDataSource"/>

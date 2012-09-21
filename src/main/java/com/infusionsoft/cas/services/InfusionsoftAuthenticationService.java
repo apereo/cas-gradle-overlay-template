@@ -83,6 +83,8 @@ public class InfusionsoftAuthenticationService {
     public String guessAppName(URL url) {
         String host = url.getHost().toLowerCase();
 
+        log.debug("attempting to guess app name for url " + url);
+
         if (url.toString().startsWith(serverPrefix)) {
             return null; // it's us!
         } else if (host.endsWith(communityDomain)) {
@@ -101,6 +103,8 @@ public class InfusionsoftAuthenticationService {
      */
     public String guessAppType(URL url) {
         String host = url.getHost().toLowerCase();
+
+        log.debug("attempting to guess app type for url " + url);
 
         if (url.toString().startsWith(serverPrefix)) {
             return null; // it's us!

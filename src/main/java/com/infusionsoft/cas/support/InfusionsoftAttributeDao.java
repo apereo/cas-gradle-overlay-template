@@ -16,7 +16,7 @@ public class InfusionsoftAttributeDao extends AbstractFlatteningPersonAttributeD
     private HibernateTemplate hibernateTemplate;
     private IPersonAttributes backingPerson = null;
 
-    public final static String[] POSSIBLE_VALUES = {"accounts"};
+    public final static String[] POSSIBLE_VALUES = {"accounts", "displayName"};
     public final static Set<String> ATTRIBUTE_NAMES = new HashSet<String>(Arrays.asList(POSSIBLE_VALUES));
 
     public InfusionsoftAttributeDao() {
@@ -45,13 +45,8 @@ public class InfusionsoftAttributeDao extends AbstractFlatteningPersonAttributeD
             //get the first one - again there should only be 1
             User currUser = users.get(0);
             List<UserAccount> accounts = hibernateTemplate.find("FROM UserAccount ua WHERE ua.user = ?", currUser);
-            System.out.println(" ******* USER FOUND ID: " + currUser.getId());
-            System.out.println(" ******* USER ACCOUNTS (from USER): " + currUser.getAccounts().size());
-            System.out.println(" ******* USER ACCOUNTS (from Query): " + accounts.size());
-
-
             JSONObject rootObj = new JSONObject();
-            JSONArray accountsList = new JSONArray();
+            JSONArray accountsArray = new JSONArray();
 
             //For some reason currUser.getAccounts did not work
             for(UserAccount currAccount : accounts) {
@@ -60,16 +55,19 @@ public class InfusionsoftAttributeDao extends AbstractFlatteningPersonAttributeD
                 accountToAdd.put("appName", currAccount.getAppName());
                 accountToAdd.put("userName", currAccount.getAppUsername());
 
-                accountsList.add(accountToAdd);
+                accountsArray.add(accountToAdd);
             }
 
-            rootObj.put("accounts", accountsList);
+            rootObj.put("accounts", accountsArray);
 
-            List<Object> aList = new ArrayList<Object>();
-            aList.add(rootObj);
+            List<Object> accountsList = new ArrayList<Object>();
+            accountsList.add(rootObj);
 
-            resultsMap.put("accounts", aList);
+            List<Object> displayNameList = new ArrayList<Object>();
+            displayNameList.add(currUser.getFirstName() + " " + currUser.getLastName());
 
+            resultsMap.put("accounts", accountsList);
+            resultsMap.put("displayName", displayNameList);
         } else {
             logger.error("ERROR! - could not find a user record for: " + uid);
         }
