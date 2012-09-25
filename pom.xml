@@ -51,6 +51,19 @@
                     <!--<warName>${output.filename.mapping}</warName>-->
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>tomcat-maven-plugin</artifactId>
+                <configuration>
+                    <server>myserver</server>
+                    <path>/</path>
+                    <warSourceDirectory>${basedir}/target/${artifactId}-${version}</warSourceDirectory>
+                    <contextFile>${basedir}/tomcat/context.xml</contextFile>
+                    <httpsPort>7443</httpsPort>
+                    <keystoreFile>${basedir}/tomcat/infusiontest.com.jks</keystoreFile>
+                    <keystorePass>[er1c]5425</keystorePass>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 
@@ -209,6 +222,7 @@
             <groupId>javax.servlet</groupId>
             <artifactId>servlet-api</artifactId>
             <version>2.5</version>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
@@ -257,6 +271,18 @@
             <groupId>xmlrpc</groupId>
             <artifactId>xmlrpc</artifactId>
             <version>2.0.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-config</artifactId>
+            <version>3.0.5.RELEASE</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-web</artifactId>
+            <version>3.0.5.RELEASE</version>
         </dependency>
     </dependencies>
 
