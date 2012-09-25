@@ -119,7 +119,7 @@ public class CentralMultiActionController extends MultiActionController {
      * Displays the form to link up an existing Infusionsoft CRM account.
      */
     public ModelAndView linkInfusionsoftAppAccount(HttpServletRequest request, HttpServletResponse response) {
-        return new ModelAndView("infusionsoft/ui/central/linkInfusionsoftAppAccount");
+        return new ModelAndView("infusionsoft/ui/central/linkInfusionsoftAppAccount", "crmDomain", infusionsoftAuthenticationService.getCrmDomain());
     }
 
     /**
@@ -204,13 +204,13 @@ public class CentralMultiActionController extends MultiActionController {
      */
     public ModelAndView associate(HttpServletRequest request, HttpServletResponse response) throws IOException {
         Map<String, Object> model = new HashMap<String, Object>();
+        String appType = request.getParameter("appType");
+        String appName = request.getParameter("appName");
+        String appUsername = request.getParameter("appUsername");
+        String appPassword = request.getParameter("appPassword");
 
         try {
             User currentUser = infusionsoftAuthenticationService.getCurrentUser(request);
-            String appType = request.getParameter("appType");
-            String appName = request.getParameter("appName");
-            String appUsername = request.getParameter("appUsername");
-            String appPassword = request.getParameter("appPassword");
 
             if (appType.equals("community")) {
                 appName = "community";
@@ -235,7 +235,19 @@ public class CentralMultiActionController extends MultiActionController {
         }
 
         if (model.containsKey("error")) {
-            response.sendError(500, "Failed to associate");
+            if (appType.equals("crm")) {
+                model.put("crmDomain", infusionsoftAuthenticationService.getCrmDomain());
+
+                return new ModelAndView("infusionsoft/ui/central/linkInfusionsoftAppAccount", model);
+            } else if (appType.equals("customerhub")) {
+                model.put("customerHubDomain", infusionsoftAuthenticationService.getCustomerHubDomain());
+
+                return new ModelAndView("infusionsoft/ui/central/linkCustomerHubAccount", model);
+            } else if (appType.equals("community")) {
+                return new ModelAndView("infusionsoft/ui/central/linkCommunityAccount");
+            } else {
+                response.sendError(500, "Failed to associate");
+            }
 
             return null;
         } else if (StringUtils.equals("app", request.getParameter("destination"))) {

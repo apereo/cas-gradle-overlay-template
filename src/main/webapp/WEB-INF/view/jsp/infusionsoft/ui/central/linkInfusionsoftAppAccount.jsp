@@ -31,6 +31,12 @@
         Link an Infusionsoft App
     </h2>
 
+    <c:if test="${error != null}">
+        <div class="alert alert-error" style="margin-top: 10px">
+            <spring:message code="${error}"/>
+        </div>
+    </c:if>
+
     <p>
         Enter the username and password you were using before you created your Infusionsoft ID to link  your app.
     </p>
@@ -43,7 +49,7 @@
             <div class="control-group">
                 <label for="appName" class="control-label">App URL</label>
                 <div class="controls">
-                    <input id="appName" name="appName" type="text" value="${fn:escapeXml(appName)}"/>.infusionsoft.com
+                    <input id="appName" name="appName" type="text" value="${fn:escapeXml(appName)}"/>.${crmDomain}
                 </div>
             </div>
             <div class="control-group">

@@ -7,9 +7,13 @@
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 
+<jsp:include page="_casLoginOrRegistrationView.jsp"/>
+
+<%--
 <c:if test="${not empty sessionScope.refererAppType}">
     <jsp:include page="_casLoginOrRegistrationView.jsp"/>
 </c:if>
 <c:if test="${empty sessionScope.refererAppType}">
     <jsp:include page="_casLoginView.jsp"/>
 </c:if>
+--%>

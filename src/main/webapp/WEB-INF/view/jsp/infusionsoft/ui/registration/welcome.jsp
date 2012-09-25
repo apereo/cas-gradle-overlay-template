@@ -49,7 +49,7 @@
     <form id="registerForm" action="register" method="post" class="form-vertical">
 
         <c:if test="${error != null}">
-            <div class="alert alert-error">
+            <div class="alert alert-error" style="margin-top: 10px">
                 <spring:message code="${error}"/>
             </div>
         </c:if>

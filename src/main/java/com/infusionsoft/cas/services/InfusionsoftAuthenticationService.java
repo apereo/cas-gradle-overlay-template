@@ -240,7 +240,7 @@ public class InfusionsoftAuthenticationService {
             XmlRpcClient client = new XmlRpcClient(buildAppUrl("crm", appName) + "/api/xmlrpc");
             Vector<String> params = new Vector<String>();
 
-            log.debug("attempting to verify crm credentials at url " + client.getURL());
+            log.debug("attempting to verify crm credentials at url " + client.getURL() + " with vendor key " + crmVendorKey);
 
             params.add(crmVendorKey);
             params.add(appUsername);
@@ -252,6 +252,8 @@ public class InfusionsoftAuthenticationService {
                 log.debug("web service produced a temp key: " + tempKey);
 
                 return true;
+            } else {
+                log.warn("unable to verify credentials! no temp key was returned for this username and password");
             }
         } catch (MalformedURLException e) {
             log.error("couldn't verify app credentials: xml-rpc url is invalid!", e);
