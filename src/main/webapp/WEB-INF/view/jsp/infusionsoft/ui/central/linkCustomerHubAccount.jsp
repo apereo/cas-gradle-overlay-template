@@ -19,6 +19,12 @@
         Link a CustomerHub App
     </h2>
 
+    <c:if test="${error != null}">
+        <div class="alert alert-error" style="margin-top: 10px">
+            <spring:message code="${error}"/>
+        </div>
+    </c:if>
+
     <form id="associateForm" action="associate" method="post">
         <input name="appType" type="hidden" value="customerhub"/>
         <input name="user" type="hidden" value="${user.id}"/>

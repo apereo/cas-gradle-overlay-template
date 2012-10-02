@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
 
 /**
@@ -57,6 +58,18 @@ public class UserFilter implements Filter {
             request.getSession(true).setAttribute("serviceUrl", service);
 
             log.debug("service url " + service + " has been saved in the session");
+
+            try {
+                URL serviceUrl = new URL(service);
+
+                if ("crm".equals(infusionsoftAuthenticationService.guessAppType(serviceUrl))) {
+                    String refererUrl = serviceUrl.getProtocol() + "://" + serviceUrl.getHost() + ":" + serviceUrl.getPort();
+
+                    request.getSession().setAttribute("refererUrl", refererUrl);
+                }
+            } catch (MalformedURLException e) {
+                log.warn("couldn't parse service url: " + service, e);
+            }
         }
 
         // Protect the central controller, logged in users only!

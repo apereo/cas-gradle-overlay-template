@@ -11,4 +11,6 @@
     <decorator name="central" page="central.jsp">
         <pattern>/central</pattern>
     </decorator>
+    <decorator name="anonymousNoLogo" page="anonymousNoLogo.jsp">
+    </decorator>
 </decorators>

@@ -205,8 +205,8 @@ public class CentralMultiActionController extends MultiActionController {
     public ModelAndView associate(HttpServletRequest request, HttpServletResponse response) throws IOException {
         Map<String, Object> model = new HashMap<String, Object>();
         String appType = request.getParameter("appType");
-        String appName = request.getParameter("appName");
-        String appUsername = request.getParameter("appUsername");
+        String appName = request.getParameter("appName").toLowerCase();
+        String appUsername = request.getParameter("appUsername").toLowerCase();
         String appPassword = request.getParameter("appPassword");
 
         try {
@@ -244,7 +244,7 @@ public class CentralMultiActionController extends MultiActionController {
 
                 return new ModelAndView("infusionsoft/ui/central/linkCustomerHubAccount", model);
             } else if (appType.equals("community")) {
-                return new ModelAndView("infusionsoft/ui/central/linkCommunityAccount");
+                return new ModelAndView("infusionsoft/ui/central/linkCommunityAccount", model);
             } else {
                 response.sendError(500, "Failed to associate");
             }
@@ -313,7 +313,10 @@ public class CentralMultiActionController extends MultiActionController {
             if (model.containsKey("error")) {
                 log.info("couldn't update user account for user " + user.getId() + ": " + model.get("error"));
             } else {
-                infusionsoftPasswordService.setPasswordForUser(user, password1);
+                if (StringUtils.isNotEmpty(password1)) {
+                    infusionsoftPasswordService.setPasswordForUser(user, password1);
+                }
+
                 hibernateTemplate.update(user);
 
                 infusionsoftAuthenticationService.createTicketGrantingTicket(username, request, response);
