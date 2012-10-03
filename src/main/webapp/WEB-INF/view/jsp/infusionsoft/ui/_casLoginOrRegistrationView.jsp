@@ -43,22 +43,22 @@
 
     .greetings {
         margin: 0 auto;
-        width: 720px;
-        padding: 15px 0;
+        width: 760px;
+        padding: 20px 0 20px 0;
         color: #fff;
         font-family: "HelveticaNeue-Light", sans-serif;
         font-size: 13px;
     }
 
     .greetings-left {
-        width: 530px;
+        width: 550px;
         float: left;
         padding: 0 20px 0 0;
         border-right: 1px solid #5eaa3b;
     }
 
     .greetings-right {
-        width: 100px;
+        width: 120px;
         float: left;
         padding: 0 0 0 20px;
         height: 150px;
@@ -71,7 +71,8 @@
     }
 
     .greetings p {
-        margin: 20px 0 30px 0;
+        margin: 10px 0 20px 0;
+        font-size: 13px;
     }
 
     .nest {
@@ -79,7 +80,7 @@
         background: #6bac41;
         border-bottom: 1px solid #83c557;
         border-radius: 5px;
-        margin-right: 10px;
+        margin: 0 10px 10px 0;
     }
 
 </style>
@@ -87,22 +88,29 @@
 <div class="greetings-bg">
     <div class="greetings">
         <div class="greetings-left">
-            <h1>Introducing Infusionsoft Single Sign-On!</h1>
+            <h1>Easier Access with One Email, One Password</h1>
             <p>
-                We have simplified how you sign into Infusionsoft using what we call an "Infusionsoft ID". By creating
-                an Infusionsoft ID, you will be able to sign into all your Infusionsoft apps with the same sign-in information.
-                All Infusionsoft users will be required to transition to an Infusionsoft ID within the next 30 days.
-                <a href="http://www.infusionsoft.com/infusionsoft-id">Learn more...</a>
+                It’s now easier to access all aspects of Infusionsoft with one email address and password!
+                Eliminate the hassle of multiple usernames and passwords for your Infusionsoft app(s),
+                Marketplace, CustomerHub, and community forums. Instead of logging in with your username(s),
+                now simply use your email address.
             </p>
             <p>
-                <span class="nest"><a href="btn" class="btn" style="padding-left: 20px; padding-right: 20px">Create Your ID!</a></span>
+                Update your login now!
+                Not ready today? No rush. We'll count down the days you have left to switch.
+                <a href="http://www.infusionsoft.com/infusionsoft-id">Learn more...</a>
+            </p>
+
+            <div>
+                <c:url var="registrationUrl" value="/registration/welcome"/>
+                <span class="nest"><a href="${registrationUrl}" class="btn" style="padding-left: 20px; padding-right: 20px; font-size: 13px">Update My Login Now</a></span>
                 <c:if test="${not empty sessionScope.refererUrl}">
                     <a href="${sessionScope.refererUrl}">No thanks. I'll sign in the old way for now</a>
                 </c:if>
-            </p>
+            </div>
         </div>
         <div class="greetings-right">
-            <c:url var="flipCounterImage" value="/images/flipCounter-medium.png"/>
+            <c:url var="flipCounterImage" value="/images/flip-counter-sprite.png"/>
             <c:set var="daysRemaining" value="30"/>
             <div id="counter"></div>
             <script type="text/javascript">
@@ -113,8 +121,8 @@
                     numFractionalDigits:0, // number of places right of the decimal point to maintain
                     digitClass:"counter-digit", // class of the counter digits
                     counterFieldName:"counter-value", // name of the hidden field
-                    digitHeight:40, // the height of each digit in the flipCounter-medium.png sprite image
-                    digitWidth:30, // the width of each digit in the flipCounter-medium.png sprite image
+                    digitHeight:73, // the height of each digit in the flipCounter-medium.png sprite image
+                    digitWidth:59, // the width of each digit in the flipCounter-medium.png sprite image
                     imagePath:"${flipCounterImage}", // the path to the sprite image relative to your html document
                     easing: false, // the easing function to apply to animations, you can override this with a jQuery.easing method
                     duration:10000, // duration of animations
@@ -141,7 +149,7 @@
                 });
 
             </script>
-            <div style="text-align: center">Days left to transition</div>
+            <div style="font-size: 18px; margin-top: 20px; text-align: center">Days left<br/> to transition</div>
         </div>
         <div style="clear: both"></div>
     </div>
