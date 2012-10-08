@@ -31,8 +31,11 @@
     </c:if>
 
     <p>
-        Please verify that you have been a user of this app by entering the username and password you were using
-        before creating a new Infusionsoft ID.
+        Your Infusionsoft ID has been created!
+    </p>
+    <p>
+        Please verify that you are a user of <strong>${appDomain}</strong> by entering your old
+        username and password, just this once. We'll then link this account to your Infusionsoft ID.
     </p>
     <form action="verify" method="post" id="verificationForm" cssClass="form-vertical">
         <div class="control-group">

@@ -3,6 +3,7 @@ package com.infusionsoft.cas.web;
 import com.infusionsoft.cas.services.InfusionsoftDataService;
 import com.infusionsoft.cas.services.InfusionsoftMailService;
 import com.infusionsoft.cas.services.InfusionsoftPasswordService;
+import com.infusionsoft.cas.types.PendingUserAccount;
 import com.infusionsoft.cas.types.User;
 import com.infusionsoft.cas.services.InfusionsoftAuthenticationService;
 import com.infusionsoft.cas.types.UserAccount;
@@ -18,6 +19,7 @@ import org.springframework.web.servlet.mvc.multiaction.MultiActionController;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -42,8 +44,21 @@ public class RegistrationMultiActionController extends MultiActionController {
      */
     public ModelAndView welcome(HttpServletRequest request, HttpServletResponse response) {
         Map<String, Object> model = new HashMap<String, Object>();
+        String registrationCode = (String) request.getSession(true).getAttribute("registrationCode");
+        User user = new User();
+
+        if (StringUtils.isNotEmpty(registrationCode)) {
+            PendingUserAccount pending = infusionsoftDataService.findPendingUserAccount(registrationCode);
+
+            if (pending != null) {
+                user.setFirstName(pending.getFirstName());
+                user.setLastName(pending.getLastName());
+                user.setUsername(pending.getEmail());
+            }
+        }
 
         model.put("loginTicket", ticketIdGenerator.getNewTicketId("LT"));
+        model.put("user", user);
 
         return new ModelAndView("infusionsoft/ui/registration/welcome", model);
     }
@@ -57,6 +72,7 @@ public class RegistrationMultiActionController extends MultiActionController {
         String username = request.getParameter("username");
         String password1 = request.getParameter("password1");
         String password2 = request.getParameter("password2");
+        boolean eula = StringUtils.equals(request.getParameter("eula"), "agreed");
         String registrationCode = (String) request.getSession(true).getAttribute("registrationCode");
         Map<String, Object> model = new HashMap<String, Object>();
         User user = null;
@@ -78,6 +94,8 @@ public class RegistrationMultiActionController extends MultiActionController {
                 model.put("error", "registration.error.invalidPassword");
             } else if (!password1.equals(password2)) {
                 model.put("error", "registration.error.passwordsNoMatch");
+            } else if (!eula) {
+                model.put("error", "registration.error.eula");
             } else {
                 String passwordError = infusionsoftPasswordService.validatePassword(user, username, password1);
 
@@ -95,6 +113,8 @@ public class RegistrationMultiActionController extends MultiActionController {
                 infusionsoftAuthenticationService.createTicketGrantingTicket(username, request, response);
 
                 if (StringUtils.isNotEmpty(registrationCode)) {
+                    log.info("processing registration code " + registrationCode);
+
                     try {
                         UserAccount account = infusionsoftDataService.associatePendingAccountToUser(user, registrationCode);
 
@@ -113,10 +133,21 @@ public class RegistrationMultiActionController extends MultiActionController {
 
         if (model.containsKey("error")) {
             return new ModelAndView("infusionsoft/ui/registration/welcome", model);
-        } else if (StringUtils.isNotEmpty((String) request.getSession(true).getAttribute("refererAppName"))) {
-            // TODO - this may not be needed since moving the login form before the registration form
-            return new ModelAndView("redirect:verification");
         } else {
+            if (StringUtils.isNotEmpty((String) request.getSession(true).getAttribute("serviceUrl"))) {
+                try {
+                    String serviceUrl = (String) request.getSession(true).getAttribute("serviceUrl");
+                    String appName = infusionsoftAuthenticationService.guessAppName(new URL(serviceUrl));
+                    String appType = infusionsoftAuthenticationService.guessAppType(new URL(serviceUrl));
+
+                    if (StringUtils.equals(appType, "crm") && !StringUtils.equals(appName, "cas")) {
+                        return new ModelAndView("redirect:verification");
+                    }
+                } catch (Exception e) {
+                    log.warn("failed to parse appName/appType from serviceUrl", e);
+                }
+            }
+
             return new ModelAndView("redirect:success");
         }
     }
@@ -128,14 +159,28 @@ public class RegistrationMultiActionController extends MultiActionController {
     public ModelAndView verification(HttpServletRequest request, HttpServletResponse response) {
         User user = infusionsoftAuthenticationService.getCurrentUser(request);
         HttpSession session = request.getSession(true);
-        String appName = (String) session.getAttribute("refererAppName");
-        String appType = (String) session.getAttribute("refererAppType");
+        String appName = null;
+        String appType = null;
+        Map<String, Object> model = new HashMap<String, Object>();
+
+        try {
+            URL serviceUrl = new URL((String) session.getAttribute("serviceUrl"));
+
+            appName = infusionsoftAuthenticationService.guessAppName(serviceUrl);
+            appType = infusionsoftAuthenticationService.guessAppName(serviceUrl);
+
+            model.put("appName", appName);
+            model.put("appType", appType);
+            model.put("appDomain", appName + "." + infusionsoftAuthenticationService.getCrmDomain());
+        } catch (Exception e) {
+            log.warn("failed to parse appName/appType from serviceUrl", e);
+        }
 
         if (StringUtils.isNotEmpty(appName) && StringUtils.isNotEmpty(appType)) {
             if (infusionsoftAuthenticationService.isUserAssociated(user, appType, appName)) {
                 return new ModelAndView("redirect:success");
             } else {
-                return new ModelAndView("infusionsoft/ui/registration/verification");
+                return new ModelAndView("infusionsoft/ui/registration/verification", model);
             }
         } else {
             return new ModelAndView("redirect:success");
@@ -145,8 +190,18 @@ public class RegistrationMultiActionController extends MultiActionController {
     public ModelAndView verify(HttpServletRequest request, HttpServletResponse response) {
         User user = infusionsoftAuthenticationService.getCurrentUser(request);
         HttpSession session = request.getSession(true);
-        String appName = (String) session.getAttribute("refererAppName");
-        String appType = (String) session.getAttribute("refererAppType");
+        String appName = null;
+        String appType = null;
+
+        try {
+            URL serviceUrl = new URL((String) session.getAttribute("serviceUrl"));
+
+            appName = infusionsoftAuthenticationService.guessAppName(serviceUrl);
+            appType = infusionsoftAuthenticationService.guessAppType(serviceUrl);
+        } catch (Exception e) {
+            log.warn("failed to parse appName/appType from serviceUrl", e);
+        }
+
         String appUsername = request.getParameter("appUsername");
         String appPassword = request.getParameter("appPassword");
         Map<String, Object> model = new HashMap<String, Object>();
@@ -154,6 +209,8 @@ public class RegistrationMultiActionController extends MultiActionController {
         if (infusionsoftAuthenticationService.verifyAppCredentials(appType, appName, appUsername, appPassword)) {
             try {
                 UserAccount account = infusionsoftDataService.associateAccountToUser(user, appType, appName, appUsername);
+
+                infusionsoftAuthenticationService.createTicketGrantingTicket(user.getUsername(), request, response);
 
                 return new ModelAndView("redirect:success", "appUrl", infusionsoftAuthenticationService.buildAppUrl(account.getAppType(), account.getAppName()));
             } catch (Exception e) {

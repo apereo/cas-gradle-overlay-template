@@ -84,7 +84,7 @@ public class InfusionsoftAuthenticationViaFormAction extends AuthenticationViaFo
                 if (valid) {
                     log.info("verified that " + appUsername + " is a legacy user at " + service);
 
-                    PendingUserAccount account = infusionsoftDataService.createPendingUserAccount(appType, appName, appUsername);
+                    PendingUserAccount account = infusionsoftDataService.createPendingUserAccount(appType, appName, appUsername, "", "", "", false);
 
                     log.info("created registration code " + account.getRegistrationCode());
 

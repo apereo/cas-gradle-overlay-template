@@ -173,6 +173,7 @@
                 <value>com.infusionsoft.cas.types.PendingUserAccount</value>
                 <value>com.infusionsoft.cas.types.CommunityAccountDetails</value>
                 <value>com.infusionsoft.cas.types.LegacyAccount</value>
+                <value>com.infusionsoft.cas.types.MigratedApp</value>
                 <value>com.infusionsoft.cas.types.LoginAttempt</value>
             </list>
         </property>
@@ -210,6 +211,7 @@
         <property name="crmVendorKey" value="${infusionsoft.crm.vendorkey}"/>
         <property name="communityDomain" value="${infusionsoft.community.domain}"/>
         <property name="customerHubDomain" value="${infusionsoft.customerhub.domain}"/>
+        <property name="migrationDateString" value="${infusionsoft.migration.date}"/>
     </bean>
 
     <bean id="infusionsoftPasswordService" class="com.infusionsoft.cas.services.InfusionsoftPasswordService">

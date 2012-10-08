@@ -93,23 +93,35 @@ public class InfusionsoftDataService {
      * Creates a pending user account for someone, so they can come back and complete registration later.
      * If one's already pending, regurgitate the same code.
      */
-    public PendingUserAccount createPendingUserAccount(String appType, String appName, String appUsername) {
+    public PendingUserAccount createPendingUserAccount(String appType, String appName, String appUsername, String firstName, String lastName, String email, boolean passwordVerificationRequired) {
         List<PendingUserAccount> matches = hibernateTemplate.find("from PendingUserAccount where appType = ? and appName = ? and appUsername = ?", appType, appName, appUsername);
+        PendingUserAccount account = null;
 
         if (matches.size() > 0) {
-            return matches.get(0);
+            account = matches.get(0);
+            account.setFirstName(firstName);
+            account.setLastName(lastName);
+            account.setEmail(email);
+            account.setPasswordVerificationRequired(passwordVerificationRequired);
+
+            hibernateTemplate.update(account);
         } else {
-            PendingUserAccount account = new PendingUserAccount();
+            account = new PendingUserAccount();
 
             account.setAppName(appName);
             account.setAppType(appType);
             account.setAppUsername(appUsername);
             account.setRegistrationCode(appName + "-" + RandomStringUtils.random(16, true, true));
+            account.setFirstName(firstName);
+            account.setLastName(lastName);
+            account.setEmail(email);
+            account.setPasswordVerificationRequired(passwordVerificationRequired);
 
             hibernateTemplate.save(account);
-
-            return account;
         }
+
+
+        return account;
     }
 
     /**

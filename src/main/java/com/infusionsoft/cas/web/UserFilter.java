@@ -12,9 +12,12 @@ import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
- * Filter that sets the user object in the session, if available. We need this because CAS uses its own bowels for
+ * Filter that sets various useful things in the session. We need this because CAS uses its own bowels for
  * user authentication, and it's too big a pain to hook into them. This filter also keeps track of a registration
  * code if one is sent on the initial request.
  */
@@ -53,6 +56,23 @@ public class UserFilter implements Filter {
             log.debug("registration code " + registrationCode + " has been saved in the session");
         }
 
+        // If there's a migration date, put it in the session so we can display a countdown.
+        // TODO - so stupid to use the session for this, but need to get around stupid WebFlow
+        if (StringUtils.isNotEmpty(infusionsoftAuthenticationService.getMigrationDateString())) {
+            try {
+                DateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+                Date migrationDate = format.parse(infusionsoftAuthenticationService.getMigrationDateString());
+                long timeToMigrate = migrationDate.getTime() - System.currentTimeMillis();
+                long daysToMigrate = Math.round(timeToMigrate / 86400000);
+
+                if (daysToMigrate > 0) {
+                    request.getSession(true).setAttribute("daysToMigrate", daysToMigrate);
+                }
+            } catch (Exception e) {
+                log.warn("unable to parse migration date: " + infusionsoftAuthenticationService.getMigrationDateString());
+            }
+        }
+
         // If there's a service url, save that in the session too.
         if (StringUtils.isNotEmpty(service)) {
             request.getSession(true).setAttribute("serviceUrl", service);
@@ -61,14 +81,22 @@ public class UserFilter implements Filter {
 
             try {
                 URL serviceUrl = new URL(service);
+                String appName = infusionsoftAuthenticationService.guessAppName(serviceUrl);
+                String appType = infusionsoftAuthenticationService.guessAppType(serviceUrl);
 
-                if ("crm".equals(infusionsoftAuthenticationService.guessAppType(serviceUrl))) {
+                if (StringUtils.equals(appType, "crm")) {
                     String refererUrl = serviceUrl.getProtocol() + "://" + serviceUrl.getHost() + ":" + serviceUrl.getPort();
 
                     request.getSession().setAttribute("refererUrl", refererUrl);
                 }
-            } catch (MalformedURLException e) {
-                log.warn("couldn't parse service url: " + service, e);
+
+                if (StringUtils.isNotEmpty(appName) && StringUtils.isNotEmpty(appType)) {
+                    request.setAttribute("appMigrated", infusionsoftAuthenticationService.isAppMigrated(appName, appType));
+
+                    log.debug("set appMigrated = " + request.getAttribute("appMigrated"));
+                }
+            } catch (Exception e) {
+                log.warn("couldn't parse and interpret service url: " + service, e);
             }
         }
 

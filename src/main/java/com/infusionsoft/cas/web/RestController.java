@@ -3,6 +3,7 @@ package com.infusionsoft.cas.web;
 import com.infusionsoft.cas.services.InfusionsoftAuthenticationService;
 import com.infusionsoft.cas.services.InfusionsoftDataService;
 import com.infusionsoft.cas.services.InfusionsoftPasswordService;
+import com.infusionsoft.cas.types.MigratedApp;
 import com.infusionsoft.cas.types.PendingUserAccount;
 import com.infusionsoft.cas.types.User;
 import com.infusionsoft.cas.types.UserAccount;
@@ -24,6 +25,7 @@ import org.springframework.web.servlet.mvc.multiaction.MultiActionController;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -214,6 +216,49 @@ public class RestController extends MultiActionController {
     }
 
     /**
+     * Notifies CAS that a new app has been created. This is what enables it to know which apps were created post-CAS,
+     * so we don't have to worry about the migration flow for those apps.
+     */
+    public ModelAndView registerNewApp(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        Map<String, Object> model = new HashMap<String, Object>();
+        String apiKey = request.getParameter("apiKey");
+        String appName = request.getParameter("appName");
+        String appType = request.getParameter("appType");
+
+        // Validate the API key
+        if (!requiredApiKey.equals(apiKey)) {
+            logger.warn("Invalid API access: apiKey = " + apiKey);
+            response.sendError(401);
+
+            return null;
+        }
+
+        try {
+            MigratedApp app = new MigratedApp();
+
+            app.setAppName(appName);
+            app.setAppType(appType);
+            app.setDateMigrated(new Date());
+
+            hibernateTemplate.save(app);
+
+            model.put("status", "success");
+        } catch (Exception e) {
+            log.error("unable to save migrated app " + appName + "/" + appType, e);
+
+            model.put("status", "error");
+            model.put("message", "couldn't save the migrated app! make sure appName and appType are valid and it hasn't been migrated");
+        }
+
+        MappingJacksonHttpMessageConverter jsonConverter = new MappingJacksonHttpMessageConverter();
+        MediaType jsonMimeType = MediaType.APPLICATION_JSON;
+
+        jsonConverter.write(model, jsonMimeType, new ServletServerHttpResponse(response));
+
+        return null;
+    }
+
+    /**
      * Called from CAM or other clients to predefine a user account mapping.
      * They can then supply the user with a link including the registration code.
      * When the user follows that link and registers, their account will automatically
@@ -225,6 +270,9 @@ public class RestController extends MultiActionController {
         String appName = request.getParameter("appName");
         String appType = request.getParameter("appType");
         String appUsername = request.getParameter("appUsername");
+        String firstName = request.getParameter("firstName");
+        String lastName = request.getParameter("lastName");
+        String email = request.getParameter("email");
 
         // Validate the API key
         if (!requiredApiKey.equals(apiKey)) {
@@ -236,7 +284,7 @@ public class RestController extends MultiActionController {
 
         // Create the pending registration and return the code
         try {
-            PendingUserAccount account = infusionsoftDataService.createPendingUserAccount(appType, appName, appUsername);
+            PendingUserAccount account = infusionsoftDataService.createPendingUserAccount(appType, appName, appUsername, firstName, lastName, email, false);
 
             log.info("created new user registration code " + account.getRegistrationCode() + " for app " + appName);
 

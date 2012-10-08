@@ -75,7 +75,7 @@
         font-size: 13px;
     }
 
-    .nest {
+    .greetings .button-well {
         padding: 10px 6px 14px 6px;
         background: #6bac41;
         border-bottom: 1px solid #83c557;
@@ -85,79 +85,88 @@
 
 </style>
 
-<div class="greetings-bg">
-    <div class="greetings">
-        <div class="greetings-left">
-            <h1>Easier Access with One Email, One Password</h1>
-            <p>
-                It’s now easier to access all aspects of Infusionsoft with one email address and password!
-                Eliminate the hassle of multiple usernames and passwords for your Infusionsoft app(s),
-                Marketplace, CustomerHub, and community forums. Instead of logging in with your username(s),
-                now simply use your email address.
-            </p>
-            <p>
-                Update your login now!
-                Not ready today? No rush. We'll count down the days you have left to switch.
-                <a href="http://www.infusionsoft.com/infusionsoft-id">Learn more...</a>
-            </p>
+<c:set var="daysRemaining" value="${sessionScope.daysToMigrate}"/>
 
-            <div>
-                <c:url var="registrationUrl" value="/registration/welcome"/>
-                <span class="nest"><a href="${registrationUrl}" class="btn" style="padding-left: 20px; padding-right: 20px; font-size: 13px">Update My Login Now</a></span>
-                <c:if test="${not empty sessionScope.refererUrl}">
-                    <a href="${sessionScope.refererUrl}">No thanks. I'll sign in the old way for now</a>
-                </c:if>
+<c:if test="${!requestScope.appMigrated}">
+    <div class="greetings-bg">
+        <div class="greetings">
+            <div class="greetings-left">
+                <h1>Easier Access with One Email, One Password.</h1>
+                <p>
+                    It’s now easier to access all aspects of Infusionsoft with one email address and password!
+                    Eliminate the hassle of multiple usernames and passwords for your Infusionsoft app(s),
+                    Marketplace, CustomerHub, and community forums. Instead of logging in with your username(s),
+                    now simply use your email address.
+                </p>
+                <p>
+                    Update your login now.
+                </p>
+                <p>
+                    Not ready today? No rush. We'll count down the days you have left to switch.
+                    <a href="http://www.infusionsoft.com/infusionsoft-id">Learn more.</a>
+                </p>
+
+                <div>
+                    <c:url var="registrationUrl" value="/registration/welcome"/>
+                    <span class="button-well"><a href="${registrationUrl}" class="btn" style="padding-left: 20px; padding-right: 20px; font-size: 13px">Update My Login Now</a></span>
+                    <c:if test="${not empty sessionScope.refererUrl && daysRemaining > 0}">
+                        <a href="${sessionScope.refererUrl}/app/authentication/login">No thanks. I'll sign in the old way.</a>
+                    </c:if>
+                </div>
             </div>
+            <c:if test="${daysRemaining > 0}">
+                <div class="greetings-right">
+                    <c:url var="flipCounterImage" value="/images/flip-counter-sprite.png"/>
+                    <div id="counter"></div>
+                    <script type="text/javascript">
+
+                        $("#counter").flipCounter({
+                            number:${daysRemaining + 3}, // the initial number the counter should display, overrides the hidden field
+                            numIntegralDigits:2, // number of places left of the decimal point to maintain
+                            numFractionalDigits:0, // number of places right of the decimal point to maintain
+                            digitClass:"counter-digit", // class of the counter digits
+                            counterFieldName:"counter-value", // name of the hidden field
+                            digitHeight:73, // the height of each digit in the flipCounter-medium.png sprite image
+                            digitWidth:59, // the width of each digit in the flipCounter-medium.png sprite image
+                            imagePath:"${flipCounterImage}", // the path to the sprite image relative to your html document
+                            easing: false, // the easing function to apply to animations, you can override this with a jQuery.easing method
+                            duration:10000, // duration of animations
+                            onAnimationStarted:false, // call back for animation upon starting
+                            onAnimationStopped:false, // call back for animation upon stopping
+                            onAnimationPaused:false, // call back for animation upon pausing
+                            onAnimationResumed:false // call back for animation upon resuming from pause
+                        });
+
+                        $(document).ready(function() {
+                            $("#counter").flipCounter(
+                                    "startAnimation",
+                                    {
+                                        number: ${daysRemaining + 3}, // the number we want to scroll from
+                                        end_number: ${daysRemaining}, // the number we want the counter to scroll to
+                                        easing: jQuery.easing.easeOutCubic, // this easing function to apply to the scroll.
+                                        duration: 750, // number of ms animation should take to complete
+                                        onAnimationStarted: function() { }, // the function to call when animation starts
+                                        onAnimationStopped: function() { }, // the function to call when animation stops
+                                        onAnimationPaused: function() { }, // the function to call when animation pauses
+                                        onAnimationResumed: function() { } // the function to call when animation resumes from pause
+                                    }
+                            );
+                        });
+
+                    </script>
+                    <div style="font-size: 18px; margin-top: 20px; text-align: center">Days left<br/> to update your login</div>
+                </div>
+            </c:if>
+            <div style="clear: both"></div>
         </div>
-        <div class="greetings-right">
-            <c:url var="flipCounterImage" value="/images/flip-counter-sprite.png"/>
-            <c:set var="daysRemaining" value="30"/>
-            <div id="counter"></div>
-            <script type="text/javascript">
-
-                $("#counter").flipCounter({
-                    number:${daysRemaining + 3}, // the initial number the counter should display, overrides the hidden field
-                    numIntegralDigits:1, // number of places left of the decimal point to maintain
-                    numFractionalDigits:0, // number of places right of the decimal point to maintain
-                    digitClass:"counter-digit", // class of the counter digits
-                    counterFieldName:"counter-value", // name of the hidden field
-                    digitHeight:73, // the height of each digit in the flipCounter-medium.png sprite image
-                    digitWidth:59, // the width of each digit in the flipCounter-medium.png sprite image
-                    imagePath:"${flipCounterImage}", // the path to the sprite image relative to your html document
-                    easing: false, // the easing function to apply to animations, you can override this with a jQuery.easing method
-                    duration:10000, // duration of animations
-                    onAnimationStarted:false, // call back for animation upon starting
-                    onAnimationStopped:false, // call back for animation upon stopping
-                    onAnimationPaused:false, // call back for animation upon pausing
-                    onAnimationResumed:false // call back for animation upon resuming from pause
-                });
-
-                $(document).ready(function() {
-                    $("#counter").flipCounter(
-                        "startAnimation",
-                        {
-                            number: ${daysRemaining + 3}, // the number we want to scroll from
-                            end_number: ${daysRemaining}, // the number we want the counter to scroll to
-                            easing: jQuery.easing.easeOutCubic, // this easing function to apply to the scroll.
-                            duration: 750, // number of ms animation should take to complete
-                            onAnimationStarted: function() { }, // the function to call when animation starts
-                            onAnimationStopped: function() { }, // the function to call when animation stops
-                            onAnimationPaused: function() { }, // the function to call when animation pauses
-                            onAnimationResumed: function() { } // the function to call when animation resumes from pause
-                        }
-                    );
-                });
-
-            </script>
-            <div style="font-size: 18px; margin-top: 20px; text-align: center">Days left<br/> to transition</div>
-        </div>
-        <div style="clear: both"></div>
     </div>
-</div>
+</c:if>
 
-<div style="color: #999; text-align: center; margin: 35px 0 0 0">Already have an ID? Sign in below.</div>
+<c:if test="${requestScope.appMigrated}">
+    <div style="height: 100px"></div>
+</c:if>
 
-<div id="biglogo" style="margin-top: 0px; height: 70px"></div>
+<div id="biglogo" style="margin-top: 0px; height: 100px"></div>
 
 <div id="login">
     <form:form method="post" id="fm1" cssClass="form-vertical" commandName="${commandName}" htmlEscape="true">
@@ -192,4 +201,8 @@
 <div id="forgot-password">
     <c:url var="forgotPasswordUrl" value="/registration/forgot"/>
     <a href="${forgotPasswordUrl}">Forgot your password?</a>
+</div>
+
+<div style="margin: 50px auto; width: 960px; height: 960px">
+    <iframe src="https://infusionmedia.s3.amazonaws.com/cas/login-include.html" width="960" height="960" style="border: none"></iframe>
 </div>

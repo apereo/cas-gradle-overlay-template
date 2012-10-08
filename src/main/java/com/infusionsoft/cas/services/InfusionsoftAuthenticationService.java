@@ -59,6 +59,7 @@ public class InfusionsoftAuthenticationService {
     private String communityDomain;
     private String forumBase;
     private String forumApiKey;
+    private String migrationDateString;
 
     /**
      * Builds a URL for redirecting users to an app.
@@ -217,6 +218,15 @@ public class InfusionsoftAuthenticationService {
         }
 
         return false;
+    }
+
+    /**
+     * Checks whether an app has been fully migrated to CAS.
+     */
+    public boolean isAppMigrated(String appName, String appType) {
+        List<MigratedApp> results = hibernateTemplate.find("from MigratedApp a where a.appName = ? and a.appType = ?", appName, appType);
+
+        return results.size() > 0;
     }
 
     /**
@@ -513,5 +523,13 @@ public class InfusionsoftAuthenticationService {
 
     public void setCrmVendorKey(String crmVendorKey) {
         this.crmVendorKey = crmVendorKey;
+    }
+
+    public String getMigrationDateString() {
+        return migrationDateString;
+    }
+
+    public void setMigrationDateString(String migrationDateString) {
+        this.migrationDateString = migrationDateString;
     }
 }

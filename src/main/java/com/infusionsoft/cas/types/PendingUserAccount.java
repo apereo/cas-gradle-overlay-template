@@ -1,5 +1,7 @@
 package com.infusionsoft.cas.types;
 
+import org.hibernate.validator.constraints.Email;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
@@ -8,10 +10,14 @@ import java.io.Serializable;
 @Table(name = "pending_user_account", uniqueConstraints = {@UniqueConstraint(columnNames = {"app_name", "app_type", "app_username"})})
 public class PendingUserAccount implements Serializable {
     private Long id;
+    private String registrationCode;
     private String appType;
     private String appName;
     private String appUsername;
-    private String registrationCode;
+    private String firstName;
+    private String lastName;
+    private String email;
+    private boolean passwordVerificationRequired = true;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -61,5 +67,42 @@ public class PendingUserAccount implements Serializable {
 
     public void setRegistrationCode(String registrationCode) {
         this.registrationCode = registrationCode;
+    }
+
+    @Column(name = "first_name", length = 60)
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    @Column(name = "last_name", length = 60)
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
+    @Column(name = "email", length = 255)
+    @Email
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    @Column(name = "password_verification_required")
+    public boolean isPasswordVerificationRequired() {
+        return passwordVerificationRequired;
+    }
+
+    public void setPasswordVerificationRequired(boolean passwordVerificationRequired) {
+        this.passwordVerificationRequired = passwordVerificationRequired;
     }
 }

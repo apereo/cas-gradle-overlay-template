@@ -24,7 +24,7 @@
         margin: 15px auto;
     }
 
-    .controls input {
+    .controls input[type=text] {
         width: 316px;
     }
 
@@ -85,6 +85,15 @@
                     <input id="password2" name="password2" value="" type="password"/>
                 </div>
             </div>
+            <div class="control-group">
+                <div class="controls">
+                    <label class="checkbox">
+                        <input id="eula" name="eula" type="checkbox" value="agreed"/>
+                        I agree to the terms of the <a tabindex="-1" href="http://www.infusionsoft.com/legal-stuff/eula" target="_blank">EULA</a>, <a tabindex="-1" href="http://www.infusionsoft.com/legal-stuff/aup" target="_blank">AUP</a>, <span class="eulaAnd">and</span>  <a tabindex="-1" href="http://www.infusionsoft.com/legal-stuff/billing-policies" target="_blank">Billing Policies</a>
+                    </label>
+                </div>
+            </div>
+
         </fieldset>
 
         <div style="text-align: right; margin-top: 15px">
