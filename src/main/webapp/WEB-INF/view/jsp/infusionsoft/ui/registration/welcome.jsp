@@ -24,7 +24,7 @@
         margin: 15px auto;
     }
 
-    .controls input[type=text] {
+    .controls input[type=text], .controls input[type=password] {
         width: 316px;
     }
 
@@ -68,7 +68,7 @@
                 </div>
             </div>
             <div class="control-group">
-                <label class="control-label" for="username">Email Address <span style="font-weight: normal">(this is your username)</span></label>
+                <label class="control-label" for="username">Email Address</label>
                 <div class="controls">
                     <input id="username" name="username" value="${fn:escapeXml(user != null ? user.username : '')}" type="text"/>
                 </div>
@@ -89,7 +89,8 @@
                 <div class="controls">
                     <label class="checkbox">
                         <input id="eula" name="eula" type="checkbox" value="agreed"/>
-                        I agree to the terms of the <a tabindex="-1" href="http://www.infusionsoft.com/legal-stuff/eula" target="_blank">EULA</a>, <a tabindex="-1" href="http://www.infusionsoft.com/legal-stuff/aup" target="_blank">AUP</a>, <span class="eulaAnd">and</span>  <a tabindex="-1" href="http://www.infusionsoft.com/legal-stuff/billing-policies" target="_blank">Billing Policies</a>
+                        I have read and agree to abide by Infusionsoft's <a tabindex="-1" href="http://www.infusionsoft.com/legal-stuff/eula" target="_blank">End User Licensing Agreement</a>, <a tabindex="-1" href="http://www.infusionsoft.com/legal-stuff/aup" target="_blank">Acceptable Use Policy</a>, <a tabindex="-1" href="http://www.infusionsoft.com/legal-stuff/billing-policies" target="_blank">Billing Policy</a> and <a tabindex="-1" href="http://www.infusionsoft.com/legal-stuff/privacy-policy" target="_blank">Privacy Policy</a>.
+
                     </label>
                 </div>
             </div>
@@ -97,7 +98,7 @@
         </fieldset>
 
         <div style="text-align: right; margin-top: 15px">
-            <input type="submit" value="Create ID" class="btn btn-primary"/>
+            <input type="submit" value="Next &raquo;" class="btn btn-primary"/>
         </div>
     </form
 </div>

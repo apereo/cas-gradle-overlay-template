@@ -3,7 +3,7 @@ html, body {
     padding: 0;
     border: 0;
     background: #F5F5F5;
-    color: #333;
+    color: #444;
 }
 
 body {
@@ -351,7 +351,7 @@ label {
 
 .accounts .account-detail {
     font-size: 14px;
-    line-height: 25px;
+    line-height: 20px;
 }
 
 .alert-info {
@@ -362,7 +362,7 @@ label {
 }
 
 .modal-title {
-    margin: 100px auto 0 auto;
+    margin: 50px auto 0 auto;
     text-align: center;
     font-size: 20px;
 }

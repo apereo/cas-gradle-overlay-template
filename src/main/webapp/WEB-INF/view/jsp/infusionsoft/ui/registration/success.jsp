@@ -32,15 +32,11 @@
 </style>
 
 <div class="modal-title">
-    Welcome, ${user.firstName}!<br/>
-    Please Create Your Infusionsoft ID
+    Success!<br/>
 </div>
 
 <div id="register">
     <c:url var="centralUrl" value="/login"/>
-    <div id="success">
-        Your ID has been created successfully!
-    </div>
 
     <div class="usercard">
         <img class="photo"/>
@@ -51,6 +47,11 @@
         </div>
         <div style="clear: both"></div>
     </div>
+    <br/>
+    <p>
+        This is your Infusionsoft ID. Remember to use your email and
+        password when you log in.
+    </p>
 
     <div style="text-align: right; margin-top: 15px">
         <c:if test="${not empty appUrl}">

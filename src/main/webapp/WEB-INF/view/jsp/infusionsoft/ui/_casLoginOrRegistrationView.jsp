@@ -30,15 +30,26 @@
         margin: -20px -20px 20px -20px;
     }
 
+    .greetings-bg-old {
+        background: #93d558; /* Old browsers */
+        background: -moz-radial-gradient(center, ellipse cover,  #93d558 0%, #70bc3e 100%); /* FF3.6+ */
+        background: -webkit-gradient(radial, center center, 0px, center center, 100%, color-stop(0%,#93d558), color-stop(100%,#70bc3e)); /* Chrome,Safari4+ */
+        background: -webkit-radial-gradient(center, ellipse cover,  #93d558 0%,#70bc3e 100%); /* Chrome10+,Safari5.1+ */
+        background: -o-radial-gradient(center, ellipse cover,  #93d558 0%,#70bc3e 100%); /* Opera 12+ */
+        background: -ms-radial-gradient(center, ellipse cover,  #93d558 0%,#70bc3e 100%); /* IE10+ */
+        background: radial-gradient(ellipse at center,  #93d558 0%,#70bc3e 100%); /* W3C */
+        filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#93d558', endColorstr='#70bc3e',GradientType=1 ); /* IE6-9 fallback on horizontal gradient */
+    }
+
     .greetings-bg {
-        background: #83c548; /* Old browsers */
-        background: -moz-radial-gradient(center, ellipse cover,  #83c548 0%, #70bc3e 100%); /* FF3.6+ */
-        background: -webkit-gradient(radial, center center, 0px, center center, 100%, color-stop(0%,#83c548), color-stop(100%,#70bc3e)); /* Chrome,Safari4+ */
-        background: -webkit-radial-gradient(center, ellipse cover,  #83c548 0%,#70bc3e 100%); /* Chrome10+,Safari5.1+ */
-        background: -o-radial-gradient(center, ellipse cover,  #83c548 0%,#70bc3e 100%); /* Opera 12+ */
-        background: -ms-radial-gradient(center, ellipse cover,  #83c548 0%,#70bc3e 100%); /* IE10+ */
-        background: radial-gradient(ellipse at center,  #83c548 0%,#70bc3e 100%); /* W3C */
-        filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#83c548', endColorstr='#70bc3e',GradientType=1 ); /* IE6-9 fallback on horizontal gradient */
+        background: #93d558; /* Old browsers */
+        background: -moz-radial-gradient(center, ellipse cover,  #93d558 0%, #70bc3e 100%); /* FF3.6+ */
+        background: -webkit-gradient(radial, center center, 0px, center center, 100%, color-stop(0%,#93d558), color-stop(100%,#70bc3e)); /* Chrome,Safari4+ */
+        background: -webkit-radial-gradient(center, ellipse cover,  #93d558 0%,#70bc3e 100%); /* Chrome10+,Safari5.1+ */
+        background: -o-radial-gradient(center, ellipse cover,  #93d558 0%,#70bc3e 100%); /* Opera 12+ */
+        background: -ms-radial-gradient(center, ellipse cover,  #93d558 0%,#70bc3e 100%); /* IE10+ */
+        background: radial-gradient(ellipse at center,  #93d558 0%,#70bc3e 100%); /* W3C */
+        filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#93d558', endColorstr='#70bc3e',GradientType=1 ); /* IE6-9 fallback on horizontal gradient */
     }
 
     .greetings {
@@ -53,8 +64,8 @@
     .greetings-left {
         width: 550px;
         float: left;
-        padding: 0 20px 0 0;
-        border-right: 1px solid #5eaa3b;
+        padding: 0 20px 5px 0;
+        border-right: 1px solid #71ba2f;
     }
 
     .greetings-right {
@@ -68,19 +79,24 @@
         font-family: "HelveticaNeue-Light", sans-serif;
         font-weight: normal;
         font-size: 26px;
+        margin: 0 0 15px 0;
+        line-height: 26px;
     }
 
     .greetings p {
-        margin: 10px 0 20px 0;
+        margin: 10px 0 15px 0;
         font-size: 13px;
     }
 
+    .greetings .button-bar {
+        margin: 27px 0 0 0;
+    }
     .greetings .button-well {
         padding: 10px 6px 14px 6px;
         background: #6bac41;
         border-bottom: 1px solid #83c557;
         border-radius: 5px;
-        margin: 0 10px 10px 0;
+        margin: 5px 10px 15px 0;
     }
 
 </style>
@@ -106,7 +122,7 @@
                     <a href="http://www.infusionsoft.com/infusionsoft-id">Learn more.</a>
                 </p>
 
-                <div>
+                <div class="button-bar">
                     <c:url var="registrationUrl" value="/registration/welcome"/>
                     <span class="button-well"><a href="${registrationUrl}" class="btn" style="padding-left: 20px; padding-right: 20px; font-size: 13px">Update My Login Now</a></span>
                     <c:if test="${not empty sessionScope.refererUrl && daysRemaining > 0}">

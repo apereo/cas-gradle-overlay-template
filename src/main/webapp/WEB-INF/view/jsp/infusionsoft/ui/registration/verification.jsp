@@ -7,7 +7,7 @@
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 
-<meta name="decorator" content="anonymous"/>
+<meta name="decorator" content="registration"/>
 
 <style type="text/css">
 
@@ -23,6 +23,9 @@
 
 </style>
 
+<div class="modal-title">
+    Almost done!
+</div>
 <div id="verification">
     <c:if test="${error != null}">
         <div class="alert">
@@ -31,11 +34,11 @@
     </c:if>
 
     <p>
-        Your Infusionsoft ID has been created!
+        We need to verify you are a user of ${appDomain}.
     </p>
     <p>
-        Please verify that you are a user of <strong>${appDomain}</strong> by entering your old
-        username and password, just this once. We'll then link this account to your Infusionsoft ID.
+        Just this once, please enter your old
+        username and password for ${appDomain}.
     </p>
     <form action="verify" method="post" id="verificationForm" cssClass="form-vertical">
         <div class="control-group">
@@ -53,7 +56,7 @@
         </div>
 
         <div class="row btn-row" style="text-align: right">
-            <input class="btn btn-primary" name="submit" accesskey="l" value="Verify" tabindex="4" type="submit" />
+            <input class="btn btn-primary" name="submit" accesskey="l" value="Next &raquo;" tabindex="4" type="submit" />
         </div>
     </form>
 </div>
