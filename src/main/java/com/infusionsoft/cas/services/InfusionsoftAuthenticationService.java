@@ -209,7 +209,7 @@ public class InfusionsoftAuthenticationService {
             try {
                 URL appUrl = new URL(buildAppUrl(account.getAppType(), account.getAppName()));
 
-                if (url.getHost().toLowerCase().equals(url.getHost().toLowerCase())) {
+                if (appUrl.getHost().toLowerCase().equals(url.getHost().toLowerCase())) {
                     return true;
                 }
             } catch (Exception e) {

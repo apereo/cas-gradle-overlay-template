@@ -85,7 +85,11 @@ public class UserFilter implements Filter {
                 String appType = infusionsoftAuthenticationService.guessAppType(serviceUrl);
 
                 if (StringUtils.equals(appType, "crm")) {
-                    String refererUrl = serviceUrl.getProtocol() + "://" + serviceUrl.getHost() + ":" + serviceUrl.getPort();
+                    String refererUrl = serviceUrl.getProtocol() + "://" + serviceUrl.getHost();
+
+                    if (serviceUrl.getPort() > 0) {
+                        refererUrl = refererUrl + ":" + serviceUrl.getPort();
+                    }
 
                     request.getSession().setAttribute("refererUrl", refererUrl);
                 }

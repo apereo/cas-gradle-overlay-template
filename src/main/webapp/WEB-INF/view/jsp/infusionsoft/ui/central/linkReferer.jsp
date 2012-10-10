@@ -49,8 +49,11 @@
         <h2>Verify That You Are A User Of This App</h2>
 
         <p>
-            In order to sign in you need to verify that you have been a user of this app by entering the username
-            and password you were using before you created your Infusionsoft ID.
+            We need to verify you are a user of ${appDomain}.
+        </p>
+        <p>
+            Just this once, please enter your old
+            username and password for ${appDomain}.
         </p>
 
         <fieldset>

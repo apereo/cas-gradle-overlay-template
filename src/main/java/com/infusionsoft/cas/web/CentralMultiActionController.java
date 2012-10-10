@@ -46,7 +46,7 @@ public class CentralMultiActionController extends MultiActionController {
     public ModelAndView index(HttpServletRequest request, HttpServletResponse response) throws IOException {
         User user = infusionsoftAuthenticationService.getCurrentUser(request);
         HttpSession session = request.getSession(true);
-        String service = request.getParameter("service");
+        String service = (String) session.getAttribute("serviceUrl");
         String registrationCode = (String) session.getAttribute("registrationCode");
 
         System.out.println("is password expired? " + infusionsoftPasswordService.isPasswordExpired(user));
@@ -65,11 +65,14 @@ public class CentralMultiActionController extends MultiActionController {
                 log.error("failed to associate new user to registration code " + registrationCode, e);
             }
         } else if (StringUtils.isNotEmpty(service)) {
+            System.out.println("******* service is " + service + ", associated? " + infusionsoftAuthenticationService.isAppAssociated(user, new URL(service)));
             if (infusionsoftAuthenticationService.isAppAssociated(user, new URL(service))) {
                 return new ModelAndView("redirect:" + service);
             } else {
                 String appName = infusionsoftAuthenticationService.guessAppName(new URL(service));
                 String appType = infusionsoftAuthenticationService.guessAppType(new URL(service));
+
+                System.out.println("**** appName = " + appName + ", appType = " + appType);
 
                 if (appName != null && appType != null) {
                     log.info("user " + user.getId() + " was referred from an unassociated app: " + service);
@@ -144,6 +147,7 @@ public class CentralMultiActionController extends MultiActionController {
 
         model.put("appName", request.getParameter("appName"));
         model.put("appType", request.getParameter("appType"));
+        model.put("appDomain", request.getParameter("appName") + "." + infusionsoftAuthenticationService.getCrmDomain());
 
         return new ModelAndView("infusionsoft/ui/central/linkReferer", model);
     }
