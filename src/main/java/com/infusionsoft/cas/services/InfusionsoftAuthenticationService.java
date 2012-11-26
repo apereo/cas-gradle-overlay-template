@@ -19,6 +19,8 @@ import org.jasig.cas.ticket.TicketException;
 import org.jasig.cas.ticket.TicketGrantingTicket;
 import org.jasig.cas.ticket.registry.TicketRegistry;
 import org.jasig.cas.util.UniqueTicketIdGenerator;
+import org.json.simple.JSONObject;
+import org.json.simple.JSONValue;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
@@ -29,9 +31,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Date;
-import java.util.List;
-import java.util.Vector;
+import java.util.*;
 
 /**
  * Utility that handles Spring Security and CAS native authentication tricks.
@@ -88,7 +88,7 @@ public class InfusionsoftAuthenticationService {
 
         if (url.toString().startsWith(serverPrefix)) {
             return null; // it's us!
-        } else if (host.endsWith(communityDomain)) {
+        } else if (host.equals("community." + communityDomain)) {
             return host.replace("." + communityDomain, "");
         } else if (host.endsWith(crmDomain)) {
             return host.replace("." + crmDomain, "");
@@ -109,7 +109,7 @@ public class InfusionsoftAuthenticationService {
 
         if (url.toString().startsWith(serverPrefix)) {
             return null; // it's us!
-        } else if (host.endsWith(communityDomain)) {
+        } else if (host.equals("community." + communityDomain)) {
             return "community";
         } else if (host.endsWith(crmDomain)) {
             return "crm";
@@ -237,6 +237,8 @@ public class InfusionsoftAuthenticationService {
 
         if (StringUtils.equals(appType, "crm")) {
             valid = verifyCRMCredentials(appName, appUsername, appPassword);
+        } else if (StringUtils.equals(appType, "community")) {
+            valid = verifyCommunityCredentials(appUsername, appPassword);
         } else {
             // TODO - add verification for forum and community
             log.warn("we don't know how to verify credentials for app type " + appType);
@@ -274,6 +276,41 @@ public class InfusionsoftAuthenticationService {
         }
 
         return false;
+    }
+
+    private boolean verifyCommunityCredentials(String appUsername, String appPassword) {
+        boolean valid = false;
+
+        try {
+            RestTemplate restTemplate = new RestTemplate();
+
+            log.info("preparing REST call to " + forumBase);
+
+            // TODO - re-enable this
+            // TODO - shouldn't be a get, use POST here...
+            String md5password = DigestUtils.md5Hex(appPassword);
+            Map<String, String> userinfo = new HashMap<String, String>();
+
+            userinfo.put("username", appUsername);
+            userinfo.put("password", appPassword);
+
+            String result = restTemplate.postForObject("{base}/rest.php/user/isvaliduser?key={apiKey}", userinfo, String.class, forumBase, forumApiKey);
+
+            log.debug("REST response: " + result);
+
+            JSONObject returnValue = (JSONObject) JSONValue.parse(result);
+            Boolean returnValid = (Boolean) returnValue.get("valid");
+
+            if (returnValid != null && returnValid.booleanValue()) {
+                valid = true;
+            } else {
+                log.warn("community user credentials for " + appUsername + " are invalid");
+            }
+        } catch (Exception e) {
+            log.error("couldn't validate user credentials in community", e);
+        }
+
+        return valid;
     }
 
     /**
