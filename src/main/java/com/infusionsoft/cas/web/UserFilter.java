@@ -104,6 +104,11 @@ public class UserFilter implements Filter {
             }
         }
 
+        // Invalidate the session upon logout.
+        if (request.getServletPath().contains("logout")) {
+            session.removeAttribute("serviceUrl");
+        }
+
         // Protect the central controller, logged in users only!
         if (session.getAttribute("user") == null && request.getServletPath().startsWith("/central")) {
             response.sendRedirect(contextPath + "/login");

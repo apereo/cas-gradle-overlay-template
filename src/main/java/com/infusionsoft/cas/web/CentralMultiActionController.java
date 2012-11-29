@@ -112,7 +112,13 @@ public class CentralMultiActionController extends MultiActionController {
 
             return new ModelAndView("infusionsoft/ui/central/home", model);
         } else {
-            model.put("service", request.getContextPath() + "/login");
+            log.warn("anonymous user visited Infusionsoft Central; redirecting...");
+
+            // TODO - this was causing a redirect loop; why did I put it in here?
+//            model.put("service", request.getContextPath() + "/login");
+
+            // TODO - is it good to invalidate the session here?
+            request.getSession(true).invalidate();
 
             return new ModelAndView("redirect:/logout", model);
         }
