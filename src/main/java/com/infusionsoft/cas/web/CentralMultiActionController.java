@@ -49,11 +49,13 @@ public class CentralMultiActionController extends MultiActionController {
         String service = (String) session.getAttribute("serviceUrl");
         String registrationCode = (String) session.getAttribute("registrationCode");
 
-        System.out.println("is password expired? " + infusionsoftPasswordService.isPasswordExpired(user));
-
         if (infusionsoftPasswordService.isPasswordExpired(user)) {
+            log.info("user " + user.getId() + " has an expired password! let's make them reset it");
+
             return new ModelAndView("redirect:passwordExpired");
         } else if (StringUtils.isNotEmpty(registrationCode)) {
+            log.info("new user! registration code is " + registrationCode);
+
             try {
                 UserAccount account = infusionsoftDataService.associatePendingAccountToUser(user, registrationCode);
 
@@ -65,27 +67,29 @@ public class CentralMultiActionController extends MultiActionController {
                 log.error("failed to associate new user to registration code " + registrationCode, e);
             }
         } else if (StringUtils.isNotEmpty(service)) {
-            System.out.println("******* service is " + service + ", associated? " + infusionsoftAuthenticationService.isAppAssociated(user, new URL(service)));
+            String appName = infusionsoftAuthenticationService.guessAppName(new URL(service));
+            String appType = infusionsoftAuthenticationService.guessAppType(new URL(service));
+
             if (infusionsoftAuthenticationService.isAppAssociated(user, new URL(service))) {
+                log.info("user " + user.getId() + " is already associated with app:" + service);
+                log.info("redirecting to " + appName + "/" + appType);
+
+                session.removeAttribute("serviceUrl"); // to prevent stale tickets being reused
+
                 return new ModelAndView("redirect:" + service);
+            } else if (appName != null && appType != null) {
+                log.info("user " + user.getId() + " was referred from an unassociated app: " + service);
+
+                Map<String, Object> model = new HashMap<String, Object>();
+
+                model.put("appName", appName);
+                model.put("appType", appType);
+
+                return new ModelAndView("redirect:linkReferer", model);
             } else {
-                String appName = infusionsoftAuthenticationService.guessAppName(new URL(service));
-                String appType = infusionsoftAuthenticationService.guessAppType(new URL(service));
+                log.info("user " + user.getId() + " will be redirected to the home page");
 
-                System.out.println("**** appName = " + appName + ", appType = " + appType);
-
-                if (appName != null && appType != null) {
-                    log.info("user " + user.getId() + " was referred from an unassociated app: " + service);
-
-                    Map<String, Object> model = new HashMap<String, Object>();
-
-                    model.put("appName", appName);
-                    model.put("appType", appType);
-
-                    return new ModelAndView("redirect:linkReferer", model);
-                } else {
-                    return new ModelAndView("redirect:home");
-                }
+                return new ModelAndView("redirect:home");
             }
         }
 
@@ -112,12 +116,8 @@ public class CentralMultiActionController extends MultiActionController {
 
             return new ModelAndView("infusionsoft/ui/central/home", model);
         } else {
-            log.warn("anonymous user visited Infusionsoft Central; redirecting...");
+            log.warn("anonymous user visited Infusionsoft Central; logging them out to be safe");
 
-            // TODO - this was causing a redirect loop; why did I put it in here?
-//            model.put("service", request.getContextPath() + "/login");
-
-            // TODO - is it good to invalidate the session here?
             request.getSession(true).invalidate();
 
             return new ModelAndView("redirect:/logout", model);

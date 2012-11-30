@@ -65,7 +65,6 @@ public class InfusionsoftAuthenticationService {
      * Builds a URL for redirecting users to an app.
      */
     public String buildAppUrl(String appType, String appName) {
-        // TODO - parameterize protocol, port, etc...
         if (appType.equals("crm")) {
             return crmProtocol + "://" + appName + "." + crmDomain + ":" + crmPort;
         } else if (appType.equals("community")) {
@@ -82,42 +81,44 @@ public class InfusionsoftAuthenticationService {
      * Guesses an app name from a URL, or null if there isn't one to be found.
      */
     public String guessAppName(URL url) {
+        String appName = null;
         String host = url.getHost().toLowerCase();
 
-        log.debug("attempting to guess app name for url " + url);
-
         if (url.toString().startsWith(serverPrefix)) {
-            return null; // it's us!
+            // it's us!
         } else if (host.equals("community." + communityDomain)) {
-            return host.replace("." + communityDomain, "");
+            appName = host.replace("." + communityDomain, "");
         } else if (host.endsWith(crmDomain)) {
-            return host.replace("." + crmDomain, "");
+            appName = host.replace("." + crmDomain, "");
         } else if (host.endsWith(customerHubDomain)) {
-            return host.replace("." + customerHubDomain, "");
-        } else {
-            return null;
+            appName = host.replace("." + customerHubDomain, "");
         }
+
+        log.debug("app name is " + appName);
+
+        return appName;
     }
 
     /**
      * Guesses an app name from a URL, or null if there isn't one to be found.
      */
     public String guessAppType(URL url) {
+        String appType = null;
         String host = url.getHost().toLowerCase();
 
-        log.debug("attempting to guess app type for url " + url);
-
         if (url.toString().startsWith(serverPrefix)) {
-            return null; // it's us!
+            // it's us!
         } else if (host.equals("community." + communityDomain)) {
-            return "community";
+            appType = "community";
         } else if (host.endsWith(crmDomain)) {
-            return "crm";
+            appType = "crm";
         } else if (host.endsWith(customerHubDomain)) {
-            return "customerhub";
-        } else {
-            return null;
+            appType = "customerhub";
         }
+
+        log.debug("app type is " + appType);
+
+        return appType;
     }
 
     /**

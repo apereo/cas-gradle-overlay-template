@@ -204,7 +204,7 @@
         <property name="ticketIdGenerator" ref="loginTicketUniqueIdGenerator"/>
         <property name="forumBase" value="${infusionsoft.community.baseurl}"/>
         <property name="forumApiKey" value="${infusionsoft.community.apikey}"/>
-        <property name="serverPrefix" value="${server.prefix}/cas"/>
+        <property name="serverPrefix" value="${server.prefix}"/>
         <property name="crmDomain" value="${infusionsoft.crm.domain}"/>
         <property name="crmProtocol" value="${infusionsoft.crm.protocol}"/>
         <property name="crmPort" value="${infusionsoft.crm.port}"/>

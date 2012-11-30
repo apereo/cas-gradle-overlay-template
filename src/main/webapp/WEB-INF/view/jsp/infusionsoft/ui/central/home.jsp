@@ -23,6 +23,14 @@
             // silly nested propagation issues.
         	document.location.href = $(this).attr("href");
         });
+
+        $(".quick-editable").each(function() {
+            $(this).click(function(event) {
+                event.stopPropagation();
+
+                editAlias($(this).attr("accountId"));
+            });
+        });
     });
 
     function editAlias(userAccountId) {
@@ -97,7 +105,7 @@
                         <div href="${crmProtocol}://${account.appName}.${crmDomain}:${crmPort}" class="account crm-account">
                             <div class="account-info">
                                 <div id="account_${account.id}" class="account-title">
-                                    <span id="quick-editable-${account.id}" class="quick-editable" onclick="return editAlias(${account.id})">${empty account.alias ? account.appName : account.alias}</span>
+                                    <span id="quick-editable-${account.id}" accountId="${account.id}" class="quick-editable">${empty account.alias ? account.appName : account.alias}</span>
                                 </div>
                                 <div class="account-detail">Infusionsoft App</div>
                                 <div class="account-detail">${account.appName}.${crmDomain}</div>
@@ -117,7 +125,7 @@
                         <div href="https://${account.appName}.${customerHubDomain}" class="account customerhub-account">
                             <div class="account-info">
                                 <div id="account_${account.id}" class="account-title">
-                                    <span id="quick-editable-${account.id}" class="quick-editable" onclick="return editAlias(${account.id})">${empty account.alias ? account.appName : account.alias}</span>
+                                    <span id="quick-editable-${account.id}" accountId="${account.id}" class="quick-editable">${empty account.alias ? account.appName : account.alias}</span>
                                 </div>
                                 <div class="account-detail">CustomerHub App</div>
                                 <div class="account-detail">${account.appName}.${customerHubDomain}</div>
