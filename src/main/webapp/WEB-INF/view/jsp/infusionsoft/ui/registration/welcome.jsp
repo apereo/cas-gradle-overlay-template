@@ -35,15 +35,15 @@
 </style>
 
 <div class="modal-title">
-    Welcome!<br/>
-    Please Create Your Infusionsoft ID
+    Step 1: Create Your Infusionsoft ID
 </div>
 
 <div id="register">
     <c:url var="loginUrl" value="/login"/>
 
     <div class="alert alert-info">
-        Already have an Infusionsoft ID? <a href="${loginUrl}">Sign in</a> to link this app to your ID.
+        Already created your Infusionsoft ID? <a href="${loginUrl}">Sign in</a> to connect this account to your
+        Infusionsoft ID.
     </div>
 
     <form id="registerForm" action="register" method="post" class="form-vertical">

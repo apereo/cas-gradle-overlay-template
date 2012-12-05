@@ -65,7 +65,7 @@
     </h2>
 
     <p>
-        Edit the information that you use to sign into all of your apps.
+        Edit the information that you use to sign into all of your accounts.
     </p>
 
     <form id="editProfileForm" action="updateProfile" method="post" class="form-horizontal" onsubmit="return submitUpdates()">
@@ -113,7 +113,7 @@
 
         <div class="buttonbar">
             <input type="submit" value="Save" class="btn btn-primary"/>
-            <a class="btn" href="${homeLink}">Cancel</a>
+            <a class="btn" href="${centralUrl}">Cancel</a>
         </div>
     </form>
 </div>

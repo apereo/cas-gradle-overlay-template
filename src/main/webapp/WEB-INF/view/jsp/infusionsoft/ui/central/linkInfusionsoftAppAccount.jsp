@@ -28,7 +28,7 @@
 
 <div id="main">
     <h2 class="apps">
-        Link an Infusionsoft App
+        Link an Infusionsoft Account
     </h2>
 
     <c:if test="${error != null}">
@@ -38,7 +38,8 @@
     </c:if>
 
     <p>
-        Enter the username and password you were using before you created your Infusionsoft ID to link  your app.
+        Connect an existing account to your Infusionsoft ID! Enter the username and password you were using before
+        you created your Infusionsoft ID.
     </p>
 
     <form id="associateForm" action="associate" method="post" class="form-horizontal">
@@ -67,7 +68,7 @@
         </fieldset>
 
         <div class="buttonbar">
-            <input type="submit" value="Link App" class="btn btn-primary"/>
+            <input type="submit" value="Link Account" class="btn btn-primary"/>
             <a href="${centralUrl}" class="btn">Cancel</a>
         </div>
     </form>

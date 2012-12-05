@@ -24,7 +24,7 @@
 </style>
 
 <div class="modal-title">
-    Almost done!
+    Step 2: Connect this account with your Infusionsoft ID
 </div>
 <div id="verification">
     <c:if test="${error != null}">
@@ -34,11 +34,7 @@
     </c:if>
 
     <p>
-        We need to verify you are a user of ${appDomain}.
-    </p>
-    <p>
-        Just this once, please enter your old
-        username and password for ${appDomain}.
+        Please verify you are a user of ${appDomain}. Enter your old username and password for this account below.
     </p>
     <form action="verify" method="post" id="verificationForm" cssClass="form-vertical">
         <div class="control-group">

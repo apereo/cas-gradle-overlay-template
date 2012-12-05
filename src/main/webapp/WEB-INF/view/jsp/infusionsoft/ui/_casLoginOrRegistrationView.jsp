@@ -110,21 +110,16 @@
                 <h1>Easier Access with One Email, One Password.</h1>
                 <p>
                     It’s now easier to access all aspects of Infusionsoft with one email address and password!
-                    Eliminate the hassle of multiple usernames and passwords for your Infusionsoft app(s),
-                    Marketplace, CustomerHub, and community forums. Instead of logging in with your username(s),
-                    now simply use your email address.
-                </p>
-                <p>
-                    Update your login now.
+                    Eliminate the hassle of multiple usernames and passwords for your Infusionsoft account(s),
+                    CustomerHub, and community forums.
                 </p>
                 <p>
                     Not ready today? No rush. We'll count down the days you have left to switch.
-                    <a href="http://www.infusionsoft.com/infusionsoft-id">Learn more.</a>
                 </p>
 
                 <div class="button-bar">
                     <c:url var="registrationUrl" value="/registration/welcome"/>
-                    <span class="button-well"><a href="${registrationUrl}" class="btn" style="padding-left: 20px; padding-right: 20px; font-size: 13px">Update My Login Now</a></span>
+                    <span class="button-well"><a href="${registrationUrl}" class="btn" style="padding-left: 20px; padding-right: 20px; font-size: 13px">Create My Infusionsoft ID</a></span>
                     <c:if test="${not empty sessionScope.refererUrl && daysRemaining > 0}">
                         <a href="${sessionScope.refererUrl}/app/authentication/login">No thanks. I'll sign in the old way.</a>
                     </c:if>

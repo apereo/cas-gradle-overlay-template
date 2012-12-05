@@ -16,7 +16,7 @@
 
 <div id="main">
     <h2 class="apps">
-        Link a CustomerHub App
+        Link a CustomerHub Account
     </h2>
 
     <c:if test="${error != null}">
@@ -25,38 +25,38 @@
         </div>
     </c:if>
 
-    <form id="associateForm" action="associate" method="post">
+    <form id="associateForm" action="associate" method="post" class="form-horizontal">
         <input name="appType" type="hidden" value="customerhub"/>
         <input name="user" type="hidden" value="${user.id}"/>
 
         <p>
-            Enter the username and password you were using before you created your Infusionsoft ID to link your app.
+            Connect a CustomerHub account to your Infusionsoft ID!
+            Just this once, enter the old username and password you were using before you created your Infusionsoft ID.
         </p>
 
-        <table class="form" cellpadding="0" cellspacing="0">
-            <tr>
-                <th style="width: 100px">App URL</th>
-                <td>
-                    <input name="appName" type="text" value="${fn:escapeXml(appName)}"/>.customerhub.net
-                </td>
-            </tr>
-            <tr>
-                <th>Username</th>
-                <td>
-                    <input name="appUsername" type="text" value="${fn:escapeXml(appUsername)}" style="width: 300px"/>
-                </td>
-            </tr>
-            <tr>
-                <th>Password</th>
-                <td>
-                    <input name="appPassword" type="password" value="" style="width: 300px"/>
-                </td>
-            </tr>
-
-        </table>
+        <fieldset>
+            <div class="control-group">
+                <label for="appName" class="control-label">App URL</label>
+                <div class="controls">
+                    <input id="appName" name="appName" type="text" value="${fn:escapeXml(appName)}"/>.${customerHubDomain}
+                </div>
+            </div>
+            <div class="control-group">
+                <label for="appUsername" class="control-label">Username</label>
+                <div class="controls">
+                    <input id="appUsername" name="appUsername" type="text" value="${fn:escapeXml(appUsername)}" style="width: 300px"/>
+                </div>
+            </div>
+            <div class="control-group">
+                <label for="appPassword" class="control-label">Password</label>
+                <div class="controls">
+                    <input id="appPassword" name="appPassword" type="password" value="" style="width: 300px"/>
+                </div>
+            </div>
+        </fieldset>
 
         <div class="buttonbar">
-            <input type="submit" value="Link App" class="btn btn-primary"/>
+            <input type="submit" value="Link Account" class="btn btn-primary"/>
             <a href="${centralUrl}" class="btn">Cancel</a>
         </div>
     </form>

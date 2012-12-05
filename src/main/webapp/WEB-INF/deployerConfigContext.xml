@@ -243,6 +243,19 @@
         <property name="subject" value="Important message from Infusionsoft"/>
     </bean>
 
+	<bean id="garbageMan" class="com.infusionsoft.cas.support.GarbageMan"
+          p:hibernateTemplate-ref="hibernateTemplate"
+          p:loginAttemptMaxAge="86400000"/>
+	
+	<bean id="jobDetailGarbageMan" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean"
+		p:targetObject-ref="garbageMan"
+		p:targetMethod="cleanup" />
+	
+	<bean id="triggerJobDetailGarbageMan" class="org.springframework.scheduling.quartz.SimpleTriggerBean"
+		p:jobDetail-ref="jobDetailGarbageMan"
+		p:startDelay="1800000"
+		p:repeatInterval="1800000" />
+
     <tx:advice id="transactionAdvice" transaction-manager="hibernateTransactionManager">
         <tx:attributes>
             <tx:method name="get*" read-only="true"/>

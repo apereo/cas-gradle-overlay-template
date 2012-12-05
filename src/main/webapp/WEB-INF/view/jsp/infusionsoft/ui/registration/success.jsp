@@ -49,16 +49,16 @@
     </div>
     <br/>
     <p>
-        This is your Infusionsoft ID. Remember to use your email and
-        password when you log in.
+        You've successfully created your Infusionsoft ID. From now on you'll be able to access all aspects of
+        Infusionsoft with this email address and password.
     </p>
 
     <div style="text-align: right; margin-top: 15px">
         <c:if test="${not empty appUrl}">
-            <a class="btn btn-primary" href="${appUrl}">Go To Your App</a>
+            <a class="btn btn-primary" href="${appUrl}">Go To My Account</a>
         </c:if>
         <c:if test="${empty appUrl}">
-            <a class="btn btn-primary" href="${centralUrl}">Go To Your App</a>
+            <a class="btn btn-primary" href="${centralUrl}">Go To My Account</a>
         </c:if>
     </div>
 </div>

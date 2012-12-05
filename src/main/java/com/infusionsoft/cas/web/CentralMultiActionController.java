@@ -135,7 +135,7 @@ public class CentralMultiActionController extends MultiActionController {
      * Displays the form to link up an existing CustomerHub account.
      */
     public ModelAndView linkCustomerHubAccount(HttpServletRequest request, HttpServletResponse response) {
-        return new ModelAndView("infusionsoft/ui/central/linkCustomerHubAccount");
+        return new ModelAndView("infusionsoft/ui/central/linkCustomerHubAccount", "customerHubDomain", infusionsoftAuthenticationService.getCustomerHubDomain());
     }
 
     /**

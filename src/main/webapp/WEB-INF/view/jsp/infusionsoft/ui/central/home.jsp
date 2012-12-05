@@ -81,14 +81,14 @@
         </h2>
         <div class="btn-group" style="float: right">
             <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
-                Link an App
+                Connect an Account
                 <span class="caret"></span>
             </a>
             <ul class="dropdown-menu">
-                <li><a href="${linkInfusionsoftAppAccount}">Link an Infusionsoft App</a></li>
-                <li><a href="${linkCustomerHubAccount}">Link a CustomerHub App</a></li>
+                <li><a href="${linkInfusionsoftAppAccount}">Connect an Infusionsoft Account</a></li>
+                <li><a href="${linkCustomerHubAccount}">Connect a CustomerHub Account</a></li>
                 <c:if test="${!hasCommunityAccount}">
-                    <li><a href="${linkCommunityAccount}">Link a Community Profile</a></li>
+                    <li><a href="${linkCommunityAccount}">Connect a Community Profile</a></li>
                     <li class="divider"></li>
                     <li><a href="${createCommunityAccount}">Create a Community Profile</a></li>
                 </c:if>
@@ -107,7 +107,7 @@
                                 <div id="account_${account.id}" class="account-title">
                                     <span id="quick-editable-${account.id}" accountId="${account.id}" class="quick-editable">${empty account.alias ? account.appName : account.alias}</span>
                                 </div>
-                                <div class="account-detail">Infusionsoft App</div>
+                                <div class="account-detail">Infusionsoft Account</div>
                                 <div class="account-detail">${account.appName}.${crmDomain}</div>
                             </div>
                         </div>

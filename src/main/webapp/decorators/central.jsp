@@ -38,7 +38,7 @@
                         </c:otherwise>
                     </c:choose>
                 </div>
-                <span id="title">App Central</span>
+                <span id="title">Account Central</span>
             </div>
         </div>
         <div id="navbg">
@@ -46,7 +46,7 @@
                 <ul>
                     <c:url var="homeLink" value="/central/home"/>
                     <c:url var="editProfileLink" value="/central/editProfile"/>
-                    <li><a href="${homeLink}" class="${homeLinkSelected}">YOUR APPS</a></li>
+                    <li><a href="${homeLink}" class="${homeLinkSelected}">YOUR ACCOUNTS</a></li>
                     <li><a href="${editProfileLink}" class="${editProfileLinkSelected}">EDIT YOUR ID</a></li>
                 </ul>
             </div>
