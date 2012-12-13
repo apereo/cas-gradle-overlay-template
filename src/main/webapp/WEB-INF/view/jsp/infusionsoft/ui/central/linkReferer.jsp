@@ -46,13 +46,13 @@
         <input type="hidden" name="appType" value="${appType}"/>
         <input type="hidden" name="destination" value="app"/>
 
-        <h2>Verify That You Are A User Of This App</h2>
+        <h2>Verify Account</h2>
 
         <p>
             We need to verify you are a user of ${appDomain}.
         </p>
         <p>
-            Just this once, please enter your old
+            Just this once, please enter your
             username and password for ${appDomain}.
         </p>
 

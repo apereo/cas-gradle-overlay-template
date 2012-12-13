@@ -146,6 +146,18 @@ public class CentralMultiActionController extends MultiActionController {
     }
 
     /**
+     * Unlinks an account.
+     */
+    public ModelAndView unlinkAccount(HttpServletRequest request, HttpServletResponse response) {
+        User user = infusionsoftAuthenticationService.getCurrentUser(request);
+        UserAccount account = infusionsoftDataService.findUserAccount(user, Long.parseLong(request.getParameter("account")));
+
+        infusionsoftDataService.disassociateAccount(account);
+
+        return new ModelAndView("redirect:/central/home");
+    }
+
+    /**
      * Displays a short form to get legacy app credentials before linking up the referring app.
      */
     public ModelAndView linkReferer(HttpServletRequest request, HttpServletResponse response) {

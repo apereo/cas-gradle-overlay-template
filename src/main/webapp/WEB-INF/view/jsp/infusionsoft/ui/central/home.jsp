@@ -11,6 +11,7 @@
 <c:url var="linkInfusionsoftAppAccount" value="/central/linkInfusionsoftAppAccount"/>
 <c:url var="linkCustomerHubAccount" value="/central/linkCustomerHubAccount"/>
 <c:url var="linkCommunityAccount" value="/central/linkCommunityAccount"/>
+<c:url var="unlinkAccount" value="/central/unlinkAccount"/>
 <c:url var="createCommunityAccount" value="/central/createCommunityAccount"/>
 <c:url var="editCommunityAccount" value="/central/editCommunityAccount"/>
 <c:url var="renameAccount" value="/central/renameAccount"/>
@@ -18,6 +19,32 @@
 <script type="text/javascript">
 
     $(document).ready(function() {
+        $(".account").hover(
+            function() {
+                $(this).find(".account-delete").show();
+            },
+            function() {
+                $(this).find(".account-delete").hide();
+            }
+        );
+
+        $(".account .account-delete").click(function(event) {
+            event.stopPropagation();
+
+            if (confirm("Unlink this account from your Infusionsoft ID?")) {
+                var accountId = $(this).parents(".account").attr("accountId");
+
+                $.ajax({
+                    url: "${unlinkAccount}",
+                    type: "POST",
+                    data: { account: accountId },
+                    success: function(response) {
+                        $(".account[accountId=" + accountId + "]").remove();
+                    }
+                });
+            }
+        });
+
         $(".account").click(function() {
             // Yes that's right, a div with an href, to avoid 
             // silly nested propagation issues.
@@ -77,7 +104,7 @@
 <div id="main">
     <div class="titlebar">
         <h2 class="apps" style="float: left">
-            Your Apps
+            Your Accounts
         </h2>
         <div class="btn-group" style="float: right">
             <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
@@ -102,7 +129,8 @@
             <c:forEach var="account" items="${accounts}">
                 <c:choose>
                     <c:when test="${account.appType == 'crm'}">
-                        <div href="${crmProtocol}://${account.appName}.${crmDomain}:${crmPort}" class="account crm-account">
+                        <div accountId="${account.id}" href="${crmProtocol}://${account.appName}.${crmDomain}:${crmPort}" class="account crm-account">
+                            <div class="account-delete">&times;</div>
                             <div class="account-info">
                                 <div id="account_${account.id}" class="account-title">
                                     <span id="quick-editable-${account.id}" accountId="${account.id}" class="quick-editable">${empty account.alias ? account.appName : account.alias}</span>
@@ -113,16 +141,18 @@
                         </div>
                     </c:when>
                     <c:when test="${account.appType == 'community'}">
-                        <div href="http://community.infusionsoft.com" class="account forum-account">
+                        <div accountId="${account.id}" href="http://community.${communityDomain}" class="account forum-account">
+                            <div class="account-delete">&times;</div>
                             <div class="account-info">
                                 <div class="account-title">Infusionsoft Community</div>
-                                <div class="account-detail">Display Name: ${account.appUsername} | <a href="${editCommunityAccount}?id=${account.id}">Edit</a></div>
+                                <div class="account-detail">Display Name: ${account.appUsername}</div>
                                 <div class="account-detail">community.${communityDomain}</div>
                             </div>
                         </div>
                     </c:when>
                     <c:otherwise>
-                        <div href="https://${account.appName}.${customerHubDomain}" class="account customerhub-account">
+                        <div accountId="${account.id}" href="https://${account.appName}.${customerHubDomain}" class="account customerhub-account">
+                            <div class="account-delete">&times;</div>
                             <div class="account-info">
                                 <div id="account_${account.id}" class="account-title">
                                     <span id="quick-editable-${account.id}" accountId="${account.id}" class="quick-editable">${empty account.alias ? account.appName : account.alias}</span>

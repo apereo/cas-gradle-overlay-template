@@ -176,6 +176,22 @@ public class InfusionsoftDataService {
     }
 
     /**
+     * Disassociates an account (deletes it).
+     */
+    public void disassociateAccount(UserAccount account) {
+        CommunityAccountDetails details = findCommunityAccountDetails(account);
+
+        if (details != null) {
+            hibernateTemplate.delete(details);
+        }
+
+        account.getUser().getAccounts().remove(account);
+
+        hibernateTemplate.update(account.getUser());
+        hibernateTemplate.delete(account);
+    }
+
+    /**
      * Finds a pending user account by its unique registration code.
      */
     public PendingUserAccount findPendingUserAccount(String registrationCode) {

@@ -287,17 +287,10 @@ public class InfusionsoftAuthenticationService {
 
             log.info("preparing REST call to " + forumBase);
 
-            // TODO - re-enable this
-            // TODO - shouldn't be a get, use POST here...
             String md5password = DigestUtils.md5Hex(appPassword);
-            Map<String, String> userinfo = new HashMap<String, String>();
+            String result = restTemplate.getForObject("{base}/rest.php/user/isvaliduser?key={apiKey}&username={appUsername}&md5password={md5password}", String.class, forumBase, forumApiKey, appUsername, md5password);
 
-            userinfo.put("username", appUsername);
-            userinfo.put("password", appPassword);
-
-            String result = restTemplate.postForObject("{base}/rest.php/user/isvaliduser?key={apiKey}", userinfo, String.class, forumBase, forumApiKey);
-
-            log.debug("REST response: " + result);
+            log.debug("REST response from community: " + result);
 
             JSONObject returnValue = (JSONObject) JSONValue.parse(result);
             Boolean returnValid = (Boolean) returnValue.get("valid");
@@ -322,26 +315,23 @@ public class InfusionsoftAuthenticationService {
 
         log.info("preparing REST call to " + forumBase);
 
-        // TODO - re-enable this
-        // TODO - shouldn't be a get, use POST here...
-        //String result = restTemplate.getForObject("{base}/rest.php/user/addnewuser/{username}/{email}?key={apiKey}", String.class, forumBase, details.getDisplayName(), details.getNotificationEmailAddress(), forumApiKey);
+        // TODO - retarded Restler won't read our params from the POST body, so we put them on the query string for now
+        String username = details.getDisplayName();
+        String email = StringUtils.isNotEmpty(details.getNotificationEmailAddress()) ? details.getNotificationEmailAddress() : user.getUsername();
+        String response = restTemplate.postForObject("{base}/rest.php/user/addnewuser?key={apiKey}&username={username}&email={email}&experience={experience}&twitter={twitter}&timezone={timezone}", "", String.class, forumBase, forumApiKey, username, email, details.getInfusionsoftExperience(), details.getTwitterHandle(), details.getTimeZone());
+        JSONObject responseJson = (JSONObject) JSONValue.parse(response);
+        Boolean hasError = (Boolean) responseJson.get("error");
 
-        //log.debug("REST response: " + result);
+        if (hasError) {
+            throw new UsernameTakenException("the display name [" + details.getDisplayName() + "] is already taken");
+        }
 
-        //JSONObject returnValue = (JSONObject) JSONValue.parse(result);
-        //Boolean hasError = (Boolean) returnValue.get("error");
-
-        //if (hasError) {
-        //    throw new UsernameTakenException("the display name [" + forumDisplayName + "] is already taken");
-        //} else {
-//            return associateAccountToUser(user, "community", "Infusionsoft Community", String.valueOf(returnValue.get("username")));
-        //}
-
-        UserAccount account = infusionsoftDataService.associateAccountToUser(user, "community", "Infusionsoft Community", details.getDisplayName());
+        UserAccount account = infusionsoftDataService.associateAccountToUser(user, "community", "Infusionsoft Community", String.valueOf(details.getDisplayName()));
 
         details.setUserAccount(account);
-
         hibernateTemplate.save(details);
+
+        log.info("saved community account details for account " + account.getId());
 
         return account;
     }

@@ -310,6 +310,7 @@ label {
     color: #333;
     cursor: hand;
     cursor: pointer;
+    position: relative;
 }
 
 .accounts .account:first-child {
@@ -352,6 +353,23 @@ label {
 .accounts .account-detail {
     font-size: 14px;
     line-height: 20px;
+}
+
+.accounts .account-delete {
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    border-right: 1px solid #DDD;
+    border-bottom: 1px solid #DDD;
+    background: #DDD;
+    color: #FFF;
+    text-align: center;
+    line-height: 16px;
+    display: none;
+}
+
+.accounts .account-delete:hover {
+    background: #CCC;
 }
 
 .alert-info {
