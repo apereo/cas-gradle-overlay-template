@@ -68,7 +68,7 @@ public class InfusionsoftAuthenticationService {
         if (appType.equals("crm")) {
             return crmProtocol + "://" + appName + "." + crmDomain + ":" + crmPort;
         } else if (appType.equals("community")) {
-            return "http://" + appName + "." + communityDomain;
+            return "http://" + appName + "." + communityDomain + "/caslogin.php";
         } else if (appType.equals("customerhub")) {
             return "https://" + appName + "." + customerHubDomain;
         } else {

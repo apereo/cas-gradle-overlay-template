@@ -179,6 +179,7 @@ public class InfusionsoftDataService {
      * Disassociates an account (deletes it).
      */
     public void disassociateAccount(UserAccount account) {
+        log.info("disassociating user account " + account.getId());
         CommunityAccountDetails details = findCommunityAccountDetails(account);
 
         if (details != null) {
