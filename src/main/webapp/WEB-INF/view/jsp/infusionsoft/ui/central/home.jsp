@@ -171,7 +171,7 @@
 <div id="quick-editor">
     <form action="${renameAccount}" class="form-vertical" onsubmit="return updateAlias()">
         <fieldset>
-            <label for="alias" class="form-label">App Alias</label>
+            <label for="alias" class="form-label">Account Alias</label>
             <div class="controls">
                 <input type="hidden" name="account" id="account"/>
                 <input type="text" name="alias" id="alias" style="width: 200px"/>
