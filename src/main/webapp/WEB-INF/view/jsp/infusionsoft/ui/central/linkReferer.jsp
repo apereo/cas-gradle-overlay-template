@@ -10,6 +10,7 @@
 <meta name="decorator" content="anonymous"/>
 
 <c:url var="associateUrl" value="/central/associate"/>
+<c:url var="homeUrl" value="/central/home"/>
 
 <style type="text/css">
 
@@ -42,6 +43,7 @@
     </c:if>
 
     <form action="${associateUrl}" method="post" id="fm1" class="form-vertical">
+        <input type="hidden" name="linkReferer" value="true"/>
         <input type="hidden" name="appName" value="${appName}"/>
         <input type="hidden" name="appType" value="${appType}"/>
         <input type="hidden" name="destination" value="app"/>
@@ -73,6 +75,7 @@
 
         <div class="control-group" style="text-align: right">
             <input class="btn btn-primary" name="submit" accesskey="l" value="Verify" tabindex="4" type="submit" />
+            <a href="${homeUrl}" class="btn">Cancel</a>
         </div>
     </form>
 </div>

@@ -239,7 +239,7 @@ public class CentralMultiActionController extends MultiActionController {
             }
 
             if (StringUtils.isEmpty(appUsername)) {
-                model.put("error", "registration.error.invalidUsername");
+                model.put("error", "registration.error.invalidAppUsername");
             } else if (StringUtils.isEmpty(appPassword)) {
                 model.put("error", "registration.error.invalidPassword");
             } else if (infusionsoftAuthenticationService.verifyAppCredentials(appType, appName, appUsername, appPassword)) {
@@ -257,7 +257,13 @@ public class CentralMultiActionController extends MultiActionController {
         }
 
         if (model.containsKey("error")) {
-            if (appType.equals("crm")) {
+            if (request.getParameter("linkReferer") != null) {
+                model.put("appName", request.getParameter("appName"));
+                model.put("appType", request.getParameter("appType"));
+                model.put("appDomain", request.getParameter("appName") + "." + infusionsoftAuthenticationService.getCrmDomain());
+
+                return new ModelAndView("infusionsoft/ui/central/linkReferer", model);
+            } else if (appType.equals("crm")) {
                 model.put("crmDomain", infusionsoftAuthenticationService.getCrmDomain());
 
                 return new ModelAndView("infusionsoft/ui/central/linkInfusionsoftAppAccount", model);
