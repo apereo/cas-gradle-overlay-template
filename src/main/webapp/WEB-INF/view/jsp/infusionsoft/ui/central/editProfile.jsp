@@ -29,6 +29,7 @@
 
     function confirmCurrentPassword() {
         var currentPassword = $("#currentPasswordVisible").val();
+        var confirmed = false;
 
         $.ajax("${verifyExistingPasswordUrl}", {
             type: "POST",
@@ -128,7 +129,7 @@
             You've entered an incorrect password. For security reasons, you have <span id="remainingTries">a few</span>
             more tries before your account is locked.
         </div>
-        <form class="form-vertical" onsubmit="return confirmCurrentPassword()">
+        <form id="confirmCurrentPasswordForm" class="form-vertical" onsubmit="return confirmCurrentPassword()">
             <fieldset>
                 <label class="control-label" for="currentPasswordVisible">Current Password</label>
                 <div class="controls">
@@ -138,6 +139,6 @@
         </form>
     </div>
     <div class="modal-footer">
-        <a href="javascript:confirmCurrentPassword()" class="btn btn-primary">Confirm</a>
+        <a href="javascript:$('#confirmCurrentPasswordForm').submit()" class="btn btn-primary">Confirm</a>
     </div>
 </div>

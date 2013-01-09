@@ -8,6 +8,7 @@ html, body {
 
 body {
     font: 12px Arial, Helvetica, Verdana, sans-serif;
+    line-height: 18px;
 }
 
 acronym {
