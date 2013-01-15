@@ -284,6 +284,12 @@
             <artifactId>spring-security-web</artifactId>
             <version>3.0.5.RELEASE</version>
         </dependency>
+
+        <dependency>
+            <groupId>org.apache.velocity</groupId>
+            <artifactId>velocity</artifactId>
+            <version>1.7</version>
+        </dependency>
     </dependencies>
 
 </project>

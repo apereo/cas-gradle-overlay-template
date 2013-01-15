@@ -28,7 +28,7 @@
         width: 266px;
     }
 
-    #back-to-signin {
+    #forgot-password {
         width: 336px;
         margin: 5px auto;
     }
@@ -79,3 +79,9 @@
         </div>
     </form>
 </div>
+
+<c:if test="${appType == 'crm'}">
+    <div id="forgot-password">
+        <a href="https://${appDomain}/app/forgotPassword/enterEmail">Forgot your password on ${appDomain}?</a>
+    </div>
+</c:if>
