@@ -17,8 +17,9 @@ import javax.validation.constraints.NotNull;
 public class UserPassword implements Serializable {
 	private Long id;
 	private User user;
-	private String passwordEncoded;
-	private Date dateCreated;
+    private String passwordEncoded;
+    private String passwordEncodedMD5;
+    private Date dateCreated;
 	private boolean active = false;
 
 	@Id
@@ -40,15 +41,24 @@ public class UserPassword implements Serializable {
 		this.user = user;
 	}
 
-	@Column(name = "password_encoded", length = 255)
-	@NotNull
-	public String getPasswordEncoded() {
-		return passwordEncoded;
-	}
+    @Column(name = "password_encoded", length = 255)
+    @NotNull
+    public String getPasswordEncoded() {
+        return passwordEncoded;
+    }
 
-	public void setPasswordEncoded(String passwordEncoded) {
-		this.passwordEncoded = passwordEncoded;
-	}
+    public void setPasswordEncoded(String passwordEncoded) {
+        this.passwordEncoded = passwordEncoded;
+    }
+
+    @Column(name = "password_encoded_md5", length = 255)
+    public String getPasswordEncodedMD5() {
+        return passwordEncodedMD5;
+    }
+
+    public void setPasswordEncodedMD5(String passwordEncodedMD5) {
+        this.passwordEncodedMD5 = passwordEncodedMD5;
+    }
 
 	@Column(name = "date_created")
 	@NotNull

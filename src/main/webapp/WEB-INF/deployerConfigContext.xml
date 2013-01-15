@@ -225,7 +225,18 @@
 
     <bean id="infusionsoftMailService" class="com.infusionsoft.cas.services.InfusionsoftMailService">
         <property name="mailSender" ref="mailSender"/>
+        <property name="serverPrefix" value="${server.prefix}"/>
         <property name="templateMessage" ref="templateMessage"/>
+        <property name="velocityEngine" ref="velocityEngine"/>
+    </bean>
+
+    <bean id="velocityEngine" class="org.springframework.ui.velocity.VelocityEngineFactoryBean">
+        <property name="velocityProperties">
+            <props>
+                <prop key="resource.loader">classpath</prop>
+                <prop key="classpath.resource.loader.class">org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader</prop>
+            </props>
+        </property>
     </bean>
 
     <bean id="userFilter" name="userFilter" class="com.infusionsoft.cas.web.UserFilter"

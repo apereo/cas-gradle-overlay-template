@@ -124,6 +124,8 @@ public class RegistrationMultiActionController extends MultiActionController {
                         log.error("failed to associate new user to registration code " + registrationCode, e);
                     }
                 }
+
+                infusionsoftMailService.sendWelcomeEmail(user);
             }
         } catch (Exception e) {
             log.error("failed to create user account", e);

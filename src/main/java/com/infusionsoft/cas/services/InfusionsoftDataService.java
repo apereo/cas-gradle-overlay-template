@@ -1,10 +1,7 @@
 package com.infusionsoft.cas.services;
 
 import com.infusionsoft.cas.exceptions.CASMappingException;
-import com.infusionsoft.cas.types.CommunityAccountDetails;
-import com.infusionsoft.cas.types.PendingUserAccount;
-import com.infusionsoft.cas.types.User;
-import com.infusionsoft.cas.types.UserAccount;
+import com.infusionsoft.cas.types.*;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.orm.hibernate3.HibernateTemplate;
@@ -200,6 +197,19 @@ public class InfusionsoftDataService {
 
         if (accounts.size() > 0) {
             return accounts.get(0);
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * Finds a user by username and (already MD5-encrypted) password.
+     */
+    public User findUser(String username, String md5password) {
+        List<UserPassword> passwords = hibernateTemplate.find("from UserPassword p where p.user.username = ? and p.passwordEncodedMD5 = ? and p.active = true", username, md5password);
+
+        if (passwords.size() > 0) {
+            return passwords.get(0).getUser();
         } else {
             return null;
         }

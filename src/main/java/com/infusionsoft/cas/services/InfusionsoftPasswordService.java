@@ -2,6 +2,7 @@ package com.infusionsoft.cas.services;
 
 import com.infusionsoft.cas.types.User;
 import com.infusionsoft.cas.types.UserPassword;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.jasig.cas.authentication.handler.PasswordEncoder;
@@ -84,6 +85,7 @@ public class InfusionsoftPasswordService {
 
         userPassword.setUser(user);
         userPassword.setPasswordEncoded(passwordEncoder.encode(password));
+        userPassword.setPasswordEncodedMD5(DigestUtils.md5Hex(password));
         userPassword.setDateCreated(new Date());
         userPassword.setActive(true);
 

@@ -1,0 +1,18 @@
+<p>
+    Congratulations! You have successfully created your Infusionsoft ID.
+</p>
+<p>
+    From now on, always use your Infusionsoft ID to access your Infusionsoft account. Eliminate the hassle of remembering multiple URLs, usernames and passwords with one set of login credentials.
+</p>
+<p>
+    <b>Important Account Information</b><br/>
+    Infusionsoft ID: ${user.username}<br/>
+    Password: ********<br/>
+    URL: <a href="${serverPrefix}">${serverPrefix}</a>
+</p>
+<p>
+    Do you have more than one Infusionsoft account, CustomerHub or a Community Profile? Save time and eliminate confusion by connecting all Infusionsoft accounts to one Infusionsoft ID. Account Central makes it easy to manage multiple accounts. Click here to learn more. <insert link to Help article>
+</p>
+<p>
+    Thank you!
+</p>

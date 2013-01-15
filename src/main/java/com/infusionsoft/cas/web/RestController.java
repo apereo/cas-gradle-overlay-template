@@ -14,6 +14,8 @@ import org.jasig.cas.CentralAuthenticationService;
 import org.jasig.cas.authentication.handler.PasswordEncoder;
 import org.jasig.cas.services.ServiceRegistryDao;
 import org.jasig.cas.util.UniqueTicketIdGenerator;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJacksonHttpMessageConverter;
 import org.springframework.http.server.ServletServerHttpResponse;
@@ -25,9 +27,7 @@ import org.springframework.web.servlet.mvc.multiaction.MultiActionController;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Really simple controller that provides REST-like JSON services for registering users.
@@ -300,6 +300,64 @@ public class RestController extends MultiActionController {
         MediaType jsonMimeType = MediaType.APPLICATION_JSON;
 
         jsonConverter.write(model, jsonMimeType, new ServletServerHttpResponse(response));
+
+        return null;
+    }
+
+    /**
+     * Called from the Infusionsoft app's data service to authenticate caller credentials against their CAS account.
+     * Returns a JSON object with user info if successful.
+     */
+    public ModelAndView authenticateUser(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String apiKey = request.getParameter("apiKey");
+        String username = request.getParameter("username");
+        String md5password = request.getParameter("md5password");
+
+        // Validate the API key
+        if (!requiredApiKey.equals(apiKey)) {
+            logger.warn("Invalid API access: apiKey = " + apiKey);
+            response.sendError(401);
+
+            return null;
+        }
+
+        log.debug("trying to authenticate " + username + " with password [" + md5password + "]");
+
+        User user = infusionsoftDataService.findUser(username, md5password);
+
+        if (user == null) {
+            log.info("failed to authenticate " + username + " with MD5 password hash");
+            response.sendError(401);
+        } else {
+            log.info("successfully authenticated " + username + " with MD5 password hash");
+
+            try {
+                JSONObject json = new JSONObject();
+
+                json.put("username", user.getUsername());
+                json.put("displayName", user.getFirstName() + " " + user.getLastName());
+
+                JSONArray accountsArray = new JSONArray();
+
+                for (UserAccount account : user.getAccounts()) {
+                    JSONObject accountToAdd = new JSONObject();
+
+                    accountToAdd.put("type", account.getAppType());
+                    accountToAdd.put("appName", account.getAppName());
+                    accountToAdd.put("userName", account.getAppUsername());
+
+                    accountsArray.add(accountToAdd);
+                }
+
+                json.put("accounts", accountsArray);
+
+                response.setContentType("application/json");
+                response.getWriter().write(json.toJSONString());
+            } catch (Exception e) {
+                log.error("failed to create JSON response", e);
+                response.sendError(500);
+            }
+        }
 
         return null;
     }
