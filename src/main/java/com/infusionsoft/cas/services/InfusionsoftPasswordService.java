@@ -40,6 +40,8 @@ public class InfusionsoftPasswordService {
         String encodedPassword = passwordEncoder.encode(password);
         List<User> users = hibernateTemplate.find("from UserPassword p where p.user = ? and p.passwordEncoded = ? and p.active = true", user, encodedPassword);
 
+        log.debug("checking if encoded password " + encodedPassword + " is valid for user " + user.getId() + ": " + (users.size() > 0));
+
         return users.size() > 0;
     }
 

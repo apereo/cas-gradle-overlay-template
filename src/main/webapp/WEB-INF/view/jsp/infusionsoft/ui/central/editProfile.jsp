@@ -46,6 +46,10 @@
 
         return false;
     }
+
+    function submitCurrentPasswordForm() {
+        $("#confirmCurrentPasswordForm").submit();
+    }
 </script>
 
 <style type="text/css">
@@ -139,6 +143,6 @@
         </form>
     </div>
     <div class="modal-footer">
-        <a href="javascript:$('#confirmCurrentPasswordForm').submit()" class="btn btn-primary">Confirm</a>
+        <a href="javascript:submitCurrentPasswordForm()" class="btn btn-primary">Confirm</a>
     </div>
 </div>
