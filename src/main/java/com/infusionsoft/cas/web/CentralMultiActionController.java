@@ -489,19 +489,18 @@ public class CentralMultiActionController extends MultiActionController {
     /**
      * Called from AJAX to validate the existing password.
      */
-    @RequestMapping(method = RequestMethod.POST)
-    @ResponseBody
-    public String verifyExistingPassword(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public ModelAndView verifyExistingPassword(HttpServletRequest request, HttpServletResponse response) throws IOException {
         User user = infusionsoftAuthenticationService.getCurrentUser(request);
         String password = request.getParameter("currentPassword");
 
         if (infusionsoftPasswordService.isPasswordValid(user, password)) {
-            return "OK";
+            response.getWriter().write("OK");
         } else {
-            response.sendError(500); // TODO
-
-            return null;
+            log.info("existing password is incorrect for user " + user.getId());
+            response.sendError(401);
         }
+
+        return null;
     }
 
     public void setInfusionsoftAuthenticationService(InfusionsoftAuthenticationService infusionsoftAuthenticationService) {
