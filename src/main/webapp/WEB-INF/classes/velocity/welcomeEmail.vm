@@ -11,7 +11,10 @@
     URL: <a href="${serverPrefix}">${serverPrefix}</a>
 </p>
 <p>
-    Do you have more than one Infusionsoft account, CustomerHub or a Community Profile? Save time and eliminate confusion by connecting all Infusionsoft accounts to one Infusionsoft ID. Account Central makes it easy to manage multiple accounts. Click here to learn more. <insert link to Help article>
+    Do you have more than one Infusionsoft account, CustomerHub or a Community Profile?
+    Save time and eliminate confusion by connecting all Infusionsoft accounts to one Infusionsoft ID.
+    Account Central makes it easy to manage multiple accounts.
+    <a href="http://ug.infusionsoft.com/article/AA-01207/0/Infusionsoft-ID-Transition.html">Click here to learn more.</a>
 </p>
 <p>
     Thank you!

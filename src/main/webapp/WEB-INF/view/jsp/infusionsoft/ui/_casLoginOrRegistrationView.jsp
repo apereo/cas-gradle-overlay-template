@@ -30,15 +30,9 @@
         margin: -20px -20px 20px -20px;
     }
 
-    .greetings-bg-old {
-        background: #93d558; /* Old browsers */
-        background: -moz-radial-gradient(center, ellipse cover,  #93d558 0%, #70bc3e 100%); /* FF3.6+ */
-        background: -webkit-gradient(radial, center center, 0px, center center, 100%, color-stop(0%,#93d558), color-stop(100%,#70bc3e)); /* Chrome,Safari4+ */
-        background: -webkit-radial-gradient(center, ellipse cover,  #93d558 0%,#70bc3e 100%); /* Chrome10+,Safari5.1+ */
-        background: -o-radial-gradient(center, ellipse cover,  #93d558 0%,#70bc3e 100%); /* Opera 12+ */
-        background: -ms-radial-gradient(center, ellipse cover,  #93d558 0%,#70bc3e 100%); /* IE10+ */
-        background: radial-gradient(ellipse at center,  #93d558 0%,#70bc3e 100%); /* W3C */
-        filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#93d558', endColorstr='#70bc3e',GradientType=1 ); /* IE6-9 fallback on horizontal gradient */
+    .greetings a.learnmore {
+        color: #fff;
+        text-decoration: underline;
     }
 
     .greetings-bg {
@@ -112,6 +106,7 @@
                     It’s now easier to access all aspects of Infusionsoft with one email address and password!
                     Eliminate the hassle of multiple usernames and passwords for your Infusionsoft account(s),
                     CustomerHub, and community forums.
+                    <a class="learnmore" target="learnmore" href="http://ug.infusionsoft.com/article/AA-01207/0/Infusionsoft-ID-Transition.html">Learn more</a>
                 </p>
                 <p>
                     Not ready today? No rush. We'll count down the days you have left to switch.
@@ -210,6 +205,9 @@
 </div>
 
 <div id="forgot-password">
+    <c:if test="${not empty sessionScope.refererUrl}">
+        <a style="float: right" href="${sessionScope.refererUrl}/app/authentication/login">Affiliate/Client Login</a>
+    </c:if>
     <c:url var="forgotPasswordUrl" value="/registration/forgot"/>
     <a href="${forgotPasswordUrl}">Forgot your password?</a>
 </div>
