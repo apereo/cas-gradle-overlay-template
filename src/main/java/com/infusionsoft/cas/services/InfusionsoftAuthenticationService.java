@@ -11,14 +11,11 @@ import org.apache.log4j.Logger;
 import org.apache.xmlrpc.XmlRpcClient;
 import org.apache.xmlrpc.XmlRpcException;
 import org.jasig.cas.CentralAuthenticationService;
-import org.jasig.cas.authentication.handler.PasswordEncoder;
 import org.jasig.cas.authentication.principal.Principal;
-import org.jasig.cas.services.ServiceRegistryDao;
 import org.jasig.cas.ticket.Ticket;
 import org.jasig.cas.ticket.TicketException;
 import org.jasig.cas.ticket.TicketGrantingTicket;
 import org.jasig.cas.ticket.registry.TicketRegistry;
-import org.jasig.cas.util.UniqueTicketIdGenerator;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 import org.springframework.orm.hibernate3.HibernateTemplate;
@@ -31,25 +28,24 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.*;
+import java.util.Date;
+import java.util.List;
+import java.util.Vector;
 
 /**
- * Utility that handles Spring Security and CAS native authentication tricks.
+ * Service for anything related to authentication. This includes authentication of CAS users, lock-out-periods, and
+ * outbound authentication requests to external apps.
  */
 public class InfusionsoftAuthenticationService {
     private static final Logger log = Logger.getLogger(InfusionsoftAuthenticationService.class);
 
     private static final long LOCK_PERIOD_MS = 1800000; // 30 minutes
     private static final int LOCK_ATTEMPTS = 5; // how many tries before locked
-    private static final long PASSWORD_VALIDITY_MS = 86400000L * 90; // 90 days
 
     private CentralAuthenticationService centralAuthenticationService;
     private InfusionsoftDataService infusionsoftDataService;
-    private ServiceRegistryDao serviceRegistryDao;
     private TicketRegistry ticketRegistry;
     private HibernateTemplate hibernateTemplate;
-    private PasswordEncoder passwordEncoder;
-    private UniqueTicketIdGenerator ticketIdGenerator;
     private String serverPrefix;
     private String crmProtocol;
     private String crmDomain;
@@ -72,7 +68,8 @@ public class InfusionsoftAuthenticationService {
         } else if (appType.equals("customerhub")) {
             return "https://" + appName + "." + customerHubDomain;
         } else {
-            // TODO
+            log.warn("app url requested for unknown app type: " + appType);
+
             return "/";
         }
     }
@@ -92,15 +89,19 @@ public class InfusionsoftAuthenticationService {
             appName = host.replace("." + crmDomain, "");
         } else if (host.endsWith(customerHubDomain)) {
             appName = host.replace("." + customerHubDomain, "");
+        } else {
+            log.warn("unable to guess app name for url " + url);
         }
 
-        log.debug("app name is " + appName);
+        if (appName != null) {
+            log.debug("app name for url " + url + " is " + appName);
+        }
 
         return appName;
     }
 
     /**
-     * Guesses an app name from a URL, or null if there isn't one to be found.
+     * Guesses an app type from a URL, or null if there isn't one to be found.
      */
     public String guessAppType(URL url) {
         String appType = null;
@@ -114,9 +115,13 @@ public class InfusionsoftAuthenticationService {
             appType = "crm";
         } else if (host.endsWith(customerHubDomain)) {
             appType = "customerhub";
+        } else {
+            log.warn("unable to guess app type for url " + url);
         }
 
-        log.debug("app type is " + appType);
+        if (appType != null) {
+            log.debug("app type for url " + url + " is " + appType);
+        }
 
         return appType;
     }
@@ -139,9 +144,9 @@ public class InfusionsoftAuthenticationService {
      * Returns all login attempts within the last 30 days, for a particular username.
      */
     public List<LoginAttempt> getRecentLoginAttempts(InfusionsoftCredentials credentials) {
-        Date oneMoonAgo = new Date(System.currentTimeMillis() - (86400000L * 30));
+        Date thirtyDaysAgo = new Date(System.currentTimeMillis() - (86400000L * 30));
 
-        return hibernateTemplate.find("from LoginAttempt a where a.username = ? and a.dateAttempted > ? order by a.dateAttempted desc", credentials.getUsername(), oneMoonAgo);
+        return hibernateTemplate.find("from LoginAttempt a where a.username = ? and a.dateAttempted > ? order by a.dateAttempted desc", credentials.getUsername(), thirtyDaysAgo);
     }
 
     /**
@@ -163,7 +168,7 @@ public class InfusionsoftAuthenticationService {
             }
         }
 
-        log.debug("consecutive failed login attempts: " + failures);
+        log.debug("user " + credentials.getUsername() + " has " + attempts.size() + " recent login attempts and " + failures + " consecutive failures");
 
         return failures;
     }
@@ -192,6 +197,8 @@ public class InfusionsoftAuthenticationService {
             Date lockPeriodStart = new Date(System.currentTimeMillis() - LOCK_PERIOD_MS);
 
             if (mostRecent.getDateAttempted().after(lockPeriodStart)) {
+                log.info("username " + credentials.getUsername() + " is locked due to more than " + LOCK_ATTEMPTS + " failures in the last " + LOCK_PERIOD_MS + " milliseconds");
+
                 return true;
             } else {
                 return false;
@@ -202,8 +209,7 @@ public class InfusionsoftAuthenticationService {
     }
 
     /**
-     * Checks whether a user is associated to an app at a particular URL. This method actually only compares
-     * hostnames, so if there's multiple apps on the same hostname it could be wrong.
+     * Checks whether a user is associated to an app at a particular URL.
      */
     public boolean isAppAssociated(User user, URL url) {
         for (UserAccount account : user.getAccounts()) {
@@ -226,12 +232,16 @@ public class InfusionsoftAuthenticationService {
      */
     public boolean isAppMigrated(String appName, String appType) {
         List<MigratedApp> results = hibernateTemplate.find("from MigratedApp a where a.appName = ? and a.appType = ?", appName, appType);
+        boolean migrated = results.size() > 0;
 
-        return results.size() > 0;
+        log.debug("has app " + appName + "/" + appType + " been migrated to CAS? " + migrated);
+
+        return migrated;
     }
 
     /**
-     * Checks the legacy credentials of an app.
+     * Checks with an app whether a user's legacy credentials are correct. This should be done before we allow them to
+     * link that account to their CAS account.
      */
     public boolean verifyAppCredentials(String appType, String appName, String appUsername, String appPassword) {
         boolean valid = false;
@@ -240,14 +250,21 @@ public class InfusionsoftAuthenticationService {
             valid = verifyCRMCredentials(appName, appUsername, appPassword);
         } else if (StringUtils.equals(appType, "community")) {
             valid = verifyCommunityCredentials(appUsername, appPassword);
+        } else if (StringUtils.equals(appType, "customerhub")) {
+            // TODO - add verification for CustomerHub
+            log.error("we don't know how to verify credentials for CustomerHub!");
+
+            valid = false;
         } else {
-            // TODO - add verification for forum and community
             log.warn("we don't know how to verify credentials for app type " + appType);
         }
 
         return valid;
     }
 
+    /**
+     * Verifies a username and password against a CRM app.
+     */
     private boolean verifyCRMCredentials(String appName, String appUsername, String appPassword) {
         try {
             XmlRpcClient client = new XmlRpcClient(buildAppUrl("crm", appName) + "/api/xmlrpc");
@@ -279,6 +296,9 @@ public class InfusionsoftAuthenticationService {
         return false;
     }
 
+    /**
+     * Verifies a username and password with the Infusionsoft Community.
+     */
     private boolean verifyCommunityCredentials(String appUsername, String appPassword) {
         boolean valid = false;
 
@@ -308,7 +328,8 @@ public class InfusionsoftAuthenticationService {
     }
 
     /**
-     * Calls out to the Community web service to try to create a new user.
+     * Calls out to the Community web service to try to create a new user. This is for users who create their Community
+     * profile through CAS.
      */
     public UserAccount registerCommunityUserAccount(User user, CommunityAccountDetails details) throws RestClientException, UsernameTakenException, CASMappingException {
         RestTemplate restTemplate = new RestTemplate();
@@ -323,7 +344,7 @@ public class InfusionsoftAuthenticationService {
         Boolean hasError = (Boolean) responseJson.get("error");
 
         if (hasError) {
-            throw new UsernameTakenException("the display name [" + details.getDisplayName() + "] is already taken");
+            throw new UsernameTakenException("the display name " + details.getDisplayName() + " is already taken");
         }
 
         UserAccount account = infusionsoftDataService.associateAccountToUser(user, "community", "Infusionsoft Community", String.valueOf(details.getDisplayName()));
@@ -331,13 +352,13 @@ public class InfusionsoftAuthenticationService {
         details.setUserAccount(account);
         hibernateTemplate.save(details);
 
-        log.info("saved community account details for account " + account.getId());
+        log.info("created community account details " + details.getId() + " for account " + account.getId());
 
         return account;
     }
 
     /**
-     * Calls out to the Community web service to try to update a user profile.
+     * Calls out to the Community web service to update an existing user profile.
      */
     public void updateCommunityUserAccount(User user, CommunityAccountDetails details) throws RestClientException, UsernameTakenException {
         RestTemplate restTemplate = new RestTemplate();
@@ -367,8 +388,8 @@ public class InfusionsoftAuthenticationService {
 
     /**
      * Creates (or updates) a CAS ticket granting ticket. Sometimes this needs to be called after an attributes change,
-     * so they are refreshed properly. It should only be called when the user is already authenticated and trusted,
-     * since it automatically creates a new session without validating the password.
+     * to give the user a new ticket and refresh attributes. It should only be called when the user is already
+     * authenticated and trusted, since it automatically creates a new session without validating the password.
      */
     public void createTicketGrantingTicket(String username, HttpServletRequest request, HttpServletResponse response) throws TicketException {
         LetMeInCredentials credentials = new LetMeInCredentials();
@@ -388,7 +409,6 @@ public class InfusionsoftAuthenticationService {
 
         response.addCookie(cookie);
 
-        log.info("registered new user account " + username);
         log.info("set cookie CASTGC=" + ticketGrantingTicket);
     }
 
@@ -404,7 +424,7 @@ public class InfusionsoftAuthenticationService {
 
         for (Cookie cookie : request.getCookies()) {
             if (cookie.getName().equals("CASTGC")) {
-                log.info("found CASTGC cookie with value " + cookie.getValue());
+                log.debug("found a valid CASTGC cookie with value " + cookie.getValue());
 
                 Ticket ticket = ticketRegistry.getTicket(cookie.getValue());
                 TicketGrantingTicket tgt = null;
@@ -465,24 +485,12 @@ public class InfusionsoftAuthenticationService {
         this.centralAuthenticationService = centralAuthenticationService;
     }
 
-    public void setServiceRegistryDao(ServiceRegistryDao serviceRegistryDao) {
-        this.serviceRegistryDao = serviceRegistryDao;
-    }
-
     public void setTicketRegistry(TicketRegistry ticketRegistry) {
         this.ticketRegistry = ticketRegistry;
     }
 
     public void setHibernateTemplate(HibernateTemplate hibernateTemplate) {
         this.hibernateTemplate = hibernateTemplate;
-    }
-
-    public void setPasswordEncoder(PasswordEncoder passwordEncoder) {
-        this.passwordEncoder = passwordEncoder;
-    }
-
-    public void setTicketIdGenerator(UniqueTicketIdGenerator ticketIdGenerator) {
-        this.ticketIdGenerator = ticketIdGenerator;
     }
 
     public void setForumBase(String forumBase) {
@@ -539,10 +547,6 @@ public class InfusionsoftAuthenticationService {
 
     public void setCommunityDomain(String communityDomain) {
         this.communityDomain = communityDomain;
-    }
-
-    public InfusionsoftDataService getInfusionsoftDataService() {
-        return infusionsoftDataService;
     }
 
     public void setInfusionsoftDataService(InfusionsoftDataService infusionsoftDataService) {

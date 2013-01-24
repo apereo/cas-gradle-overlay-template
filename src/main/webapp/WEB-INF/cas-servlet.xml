@@ -203,7 +203,6 @@
 
     <bean id="registrationMultiActionController" class="com.infusionsoft.cas.web.RegistrationMultiActionController"
           p:hibernateTemplate-ref="hibernateTemplate"
-          p:passwordEncoder-ref="passwordEncoder"
           p:ticketIdGenerator-ref="loginTicketUniqueIdGenerator"
           p:infusionsoftAuthenticationService-ref="infusionsoftAuthenticationService"
           p:infusionsoftPasswordService-ref="infusionsoftPasswordService"
@@ -219,10 +218,6 @@
 
     <bean id="restController" class="com.infusionsoft.cas.web.RestController"
           p:hibernateTemplate-ref="hibernateTemplate"
-          p:passwordEncoder-ref="passwordEncoder"
-          p:ticketIdGenerator-ref="loginTicketUniqueIdGenerator"
-          p:centralAuthenticationService-ref="centralAuthenticationService"
-          p:infusionsoftAuthenticationService-ref="infusionsoftAuthenticationService"
           p:infusionsoftDataService-ref="infusionsoftDataService"
           p:infusionsoftPasswordService-ref="infusionsoftPasswordService"
           p:requiredApiKey="bl4hbl4hbl4h"/>

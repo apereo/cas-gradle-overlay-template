@@ -198,10 +198,7 @@
         <property name="centralAuthenticationService" ref="centralAuthenticationService"/>
         <property name="infusionsoftDataService" ref="infusionsoftDataService"/>
         <property name="hibernateTemplate" ref="hibernateTemplate"/>
-        <property name="serviceRegistryDao" ref="serviceRegistryDao"/>
         <property name="ticketRegistry" ref="ticketRegistry"/>
-        <property name="passwordEncoder" ref="passwordEncoder"/>
-        <property name="ticketIdGenerator" ref="loginTicketUniqueIdGenerator"/>
         <property name="forumBase" value="${infusionsoft.community.baseurl}"/>
         <property name="forumApiKey" value="${infusionsoft.community.apikey}"/>
         <property name="serverPrefix" value="${server.prefix}"/>
@@ -226,7 +223,6 @@
     <bean id="infusionsoftMailService" class="com.infusionsoft.cas.services.InfusionsoftMailService">
         <property name="mailSender" ref="mailSender"/>
         <property name="serverPrefix" value="${server.prefix}"/>
-        <property name="templateMessage" ref="templateMessage"/>
         <property name="velocityEngine" ref="velocityEngine"/>
     </bean>
 

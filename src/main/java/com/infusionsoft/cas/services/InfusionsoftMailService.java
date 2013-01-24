@@ -2,16 +2,12 @@ package com.infusionsoft.cas.services;
 
 import com.infusionsoft.cas.types.User;
 import org.apache.log4j.Logger;
-import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.context.Context;
-import org.springframework.mail.MailSender;
-import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 
-import javax.mail.Message;
 import javax.mail.internet.MimeMessage;
 import java.io.StringWriter;
 
@@ -23,9 +19,11 @@ public class InfusionsoftMailService {
 
     private String serverPrefix = "";
     private JavaMailSender mailSender;
-    private SimpleMailMessage templateMessage;
     private VelocityEngine velocityEngine;
 
+    /**
+     * Sends a welcome to new users who just created their Infusionsoft ID.
+     */
     public void sendWelcomeEmail(User user) {
         try {
             MimeMessage message = mailSender.createMimeMessage();
@@ -51,6 +49,9 @@ public class InfusionsoftMailService {
         }
     }
 
+    /**
+     * Sends an email with a link and password recovery code.
+     */
     public void sendPasswordResetEmail(User user) {
         try {
             MimeMessage message = mailSender.createMimeMessage();
@@ -79,10 +80,6 @@ public class InfusionsoftMailService {
 
     public void setMailSender(JavaMailSender mailSender) {
         this.mailSender = mailSender;
-    }
-
-    public void setTemplateMessage(SimpleMailMessage templateMessage) {
-        this.templateMessage = templateMessage;
     }
 
     public void setVelocityEngine(VelocityEngine velocityEngine) {

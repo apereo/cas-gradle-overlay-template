@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Service for simple data access stuff.
+ * Service for simple lower-level data access stuff.
  */
 public class InfusionsoftDataService {
     private static final Logger log = Logger.getLogger(InfusionsoftAuthenticationService.class);
@@ -21,10 +21,10 @@ public class InfusionsoftDataService {
      * Creates a unique, random password recovery code for a user.
      */
     public synchronized String createPasswordRecoveryCode(User user) {
-        String recoveryCode = RandomStringUtils.random(12, "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+        String recoveryCode = RandomStringUtils.randomAlphabetic(12).toUpperCase();
 
         while (findUserByRecoveryCode(recoveryCode) != null) {
-            recoveryCode = RandomStringUtils.random(12, "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+            recoveryCode = RandomStringUtils.randomAlphabetic(12).toUpperCase();
         }
 
         user.setPasswordRecoveryCode(recoveryCode);
@@ -88,7 +88,7 @@ public class InfusionsoftDataService {
 
     /**
      * Creates a pending user account for someone, so they can come back and complete registration later.
-     * If one's already pending, regurgitate the same code.
+     * If one is already pending, regurgitate the same code.
      */
     public PendingUserAccount createPendingUserAccount(String appType, String appName, String appUsername, String firstName, String lastName, String email, boolean passwordVerificationRequired) {
         List<PendingUserAccount> matches = hibernateTemplate.find("from PendingUserAccount where appType = ? and appName = ? and appUsername = ?", appType, appName, appUsername);
@@ -116,7 +116,6 @@ public class InfusionsoftDataService {
 
             hibernateTemplate.save(account);
         }
-
 
         return account;
     }
@@ -213,10 +212,6 @@ public class InfusionsoftDataService {
         } else {
             return null;
         }
-    }
-
-    public HibernateTemplate getHibernateTemplate() {
-        return hibernateTemplate;
     }
 
     public void setHibernateTemplate(HibernateTemplate hibernateTemplate) {

@@ -12,6 +12,10 @@ import org.springframework.orm.hibernate3.HibernateTemplate;
 
 import java.util.*;
 
+/**
+ * Special class for adding custom Infusionsoft attributes to the CAS/SAML response. This is how downstream applications
+ * know if users are mapped to a local account, among other things.
+ */
 public class InfusionsoftAttributeDao extends AbstractFlatteningPersonAttributeDao {
     private HibernateTemplate hibernateTemplate;
     private IPersonAttributes backingPerson = null;
@@ -26,6 +30,10 @@ public class InfusionsoftAttributeDao extends AbstractFlatteningPersonAttributeD
         backingPerson = new AttributeNamedPersonImpl(backingMap);
     }
 
+    /**
+     * Resolves a user and sets custom attributes.
+     */
+    @SuppressWarnings(value = "unchecked")
     public IPersonAttributes getPerson(String uid) {
         if (uid == null) {
             throw new IllegalArgumentException("Illegal to invoke getPerson(String) with a null argument");
@@ -83,10 +91,6 @@ public class InfusionsoftAttributeDao extends AbstractFlatteningPersonAttributeD
 
     public Set<String> getAvailableQueryAttributes() {
         return null;
-    }
-
-    public HibernateTemplate getHibernateTemplate() {
-        return hibernateTemplate;
     }
 
     public void setHibernateTemplate(HibernateTemplate hibernateTemplate) {

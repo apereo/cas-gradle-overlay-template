@@ -1,16 +1,15 @@
 package com.infusionsoft.cas.web;
 
+import com.infusionsoft.cas.services.InfusionsoftAuthenticationService;
 import com.infusionsoft.cas.services.InfusionsoftDataService;
 import com.infusionsoft.cas.services.InfusionsoftMailService;
 import com.infusionsoft.cas.services.InfusionsoftPasswordService;
 import com.infusionsoft.cas.types.PendingUserAccount;
 import com.infusionsoft.cas.types.User;
-import com.infusionsoft.cas.services.InfusionsoftAuthenticationService;
 import com.infusionsoft.cas.types.UserAccount;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.validator.EmailValidator;
 import org.apache.log4j.Logger;
-import org.jasig.cas.authentication.handler.PasswordEncoder;
 import org.jasig.cas.util.UniqueTicketIdGenerator;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.web.servlet.ModelAndView;
@@ -26,7 +25,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Controller that powers the registration and "forgot password" flows.
+ * Controller that backs the new user registration and "forgot password" flows.
  */
 public class RegistrationMultiActionController extends MultiActionController {
     private static final Logger log = Logger.getLogger(RegistrationMultiActionController.class);
@@ -36,7 +35,6 @@ public class RegistrationMultiActionController extends MultiActionController {
     private InfusionsoftPasswordService infusionsoftPasswordService;
     private InfusionsoftMailService infusionsoftMailService;
     private HibernateTemplate hibernateTemplate;
-    private PasswordEncoder passwordEncoder;
     private UniqueTicketIdGenerator ticketIdGenerator;
 
     /**
@@ -75,7 +73,7 @@ public class RegistrationMultiActionController extends MultiActionController {
         boolean eula = StringUtils.equals(request.getParameter("eula"), "agreed");
         String registrationCode = (String) request.getSession(true).getAttribute("registrationCode");
         Map<String, Object> model = new HashMap<String, Object>();
-        User user = null;
+        User user;
 
         try {
             user = new User();
@@ -341,10 +339,6 @@ public class RegistrationMultiActionController extends MultiActionController {
 
     public void setTicketIdGenerator(UniqueTicketIdGenerator ticketIdGenerator) {
         this.ticketIdGenerator = ticketIdGenerator;
-    }
-
-    public void setPasswordEncoder(PasswordEncoder passwordEncoder) {
-        this.passwordEncoder = passwordEncoder;
     }
 
     public void setInfusionsoftAuthenticationService(InfusionsoftAuthenticationService infusionsoftAuthenticationService) {

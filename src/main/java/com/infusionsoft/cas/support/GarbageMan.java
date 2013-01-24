@@ -26,16 +26,8 @@ public class GarbageMan {
         hibernateTemplate.deleteAll(attempts);
     }
 
-    public long getLoginAttemptMaxAge() {
-        return loginAttemptMaxAge;
-    }
-
     public void setLoginAttemptMaxAge(long loginAttemptMaxAge) {
         this.loginAttemptMaxAge = loginAttemptMaxAge;
-    }
-
-    public HibernateTemplate getHibernateTemplate() {
-        return hibernateTemplate;
     }
 
     public void setHibernateTemplate(HibernateTemplate hibernateTemplate) {

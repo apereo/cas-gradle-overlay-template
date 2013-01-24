@@ -1,6 +1,5 @@
 package com.infusionsoft.cas.web;
 
-import com.infusionsoft.cas.services.InfusionsoftAuthenticationService;
 import com.infusionsoft.cas.services.InfusionsoftDataService;
 import com.infusionsoft.cas.services.InfusionsoftPasswordService;
 import com.infusionsoft.cas.types.MigratedApp;
@@ -10,10 +9,6 @@ import com.infusionsoft.cas.types.UserAccount;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.validator.EmailValidator;
 import org.apache.log4j.Logger;
-import org.jasig.cas.CentralAuthenticationService;
-import org.jasig.cas.authentication.handler.PasswordEncoder;
-import org.jasig.cas.services.ServiceRegistryDao;
-import org.jasig.cas.util.UniqueTicketIdGenerator;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.springframework.http.MediaType;
@@ -27,11 +22,13 @@ import org.springframework.web.servlet.mvc.multiaction.MultiActionController;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Really simple controller that provides REST-like JSON services for registering users.
- * REST purists, please don't be offended by the use of the POST verb to create a new user.
+ * REST purists, please don't be offended by the use of the POST verb to create or authenticate users.
  * We just want something easy that does the job.
  */
 @Controller
@@ -42,17 +39,9 @@ public class RestController extends MultiActionController {
     private static final int PASSWORD_LENGTH_MAX = 20;
 
     private HibernateTemplate hibernateTemplate;
-    private PasswordEncoder passwordEncoder;
-    private UniqueTicketIdGenerator ticketIdGenerator;
-    private CentralAuthenticationService centralAuthenticationService;
-    private InfusionsoftAuthenticationService infusionsoftAuthenticationService;
     private InfusionsoftDataService infusionsoftDataService;
     private InfusionsoftPasswordService infusionsoftPasswordService;
-    private ServiceRegistryDao serviceRegistryDao;
     private String requiredApiKey;
-
-    public RestController() {
-    }
 
     /**
      * Registers a new user account and returns a simple JSON object.
@@ -108,7 +97,6 @@ public class RestController extends MultiActionController {
 
         // Render the response
         try {
-            // TODO - include an error message
             if (model.containsKey("error")) {
                 model.put("status", "error");
             } else {
@@ -197,7 +185,6 @@ public class RestController extends MultiActionController {
 
         // Render the response
         try {
-            // TODO - include an error message
             if (model.containsKey("error")) {
                 model.put("status", "error");
             } else {
@@ -308,6 +295,7 @@ public class RestController extends MultiActionController {
      * Called from the Infusionsoft app's data service to authenticate caller credentials against their CAS account.
      * Returns a JSON object with user info if successful.
      */
+    @SuppressWarnings(value = "unchecked")
     public ModelAndView authenticateUser(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String apiKey = request.getParameter("apiKey");
         String username = request.getParameter("username");
@@ -321,7 +309,7 @@ public class RestController extends MultiActionController {
             return null;
         }
 
-        log.debug("trying to authenticate " + username + " with password [" + md5password + "]");
+        log.debug("trying to authenticate " + username + " with password " + md5password);
 
         User user = infusionsoftDataService.findUser(username, md5password);
 
@@ -364,22 +352,6 @@ public class RestController extends MultiActionController {
 
     public void setHibernateTemplate(HibernateTemplate hibernateTemplate) {
         this.hibernateTemplate = hibernateTemplate;
-    }
-
-    public void setTicketIdGenerator(UniqueTicketIdGenerator ticketIdGenerator) {
-        this.ticketIdGenerator = ticketIdGenerator;
-    }
-
-    public void setPasswordEncoder(PasswordEncoder passwordEncoder) {
-        this.passwordEncoder = passwordEncoder;
-    }
-
-    public void setCentralAuthenticationService(CentralAuthenticationService centralAuthenticationService) {
-        this.centralAuthenticationService = centralAuthenticationService;
-    }
-
-    public void setInfusionsoftAuthenticationService(InfusionsoftAuthenticationService infusionsoftAuthenticationService) {
-        this.infusionsoftAuthenticationService = infusionsoftAuthenticationService;
     }
 
     public void setInfusionsoftPasswordService(InfusionsoftPasswordService infusionsoftPasswordService) {
