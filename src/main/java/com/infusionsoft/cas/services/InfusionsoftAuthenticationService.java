@@ -249,7 +249,7 @@ public class InfusionsoftAuthenticationService {
         if (StringUtils.equals(appType, "crm")) {
             valid = verifyCRMCredentials(appName, appUsername, appPassword);
         } else if (StringUtils.equals(appType, "community")) {
-            valid = verifyCommunityCredentials(appUsername, appPassword);
+            valid = verifyCommunityCredentials(appUsername, appPassword) != null;
         } else if (StringUtils.equals(appType, "customerhub")) {
             // TODO - add verification for CustomerHub
             log.error("we don't know how to verify credentials for CustomerHub!");
@@ -297,10 +297,11 @@ public class InfusionsoftAuthenticationService {
     }
 
     /**
-     * Verifies a username and password with the Infusionsoft Community.
+     * Verifies a username and password with the Infusionsoft Community. Returns a String of the user's userid if
+     * valid.
      */
-    private boolean verifyCommunityCredentials(String appUsername, String appPassword) {
-        boolean valid = false;
+    public String verifyCommunityCredentials(String appUsername, String appPassword) {
+        String userId = null;
 
         try {
             RestTemplate restTemplate = new RestTemplate();
@@ -315,16 +316,16 @@ public class InfusionsoftAuthenticationService {
             JSONObject returnValue = (JSONObject) JSONValue.parse(result);
             Boolean returnValid = (Boolean) returnValue.get("valid");
 
-            if (returnValid != null && returnValid.booleanValue()) {
-                valid = true;
-            } else {
+            userId = (String) returnValue.get("userid");
+
+            if (returnValid == null || !returnValid.booleanValue()) {
                 log.warn("community user credentials for " + appUsername + " are invalid");
             }
         } catch (Exception e) {
             log.error("couldn't validate user credentials in community", e);
         }
 
-        return valid;
+        return userId;
     }
 
     /**
@@ -342,12 +343,13 @@ public class InfusionsoftAuthenticationService {
         String response = restTemplate.postForObject("{base}/rest.php/user/addnewuser?key={apiKey}&username={username}&email={email}&experience={experience}&twitter={twitter}&timezone={timezone}", "", String.class, forumBase, forumApiKey, username, email, details.getInfusionsoftExperience(), details.getTwitterHandle(), details.getTimeZone());
         JSONObject responseJson = (JSONObject) JSONValue.parse(response);
         Boolean hasError = (Boolean) responseJson.get("error");
+        String userId = (String) responseJson.get("userId");
 
         if (hasError) {
             throw new UsernameTakenException("the display name " + details.getDisplayName() + " is already taken");
         }
 
-        UserAccount account = infusionsoftDataService.associateAccountToUser(user, "community", "Infusionsoft Community", String.valueOf(details.getDisplayName()));
+        UserAccount account = infusionsoftDataService.associateAccountToUser(user, "community", "Infusionsoft Community", userId);
 
         details.setUserAccount(account);
         hibernateTemplate.save(details);
@@ -356,35 +358,6 @@ public class InfusionsoftAuthenticationService {
 
         return account;
     }
-
-    /**
-     * Calls out to the Community web service to update an existing user profile.
-     */
-    public void updateCommunityUserAccount(User user, CommunityAccountDetails details) throws RestClientException, UsernameTakenException {
-        RestTemplate restTemplate = new RestTemplate();
-
-        log.info("preparing REST call to " + forumBase);
-
-        // TODO - re-enable this with the correct service call
-        // TODO - shouldn't be a get, use POST here...
-        //String result = restTemplate.getForObject("{base}/rest.php/user/addnewuser/{username}/{email}?key={apiKey}", String.class, forumBase, details.getDisplayName(), details.getNotificationEmailAddress(), forumApiKey);
-
-        //log.debug("REST response: " + result);
-
-        //JSONObject returnValue = (JSONObject) JSONValue.parse(result);
-        //Boolean hasError = (Boolean) returnValue.get("error");
-
-        //if (hasError) {
-        //    throw new UsernameTakenException("the display name [" + forumDisplayName + "] is already taken");
-        //} else {
-//            return associateAccountToUser(user, "community", "Infusionsoft Community", String.valueOf(returnValue.get("username")));
-        //}
-
-        details.getUserAccount().setAppUsername(details.getDisplayName());
-        hibernateTemplate.update(details.getUserAccount());
-        hibernateTemplate.update(details);
-    }
-
 
     /**
      * Creates (or updates) a CAS ticket granting ticket. Sometimes this needs to be called after an attributes change,

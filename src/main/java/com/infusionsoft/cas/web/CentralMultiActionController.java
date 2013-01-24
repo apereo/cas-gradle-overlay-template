@@ -234,14 +234,21 @@ public class CentralMultiActionController extends MultiActionController {
         try {
             User currentUser = infusionsoftAuthenticationService.getCurrentUser(request);
 
-            if (appType.equals("community")) {
-                appName = "community";
-            }
-
             if (StringUtils.isEmpty(appUsername)) {
                 model.put("error", "registration.error.invalidAppUsername");
             } else if (StringUtils.isEmpty(appPassword)) {
                 model.put("error", "registration.error.invalidPassword");
+            } else if (appType.equals("community")) {
+                String communityUserId = infusionsoftAuthenticationService.verifyCommunityCredentials(appUsername, appPassword);
+
+                appName = "community";
+
+                if (StringUtils.isNotEmpty(communityUserId)) {
+                    infusionsoftDataService.associateAccountToUser(currentUser, appType, appName, communityUserId);
+                    infusionsoftAuthenticationService.createTicketGrantingTicket(currentUser.getUsername(), request, response);
+                } else {
+                    model.put("error", "registration.error.invalidLegacyCredentials");
+                }
             } else if (infusionsoftAuthenticationService.verifyAppCredentials(appType, appName, appUsername, appPassword)) {
                 infusionsoftDataService.associateAccountToUser(currentUser, appType, appName, appUsername);
                 infusionsoftAuthenticationService.createTicketGrantingTicket(currentUser.getUsername(), request, response);
