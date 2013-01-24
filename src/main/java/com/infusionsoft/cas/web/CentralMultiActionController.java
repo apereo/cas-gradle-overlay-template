@@ -423,52 +423,6 @@ public class CentralMultiActionController extends MultiActionController {
     }
 
     /**
-     * Updates the user profile and other data for a community account.
-     */
-    public ModelAndView updateCommunityAccount(HttpServletRequest request, HttpServletResponse response) {
-        Map<String, Object> model = new HashMap<String, Object>();
-        User user = infusionsoftAuthenticationService.getCurrentUser(request);
-        UserAccount account = infusionsoftDataService.findUserAccount(user, new Long(request.getParameter("id")));
-        CommunityAccountDetails details = infusionsoftDataService.findCommunityAccountDetails(account);
-
-        details.setDisplayName(request.getParameter("displayName"));
-        details.setInfusionsoftExperience(Integer.parseInt(request.getParameter("infusionsoftExperience")));
-        details.setTimeZone(request.getParameter("timeZone"));
-        details.setNotificationEmailAddress(request.getParameter("notificationEmailAddress"));
-        details.setTwitterHandle(request.getParameter("twitterHandle"));
-
-        if (StringUtils.isEmpty(details.getDisplayName()) || details.getDisplayName().length() < 4 || details.getDisplayName().length() > 30) {
-            model.put("error", "community.error.displayNameInvalid");
-        } else if (StringUtils.isNotEmpty(details.getNotificationEmailAddress()) && !EmailValidator.getInstance().isValid(details.getNotificationEmailAddress())) {
-            model.put("error", "community.error.notificationEmailAddressInvalid");
-        }
-
-        model.put("account", account);
-        model.put("details", details);
-
-        if (!model.containsKey("error")) {
-            log.info("attempting to update a forum account for user " + user.getId());
-
-            try {
-                infusionsoftAuthenticationService.updateCommunityUserAccount(user, details);
-                infusionsoftAuthenticationService.createTicketGrantingTicket(user.getUsername(), request, response);
-
-                return new ModelAndView("redirect:index");
-            } catch (UsernameTakenException e) {
-                model.put("error", "community.error.displayNameTaken");
-
-                log.error("failed to register community account for user " + user.getId(), e);
-            } catch (Exception e) {
-                model.put("error", "community.error.unknown");
-
-                log.error("unexpected error while registering community account for user " + user.getId(), e);
-            }
-        }
-
-        return new ModelAndView("infusionsoft/ui/central/editCommunityAccount", model);
-    }
-
-    /**
      * Called from the AJAX quick edit to rename an account alias.
      */
     @RequestMapping(method = RequestMethod.POST)
