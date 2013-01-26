@@ -2,10 +2,7 @@ package com.infusionsoft.cas.web;
 
 import com.infusionsoft.cas.services.InfusionsoftDataService;
 import com.infusionsoft.cas.services.InfusionsoftPasswordService;
-import com.infusionsoft.cas.types.MigratedApp;
-import com.infusionsoft.cas.types.PendingUserAccount;
-import com.infusionsoft.cas.types.User;
-import com.infusionsoft.cas.types.UserAccount;
+import com.infusionsoft.cas.types.*;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.validator.EmailValidator;
 import org.apache.log4j.Logger;
@@ -148,7 +145,7 @@ public class RestController extends MultiActionController {
                 model.put("error", "registration.error.usernameInUse");
             } else if (password == null || password.length() < PASSWORD_LENGTH_MIN || password.length() > PASSWORD_LENGTH_MAX) {
                 model.put("error", "registration.error.invalidPassword");
-            } else if (!appType.equals("crm") || appType.equals("community") || appType.equals("customerhub")) {
+            } else if (!appType.equals(AppType.CRM) || appType.equals(AppType.COMMUNITY) || appType.equals(AppType.CUSTOMERHUB)) {
                 model.put("error", "registration.error.invalidAppType");
             } else if (StringUtils.isEmpty(appName)) {
                 model.put("error", "registration.error.invalidAppName");

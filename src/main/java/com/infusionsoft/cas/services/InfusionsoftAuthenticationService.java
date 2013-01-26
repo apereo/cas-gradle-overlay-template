@@ -61,11 +61,11 @@ public class InfusionsoftAuthenticationService {
      * Builds a URL for redirecting users to an app.
      */
     public String buildAppUrl(String appType, String appName) {
-        if (appType.equals("crm")) {
+        if (appType.equals(AppType.CRM)) {
             return crmProtocol + "://" + appName + "." + crmDomain + ":" + crmPort;
-        } else if (appType.equals("community")) {
+        } else if (appType.equals(AppType.COMMUNITY)) {
             return "http://" + appName + "." + communityDomain + "/caslogin.php";
-        } else if (appType.equals("customerhub")) {
+        } else if (appType.equals(AppType.CUSTOMERHUB)) {
             return "https://" + appName + "." + customerHubDomain;
         } else {
             log.warn("app url requested for unknown app type: " + appType);
@@ -110,11 +110,11 @@ public class InfusionsoftAuthenticationService {
         if (url.toString().startsWith(serverPrefix)) {
             // it's us!
         } else if (host.equals("community." + communityDomain)) {
-            appType = "community";
+            appType = AppType.COMMUNITY;
         } else if (host.endsWith(crmDomain)) {
-            appType = "crm";
+            appType = AppType.CRM;
         } else if (host.endsWith(customerHubDomain)) {
-            appType = "customerhub";
+            appType = AppType.CUSTOMERHUB;
         } else {
             log.warn("unable to guess app type for url " + url);
         }
@@ -246,11 +246,11 @@ public class InfusionsoftAuthenticationService {
     public boolean verifyAppCredentials(String appType, String appName, String appUsername, String appPassword) {
         boolean valid = false;
 
-        if (StringUtils.equals(appType, "crm")) {
+        if (StringUtils.equals(appType, AppType.CRM)) {
             valid = verifyCRMCredentials(appName, appUsername, appPassword);
-        } else if (StringUtils.equals(appType, "community")) {
+        } else if (StringUtils.equals(appType, AppType.COMMUNITY)) {
             valid = verifyCommunityCredentials(appUsername, appPassword) != null;
-        } else if (StringUtils.equals(appType, "customerhub")) {
+        } else if (StringUtils.equals(appType, AppType.CUSTOMERHUB)) {
             // TODO - add verification for CustomerHub
             log.error("we don't know how to verify credentials for CustomerHub!");
 
@@ -267,7 +267,7 @@ public class InfusionsoftAuthenticationService {
      */
     private boolean verifyCRMCredentials(String appName, String appUsername, String appPassword) {
         try {
-            XmlRpcClient client = new XmlRpcClient(buildAppUrl("crm", appName) + "/api/xmlrpc");
+            XmlRpcClient client = new XmlRpcClient(buildAppUrl(AppType.CRM, appName) + "/api/xmlrpc");
             Vector<String> params = new Vector<String>();
 
             log.debug("attempting to verify crm credentials at url " + client.getURL() + " with vendor key " + crmVendorKey);
@@ -276,10 +276,10 @@ public class InfusionsoftAuthenticationService {
             params.add(appUsername);
             params.add(DigestUtils.md5Hex(appPassword));
 
-            String tempKey = (String) client.execute("DataService.getTemporaryKey", params);
+            Object response = client.execute("DataService.getTemporaryKey", params);
 
-            if (tempKey != null) {
-                log.debug("web service produced a temp key: " + tempKey);
+            if (response != null) {
+                log.info("getTemporaryKey returned a response " + response + " of type " + response.getClass());
 
                 return true;
             } else {
@@ -349,7 +349,7 @@ public class InfusionsoftAuthenticationService {
             throw new UsernameTakenException("the display name " + details.getDisplayName() + " is already taken");
         }
 
-        UserAccount account = infusionsoftDataService.associateAccountToUser(user, "community", "Infusionsoft Community", userId);
+        UserAccount account = infusionsoftDataService.associateAccountToUser(user, AppType.COMMUNITY, "Infusionsoft Community", userId);
 
         details.setUserAccount(account);
         hibernateTemplate.save(details);
@@ -446,7 +446,7 @@ public class InfusionsoftAuthenticationService {
      */
     public boolean hasCommunityAccount(User user) {
         for (UserAccount account : user.getAccounts()) {
-            if (account.getAppType().equals("community")) {
+            if (account.getAppType().equals(AppType.COMMUNITY)) {
                 return true;
             }
         }

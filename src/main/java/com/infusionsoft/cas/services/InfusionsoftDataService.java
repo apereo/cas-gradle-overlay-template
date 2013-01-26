@@ -79,9 +79,9 @@ public class InfusionsoftDataService {
     public List<UserAccount> findSortedUserAccounts(User user) {
         List<UserAccount> accounts = new ArrayList<UserAccount>();
 
-        accounts.addAll(hibernateTemplate.find("from UserAccount where user = ? and appType = ? order by appName", user, "crm"));
-        accounts.addAll(hibernateTemplate.find("from UserAccount where user = ? and appType = ? order by appName", user, "community"));
-        accounts.addAll(hibernateTemplate.find("from UserAccount where user = ? and appType = ? order by appName", user, "customerhub"));
+        accounts.addAll(hibernateTemplate.find("from UserAccount where user = ? and appType = ? order by appName", user, AppType.CRM));
+        accounts.addAll(hibernateTemplate.find("from UserAccount where user = ? and appType = ? order by appName", user, AppType.COMMUNITY));
+        accounts.addAll(hibernateTemplate.find("from UserAccount where user = ? and appType = ? order by appName", user, AppType.CUSTOMERHUB));
 
         return accounts;
     }

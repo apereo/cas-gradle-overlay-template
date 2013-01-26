@@ -1,6 +1,7 @@
 package com.infusionsoft.cas.web;
 
 import com.infusionsoft.cas.services.InfusionsoftAuthenticationService;
+import com.infusionsoft.cas.types.AppType;
 import com.infusionsoft.cas.types.User;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -84,7 +85,7 @@ public class UserFilter implements Filter {
                 String appName = infusionsoftAuthenticationService.guessAppName(serviceUrl);
                 String appType = infusionsoftAuthenticationService.guessAppType(serviceUrl);
 
-                if (StringUtils.equals(appType, "crm")) {
+                if (StringUtils.equals(appType, AppType.CRM)) {
                     String refererUrl = serviceUrl.getProtocol() + "://" + serviceUrl.getHost();
 
                     if (serviceUrl.getPort() > 0) {

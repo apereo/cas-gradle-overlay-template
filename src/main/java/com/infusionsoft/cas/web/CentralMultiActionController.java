@@ -5,6 +5,7 @@ import com.infusionsoft.cas.services.InfusionsoftAuthenticationService;
 import com.infusionsoft.cas.services.InfusionsoftDataService;
 import com.infusionsoft.cas.services.InfusionsoftMailService;
 import com.infusionsoft.cas.services.InfusionsoftPasswordService;
+import com.infusionsoft.cas.types.AppType;
 import com.infusionsoft.cas.types.CommunityAccountDetails;
 import com.infusionsoft.cas.types.User;
 import com.infusionsoft.cas.types.UserAccount;
@@ -238,7 +239,7 @@ public class CentralMultiActionController extends MultiActionController {
                 model.put("error", "registration.error.invalidAppUsername");
             } else if (StringUtils.isEmpty(appPassword)) {
                 model.put("error", "registration.error.invalidPassword");
-            } else if (appType.equals("community")) {
+            } else if (appType.equals(AppType.COMMUNITY)) {
                 String communityUserId = infusionsoftAuthenticationService.verifyCommunityCredentials(appUsername, appPassword);
 
                 appName = "community";
@@ -270,15 +271,15 @@ public class CentralMultiActionController extends MultiActionController {
                 model.put("appDomain", request.getParameter("appName") + "." + infusionsoftAuthenticationService.getCrmDomain());
 
                 return new ModelAndView("infusionsoft/ui/central/linkReferer", model);
-            } else if (appType.equals("crm")) {
+            } else if (appType.equals(AppType.CRM)) {
                 model.put("crmDomain", infusionsoftAuthenticationService.getCrmDomain());
 
                 return new ModelAndView("infusionsoft/ui/central/linkInfusionsoftAppAccount", model);
-            } else if (appType.equals("customerhub")) {
+            } else if (appType.equals(AppType.CUSTOMERHUB)) {
                 model.put("customerHubDomain", infusionsoftAuthenticationService.getCustomerHubDomain());
 
                 return new ModelAndView("infusionsoft/ui/central/linkCustomerHubAccount", model);
-            } else if (appType.equals("community")) {
+            } else if (appType.equals(AppType.COMMUNITY)) {
                 return new ModelAndView("infusionsoft/ui/central/linkCommunityAccount", model);
             } else {
                 response.sendError(500, "Failed to associate");
@@ -323,7 +324,7 @@ public class CentralMultiActionController extends MultiActionController {
         Map<String, Object> model = new HashMap<String, Object>();
 
         try {
-            User user = (User) hibernateTemplate.get(User.class, new Long(request.getParameter("id")));
+            User user = hibernateTemplate.get(User.class, new Long(request.getParameter("id")));
 
             user.setFirstName(firstName);
             user.setLastName(lastName);
@@ -425,9 +426,7 @@ public class CentralMultiActionController extends MultiActionController {
     /**
      * Called from the AJAX quick edit to rename an account alias.
      */
-    @RequestMapping(method = RequestMethod.POST)
-    @ResponseBody
-    public String renameAccount(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public ModelAndView renameAccount(HttpServletRequest request, HttpServletResponse response) throws IOException {
         Long accountId = new Long(request.getParameter("id"));
         String alias = request.getParameter("value");
         User user = infusionsoftAuthenticationService.getCurrentUser(request);
@@ -437,14 +436,14 @@ public class CentralMultiActionController extends MultiActionController {
             account.setAlias(alias);
             hibernateTemplate.update(account);
 
-            return alias;
+            response.getWriter().write(alias);
         } catch (Exception e) {
             log.error("failed to update alias for account " + accountId, e);
 
             response.sendError(500); // TODO
-
-            return null;
         }
+
+        return null;
     }
 
     /**

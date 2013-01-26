@@ -4,6 +4,7 @@ import com.infusionsoft.cas.services.InfusionsoftAuthenticationService;
 import com.infusionsoft.cas.services.InfusionsoftDataService;
 import com.infusionsoft.cas.services.InfusionsoftMailService;
 import com.infusionsoft.cas.services.InfusionsoftPasswordService;
+import com.infusionsoft.cas.types.AppType;
 import com.infusionsoft.cas.types.PendingUserAccount;
 import com.infusionsoft.cas.types.User;
 import com.infusionsoft.cas.types.UserAccount;
@@ -140,7 +141,7 @@ public class RegistrationMultiActionController extends MultiActionController {
                     String appName = infusionsoftAuthenticationService.guessAppName(new URL(serviceUrl));
                     String appType = infusionsoftAuthenticationService.guessAppType(new URL(serviceUrl));
 
-                    if (StringUtils.equals(appType, "crm") && !StringUtils.equals(appName, "cas")) {
+                    if (StringUtils.equals(appType, AppType.CRM) && !StringUtils.equals(appName, "cas")) {
                         return new ModelAndView("redirect:verification");
                     }
                 } catch (Exception e) {
