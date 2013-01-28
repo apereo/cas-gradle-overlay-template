@@ -172,6 +172,14 @@ public class InfusionsoftDataService {
     }
 
     /**
+     * Finds any linked user accounts to a given app and local username. It's possible multiple Infusionsoft IDs
+     * may be linked to the same local username on the same app.
+     */
+    public List<UserAccount> findLinkedUserAccounts(String appName, String appType, String appUsername) {
+        return hibernateTemplate.find("from UserAccount ua where ua.appName = ? and ua.appType = ? and ua.appUsername = ?", appName, appType, appUsername);
+    }
+
+    /**
      * Disassociates an account (deletes it).
      */
     public void disassociateAccount(UserAccount account) {

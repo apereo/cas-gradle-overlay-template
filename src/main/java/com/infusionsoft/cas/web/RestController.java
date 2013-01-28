@@ -21,6 +21,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -238,6 +239,44 @@ public class RestController extends MultiActionController {
         MediaType jsonMimeType = MediaType.APPLICATION_JSON;
 
         jsonConverter.write(model, jsonMimeType, new ServletServerHttpResponse(response));
+
+        return null;
+    }
+
+    /**
+     * Unlinks an account from an Infusionsoft ID. This can be called from trusted systems when one of their local
+     * users is deleted or deactivated, to also remove the mapping on the CAS side.
+     */
+    public ModelAndView disassociateAccounts(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String apiKey = request.getParameter("apiKey");
+        String appName = request.getParameter("appName");
+        String appType = request.getParameter("appType");
+        String appUsername = request.getParameter("appUsername");
+
+        // Validate the API key
+        if (!requiredApiKey.equals(apiKey)) {
+            logger.warn("Invalid API access: apiKey = " + apiKey);
+            response.sendError(401);
+
+            return null;
+        }
+
+        // Find any matching accounts and disassociate them
+        try {
+            List<UserAccount> accounts = infusionsoftDataService.findLinkedUserAccounts(appName, appType, appUsername);
+
+            log.info("found " + accounts.size() + " user accounts mapped to local user " + appUsername + " on " + appName + "/" + appType);
+
+            for (UserAccount account : accounts) {
+                infusionsoftDataService.disassociateAccount(account);
+            }
+
+            response.getWriter().append("OK");
+        } catch (Exception e) {
+            log.error("failed to unlink user accounts mapped to local user " + appUsername + " on " + appName + "/" + appType);
+
+            response.sendError(500);
+        }
 
         return null;
     }
