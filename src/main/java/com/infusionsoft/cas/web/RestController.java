@@ -244,8 +244,10 @@ public class RestController extends MultiActionController {
     }
 
     /**
-     * Unlinks an account from an Infusionsoft ID. This can be called from trusted systems when one of their local
-     * users is deleted or deactivated, to also remove the mapping on the CAS side.
+     * Unlinks an account or accounts from an Infusionsoft ID. This can be called from trusted systems when one of
+     * their local users is deleted or deactivated, to also remove the mapping on the CAS side. It can also be called
+     * when an app instance is deleted; in this case, if the appUsername is not passed then it will unlink ALL
+     * accounts for that app.
      */
     public ModelAndView disassociateAccounts(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String apiKey = request.getParameter("apiKey");

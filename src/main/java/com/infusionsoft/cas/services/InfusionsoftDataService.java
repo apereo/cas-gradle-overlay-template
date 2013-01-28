@@ -3,6 +3,7 @@ package com.infusionsoft.cas.services;
 import com.infusionsoft.cas.exceptions.CASMappingException;
 import com.infusionsoft.cas.types.*;
 import org.apache.commons.lang.RandomStringUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 
@@ -173,10 +174,15 @@ public class InfusionsoftDataService {
 
     /**
      * Finds any linked user accounts to a given app and local username. It's possible multiple Infusionsoft IDs
-     * may be linked to the same local username on the same app.
+     * may be linked to the same local username on the same app. If a null or blank appUsername is passed, it will
+     * return all linked user accounts for that app name and type.
      */
     public List<UserAccount> findLinkedUserAccounts(String appName, String appType, String appUsername) {
-        return hibernateTemplate.find("from UserAccount ua where ua.appName = ? and ua.appType = ? and ua.appUsername = ?", appName, appType, appUsername);
+        if (StringUtils.isEmpty(appUsername)) {
+            return hibernateTemplate.find("from UserAccount ua where ua.appName = ? and ua.appType = ?", appName, appType);
+        } else {
+            return hibernateTemplate.find("from UserAccount ua where ua.appName = ? and ua.appType = ? and ua.appUsername = ?", appName, appType, appUsername);
+        }
     }
 
     /**
