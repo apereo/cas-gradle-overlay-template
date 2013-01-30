@@ -69,14 +69,13 @@ public class CentralMultiActionController extends MultiActionController {
             String appType = infusionsoftAuthenticationService.guessAppType(new URL(service));
 
             if (infusionsoftAuthenticationService.isAppAssociated(user, new URL(service))) {
-                log.info("user " + user.getId() + " is already associated with app:" + service);
-                log.info("redirecting to " + appName + "/" + appType);
+                log.info("user " + user.getId() + " is already associated with app:" + service + "; redirecting to " + appName + "/" + appType);
 
                 session.removeAttribute("serviceUrl"); // to prevent stale tickets being reused
 
                 return new ModelAndView("redirect:" + service);
             } else if (appName != null && appType != null) {
-                log.info("user " + user.getId() + " was referred from an unassociated app: " + service);
+                log.info("user " + user.getId() + " was referred from an unassociated app " + appName + "/" + appType + "(" + service + ")");
 
                 Map<String, Object> model = new HashMap<String, Object>();
 

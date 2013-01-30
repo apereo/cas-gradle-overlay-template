@@ -141,11 +141,11 @@
                         </div>
                     </c:when>
                     <c:when test="${account.appType == 'community'}">
-                        <div accountId="${account.id}" href="http://community.${communityDomain}/caslogin.php" class="account forum-account">
+                        <div accountId="${account.id}" href="http://${communityDomain}/caslogin.php" class="account forum-account">
                             <div class="account-delete">&times;</div>
                             <div class="account-info">
                                 <div class="account-title">Infusionsoft Community</div>
-                                <div class="account-detail">community.${communityDomain}</div>
+                                <div class="account-detail">${communityDomain}</div>
                             </div>
                         </div>
                     </c:when>

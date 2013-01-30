@@ -53,6 +53,7 @@ public class InfusionsoftAuthenticationService {
     private String crmVendorKey;
     private String customerHubDomain;
     private String communityDomain;
+    private String marketplaceDomain;
     private String forumBase;
     private String forumApiKey;
     private String migrationDateString;
@@ -64,7 +65,7 @@ public class InfusionsoftAuthenticationService {
         if (appType.equals(AppType.CRM)) {
             return crmProtocol + "://" + appName + "." + crmDomain + ":" + crmPort;
         } else if (appType.equals(AppType.COMMUNITY)) {
-            return "http://" + appName + "." + communityDomain + "/caslogin.php";
+            return "http://" + communityDomain + "/caslogin.php";
         } else if (appType.equals(AppType.CUSTOMERHUB)) {
             return "https://" + appName + "." + customerHubDomain;
         } else {
@@ -83,8 +84,10 @@ public class InfusionsoftAuthenticationService {
 
         if (url.toString().startsWith(serverPrefix)) {
             // it's us!
-        } else if (host.equals("community." + communityDomain)) {
-            appName = host.replace("." + communityDomain, "");
+        } else if (host.equals(communityDomain)) {
+            appName = "community";
+        } else if (host.equals(marketplaceDomain)) {
+            appName = "marketplace";
         } else if (host.endsWith(crmDomain)) {
             appName = host.replace("." + crmDomain, "");
         } else if (host.endsWith(customerHubDomain)) {
@@ -109,8 +112,10 @@ public class InfusionsoftAuthenticationService {
 
         if (url.toString().startsWith(serverPrefix)) {
             appType = AppType.CAS;
-        } else if (host.equals("community." + communityDomain)) {
+        } else if (host.equals(communityDomain)) {
             appType = AppType.COMMUNITY;
+        } else if (host.equals(marketplaceDomain)) {
+            appType = AppType.MARKETPLACE;
         } else if (host.endsWith(crmDomain)) {
             appType = AppType.CRM;
         } else if (host.endsWith(customerHubDomain)) {
@@ -209,12 +214,20 @@ public class InfusionsoftAuthenticationService {
     }
 
     /**
-     * Checks whether a user is associated to an app at a particular URL.
+     * Checks whether a user is associated to an app at a particular URL. Everyone is automatically associated with
+     * the marketplace.
      */
     public boolean isAppAssociated(User user, URL url) {
+        if (guessAppType(url) == AppType.MARKETPLACE) {
+            return true;
+        }
+
         for (UserAccount account : user.getAccounts()) {
             try {
-                URL appUrl = new URL(buildAppUrl(account.getAppType(), account.getAppName()));
+                String accountAppUrl = buildAppUrl(account.getAppType(), account.getAppName());
+                URL appUrl = new URL(accountAppUrl);
+
+                log.debug("checking if host " + appUrl.getHost().toLowerCase() + " matches URL " + appUrl);
 
                 if (appUrl.getHost().toLowerCase().equals(url.getHost().toLowerCase())) {
                     return true;
@@ -223,6 +236,8 @@ public class InfusionsoftAuthenticationService {
                 log.error("unexpected exception constructing app url", e);
             }
         }
+
+
 
         return false;
     }
@@ -512,6 +527,14 @@ public class InfusionsoftAuthenticationService {
 
     public void setCustomerHubDomain(String customerHubDomain) {
         this.customerHubDomain = customerHubDomain;
+    }
+
+    public String getMarketplaceDomain() {
+        return marketplaceDomain;
+    }
+
+    public void setMarketplaceDomain(String marketplaceDomain) {
+        this.marketplaceDomain = marketplaceDomain;
     }
 
     public String getCommunityDomain() {

@@ -8,4 +8,5 @@ public interface AppType {
     public static final String COMMUNITY = "community";
     public static final String CRM = "crm";
     public static final String CUSTOMERHUB = "customerhub";
+    public static final String MARKETPLACE = "marketplace";
 }

@@ -206,6 +206,7 @@
         <property name="crmProtocol" value="${infusionsoft.crm.protocol}"/>
         <property name="crmPort" value="${infusionsoft.crm.port}"/>
         <property name="crmVendorKey" value="${infusionsoft.crm.vendorkey}"/>
+        <property name="marketplaceDomain" value="${infusionsoft.marketplace.domain}"/>
         <property name="communityDomain" value="${infusionsoft.community.domain}"/>
         <property name="customerHubDomain" value="${infusionsoft.customerhub.domain}"/>
         <property name="migrationDateString" value="${infusionsoft.migration.date}"/>
