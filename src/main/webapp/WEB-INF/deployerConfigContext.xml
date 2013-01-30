@@ -236,10 +236,7 @@
     </bean>
 
     <bean id="userFilter" name="userFilter" class="com.infusionsoft.cas.web.UserFilter"
-          p:infusionsoftAuthenticationService-ref="infusionsoftAuthenticationService"
-          p:crmDomain="${infusionsoft.crm.domain}"
-          p:communityDomain="${infusionsoft.community.domain}"
-          p:customerHubDomain="${infusionsoft.customerhub.domain}"/>
+          p:infusionsoftAuthenticationService-ref="infusionsoftAuthenticationService"/>
 
     <bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
         <property name="host" value="${infusionsoft.mail.host}"/>

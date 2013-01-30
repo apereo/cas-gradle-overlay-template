@@ -13,9 +13,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.validator.EmailValidator;
 import org.apache.log4j.Logger;
 import org.springframework.orm.hibernate3.HibernateTemplate;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.multiaction.MultiActionController;
 
@@ -179,6 +176,8 @@ public class CentralMultiActionController extends MultiActionController {
         User user = infusionsoftAuthenticationService.getCurrentUser(request);
         CommunityAccountDetails details = new CommunityAccountDetails();
 
+        details.setNotificationEmailAddress(user.getUsername());
+
         model.put("infusionsoftExperienceLevels", new int[]{1, 2, 3, 4, 5});
         model.put("details", details);
 
@@ -193,7 +192,7 @@ public class CentralMultiActionController extends MultiActionController {
 
             if (StringUtils.isEmpty(details.getDisplayName()) || details.getDisplayName().length() < 4 || details.getDisplayName().length() > 30) {
                 model.put("error", "community.error.displayNameInvalid");
-            } else if (StringUtils.isNotEmpty(details.getNotificationEmailAddress()) && !EmailValidator.getInstance().isValid(details.getNotificationEmailAddress())) {
+            } else if (StringUtils.isEmpty(details.getNotificationEmailAddress()) || !EmailValidator.getInstance().isValid(details.getNotificationEmailAddress())) {
                 model.put("error", "community.error.notificationEmailAddressInvalid");
             } else if (!agreeToRules) {
                 model.put("error", "community.error.agreeToRules");
@@ -235,7 +234,11 @@ public class CentralMultiActionController extends MultiActionController {
         try {
             User currentUser = infusionsoftAuthenticationService.getCurrentUser(request);
 
-            if (StringUtils.isEmpty(appUsername)) {
+            if (request.getParameter("cancel") != null) {
+                request.getSession(true).removeAttribute("serviceUrl");
+
+                return new ModelAndView("redirect:home");
+            } else if (StringUtils.isEmpty(appUsername)) {
                 model.put("error", "registration.error.invalidAppUsername");
             } else if (StringUtils.isEmpty(appPassword)) {
                 model.put("error", "registration.error.invalidPassword");

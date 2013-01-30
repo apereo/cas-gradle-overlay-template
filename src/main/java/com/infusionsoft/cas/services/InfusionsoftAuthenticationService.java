@@ -108,7 +108,7 @@ public class InfusionsoftAuthenticationService {
         String host = url.getHost().toLowerCase();
 
         if (url.toString().startsWith(serverPrefix)) {
-            // it's us!
+            appType = AppType.CAS;
         } else if (host.equals("community." + communityDomain)) {
             appType = AppType.COMMUNITY;
         } else if (host.endsWith(crmDomain)) {
@@ -343,7 +343,7 @@ public class InfusionsoftAuthenticationService {
         String response = restTemplate.postForObject("{base}/rest.php/user/addnewuser?key={apiKey}&username={username}&email={email}&experience={experience}&twitter={twitter}&timezone={timezone}", "", String.class, forumBase, forumApiKey, username, email, details.getInfusionsoftExperience(), details.getTwitterHandle(), details.getTimeZone());
         JSONObject responseJson = (JSONObject) JSONValue.parse(response);
         Boolean hasError = (Boolean) responseJson.get("error");
-        String userId = (String) responseJson.get("userId");
+        String userId = String.valueOf(responseJson.get("userId"));
 
         if (hasError) {
             throw new UsernameTakenException("the display name " + details.getDisplayName() + " is already taken");

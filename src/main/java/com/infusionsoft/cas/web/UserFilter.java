@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -26,10 +27,8 @@ public class UserFilter implements Filter {
     private static final Logger log = Logger.getLogger(UserFilter.class);
 
     private InfusionsoftAuthenticationService infusionsoftAuthenticationService;
-    private String crmDomain;
-    private String communityDomain;
-    private String customerHubDomain;
     private String contextPath = null;
+    private String serverPrefix;
 
     public void init(FilterConfig filterConfig) throws ServletException {
         contextPath = filterConfig.getServletContext().getContextPath();
@@ -125,15 +124,7 @@ public class UserFilter implements Filter {
         this.infusionsoftAuthenticationService = infusionsoftAuthenticationService;
     }
 
-    public void setCrmDomain(String crmDomain) {
-        this.crmDomain = crmDomain;
-    }
-
-    public void setCommunityDomain(String communityDomain) {
-        this.communityDomain = communityDomain;
-    }
-
-    public void setCustomerHubDomain(String customerHubDomain) {
-        this.customerHubDomain = customerHubDomain;
+    public void setServerPrefix(String serverPrefix) {
+        this.serverPrefix = serverPrefix;
     }
 }

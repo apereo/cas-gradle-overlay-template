@@ -141,7 +141,7 @@ public class RegistrationMultiActionController extends MultiActionController {
                     String appName = infusionsoftAuthenticationService.guessAppName(new URL(serviceUrl));
                     String appType = infusionsoftAuthenticationService.guessAppType(new URL(serviceUrl));
 
-                    if (StringUtils.equals(appType, AppType.CRM) && !StringUtils.equals(appName, "cas")) {
+                    if (StringUtils.equals(appType, AppType.CRM) && !StringUtils.equals(appType, AppType.CAS)) {
                         return new ModelAndView("redirect:verification");
                     }
                 } catch (Exception e) {

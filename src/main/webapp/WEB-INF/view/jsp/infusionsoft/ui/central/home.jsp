@@ -145,7 +145,6 @@
                             <div class="account-delete">&times;</div>
                             <div class="account-info">
                                 <div class="account-title">Infusionsoft Community</div>
-                                <div class="account-detail">Display Name: ${account.appUsername}</div>
                                 <div class="account-detail">community.${communityDomain}</div>
                             </div>
                         </div>

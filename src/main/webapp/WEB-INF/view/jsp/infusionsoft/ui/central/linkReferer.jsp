@@ -75,7 +75,7 @@
 
         <div class="control-group" style="text-align: right">
             <input class="btn btn-primary" name="submit" accesskey="l" value="Verify" tabindex="4" type="submit" />
-            <a href="${homeUrl}" class="btn">Cancel</a>
+            <input class="btn" name="cancel" value="Cancel" tabindex="4" type="submit" />
         </div>
     </form>
 </div>
