@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Really simple controller that provides REST-like JSON services for registering users.
+ * Really simple controller that provides HTTP JSON services for registering users.
  * REST purists, please don't be offended by the use of the POST verb to create or authenticate users.
  * We just want something easy that does the job.
  */
@@ -161,19 +161,12 @@ public class RestController extends MultiActionController {
             if (model.containsKey("error")) {
                 logger.warn("couldn't create new user account via REST service for API key " + apiKey + ": " + model.get("error"));
             } else {
-                UserAccount account = new UserAccount();
-
-                account.setAppName(appName);
-                account.setAppType(appType);
-                account.setAppUsername(appUsername);
-                account.setUser(user);
-
                 model.put("user", user);
 
-                user.getAccounts().add(account);
-
                 hibernateTemplate.save(user);
+
                 infusionsoftPasswordService.setPasswordForUser(user, password);
+                infusionsoftDataService.associateAccountToUser(user, appType, appName, appUsername);
             }
         } catch (Exception e) {
             logger.error("failed to create user account", e);
@@ -244,7 +237,45 @@ public class RestController extends MultiActionController {
     }
 
     /**
-     * Unlinks an account or accounts from an Infusionsoft ID. This can be called from trusted systems when one of
+     * Finds and reassociates accounts that have been disassociated previously. This is for the case where the admin
+     * of an Infusionsoft app deactivates and later reactivates one of their users.
+     */
+    public ModelAndView reassociateAccounts(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String apiKey = request.getParameter("apiKey");
+        String appName = request.getParameter("appName");
+        String appType = request.getParameter("appType");
+        String appUsername = request.getParameter("appUsername");
+
+        // Validate the API key
+        if (!requiredApiKey.equals(apiKey)) {
+            logger.warn("Invalid API access: apiKey = " + apiKey);
+            response.sendError(401);
+
+            return null;
+        }
+
+        // Find any matching accounts and disassociate them
+        try {
+            List<UserAccount> accounts = infusionsoftDataService.findDisabledUserAccounts(appName, appType, appUsername);
+
+            log.info("found " + accounts.size() + " disabled user accounts mapped to local user " + appUsername + " on " + appName + "/" + appType);
+
+            for (UserAccount account : accounts) {
+                infusionsoftDataService.enableUserAccount(account);
+            }
+
+            response.getWriter().append("OK");
+        } catch (Exception e) {
+            log.error("failed to reassociate user accounts for " + appUsername + " on " + appName + "/" + appType);
+
+            response.sendError(500);
+        }
+
+        return null;
+    }
+
+    /**
+     * Disassociates an account or accounts from an Infusionsoft ID. This can be called from trusted systems when one of
      * their local users is deleted or deactivated, to also remove the mapping on the CAS side. It can also be called
      * when an app instance is deleted; in this case, if the appUsername is not passed then it will unlink ALL
      * accounts for that app.
@@ -265,12 +296,12 @@ public class RestController extends MultiActionController {
 
         // Find any matching accounts and disassociate them
         try {
-            List<UserAccount> accounts = infusionsoftDataService.findLinkedUserAccounts(appName, appType, appUsername);
+            List<UserAccount> accounts = infusionsoftDataService.findEnabledUserAccounts(appName, appType, appUsername);
 
             log.info("found " + accounts.size() + " user accounts mapped to local user " + appUsername + " on " + appName + "/" + appType);
 
             for (UserAccount account : accounts) {
-                infusionsoftDataService.disassociateAccount(account);
+                infusionsoftDataService.disableAccount(account);
             }
 
             response.getWriter().append("OK");
@@ -383,6 +414,44 @@ public class RestController extends MultiActionController {
                 log.error("failed to create JSON response", e);
                 response.sendError(500);
             }
+        }
+
+        return null;
+    }
+
+    /**
+     * Called from trusted clients to get info about a CAS user profile based on their local user account.
+     */
+    public ModelAndView getUserInfo(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String apiKey = request.getParameter("apiKey");
+        String appName = request.getParameter("appName");
+        String appType = request.getParameter("appType");
+        String appUsername = request.getParameter("appUsername");
+
+        // Validate the API key
+        if (!requiredApiKey.equals(apiKey)) {
+            logger.warn("Invalid API access: apiKey = " + apiKey);
+            response.sendError(401);
+
+            return null;
+        }
+
+        List<UserAccount> accounts = hibernateTemplate.find("from UserAccount ua where ua.appName  = ? and ua.appType = ? and ua.appUsername = ? and ua.disabled = ?", appName, appType, appUsername, false);
+
+        if (accounts.size() > 0) {
+            User user = accounts.get(0).getUser();
+            JSONObject json = new JSONObject();
+
+            json.put("username", user.getUsername());
+            json.put("firstName", user.getFirstName());
+            json.put("lastName", user.getLastName());
+            json.put("displayName", user.getFirstName() + " " + user.getLastName());
+
+            response.getWriter().println(json.toJSONString());
+        } else {
+            log.info("could not find an active user account for " + appUsername + " on " + appName + "/" + appType);
+
+            response.getWriter().println(new JSONObject().toJSONString());
         }
 
         return null;

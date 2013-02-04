@@ -44,7 +44,7 @@ public class InfusionsoftAttributeDao extends AbstractFlatteningPersonAttributeD
 
         if (users.size() > 0 ) {
             User currUser = users.get(0);
-            List<UserAccount> accounts = hibernateTemplate.find("FROM UserAccount ua WHERE ua.user = ?", currUser);
+            List<UserAccount> accounts = hibernateTemplate.find("FROM UserAccount ua WHERE ua.user = ? and ua.disabled = ?", currUser, false);
             JSONObject rootObj = new JSONObject();
             JSONArray accountsArray = new JSONArray();
 

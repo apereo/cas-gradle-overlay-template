@@ -13,6 +13,7 @@ public class UserAccount implements Serializable {
     private String appType;
     private String appName;
     private String appUsername;
+    private boolean disabled = false;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -72,4 +73,12 @@ public class UserAccount implements Serializable {
         this.appType = appType;
     }
 
+    @Column(name = "disabled")
+    public boolean isDisabled() {
+        return disabled;
+    }
+
+    public void setDisabled(boolean disabled) {
+        this.disabled = disabled;
+    }
 }

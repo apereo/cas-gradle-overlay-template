@@ -75,14 +75,27 @@ public class InfusionsoftDataService {
     }
 
     /**
+     * Finds a user account by for a user.
+     */
+    public UserAccount findUserAccount(User user, String appName, String appType, String appUsername) {
+        List<UserAccount> accounts = (List<UserAccount>) hibernateTemplate.find("from UserAccount ua where ua.user = ? and ua.appName = ? and ua.appType = ? and ua.appUsername = ?", user, appName, appType, appUsername);
+
+        if (accounts.size() > 0) {
+            return accounts.get(0);
+        } else {
+            return null;
+        }
+    }
+
+    /**
      * Returns a user's accounts, sorted by type and name for consistency.
      */
     public List<UserAccount> findSortedUserAccounts(User user) {
         List<UserAccount> accounts = new ArrayList<UserAccount>();
 
-        accounts.addAll(hibernateTemplate.find("from UserAccount where user = ? and appType = ? order by appName", user, AppType.CRM));
-        accounts.addAll(hibernateTemplate.find("from UserAccount where user = ? and appType = ? order by appName", user, AppType.COMMUNITY));
-        accounts.addAll(hibernateTemplate.find("from UserAccount where user = ? and appType = ? order by appName", user, AppType.CUSTOMERHUB));
+        accounts.addAll(hibernateTemplate.find("from UserAccount where user = ? and appType = ? and disabled = ? order by appName", user, AppType.CRM, false));
+        accounts.addAll(hibernateTemplate.find("from UserAccount where user = ? and appType = ? and disabled = ? order by appName", user, AppType.COMMUNITY, false));
+        accounts.addAll(hibernateTemplate.find("from UserAccount where user = ? and appType = ? and disabled = ? order by appName", user, AppType.CUSTOMERHUB, false));
 
         return accounts;
     }
@@ -125,18 +138,25 @@ public class InfusionsoftDataService {
      * Associates an external account to a CAS user.
      */
     public UserAccount associateAccountToUser(User user, String appType, String appName, String appUsername) throws CASMappingException {
-        UserAccount account = new UserAccount();
-
-        account.setUser(user);
-        account.setAppType(appType);
-        account.setAppName(appName);
-        account.setAppUsername(appUsername);
-
-        user.getAccounts().add(account);
+        UserAccount account = findUserAccount(user, appName, appType, appUsername);
 
         try {
-            hibernateTemplate.save(account);
-            hibernateTemplate.update(user);
+            if (account == null) {
+                account = new UserAccount();
+                account.setUser(user);
+                account.setAppType(appType);
+                account.setAppName(appName);
+                account.setAppUsername(appUsername);
+
+                user.getAccounts().add(account);
+
+                hibernateTemplate.save(account);
+                hibernateTemplate.update(user);
+            } else {
+                account.setDisabled(false);
+
+                hibernateTemplate.update(account);
+            }
         } catch (Exception e) {
             throw new CASMappingException("failed to associate user to app account", e);
         }
@@ -146,27 +166,37 @@ public class InfusionsoftDataService {
 
     /**
      * Tries to associate a user with a pending registration. If successful, this
-     * will return the newly associated user account.
+     * will return the newly associated user account. If there's already a disabled user account matching the
+     * registration (unlikely), re-enable it instead of creating a duplicate.
      */
     public UserAccount associatePendingAccountToUser(User user, String registrationCode) throws CASMappingException {
         PendingUserAccount pendingAccount = findPendingUserAccount(registrationCode);
-        UserAccount account = new UserAccount();
-
-        account.setUser(user);
-        account.setAppName(pendingAccount.getAppName());
-        account.setAppType(pendingAccount.getAppType());
-        account.setAppUsername(pendingAccount.getAppUsername());
-
-        user.getAccounts().add(account);
+        UserAccount account = findUserAccount(user, pendingAccount.getAppName(), pendingAccount.getAppType(), pendingAccount.getAppUsername());
 
         try {
-            hibernateTemplate.save(account);
-            hibernateTemplate.update(user);
-            hibernateTemplate.delete(pendingAccount);
+            if (account == null) {
+                account = new UserAccount();
 
-            log.info("associated new user to " + account.getAppName() + "/" + account.getAppType());
+                account.setUser(user);
+                account.setAppName(pendingAccount.getAppName());
+                account.setAppType(pendingAccount.getAppType());
+                account.setAppUsername(pendingAccount.getAppUsername());
+
+                user.getAccounts().add(account);
+
+                hibernateTemplate.save(account);
+                hibernateTemplate.update(user);
+            } else {
+                account.setDisabled(false);
+
+                hibernateTemplate.update(user);
+            }
+
+            log.info("associated user " + user.getId() + " to " + account.getAppName() + "/" + account.getAppType());
+
+            hibernateTemplate.delete(pendingAccount);
         } catch (Exception e) {
-            throw new CASMappingException("failed to associate new user to registration code " + registrationCode, e);
+            throw new CASMappingException("failed to associate user " + user.getId() + " to registration code " + registrationCode, e);
         }
 
         return account;
@@ -177,29 +207,47 @@ public class InfusionsoftDataService {
      * may be linked to the same local username on the same app. If a null or blank appUsername is passed, it will
      * return all linked user accounts for that app name and type.
      */
-    public List<UserAccount> findLinkedUserAccounts(String appName, String appType, String appUsername) {
+    public List<UserAccount> findEnabledUserAccounts(String appName, String appType, String appUsername) {
         if (StringUtils.isEmpty(appUsername)) {
-            return hibernateTemplate.find("from UserAccount ua where ua.appName = ? and ua.appType = ?", appName, appType);
+            return hibernateTemplate.find("from UserAccount ua where ua.appName = ? and ua.appType = ? and ua.disabled = ?", appName, appType, false);
         } else {
-            return hibernateTemplate.find("from UserAccount ua where ua.appName = ? and ua.appType = ? and ua.appUsername = ?", appName, appType, appUsername);
+            return hibernateTemplate.find("from UserAccount ua where ua.appName = ? and ua.appType = ? and ua.appUsername = ? and ua.disabled = ?", appName, appType, appUsername, false);
         }
     }
 
     /**
-     * Disassociates an account (deletes it).
+     * Finds any linked user accounts to a given app and local username that have been disabled.
      */
-    public void disassociateAccount(UserAccount account) {
-        log.info("disassociating user account " + account.getId());
-        CommunityAccountDetails details = findCommunityAccountDetails(account);
-
-        if (details != null) {
-            hibernateTemplate.delete(details);
+    public List<UserAccount> findDisabledUserAccounts(String appName, String appType, String appUsername) {
+        if (StringUtils.isEmpty(appUsername)) {
+            return hibernateTemplate.find("from UserAccount ua where ua.appName = ? and ua.appType = ? and ua.disabled = ?", appName, appType, true);
+        } else {
+            return hibernateTemplate.find("from UserAccount ua where ua.appName = ? and ua.appType = ? and ua.appUsername = ? and ua.disabled = ?", appName, appType, appUsername, true);
         }
+    }
 
-        account.getUser().getAccounts().remove(account);
+    /**
+     * Disables a linked user account.
+     */
+    public void disableAccount(UserAccount account) {
+        log.info("disabling user account " + account.getId());
 
+        account.setDisabled(true);
+
+        hibernateTemplate.update(account);
         hibernateTemplate.update(account.getUser());
-        hibernateTemplate.delete(account);
+    }
+
+    /**
+     * Enables a linked user account that was previously disabled.
+     */
+    public void enableUserAccount(UserAccount account) {
+        log.info("re-enabling user account " + account.getId());
+
+        account.setDisabled(false);
+
+        hibernateTemplate.update(account);
+        hibernateTemplate.update(account.getUser());
     }
 
     /**

@@ -69,7 +69,7 @@ public class CentralMultiActionController extends MultiActionController {
             String appType = infusionsoftAuthenticationService.guessAppType(new URL(service));
 
             if (infusionsoftAuthenticationService.isAppAssociated(user, new URL(service))) {
-                log.info("user " + user.getId() + " is already associated with app:" + service + "; redirecting to " + appName + "/" + appType);
+                log.info("user " + user.getId() + " is associated with app: " + service + "; redirecting to " + appName + "/" + appType);
 
                 session.removeAttribute("serviceUrl"); // to prevent stale tickets being reused
 
@@ -149,7 +149,7 @@ public class CentralMultiActionController extends MultiActionController {
         User user = infusionsoftAuthenticationService.getCurrentUser(request);
         UserAccount account = infusionsoftDataService.findUserAccount(user, Long.parseLong(request.getParameter("account")));
 
-        infusionsoftDataService.disassociateAccount(account);
+        infusionsoftDataService.disableAccount(account);
 
         return new ModelAndView("redirect:/central/home");
     }
@@ -406,23 +406,6 @@ public class CentralMultiActionController extends MultiActionController {
 
             return new ModelAndView("redirect:index");
         }
-    }
-
-    /**
-     * Brings up the form to edit a community user profile.
-     */
-    public ModelAndView editCommunityAccount(HttpServletRequest request, HttpServletResponse response) {
-        Long accountId = new Long(request.getParameter("id"));
-        User user = infusionsoftAuthenticationService.getCurrentUser(request);
-        UserAccount account = infusionsoftDataService.findUserAccount(user, accountId);
-        Map<String, Object> model = new HashMap<String, Object>();
-
-        model.put("user", user);
-        model.put("account", account);
-        model.put("details", infusionsoftDataService.findCommunityAccountDetails(account));
-        model.put("infusionsoftExperienceLevels", new int[]{1, 2, 3, 4, 5});
-
-        return new ModelAndView("infusionsoft/ui/central/editCommunityAccount", model);
     }
 
     /**
