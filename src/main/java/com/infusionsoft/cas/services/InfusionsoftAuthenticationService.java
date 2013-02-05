@@ -461,7 +461,7 @@ public class InfusionsoftAuthenticationService {
      */
     public boolean hasCommunityAccount(User user) {
         for (UserAccount account : user.getAccounts()) {
-            if (account.getAppType().equals(AppType.COMMUNITY)) {
+            if (account.getAppType().equals(AppType.COMMUNITY) && !account.isDisabled()) {
                 return true;
             }
         }
