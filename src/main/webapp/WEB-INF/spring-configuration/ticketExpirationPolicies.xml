@@ -11,14 +11,20 @@
 	<!-- Expiration policies -->
 	<bean id="serviceTicketExpirationPolicy" class="org.jasig.cas.ticket.support.MultiTimeUseOrTimeoutExpirationPolicy">
 		<!-- This argument is the number of times that a ticket can be used before its considered expired. -->
+        <!--
 		<constructor-arg
 			index="0"
 			value="1" />
+            -->
+        <!-- TODO: set this back to 1 after KWall finishes testing -->
+		<constructor-arg
+			index="0"
+			value="3" />
 		
 		<!-- This argument is the time a ticket can exist before its considered expired.  -->
 		<constructor-arg
 			index="1"
-			value="10000" />
+			value="30000" />
 	</bean>
 
     <!-- Allow a "remember me" option to stay logged in for a week. -->
