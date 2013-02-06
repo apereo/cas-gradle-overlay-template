@@ -65,6 +65,8 @@ public class UserFilter implements Filter {
                 long timeToMigrate = migrationDate.getTime() - System.currentTimeMillis();
                 long daysToMigrate = Math.round(timeToMigrate / 86400000);
 
+                request.getSession(true).setAttribute("migrationDate", migrationDate);
+
                 if (daysToMigrate > 0) {
                     request.getSession(true).setAttribute("daysToMigrate", daysToMigrate);
                 }

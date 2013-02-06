@@ -51,11 +51,9 @@
         <h2>Verify Account</h2>
 
         <p>
-            We need to verify you are a user of ${appDomain}.
-        </p>
-        <p>
-            Just this once, please enter your
-            username and password for ${appDomain}.
+            To connect this account, <strong>${appDomain}</strong>, to your Infusionsoft
+            ID, please enter your previous username and password.
+            <a target="transition" href="http://ug.infusionsoft.com/article/AA-01207/0/Infusionsoft-ID-Transition.html">Learn more.</a>
         </p>
 
         <fieldset>

@@ -418,3 +418,84 @@ label {
     padding: 20px 0 0 60px;
     background: url(../images/quickedit-bubble.png) right top no-repeat;
 }
+
+.modal-title {
+    margin: 50px auto 0 auto;
+    text-align: center;
+    font-size: 20px;
+    line-height: 27px;
+    font-weight: 300;
+    color: #444;
+}
+
+.control-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #444;
+}
+
+body {
+    font: 12px Open Sans, Arial, Helvetica, Verdana, sans-serif;
+    color: #444;
+}
+
+p {
+    margin: 0px 0 20px 0;
+}
+
+.btn {
+    -moz-border-bottom-colors: none;
+    -moz-border-left-colors: none;
+    -moz-border-right-colors: none;
+    -moz-border-top-colors: none;
+    background-color: #F9F9F9;
+    background-repeat: no-repeat;
+    border-color: #BBBBBB;
+    border-image: none;
+    border-radius: 4px 4px 4px 4px;
+    border-style: solid;
+    border-width: 1px 1px 2px;
+    color: #444444;
+    cursor: pointer;
+    display: inline-block;
+    font: 700 12px 'Open Sans',Arial,Verdana,Sans-Serif;
+    margin-left: 2px;
+    margin-right: 2px;
+    padding: 4px 12px;
+    position: relative;
+    text-decoration: none;
+    background-image: none;
+}
+
+.btn:hover {
+    background: none repeat scroll 0 0 #FDFDFD;
+    color: #444444;
+    text-decoration: none;
+}
+
+.btn.btn-primary {
+    -moz-border-bottom-colors: none;
+    -moz-border-left-colors: none;
+    -moz-border-right-colors: none;
+    -moz-border-top-colors: none;
+    background-color: #70BD49;
+    border-color: #4E972A;
+    border-image: none;
+    border-radius: 4px 4px 4px 4px;
+    border-style: solid;
+    border-width: 1px 1px 2px;
+    color: #FFFFFF;
+    cursor: pointer;
+    display: inline-block;
+    font: 700 12px 'Open Sans',Arial,Verdana,Sans-Serif;
+    padding: 4px 12px;
+    position: relative;
+    text-shadow: 0 1px 0 #579B3C;
+    background-image: none;
+}
+
+.btn.btn-primary:hover {
+    background-color: #77C94E;
+    color: #FFFFFF;
+}
+

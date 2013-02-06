@@ -284,20 +284,10 @@ legend+.control-group{margin-top:18px;-webkit-margin-top-collapse:separate;}
 .btn{border-color:#ccc;border-color:rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25);}
 .btn-primary{
     background-color:#75c751;
-    background-image:-moz-linear-gradient(top, #83C852, #61B13B);
-    background-image:-ms-linear-gradient(top, #83C852, #61B13B);
-    background-image:-webkit-gradient(linear, 0 0, 0 100%, from(#83C852), to(#61B13B));
-    background-image:-webkit-linear-gradient(top, #83C852, #61B13B);
-    background-image:-o-linear-gradient(top, #83C852, #61B13B);
-    background-image:linear-gradient(top, #83C852, #61B13B);
-    background-repeat:repeat-x;
-    filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#83C852', endColorstr='#61B13B', GradientType=0);
-    border-color:#64c751 #61B13B #429a32;
-    border-color:rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25);
-    *background-color:#64c751;filter:progid:DXImageTransform.Microsoft.gradient(enabled = false);
+    *background-color:#64c751;
 }
 .btn-primary:hover,.btn-primary:active,.btn-primary.active,.btn-primary.disabled,.btn-primary[disabled]{
-    background-color:#61B13B;*background-color:#52c13e;
+    background-color:#61B13B;
 }
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    }
 .btn-primary:active,.btn-primary.active{background-color:#4aad38 \9;}

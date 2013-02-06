@@ -13,4 +13,6 @@
     </decorator>
     <decorator name="anonymousNoLogo" page="anonymousNoLogo.jsp">
     </decorator>
+    <decorator name="plain" page="plain.jsp">
+    </decorator>
 </decorators>

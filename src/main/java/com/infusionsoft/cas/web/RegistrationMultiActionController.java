@@ -63,6 +63,15 @@ public class RegistrationMultiActionController extends MultiActionController {
     }
 
     /**
+     * Shows the registration form.
+     */
+    public ModelAndView banner(HttpServletRequest request, HttpServletResponse response) {
+        Map<String, Object> model = new HashMap<String, Object>();
+
+        return new ModelAndView("infusionsoft/ui/registration/banner", model);
+    }
+
+    /**
      * Registers a new user account.
      */
     public ModelAndView register(HttpServletRequest request, HttpServletResponse response) {
