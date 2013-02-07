@@ -126,10 +126,10 @@
          The "redirect" end state allows CAS to properly end the workflow while still redirecting
          the user back to the service required.
      -->
-    <!--
     <end-state id="redirectView" view="externalRedirect:contextRelative:/central/index?service=${requestScope.response.url}" />
-    -->
+    <!--
     <end-state id="redirectView" view="externalRedirect:contextRelative:/central/index" />
+    -->
     <!--
 	<end-state id="redirectView" view="externalRedirect:${requestScope.response.url}" />
 	-->
