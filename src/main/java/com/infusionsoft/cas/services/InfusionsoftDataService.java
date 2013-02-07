@@ -264,10 +264,23 @@ public class InfusionsoftDataService {
     }
 
     /**
+     * Finds a user by username.
+     */
+    public User findUser(String username) {
+        List<User> users = hibernateTemplate.find("from User u where lower(u.username) = ? and u.enabled = true", username.toLowerCase());
+
+        if (users.size() > 0) {
+            return users.get(0);
+        } else {
+            return null;
+        }
+    }
+
+    /**
      * Finds a user by username and (already MD5-encrypted) password.
      */
     public User findUser(String username, String md5password) {
-        List<UserPassword> passwords = hibernateTemplate.find("from UserPassword p where p.user.username = ? and p.passwordEncodedMD5 = ? and p.active = true", username, md5password);
+        List<UserPassword> passwords = hibernateTemplate.find("from UserPassword p where lower(p.user.username) = ? and p.passwordEncodedMD5 = ? and p.active = true and p.user.enabled = true", username.toLowerCase(), md5password);
 
         if (passwords.size() > 0) {
             return passwords.get(0).getUser();

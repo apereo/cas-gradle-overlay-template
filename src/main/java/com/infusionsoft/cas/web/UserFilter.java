@@ -98,8 +98,6 @@ public class UserFilter implements Filter {
 
                 if (StringUtils.isNotEmpty(appName) && StringUtils.isNotEmpty(appType)) {
                     request.setAttribute("appMigrated", infusionsoftAuthenticationService.isAppMigrated(appName, appType));
-
-                    log.debug("set appMigrated = " + request.getAttribute("appMigrated"));
                 }
             } catch (Exception e) {
                 log.warn("couldn't parse and interpret service url: " + service, e);

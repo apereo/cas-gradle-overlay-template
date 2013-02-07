@@ -21,7 +21,8 @@
     $(document).ready(function() {
         $(".account").hover(
             function() {
-                $(this).find(".account-delete").show();
+                // TODO - stop hiding this if we want to allow account deletion
+                //        $(this).find(".account-delete").show();
             },
             function() {
                 $(this).find(".account-delete").hide();
@@ -163,6 +164,15 @@
                     </c:otherwise>
                 </c:choose>
             </c:forEach>
+            <div href="${marketplaceUrl}" class="account marketplace-account">
+                <div class="account-delete">&times;</div>
+                <div class="account-info">
+                    <div id="account_${account.id}" class="account-title">
+                        <span>Marketplace</span>
+                    </div>
+                    <div class="account-detail">${marketplaceDomain}</div>
+                </div>
+            </div>
         </div>
     </c:if>
 </div>

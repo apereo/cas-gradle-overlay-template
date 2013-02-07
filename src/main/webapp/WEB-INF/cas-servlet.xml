@@ -220,6 +220,7 @@
           p:hibernateTemplate-ref="hibernateTemplate"
           p:infusionsoftDataService-ref="infusionsoftDataService"
           p:infusionsoftPasswordService-ref="infusionsoftPasswordService"
+          p:infusionsoftAuthenticationService-ref="infusionsoftAuthenticationService"
           p:requiredApiKey="bl4hbl4hbl4h"/>
 
     <bean id="logoutController" class="org.jasig.cas.web.LogoutController"

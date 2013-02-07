@@ -86,6 +86,7 @@ public class CentralMultiActionController extends MultiActionController {
             } else {
                 log.info("user " + user.getId() + " will be redirected to the home page");
 
+                // TODO - if they requested a service, should we send them there instead?
                 return new ModelAndView("redirect:home");
             }
         }
@@ -109,6 +110,8 @@ public class CentralMultiActionController extends MultiActionController {
             model.put("crmPort", infusionsoftAuthenticationService.getCrmPort());
             model.put("communityDomain", infusionsoftAuthenticationService.getCommunityDomain());
             model.put("customerHubDomain", infusionsoftAuthenticationService.getCustomerHubDomain());
+            model.put("marketplaceDomain", infusionsoftAuthenticationService.getMarketplaceDomain());
+            model.put("marketplaceUrl", infusionsoftAuthenticationService.getMarketplaceLoginUrl());
             model.put("accounts", infusionsoftDataService.findSortedUserAccounts(user));
 
             return new ModelAndView("infusionsoft/ui/central/home", model);

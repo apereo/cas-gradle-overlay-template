@@ -20,7 +20,7 @@ public class InfusionsoftAuthenticationHandler extends AbstractUsernamePasswordA
         } else if (creds instanceof InfusionsoftCredentials) {
             InfusionsoftCredentials credentials = (InfusionsoftCredentials) creds;
             String encodedPassword = getPasswordEncoder().encode(credentials.getPassword());
-            List<User> users = hibernateTemplate.find("from UserPassword p where p.user.username = ? and p.passwordEncoded = ? and p.active = true", credentials.getUsername(), encodedPassword);
+            List<User> users = hibernateTemplate.find("from UserPassword p where lower(p.user.username) = ? and p.passwordEncoded = ? and p.active = true", credentials.getUsername().toLowerCase(), encodedPassword);
 
             if (users.size() > 0) {
                 log.info("authenticated CAS user " + credentials.getUsername());

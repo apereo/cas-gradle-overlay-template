@@ -1,5 +1,6 @@
 package com.infusionsoft.cas.web;
 
+import com.infusionsoft.cas.services.InfusionsoftAuthenticationService;
 import com.infusionsoft.cas.services.InfusionsoftDataService;
 import com.infusionsoft.cas.services.InfusionsoftPasswordService;
 import com.infusionsoft.cas.types.*;
@@ -37,6 +38,7 @@ public class RestController extends MultiActionController {
     private static final int PASSWORD_LENGTH_MAX = 20;
 
     private HibernateTemplate hibernateTemplate;
+    private InfusionsoftAuthenticationService infusionsoftAuthenticationService;
     private InfusionsoftDataService infusionsoftDataService;
     private InfusionsoftPasswordService infusionsoftPasswordService;
     private String requiredApiKey;
@@ -364,7 +366,6 @@ public class RestController extends MultiActionController {
      * Called from the Infusionsoft app's data service to authenticate caller credentials against their CAS account.
      * Returns a JSON object with user info if successful.
      */
-    @SuppressWarnings(value = "unchecked")
     public ModelAndView authenticateUser(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String apiKey = request.getParameter("apiKey");
         String username = request.getParameter("username");
@@ -389,27 +390,8 @@ public class RestController extends MultiActionController {
             log.info("successfully authenticated " + username + " with MD5 password hash");
 
             try {
-                JSONObject json = new JSONObject();
-
-                json.put("username", user.getUsername());
-                json.put("displayName", user.getFirstName() + " " + user.getLastName());
-
-                JSONArray accountsArray = new JSONArray();
-
-                for (UserAccount account : user.getAccounts()) {
-                    JSONObject accountToAdd = new JSONObject();
-
-                    accountToAdd.put("type", account.getAppType());
-                    accountToAdd.put("appName", account.getAppName());
-                    accountToAdd.put("userName", account.getAppUsername());
-
-                    accountsArray.add(accountToAdd);
-                }
-
-                json.put("accounts", accountsArray);
-
                 response.setContentType("application/json");
-                response.getWriter().write(json.toJSONString());
+                response.getWriter().write(infusionsoftAuthenticationService.buildUserInfoJSON(user));
             } catch (Exception e) {
                 log.error("failed to create JSON response", e);
                 response.sendError(500);
@@ -420,10 +402,13 @@ public class RestController extends MultiActionController {
     }
 
     /**
-     * Called from trusted clients to get info about a CAS user profile based on their local user account.
+     * Called from trusted clients to get info about a CAS user profile. This can be obtained either by the username
+     * (the Infusionsoft ID of the user they are searching for) or, if that is unknown, by a combination of local
+     * appName, appType, and appUsername.
      */
     public ModelAndView getUserInfo(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String apiKey = request.getParameter("apiKey");
+        String username = request.getParameter("username");
         String appName = request.getParameter("appName");
         String appType = request.getParameter("appType");
         String appUsername = request.getParameter("appUsername");
@@ -436,21 +421,26 @@ public class RestController extends MultiActionController {
             return null;
         }
 
-        List<UserAccount> accounts = hibernateTemplate.find("from UserAccount ua where ua.appName  = ? and ua.appType = ? and ua.appUsername = ? and ua.disabled = ?", appName, appType, appUsername, false);
+        User user = null;
 
-        if (accounts.size() > 0) {
-            User user = accounts.get(0).getUser();
-            JSONObject json = new JSONObject();
-
-            json.put("username", user.getUsername());
-            json.put("firstName", user.getFirstName());
-            json.put("lastName", user.getLastName());
-            json.put("displayName", user.getFirstName() + " " + user.getLastName());
-
-            response.getWriter().println(json.toJSONString());
+        if (StringUtils.isNotEmpty(username)) {
+            user = infusionsoftDataService.findUser(username);
         } else {
-            log.info("could not find an active user account for " + appUsername + " on " + appName + "/" + appType);
+            List<UserAccount> accounts = hibernateTemplate.find("from UserAccount ua where ua.appName  = ? and ua.appType = ? and ua.appUsername = ? and ua.disabled = ?", appName, appType, appUsername, false);
 
+            // Return the first match, even if multiple users are mapped to the account
+            if (accounts.size() > 0) {
+                user = accounts.get(0).getUser();
+            } else {
+                log.info("could not find an active user account for " + appUsername + " on " + appName + "/" + appType);
+            }
+        }
+
+        if (user != null) {
+            response.setContentType("application/json");
+            response.getWriter().println(infusionsoftAuthenticationService.buildUserInfoJSON(user));
+        } else {
+            response.setContentType("application/json");
             response.getWriter().println(new JSONObject().toJSONString());
         }
 
@@ -471,5 +461,9 @@ public class RestController extends MultiActionController {
 
     public void setRequiredApiKey(String requiredApiKey) {
         this.requiredApiKey = requiredApiKey;
+    }
+
+    public void setInfusionsoftAuthenticationService(InfusionsoftAuthenticationService infusionsoftAuthenticationService) {
+        this.infusionsoftAuthenticationService = infusionsoftAuthenticationService;
     }
 }

@@ -330,6 +330,10 @@ label {
     background: #fff url(../images/app-central-customerhub.png) 15px 15px no-repeat;
 }
 
+.accounts .account.marketplace-account {
+    background: #fff url(../images/app-central-marketplace.png) 15px 15px no-repeat;
+}
+
 .accounts .account:hover {
     text-decoration: none;
     color: #333;

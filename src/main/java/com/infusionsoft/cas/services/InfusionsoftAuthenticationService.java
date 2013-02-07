@@ -16,6 +16,7 @@ import org.jasig.cas.ticket.Ticket;
 import org.jasig.cas.ticket.TicketException;
 import org.jasig.cas.ticket.TicketGrantingTicket;
 import org.jasig.cas.ticket.registry.TicketRegistry;
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 import org.springframework.orm.hibernate3.HibernateTemplate;
@@ -54,6 +55,7 @@ public class InfusionsoftAuthenticationService {
     private String customerHubDomain;
     private String communityDomain;
     private String marketplaceDomain;
+    private String marketplaceLoginUrl;
     private String forumBase;
     private String forumApiKey;
     private String migrationDateString;
@@ -469,6 +471,36 @@ public class InfusionsoftAuthenticationService {
         return false;
     }
 
+    /**
+     * Builds a JSON string that represents a CAS user and all linked accounts.
+     */
+    public String buildUserInfoJSON(User user) {
+        JSONObject json = new JSONObject();
+
+        json.put("username", user.getUsername());
+        json.put("displayName", user.getFirstName() + " " + user.getLastName());
+        json.put("firstName", user.getFirstName());
+        json.put("lastName", user.getLastName());
+
+        JSONArray accountsArray = new JSONArray();
+
+        for (UserAccount account : user.getAccounts()) {
+            if (!account.isDisabled()) {
+                JSONObject accountToAdd = new JSONObject();
+
+                accountToAdd.put("type", account.getAppType());
+                accountToAdd.put("appName", account.getAppName());
+                accountToAdd.put("userName", account.getAppUsername());
+
+                accountsArray.add(accountToAdd);
+            }
+        }
+
+        json.put("accounts", accountsArray);
+
+        return json.toJSONString();
+    }
+
     public void setCentralAuthenticationService(CentralAuthenticationService centralAuthenticationService) {
         this.centralAuthenticationService = centralAuthenticationService;
     }
@@ -559,5 +591,13 @@ public class InfusionsoftAuthenticationService {
 
     public void setMigrationDateString(String migrationDateString) {
         this.migrationDateString = migrationDateString;
+    }
+
+    public void setMarketplaceLoginUrl(String marketplaceLoginUrl) {
+        this.marketplaceLoginUrl = marketplaceLoginUrl;
+    }
+
+    public String getMarketplaceLoginUrl() {
+        return marketplaceLoginUrl;
     }
 }
