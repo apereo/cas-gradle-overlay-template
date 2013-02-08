@@ -101,7 +101,7 @@
         <if test="requestScope.response.responseType.name() eq 'POST'" then="postView" else="redirectView" />
     </decision-state>
 
-	<!-- 
+	<!--
 		the "viewGenericLogin" is the end state for when a user attempts to login without coming directly from a service.
 		They have only initialized their single-sign on session.
 	-->
@@ -126,16 +126,14 @@
          The "redirect" end state allows CAS to properly end the workflow while still redirecting
          the user back to the service required.
      -->
-    <end-state id="redirectView" view="externalRedirect:contextRelative:/central/index?service=${requestScope.response.url}" />
+
+    <!-- Instead of redirecting straight to the requested service, send them to the Account Central index page in case
+    their account needs to be mapped. If it's already mapped, that page will redirect them. -->
+    <end-state id="redirectView" view="externalRedirect:contextRelative:/central/index?service=${@java.net.URLEncoder@encode(requestScope.response.url)}" />
+
     <!--
-    <end-state id="redirectView" view="externalRedirect:contextRelative:/central/index" />
+    <end-state id="redirectView" view="externalRedirect:${requestScope.response.url}" />
     -->
-    <!--
-	<end-state id="redirectView" view="externalRedirect:${requestScope.response.url}" />
-	-->
-    <!--
-    <end-state id="redirectView" view="casLoginGenericSuccessView" />
-	-->
 
     <end-state id="viewServiceErrorView" view="viewServiceErrorView" />
     
