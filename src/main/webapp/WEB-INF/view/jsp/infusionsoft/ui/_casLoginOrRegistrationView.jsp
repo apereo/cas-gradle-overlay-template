@@ -65,6 +65,11 @@
         padding: 8px 3px;
     }
 
+    #biglogo {
+        margin-top: 0px;
+        height: 100px;
+    }
+
     .alert {
         margin: -20px -20px 20px -20px;
     }
@@ -82,7 +87,19 @@
     <div style="height: 120px"></div>
 </c:if>
 
-<div id="biglogo" style="margin-top: 0px; height: 100px"></div>
+<c:choose>
+    <c:when test="${sessionScope.refererAppType == 'crm'}">
+        <div id="biglogo" style="background: url(${sessionScope.refererUrl}/Logo?logo=weblogo) center center;"></div>
+    </c:when>
+    <%--
+    <c:when test="${sessionScope.refererAppType == 'customerhub'}">
+        <div id="biglogo" style="background: url(${sessionScope.refererUrl}/Logo?logo=weblogo) center center;"></div>
+    </c:when>
+    --%>
+    <c:otherwise>
+        <div id="biglogo"></div>
+    </c:otherwise>
+</c:choose>
 
 <div id="login">
     <form:form method="post" id="fm1" cssClass="form-vertical" commandName="${commandName}" htmlEscape="true">
