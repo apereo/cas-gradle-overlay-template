@@ -116,22 +116,7 @@
 
     <filter-mapping>
         <filter-name>userFilter</filter-name>
-        <url-pattern>/login</url-pattern>
-    </filter-mapping>
-
-    <filter-mapping>
-        <filter-name>userFilter</filter-name>
-        <url-pattern>/logout</url-pattern>
-    </filter-mapping>
-
-    <filter-mapping>
-        <filter-name>userFilter</filter-name>
-        <url-pattern>/registration</url-pattern>
-    </filter-mapping>
-
-    <filter-mapping>
-        <filter-name>userFilter</filter-name>
-        <url-pattern>/central</url-pattern>
+        <url-pattern>/*</url-pattern>
     </filter-mapping>
 
     <filter-mapping>

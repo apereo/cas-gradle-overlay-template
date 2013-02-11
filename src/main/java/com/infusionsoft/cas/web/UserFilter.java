@@ -42,6 +42,8 @@ public class UserFilter implements Filter {
         String registrationCode = request.getParameter("registrationCode");
         String service = request.getParameter("service");
 
+        System.out.println("***** UserFilter");
+
         // Set or unset the user object (since the CAS security layer doesn't make this easy).
         if (user != null) {
             request.getSession(true).setAttribute("user", user);

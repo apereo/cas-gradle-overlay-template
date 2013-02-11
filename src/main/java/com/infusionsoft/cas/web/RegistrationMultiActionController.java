@@ -45,6 +45,8 @@ public class RegistrationMultiActionController extends MultiActionController {
         String registrationCode = (String) request.getSession(true).getAttribute("registrationCode");
         User user = new User();
 
+        // TODO - expire any existing CAS session and log them out to prevent confusion
+
         if (StringUtils.isNotEmpty(registrationCode)) {
             PendingUserAccount pending = infusionsoftDataService.findPendingUserAccount(registrationCode);
 
