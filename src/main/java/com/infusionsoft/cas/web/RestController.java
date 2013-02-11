@@ -2,12 +2,11 @@ package com.infusionsoft.cas.web;
 
 import com.infusionsoft.cas.services.InfusionsoftAuthenticationService;
 import com.infusionsoft.cas.services.InfusionsoftDataService;
-import com.infusionsoft.cas.services.InfusionsoftPasswordService;
+import com.infusionsoft.cas.services.PasswordService;
 import com.infusionsoft.cas.types.*;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.validator.EmailValidator;
 import org.apache.log4j.Logger;
-import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJacksonHttpMessageConverter;
@@ -40,7 +39,7 @@ public class RestController extends MultiActionController {
     private HibernateTemplate hibernateTemplate;
     private InfusionsoftAuthenticationService infusionsoftAuthenticationService;
     private InfusionsoftDataService infusionsoftDataService;
-    private InfusionsoftPasswordService infusionsoftPasswordService;
+    private PasswordService passwordService;
     private String requiredApiKey;
 
     /**
@@ -74,7 +73,7 @@ public class RestController extends MultiActionController {
             } else if (password == null || password.length() < PASSWORD_LENGTH_MIN || password.length() > PASSWORD_LENGTH_MAX) {
                 model.put("error", "registration.error.invalidPassword");
             } else {
-                String passwordError = infusionsoftPasswordService.validatePassword(user, username, password);
+                String passwordError = passwordService.validatePassword(user, username, password);
 
                 if (passwordError != null) {
                     model.put("error", passwordError);
@@ -87,7 +86,7 @@ public class RestController extends MultiActionController {
                 model.put("user", user);
 
                 hibernateTemplate.save(user);
-                infusionsoftPasswordService.setPasswordForUser(user, password);
+                passwordService.setPasswordForUser(user, password);
             }
         } catch (Exception e) {
             logger.error("failed to create user account", e);
@@ -153,7 +152,7 @@ public class RestController extends MultiActionController {
             } else if (StringUtils.isEmpty(appName)) {
                 model.put("error", "registration.error.invalidAppName");
             } else {
-                String passwordError = infusionsoftPasswordService.validatePassword(user, username, password);
+                String passwordError = passwordService.validatePassword(user, username, password);
 
                 if (passwordError != null) {
                     model.put("error", passwordError);
@@ -167,7 +166,7 @@ public class RestController extends MultiActionController {
 
                 hibernateTemplate.save(user);
 
-                infusionsoftPasswordService.setPasswordForUser(user, password);
+                passwordService.setPasswordForUser(user, password);
                 infusionsoftDataService.associateAccountToUser(user, appType, appName, appUsername);
             }
         } catch (Exception e) {
@@ -451,8 +450,8 @@ public class RestController extends MultiActionController {
         this.hibernateTemplate = hibernateTemplate;
     }
 
-    public void setInfusionsoftPasswordService(InfusionsoftPasswordService infusionsoftPasswordService) {
-        this.infusionsoftPasswordService = infusionsoftPasswordService;
+    public void setPasswordService(PasswordService passwordService) {
+        this.passwordService = passwordService;
     }
 
     public void setInfusionsoftDataService(InfusionsoftDataService infusionsoftDataService) {

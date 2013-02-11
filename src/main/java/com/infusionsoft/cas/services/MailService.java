@@ -14,8 +14,8 @@ import java.io.StringWriter;
 /**
  * Simple service for sending transactional emails, like the Forgot Password email.
  */
-public class InfusionsoftMailService {
-    private static final Logger log = Logger.getLogger(InfusionsoftMailService.class);
+public class MailService {
+    private static final Logger log = Logger.getLogger(MailService.class);
 
     private String serverPrefix = "";
     private JavaMailSender mailSender;

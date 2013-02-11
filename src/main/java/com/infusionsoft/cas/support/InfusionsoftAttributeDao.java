@@ -60,6 +60,7 @@ public class InfusionsoftAttributeDao extends AbstractFlatteningPersonAttributeD
 
             rootObj.put("accounts", accountsArray);
 
+            resultsMap.put("id", Arrays.asList(new Object[] { String.valueOf(currUser.getId()) }));
             resultsMap.put("accounts", Arrays.asList(new Object[] { rootObj }));
             resultsMap.put("displayName", Arrays.asList(new Object[] { currUser.getFirstName() + " " + currUser.getLastName() }));
             resultsMap.put("firstName", Arrays.asList(new Object[] { currUser.getFirstName() }));

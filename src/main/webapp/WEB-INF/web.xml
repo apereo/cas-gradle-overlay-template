@@ -116,10 +116,25 @@
 
     <filter-mapping>
         <filter-name>userFilter</filter-name>
-        <url-pattern>/*</url-pattern>
+        <url-pattern>/login</url-pattern>
     </filter-mapping>
 
-	<filter-mapping>
+    <filter-mapping>
+        <filter-name>userFilter</filter-name>
+        <url-pattern>/logout</url-pattern>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>userFilter</filter-name>
+        <url-pattern>/registration</url-pattern>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>userFilter</filter-name>
+        <url-pattern>/central</url-pattern>
+    </filter-mapping>
+
+    <filter-mapping>
 		<filter-name>CAS Client Info Logging Filter</filter-name>
 		<url-pattern>/*</url-pattern>
 	</filter-mapping>

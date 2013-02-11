@@ -1,10 +1,7 @@
 package com.infusionsoft.cas.web;
 
 import com.infusionsoft.cas.exceptions.UsernameTakenException;
-import com.infusionsoft.cas.services.InfusionsoftAuthenticationService;
-import com.infusionsoft.cas.services.InfusionsoftDataService;
-import com.infusionsoft.cas.services.InfusionsoftMailService;
-import com.infusionsoft.cas.services.InfusionsoftPasswordService;
+import com.infusionsoft.cas.services.*;
 import com.infusionsoft.cas.types.AppType;
 import com.infusionsoft.cas.types.CommunityAccountDetails;
 import com.infusionsoft.cas.types.User;
@@ -32,8 +29,9 @@ public class CentralMultiActionController extends MultiActionController {
 
     private InfusionsoftAuthenticationService infusionsoftAuthenticationService;
     private InfusionsoftDataService infusionsoftDataService;
-    private InfusionsoftPasswordService infusionsoftPasswordService;
-    private InfusionsoftMailService infusionsoftMailService;
+    private CustomerHubService customerHubService;
+    private CommunityService communityService;
+    private PasswordService passwordService;
     private HibernateTemplate hibernateTemplate;
 
     /**
@@ -47,20 +45,22 @@ public class CentralMultiActionController extends MultiActionController {
         String service = (String) session.getAttribute("serviceUrl");
         String registrationCode = (String) session.getAttribute("registrationCode");
 
-        if (infusionsoftPasswordService.isPasswordExpired(user)) {
+        if (passwordService.isPasswordExpired(user)) {
             log.info("user " + user.getId() + " has an expired password! let's make them reset it");
 
             return new ModelAndView("redirect:passwordExpired");
         } else if (StringUtils.isNotEmpty(registrationCode)) {
             log.info("new user! registration code is " + registrationCode);
 
+            // Register the account, clear their session and redirect
             try {
                 UserAccount account = infusionsoftDataService.associatePendingAccountToUser(user, registrationCode);
 
                 request.getSession().removeAttribute("registrationCode");
                 infusionsoftAuthenticationService.createTicketGrantingTicket(account.getAppUsername(), request, response);
+                response.sendRedirect(infusionsoftAuthenticationService.buildAppUrl(account.getAppType(), account.getAppName()));
 
-                return new ModelAndView("redirect:" + infusionsoftAuthenticationService.buildAppUrl(account.getAppType(), account.getAppName()));
+                return null;
             } catch (Exception e) {
                 log.error("failed to associate new user to registration code " + registrationCode, e);
             }
@@ -204,7 +204,7 @@ public class CentralMultiActionController extends MultiActionController {
                 log.info("attempting to register a forum account for user " + user.getId());
 
                 try {
-                    infusionsoftAuthenticationService.registerCommunityUserAccount(user, details);
+                    communityService.registerCommunityUserAccount(user, details);
                     infusionsoftAuthenticationService.createTicketGrantingTicket(user.getUsername(), request, response);
 
                     return new ModelAndView("redirect:index");
@@ -245,7 +245,7 @@ public class CentralMultiActionController extends MultiActionController {
             } else if (StringUtils.isEmpty(appPassword)) {
                 model.put("error", "registration.error.invalidPassword");
             } else if (appType.equals(AppType.COMMUNITY)) {
-                String communityUserId = infusionsoftAuthenticationService.verifyCommunityCredentials(appUsername, appPassword);
+                String communityUserId = communityService.authenticateUser(appUsername, appPassword);
 
                 appName = "community";
 
@@ -341,10 +341,10 @@ public class CentralMultiActionController extends MultiActionController {
                 model.put("error", "editprofile.error.invalidUsername");
             } else if (hibernateTemplate.find("from User u where u.username = ? and u.id != ?", username, user.getId()).size() > 0) {
                 model.put("error", "editprofile.error.usernameInUse");
-            } else if (!infusionsoftPasswordService.isPasswordValid(user, existingPassword)) {
+            } else if (!passwordService.isPasswordValid(user, existingPassword)) {
                 model.put("error", "editprofile.error.incorrectCurrentPassword");
             } else if (StringUtils.isNotEmpty(password1) || StringUtils.isNotEmpty(password2)) {
-                String passwordError = infusionsoftPasswordService.validatePassword(user, username, password1);
+                String passwordError = passwordService.validatePassword(user, username, password1);
 
                 if (passwordError != null) {
                     model.put("error", passwordError);
@@ -355,7 +355,7 @@ public class CentralMultiActionController extends MultiActionController {
                 log.info("couldn't update user account for user " + user.getId() + ": " + model.get("error"));
             } else {
                 if (StringUtils.isNotEmpty(password1)) {
-                    infusionsoftPasswordService.setPasswordForUser(user, password1);
+                    passwordService.setPasswordForUser(user, password1);
                 }
 
                 hibernateTemplate.update(user);
@@ -395,7 +395,7 @@ public class CentralMultiActionController extends MultiActionController {
         } else if (!password1.equals(password2)) {
             model.put("error", "registration.error.passwordsNoMatch");
         } else {
-            String passwordError = infusionsoftPasswordService.validatePassword(user, user.getUsername(), password1);
+            String passwordError = passwordService.validatePassword(user, user.getUsername(), password1);
 
             if (passwordError != null) {
                 model.put("error", passwordError);
@@ -405,7 +405,7 @@ public class CentralMultiActionController extends MultiActionController {
         if (model.containsKey("error")) {
             return new ModelAndView("infusionsoft/ui/central/passwordExpired", model);
         } else {
-            infusionsoftPasswordService.setPasswordForUser(user, password1);
+            passwordService.setPasswordForUser(user, password1);
 
             return new ModelAndView("redirect:index");
         }
@@ -428,7 +428,7 @@ public class CentralMultiActionController extends MultiActionController {
         } catch (Exception e) {
             log.error("failed to update alias for account " + accountId, e);
 
-            response.sendError(500); // TODO
+            response.sendError(500);
         }
 
         return null;
@@ -441,7 +441,7 @@ public class CentralMultiActionController extends MultiActionController {
         User user = infusionsoftAuthenticationService.getCurrentUser(request);
         String password = request.getParameter("currentPassword");
 
-        if (infusionsoftPasswordService.isPasswordValid(user, password)) {
+        if (passwordService.isPasswordValid(user, password)) {
             response.getWriter().write("OK");
         } else {
             log.info("existing password is incorrect for user " + user.getId());
@@ -459,19 +459,19 @@ public class CentralMultiActionController extends MultiActionController {
         this.hibernateTemplate = hibernateTemplate;
     }
 
-    public void setInfusionsoftMailService(InfusionsoftMailService infusionsoftMailService) {
-        this.infusionsoftMailService = infusionsoftMailService;
-    }
-
-    public InfusionsoftDataService getInfusionsoftDataService() {
-        return infusionsoftDataService;
-    }
-
     public void setInfusionsoftDataService(InfusionsoftDataService infusionsoftDataService) {
         this.infusionsoftDataService = infusionsoftDataService;
     }
 
-    public void setInfusionsoftPasswordService(InfusionsoftPasswordService infusionsoftPasswordService) {
-        this.infusionsoftPasswordService = infusionsoftPasswordService;
+    public void setPasswordService(PasswordService passwordService) {
+        this.passwordService = passwordService;
+    }
+
+    public void setCommunityService(CommunityService communityService) {
+        this.communityService = communityService;
+    }
+
+    public void setCustomerHubService(CustomerHubService customerHubService) {
+        this.customerHubService = customerHubService;
     }
 }

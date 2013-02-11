@@ -14,8 +14,8 @@ import java.util.List;
 /**
  * Service that validates all our funky password rules.
  */
-public class InfusionsoftPasswordService {
-    private static final Logger log = Logger.getLogger(InfusionsoftPasswordService.class);
+public class PasswordService {
+    private static final Logger log = Logger.getLogger(PasswordService.class);
 
     private static final String UPPERCASE_LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     private static final String LOWERCASE_LETTERS = "abcdefghijklmnopqrstuvwxyz";

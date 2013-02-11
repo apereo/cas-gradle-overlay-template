@@ -133,7 +133,7 @@
         <property name="jpaVendorAdapter">
             <bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter">
                 <property name="generateDdl" value="true"/>
-                <property name="showSql" value="true"/>
+                <property name="showSql" value="false"/>
             </bean>
         </property>
         <property name="jpaProperties">
@@ -196,24 +196,23 @@
 
     <bean id="infusionsoftAuthenticationService" class="com.infusionsoft.cas.services.InfusionsoftAuthenticationService">
         <property name="centralAuthenticationService" ref="centralAuthenticationService"/>
-        <property name="infusionsoftDataService" ref="infusionsoftDataService"/>
         <property name="hibernateTemplate" ref="hibernateTemplate"/>
         <property name="ticketRegistry" ref="ticketRegistry"/>
-        <property name="forumBase" value="${infusionsoft.community.baseurl}"/>
-        <property name="forumApiKey" value="${infusionsoft.community.apikey}"/>
         <property name="serverPrefix" value="${server.prefix}"/>
         <property name="crmDomain" value="${infusionsoft.crm.domain}"/>
         <property name="crmProtocol" value="${infusionsoft.crm.protocol}"/>
         <property name="crmPort" value="${infusionsoft.crm.port}"/>
-        <property name="crmVendorKey" value="${infusionsoft.crm.vendorkey}"/>
         <property name="marketplaceDomain" value="${infusionsoft.marketplace.domain}"/>
         <property name="marketplaceLoginUrl" value="${infusionsoft.marketplace.loginurl}"/>
         <property name="communityDomain" value="${infusionsoft.community.domain}"/>
         <property name="customerHubDomain" value="${infusionsoft.customerhub.domain}"/>
         <property name="migrationDateString" value="${infusionsoft.migration.date}"/>
+        <property name="crmService" ref="crmService"/>
+        <property name="communityService" ref="communityService"/>
+        <property name="customerHubService" ref="customerHubService"/>
     </bean>
 
-    <bean id="infusionsoftPasswordService" class="com.infusionsoft.cas.services.InfusionsoftPasswordService">
+    <bean id="infusionsoftPasswordService" class="com.infusionsoft.cas.services.PasswordService">
         <property name="hibernateTemplate" ref="hibernateTemplate"/>
         <property name="passwordEncoder" ref="passwordEncoder"/>
     </bean>
@@ -222,10 +221,32 @@
         <property name="hibernateTemplate" ref="hibernateTemplate"/>
     </bean>
 
-    <bean id="infusionsoftMailService" class="com.infusionsoft.cas.services.InfusionsoftMailService">
+    <bean id="mailService" class="com.infusionsoft.cas.services.MailService">
         <property name="mailSender" ref="mailSender"/>
         <property name="serverPrefix" value="${server.prefix}"/>
         <property name="velocityEngine" ref="velocityEngine"/>
+    </bean>
+
+    <bean id="crmService" class="com.infusionsoft.cas.services.CrmService">
+        <property name="crmProtocol" value="${infusionsoft.crm.protocol}"/>
+        <property name="crmDomain" value="${infusionsoft.crm.domain}"/>
+        <property name="crmPort" value="${infusionsoft.crm.port}"/>
+        <property name="crmVendorKey" value="${infusionsoft.crm.vendorkey}"/>
+   </bean>
+
+    <bean id="communityService" class="com.infusionsoft.cas.services.CommunityService">
+        <property name="infusionsoftDataService" ref="infusionsoftDataService"/>
+        <property name="hibernateTemplate" ref="hibernateTemplate"/>
+        <property name="communityBaseUrl" value="${infusionsoft.community.baseurl}"/>
+        <property name="communityApiKey" value="${infusionsoft.community.apikey}"/>
+    </bean>
+
+    <bean id="customerHubService" class="com.infusionsoft.cas.services.CustomerHubService">
+        <property name="customerHubDomain" value="${infusionsoft.customerhub.domain}"/>
+        <property name="customerHubApiUsername" value="${infusionsoft.customerhub.api.username}"/>
+        <property name="customerHubApiPassword" value="${infusionsoft.customerhub.api.password}"/>
+        <property name="customerHubProtocol" value="${infusionsoft.customerhub.protocol}"/>
+        <property name="customerHubPort" value="${infusionsoft.customerhub.port}"/>
     </bean>
 
     <bean id="velocityEngine" class="org.springframework.ui.velocity.VelocityEngineFactoryBean">

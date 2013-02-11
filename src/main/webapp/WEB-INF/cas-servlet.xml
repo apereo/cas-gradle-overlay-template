@@ -204,24 +204,25 @@
     <bean id="registrationMultiActionController" class="com.infusionsoft.cas.web.RegistrationMultiActionController"
           p:hibernateTemplate-ref="hibernateTemplate"
           p:ticketIdGenerator-ref="loginTicketUniqueIdGenerator"
+          p:customerHubService-ref="customerHubService"
           p:infusionsoftAuthenticationService-ref="infusionsoftAuthenticationService"
-          p:infusionsoftPasswordService-ref="infusionsoftPasswordService"
+          p:passwordService-ref="infusionsoftPasswordService"
           p:infusionsoftDataService-ref="infusionsoftDataService"
-          p:infusionsoftMailService-ref="infusionsoftMailService"/>
+          p:mailService-ref="mailService"/>
 
     <bean id="centralMultiActionController" class="com.infusionsoft.cas.web.CentralMultiActionController"
           p:infusionsoftAuthenticationService-ref="infusionsoftAuthenticationService"
           p:infusionsoftDataService-ref="infusionsoftDataService"
           p:hibernateTemplate-ref="hibernateTemplate"
-          p:infusionsoftPasswordService-ref="infusionsoftPasswordService"
-          p:infusionsoftMailService-ref="infusionsoftMailService"/>
+          p:passwordService-ref="infusionsoftPasswordService"
+          p:communityService-ref="communityService"/>
 
     <bean id="restController" class="com.infusionsoft.cas.web.RestController"
           p:hibernateTemplate-ref="hibernateTemplate"
           p:infusionsoftDataService-ref="infusionsoftDataService"
-          p:infusionsoftPasswordService-ref="infusionsoftPasswordService"
+          p:passwordService-ref="infusionsoftPasswordService"
           p:infusionsoftAuthenticationService-ref="infusionsoftAuthenticationService"
-          p:requiredApiKey="bl4hbl4hbl4h"/>
+          p:requiredApiKey="${infusionsoft.cas.apikey}"/>
 
     <bean id="logoutController" class="org.jasig.cas.web.LogoutController"
           p:centralAuthenticationService-ref="centralAuthenticationService"

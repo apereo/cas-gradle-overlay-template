@@ -49,19 +49,6 @@ public class InfusionsoftDataService {
     }
 
     /**
-     * Fetches details for a community account, if available.
-     */
-    public CommunityAccountDetails findCommunityAccountDetails(UserAccount account) {
-        List<CommunityAccountDetails> details = (List<CommunityAccountDetails>) hibernateTemplate.find("from CommunityAccountDetails where userAccount = ?", account);
-
-        if (details.size() > 0) {
-            return details.get(0);
-        } else {
-            return null;
-        }
-    }
-
-    /**
      * Finds a user account by id, but only if it belongs to a given user.
      */
     public UserAccount findUserAccount(User user, Long accountId) {
