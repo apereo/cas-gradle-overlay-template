@@ -41,24 +41,30 @@
 
 <style type="text/css">
 
+    body {
+        font-family: 'Open Sans', Arial, Verdana, sans-serif;
+    }
+
     #login {
         color: #000;
         background: #fff;
-        width: 276px;
-        margin: 10px auto;
+        width: 251px;
+        margin: 15px auto 7px auto;
         border: 1px solid #DDDDDD;
         border-radius: 4px;
-        padding: 30px;
+        padding: 20px 25px 25px 25px;
+        height: 208px;
     }
 
     #login h3 {
         font-family: 'Open Sans', Arial, Verdana, sans-serif;
         font-weight: 300;
         text-align: center;
-        margin: 0 0 20px 0;
+        margin: 0 0 18px 0;
         padding: 0;
         font-size: 16px;
         line-height: 16px;
+        color: #444;
     }
 
     #forgot-password {
@@ -68,7 +74,7 @@
 
     #affiliate-login {
         text-align: center;
-        margin: 30px 0 0 0;
+        margin: 28px 0 0 0;
     }
 
     #affiliate-login a {
@@ -77,14 +83,20 @@
 
     #username {
         background: url(/images/username-bg.png) 8px center no-repeat;
-        text-indent: 32px;
-        padding: 8px 3px;
     }
 
     #password {
         background: url(/images/password-bg.png) 8px center no-repeat;
+    }
+
+    #password, #username {
         text-indent: 32px;
-        padding: 8px 3px;
+        padding: 9px 3px;
+        border-radius: 4px;
+        -webkit-border-radius: 4px;
+        -moz-border-radius: 4px;
+        width: 243px;
+        margin-bottom: 15px;
     }
 
     #biglogo {
@@ -95,6 +107,29 @@
     .alert {
         margin: -20px -20px 20px -20px;
     }
+
+    .control-group {
+        margin-bottom: 0px;
+    }
+
+    .radio, .checkbox {
+        min-height: 26px;
+        color: #444;
+        font-size: 13px;
+    }
+
+    select, textarea, input[type="text"], input[type="password"], input[type="datetime"], input[type="datetime-local"], input[type="date"],       input[type="month"], input[type="time"], input[type="week"], input[type="number"], input[type="email"], input[type="url"], input[type="search"], input[type="tel"], input[type="color"], .uneditable-input {
+        font-size: 13px;
+        color: #444;
+        box-shadow: none;
+        -webkit-box-shadow: none;
+        -moz-box-shadow: none;
+    }
+
+    ::-webkit-input-placeholder { font-style: italic; }
+    ::-moz-placeholder { font-style: italic; color: #ccc;} /* firefox 19+ */
+    :-ms-input-placeholder { font-style: italic; } /* ie */
+    input:-moz-placeholder { font-style: italic; }
 
 </style>
 
@@ -119,13 +154,13 @@
 
         <div class="control-group">
             <div class="controls">
-                <form:input cssClass="required" cssErrorClass="error" id="username" size="25" tabindex="1" accesskey="${userNameAccessKey}" path="username" autocomplete="false" htmlEscape="true" style="width: 266px" />
+                <form:input title="Email Address" cssClass="required" cssErrorClass="error" id="username" size="25" tabindex="1" accesskey="${userNameAccessKey}" path="username" autocomplete="false" htmlEscape="true" />
             </div>
         </div>
 
         <div class="control-group">
             <div class="controls">
-                <form:password cssClass="required" cssErrorClass="error" id="password" size="25" tabindex="2" path="password" accesskey="${passwordAccessKey}" htmlEscape="true" autocomplete="off" style="width: 266px" />
+                <form:password title="Password" cssClass="required" cssErrorClass="error" id="password" size="25" tabindex="2" path="password" accesskey="${passwordAccessKey}" htmlEscape="true" autocomplete="off" />
             </div>
         </div>
 
@@ -135,7 +170,7 @@
         <label class="checkbox"><input type="checkbox" name="rememberMe" id="rememberMe" value="true" checked="checked"/> Remember Me</label>
 
         <div class="control-group">
-            <input class="btn btn-primary" style="width: 100%; height: 36px; margin: 10px 0 0 0" name="submit" accesskey="l" value="Sign In" tabindex="4" type="submit" />
+            <input class="btn btn-primary sign-in-button" name="submit" accesskey="l" value="Sign In" tabindex="4" type="submit" />
         </div>
     </form:form>
 </div>

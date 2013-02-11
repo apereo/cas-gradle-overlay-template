@@ -503,3 +503,29 @@ p {
     color: #FFFFFF;
 }
 
+.control-group .sign-in-button {
+    background-color: #70bd49;
+    -moz-border-radius: 4px;
+    -webkit-border-radius: 4px;
+    border-radius: 4px;
+    color: #fff;
+    font: 600 13px 'Open Sans';
+    font-family: 'Open Sans',Arial,Verdana,Sans-Serif;
+    border: 1px solid #4e972a;
+    border-bottom: 2px solid #4e972a;
+    text-shadow: 0 1px 0 rgb(87, 155, 60);
+    cursor: pointer;
+    display: inline-block;
+    line-height: normal;
+    position: relative;
+    text-decoration: none;
+    box-shadow: none;
+    -webkit-box-shadow: none;
+    -moz-box-shadow: none;
+    padding: 8px 0px;
+    width: 251px;
+    display: block;
+    margin: 0;
+}
+
+

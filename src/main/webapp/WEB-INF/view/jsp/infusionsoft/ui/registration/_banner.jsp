@@ -30,7 +30,7 @@
     }
 
     .greetings-left {
-        width: 760px;
+        width: 740px;
         float: left;
         padding: 0 0 5px 0;
         line-height: 1.4;
@@ -39,21 +39,21 @@
     .greetings-right {
         width: 120px;
         float: left;
-        margin: 0 0 0 20px;
+        margin: 16px 0 0 20px;
         height: 150px;
     }
 
     .greetings-right .days-remaining {
-        font-size: 14px;
-        margin-top: 10px;
+        font-size: 13px;
+        margin-top: 5px;
         text-align: center;
     }
 
     .greetings h1 {
         font-family: 'Open Sans', Arial, Verdana, sans-serif;
-        font-weight: bold;
+        font-weight: 600;
         font-size: 26px;
-        margin: 0 0 10px 0;
+        margin: 0 0 5px 0;
         line-height: 26px;
         text-align: center;
         color: #fff;
@@ -62,39 +62,47 @@
     .greetings p {
         margin: 10px 0 15px 0;
         font-size: 13px;
+        line-height: 20px;
     }
 
     .greetings .button-bar {
-        margin: 22px 0 0 0;
+        margin: 25px 0 0 0;
         text-align: center;
         width: 900px;
     }
 
     .greetings .btn {
-        text-decoration: none;
-        padding: 10px 30px;
+        background-color: #157eba;
+        -moz-border-radius: 4px;
+        -webkit-border-radius: 4px;
+        border-radius: 4px;
         color: #fff;
-        text-shadow: none;
-        border: 1px solid #1375B5;
-        background: #1788bf; /* Old browsers */
-        background: -moz-linear-gradient(top, #1788bf 0%, #1375b5 100%); /* FF3.6+ */
-        background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#1788bf), color-stop(100%,#1375b5)); /* Chrome,Safari4+ */
-        background: -webkit-linear-gradient(top, #1788bf 0%,#1375b5 100%); /* Chrome10+,Safari5.1+ */
-        background: -o-linear-gradient(top, #1788bf 0%,#1375b5 100%); /* Opera 11.10+ */
-        background: -ms-linear-gradient(top, #1788bf 0%,#1375b5 100%); /* IE10+ */
-        background: linear-gradient(to bottom, #1788bf 0%,#1375b5 100%); /* W3C */
-        filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#1788bf', endColorstr='#1375b5',GradientType=0 ); /* IE6-9 */
+        font: 600 13px 'Open Sans';
+        font-family: 'Open Sans',Arial,Verdana,Sans-Serif;
+        border: 1px solid #106596;
+        border-bottom: 2px solid #106596;
+        text-shadow: 0 1px 0 #116ca0;
+        cursor: pointer;
+        display: inline-block;
+        line-height: normal;
+        position: relative;
+        text-decoration: none;
+        box-shadow: none;
+        -webkit-box-shadow: none;
+        -moz-box-shadow: none;
+        padding: 8px 0px;
+        width: 250px;
     }
 
     .greetings .btn:hover {
-        background: #3291bc; /* Old browsers */
-        background: -moz-linear-gradient(top,  #3291bc 0%, #297db2 100%); /* FF3.6+ */
-        background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#3291bc), color-stop(100%,#297db2)); /* Chrome,Safari4+ */
-        background: -webkit-linear-gradient(top,  #3291bc 0%,#297db2 100%); /* Chrome10+,Safari5.1+ */
-        background: -o-linear-gradient(top,  #3291bc 0%,#297db2 100%); /* Opera 11.10+ */
-        background: -ms-linear-gradient(top,  #3291bc 0%,#297db2 100%); /* IE10+ */
-        background: linear-gradient(to bottom,  #3291bc 0%,#297db2 100%); /* W3C */
-        filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#3291bc', endColorstr='#297db2',GradientType=0 ); /* IE6-9 */
+        background-color: #1683c1;
+        color: #FFFFFF;
+    }
+
+    .greetings .btn:active {
+        top: 1px;
+        border-bottom: 1px solid #106596;
+        color: #fff;
     }
 
 </style>
