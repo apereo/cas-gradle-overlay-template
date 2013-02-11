@@ -53,7 +53,6 @@
         border: 1px solid #DDDDDD;
         border-radius: 4px;
         padding: 20px 25px 25px 25px;
-        height: 208px;
     }
 
     #login h3 {
@@ -105,7 +104,7 @@
     }
 
     .alert {
-        margin: -20px -20px 20px -20px;
+        margin: -10px -15px 15px -15px;
     }
 
     .control-group {
