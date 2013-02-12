@@ -11,6 +11,7 @@ import org.jasig.cas.ticket.Ticket;
 import org.jasig.cas.ticket.TicketException;
 import org.jasig.cas.ticket.TicketGrantingTicket;
 import org.jasig.cas.ticket.registry.TicketRegistry;
+import org.jasig.cas.web.support.CookieRetrievingCookieGenerator;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.springframework.orm.hibernate3.HibernateTemplate;
@@ -36,7 +37,8 @@ public class InfusionsoftAuthenticationService {
     private CustomerHubService customerHubService;
     private CommunityService communityService;
     private CrmService crmService;
-
+    private CookieRetrievingCookieGenerator ticketGrantingTicketCookieGenerator;
+    private CookieRetrievingCookieGenerator warnCookieGenerator;
     private TicketRegistry ticketRegistry;
     private HibernateTemplate hibernateTemplate;
 
@@ -293,6 +295,24 @@ public class InfusionsoftAuthenticationService {
     }
 
     /**
+     * Gets the ticket granting ticket associated with the current request.
+     */
+    public String getTicketGrantingTicketId(HttpServletRequest request) {
+        return ticketGrantingTicketCookieGenerator.retrieveCookieValue(request);
+    }
+
+    /**
+     * Destroys the ticket granting ticket associated with the current request.
+     */
+    public void destroyTicketGrantingTicket(HttpServletRequest request, HttpServletResponse response) {
+        String ticketGrantingTicketId = getTicketGrantingTicketId(request);
+
+        centralAuthenticationService.destroyTicketGrantingTicket(ticketGrantingTicketId);
+        ticketGrantingTicketCookieGenerator.removeCookie(response);
+        warnCookieGenerator.removeCookie(response);
+    }
+
+    /**
      * Looks at the CAS cookies to determine the current user.
      */
     public User getCurrentUser(HttpServletRequest request) {
@@ -482,5 +502,13 @@ public class InfusionsoftAuthenticationService {
 
     public void setCrmService(CrmService crmService) {
         this.crmService = crmService;
+    }
+
+    public void setTicketGrantingTicketCookieGenerator(CookieRetrievingCookieGenerator ticketGrantingTicketCookieGenerator) {
+        this.ticketGrantingTicketCookieGenerator = ticketGrantingTicketCookieGenerator;
+    }
+
+    public void setWarnCookieGenerator(CookieRetrievingCookieGenerator warnCookieGenerator) {
+        this.warnCookieGenerator = warnCookieGenerator;
     }
 }

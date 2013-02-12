@@ -40,13 +40,22 @@ public class RegistrationMultiActionController extends MultiActionController {
     /**
      * Shows the registration form.
      */
-    public ModelAndView welcome(HttpServletRequest request, HttpServletResponse response) {
+    public ModelAndView welcome(HttpServletRequest request, HttpServletResponse response) throws IOException {
         Map<String, Object> model = new HashMap<String, Object>();
         String registrationCode = (String) request.getSession(true).getAttribute("registrationCode");
         User user = new User();
 
-        // TODO - expire any existing CAS session and log them out to prevent confusion
+        // If there's an existing CAS session, clear it and redirect them back here
+        if (infusionsoftAuthenticationService.getTicketGrantingTicketId(request) != null) {
+            log.info("user already has a CAS session! clearing it before allowing registration");
 
+            infusionsoftAuthenticationService.destroyTicketGrantingTicket(request, response);
+            response.sendRedirect(request.getRequestURL().toString() + "?" + request.getQueryString());
+
+            return null;
+        }
+
+        // If there's a registration code, pre-populate from that
         if (StringUtils.isNotEmpty(registrationCode)) {
             PendingUserAccount pending = infusionsoftDataService.findPendingUserAccount(registrationCode);
 

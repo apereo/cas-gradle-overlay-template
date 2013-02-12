@@ -11,8 +11,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URI;
 import java.net.URL;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -28,7 +26,6 @@ public class UserFilter implements Filter {
 
     private InfusionsoftAuthenticationService infusionsoftAuthenticationService;
     private String contextPath = null;
-    private String serverPrefix;
 
     public void init(FilterConfig filterConfig) throws ServletException {
         contextPath = filterConfig.getServletContext().getContextPath();
@@ -37,29 +34,69 @@ public class UserFilter implements Filter {
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
         HttpServletRequest request = (HttpServletRequest) servletRequest;
         HttpServletResponse response = (HttpServletResponse) servletResponse;
+
+        // Don't do anything for the RestController.
+        // TODO - dumb to do it this way but filter-mapping expressions are so clumsy
+        if (request.getContextPath().startsWith("/rest")) {
+            filterChain.doFilter(request, response);
+
+            return;
+        }
+
         HttpSession session = request.getSession(true);
         User user = infusionsoftAuthenticationService.getCurrentUser(request);
-        String registrationCode = request.getParameter("registrationCode");
-        String service = request.getParameter("service");
 
-        System.out.println("***** UserFilter");
-
-        // Set or unset the user object (since the CAS security layer doesn't make this easy).
         if (user != null) {
             request.getSession(true).setAttribute("user", user);
         } else {
             request.getSession(true).removeAttribute("user");
         }
 
-        // If there's a registration code, use it to map their account.
+        storeRegistrationCodeInSession(request, response);
+        storeMigrationDateInSession(request, response);
+        processServiceUrl(request, response);
+
+        // Clear a stored service from the session on logout.
+        if (request.getServletPath().contains("logout")) {
+            session.removeAttribute("serviceUrl");
+            session.removeAttribute("refererUrl");
+            session.removeAttribute("refererAppName");
+            session.removeAttribute("refererAppType");
+        }
+
+        // Protect the central controller, logged in users only!
+        if (session.getAttribute("user") == null && request.getServletPath().startsWith("/central")) {
+            response.sendRedirect(contextPath + "/login");
+        } else {
+            filterChain.doFilter(request, response);
+        }
+    }
+
+    public void destroy() {
+    }
+
+    public void setInfusionsoftAuthenticationService(InfusionsoftAuthenticationService infusionsoftAuthenticationService) {
+        this.infusionsoftAuthenticationService = infusionsoftAuthenticationService;
+    }
+
+    /**
+     * If there's a registration code, store it in the session so we have it later.
+     */
+    private void storeRegistrationCodeInSession(HttpServletRequest request, HttpServletResponse response) {
+        String registrationCode = request.getParameter("registrationCode");
+
         if (StringUtils.isNotEmpty(registrationCode)) {
             request.getSession(true).setAttribute("registrationCode", registrationCode);
 
             log.debug("registration code " + registrationCode + " has been saved in the session");
         }
+    }
 
-        // If there's a migration date, put it in the session so we can display a countdown.
-        // TODO - so stupid to use the session for this, but need to get around stupid WebFlow
+    /**
+     * If we've configured a migration date, put it in the session so we can display a countdown.
+     * It's so stupid to use the session for this, but need to get around stupid WebFlow.
+     */
+    private void storeMigrationDateInSession(HttpServletRequest request, HttpServletResponse response) {
         if (StringUtils.isNotEmpty(infusionsoftAuthenticationService.getMigrationDateString())) {
             try {
                 DateFormat format = new SimpleDateFormat("yyyy-MM-dd");
@@ -76,8 +113,15 @@ public class UserFilter implements Filter {
                 log.warn("unable to parse migration date: " + infusionsoftAuthenticationService.getMigrationDateString());
             }
         }
+    }
 
-        // If there's a service url, save that in the session too.
+    /**
+     * If there's a service URL, use it to guess the app type and app name they are trying to reach,
+     * and whether or not they've already associated it to their Infusionsoft ID.
+     */
+    private void processServiceUrl(HttpServletRequest request, HttpServletResponse response) {
+        String service = request.getParameter("service");
+
         if (StringUtils.isNotEmpty(service)) {
             request.getSession(true).setAttribute("serviceUrl", service);
 
@@ -103,28 +147,5 @@ public class UserFilter implements Filter {
                 log.warn("couldn't parse and interpret service url: " + service, e);
             }
         }
-
-        // Invalidate the session upon logout.
-        if (request.getServletPath().contains("logout")) {
-            session.removeAttribute("serviceUrl");
-        }
-
-        // Protect the central controller, logged in users only!
-        if (session.getAttribute("user") == null && request.getServletPath().startsWith("/central")) {
-            response.sendRedirect(contextPath + "/login");
-        } else {
-            filterChain.doFilter(request, response);
-        }
-    }
-
-    public void destroy() {
-    }
-
-    public void setInfusionsoftAuthenticationService(InfusionsoftAuthenticationService infusionsoftAuthenticationService) {
-        this.infusionsoftAuthenticationService = infusionsoftAuthenticationService;
-    }
-
-    public void setServerPrefix(String serverPrefix) {
-        this.serverPrefix = serverPrefix;
     }
 }

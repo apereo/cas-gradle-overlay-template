@@ -210,6 +210,8 @@
         <property name="crmService" ref="crmService"/>
         <property name="communityService" ref="communityService"/>
         <property name="customerHubService" ref="customerHubService"/>
+        <property name="ticketGrantingTicketCookieGenerator" ref="ticketGrantingTicketCookieGenerator"/>
+        <property name="warnCookieGenerator" ref="warnCookieGenerator"/>
     </bean>
 
     <bean id="infusionsoftPasswordService" class="com.infusionsoft.cas.services.PasswordService">
