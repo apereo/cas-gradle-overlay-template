@@ -54,10 +54,10 @@ public class UserFilter implements Filter {
 
         storeRegistrationCodeInSession(request, response);
         storeMigrationDateInSession(request, response);
-        processServiceUrl(request, response);
+        interpretServiceUrl(request);
 
         // Clear a stored service from the session on logout.
-        if (request.getServletPath().contains("logout")) {
+        if (request.getServletPath().startsWith("/logout")) {
             session.removeAttribute("serviceUrl");
             session.removeAttribute("refererUrl");
             session.removeAttribute("refererAppName");
@@ -119,7 +119,7 @@ public class UserFilter implements Filter {
      * If there's a service URL, use it to guess the app type and app name they are trying to reach,
      * and whether or not they've already associated it to their Infusionsoft ID.
      */
-    private void processServiceUrl(HttpServletRequest request, HttpServletResponse response) {
+    private void interpretServiceUrl(HttpServletRequest request) {
         String service = request.getParameter("service");
 
         if (StringUtils.isNotEmpty(service)) {
@@ -138,6 +138,8 @@ public class UserFilter implements Filter {
                     request.getSession().setAttribute("refererUrl", refererUrl);
                     request.getSession().setAttribute("refererAppName", appName);
                     request.getSession().setAttribute("refererAppType", appType);
+
+                    log.debug("stored referer app info in session: " + appName + "/" + appType);
                 }
 
                 if (StringUtils.isNotEmpty(appName) && StringUtils.isNotEmpty(appType)) {
