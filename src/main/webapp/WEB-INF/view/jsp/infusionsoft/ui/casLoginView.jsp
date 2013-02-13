@@ -16,7 +16,18 @@
     $(document).ready(function() {
         $("#username").attr("placeholder", "email address");
         $("#password").attr("placeholder", "password");
+
+        $("#username, #password").focus(function() {
+            $(this).attr("hiddenplaceholder", $(this).attr("placeholder"));
+            $(this).attr("placeholder", "");
+        });
+
+        $("#username, #password").blur(function() {
+            $(this).attr("placeholder", $(this).attr("hiddenplaceholder"));
+        });
+
         $("input").placeholder();
+        $("input").blur();
 
         $.ajax({
             url: "${getLogoImageUrl}",

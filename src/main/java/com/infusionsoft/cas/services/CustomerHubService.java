@@ -8,7 +8,11 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.util.EntityUtils;
+import org.apache.log4j.ConsoleAppender;
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.apache.log4j.TTCCLayout;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -45,7 +49,9 @@ public class CustomerHubService {
             StringEntity input = new StringEntity(createAuthenticateUserRequest(appUsername, appPassword));
 
             post.addHeader("Accept", "application/json");
+            post.setHeader("Content-Type", "application/json");
             input.setContentType("application/json");
+            post.setEntity(input);
 
             log.debug("authenticating CustomerHub user " + appUsername + " at " + post.getURI());
 
@@ -53,6 +59,9 @@ public class CustomerHubService {
             int status = response.getStatusLine().getStatusCode();
 
             log.debug("authentication of CustomerHub user returned status " + status);
+
+            EntityUtils.consume(response.getEntity());
+
             return status == 200;
         } catch (Exception e) {
             log.error("failed to authenticate CustomerHub user", e);
@@ -81,6 +90,8 @@ public class CustomerHubService {
 
             if (status == 200) {
                 return parseLogoResponse(response.getEntity().getContent());
+            } else {
+                EntityUtils.consume(response.getEntity());
             }
         } catch (Exception e) {
             log.error("failed to authenticate CustomerHub user", e);
@@ -132,6 +143,25 @@ public class CustomerHubService {
         request.put("email", appUsername);
         request.put("password", appPassword);
 
+        log.debug("authentication request " + request.toJSONString());
+
         return request.toJSONString();
+    }
+
+    public static void main(String[] args) {
+        Logger.getRootLogger().addAppender(new ConsoleAppender(new TTCCLayout()));
+        Logger.getRootLogger().setLevel(Level.WARN);
+        Logger.getLogger("com.infusionsoft").setLevel(Level.DEBUG);
+
+        CustomerHubService service = new CustomerHubService();
+
+        service.setCustomerHubDomain("customerhubtest.com");
+        service.setCustomerHubPort(80);
+        service.setCustomerHubProtocol("http");
+        service.setCustomerHubApiUsername("manage");
+        service.setCustomerHubApiPassword("9e88a5d9f7eb778d9400abcbd1362b017a47f7b907e3c23a26a004c10af4d38b");
+
+        System.out.println("authenticated? " + service.authenticateUser("ndl", "nate@infusionsoft.com", "baylee00"));
+        System.out.println("logo: " + service.getLogoUrl("ndl"));
     }
 }

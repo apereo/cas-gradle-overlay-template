@@ -127,7 +127,7 @@
 
                 <div class="button-bar">
                     <c:url var="registrationUrl" value="/registration/welcome"/>
-                    <a target="_top" href="${registrationUrl}" class="btn" style="padding-left: 20px; padding-right: 20px; font-size: 13px">Create Your Infusionsoft ID!</a>
+                    <a target="_top" href="${registrationUrl}" class="btn">Create Your Infusionsoft ID!</a>
                 </div>
             </div>
             <c:set var="daysRemaining" value="${daysRemaining > 0 ? daysRemaining : 0}"/>

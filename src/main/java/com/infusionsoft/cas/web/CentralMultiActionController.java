@@ -162,10 +162,19 @@ public class CentralMultiActionController extends MultiActionController {
      */
     public ModelAndView linkReferer(HttpServletRequest request, HttpServletResponse response) {
         Map<String, Object> model = new HashMap<String, Object>();
+        String appType = request.getParameter("appType");
+        String appName = request.getParameter("appName");
 
-        model.put("appName", request.getParameter("appName"));
-        model.put("appType", request.getParameter("appType"));
-        model.put("appDomain", request.getParameter("appName") + "." + infusionsoftAuthenticationService.getCrmDomain());
+        model.put("appName", appName);
+        model.put("appType", appType);
+
+        try {
+            model.put("appDomain", new URL(infusionsoftAuthenticationService.buildAppUrl(appType, appName)).getHost());
+        } catch (Exception e) {
+            log.warn("failed to construct app domain from " + appName + "/" + appType);
+
+            model.put("appDomain", appName);
+        }
 
         return new ModelAndView("infusionsoft/ui/central/linkReferer", model);
     }
