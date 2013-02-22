@@ -433,6 +433,7 @@ public class CentralMultiActionController extends MultiActionController {
             account.setAlias(alias);
             hibernateTemplate.update(account);
 
+            response.setContentType("text/plain");
             response.getWriter().write(alias);
         } catch (Exception e) {
             log.error("failed to update alias for account " + accountId, e);
@@ -451,6 +452,7 @@ public class CentralMultiActionController extends MultiActionController {
         String password = request.getParameter("currentPassword");
 
         if (passwordService.isPasswordValid(user, password)) {
+            response.setContentType("text/plain");
             response.getWriter().write("OK");
         } else {
             log.info("existing password is incorrect for user " + user.getId());

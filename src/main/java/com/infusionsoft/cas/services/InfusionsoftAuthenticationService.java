@@ -130,9 +130,17 @@ public class InfusionsoftAuthenticationService {
      * in the case of too many failures.
      */
     public void recordLoginAttempt(InfusionsoftCredentials credentials, boolean success) {
+        recordLoginAttempt(credentials.getUsername(), success);
+    }
+
+    /**
+     * Records a login attempt, and whether it was successful or not. This is used for account locking
+     * in the case of too many failures.
+     */
+    public void recordLoginAttempt(String username, boolean success) {
         LoginAttempt attempt = new LoginAttempt();
 
-        attempt.setUsername(credentials.getUsername());
+        attempt.setUsername(username);
         attempt.setDateAttempted(new Date());
         attempt.setSuccess(success);
 
@@ -143,17 +151,17 @@ public class InfusionsoftAuthenticationService {
      * Returns all login attempts within the last 30 days, for a particular username.
      * Of course, these may have been cleared out by the garbage man Quartz job.
      */
-    public List<LoginAttempt> getRecentLoginAttempts(InfusionsoftCredentials credentials) {
+    public List<LoginAttempt> getRecentLoginAttempts(String username) {
         Date thirtyDaysAgo = new Date(System.currentTimeMillis() - (86400000L * 30));
 
-        return hibernateTemplate.find("from LoginAttempt a where a.username = ? and a.dateAttempted > ? order by a.dateAttempted desc", credentials.getUsername(), thirtyDaysAgo);
+        return hibernateTemplate.find("from LoginAttempt a where a.username = ? and a.dateAttempted > ? order by a.dateAttempted desc", username, thirtyDaysAgo);
     }
 
     /**
      * Tells how many consecutive failed login attempts there are for a particular user name.
      */
-    public int countConsecutiveFailedLogins(InfusionsoftCredentials credentials) {
-        List<LoginAttempt> attempts = getRecentLoginAttempts(credentials);
+    public int countConsecutiveFailedLogins(String username) {
+        List<LoginAttempt> attempts = getRecentLoginAttempts(username);
         int failures = 0;
 
         log.debug("recent login attempts: " + attempts.size());
@@ -168,7 +176,7 @@ public class InfusionsoftAuthenticationService {
             }
         }
 
-        log.debug("user " + credentials.getUsername() + " has " + attempts.size() + " recent login attempts and " + failures + " consecutive failures");
+        log.debug("user " + username + " has " + attempts.size() + " recent login attempts and " + failures + " consecutive failures");
 
         return failures;
     }
@@ -176,8 +184,8 @@ public class InfusionsoftAuthenticationService {
     /**
      * Returns the most recent failed login attempt.
      */
-    public LoginAttempt getMostRecentFailedLogin(InfusionsoftCredentials credentials) {
-        List<LoginAttempt> attempts = getRecentLoginAttempts(credentials);
+    public LoginAttempt getMostRecentFailedLogin(String username) {
+        List<LoginAttempt> attempts = getRecentLoginAttempts(username);
 
         for (LoginAttempt attempt : attempts) {
             if (!attempt.isSuccess()) {
@@ -191,13 +199,13 @@ public class InfusionsoftAuthenticationService {
     /**
      * Checks if an account is locked due to too many login failures.
      */
-    public boolean isAccountLocked(InfusionsoftCredentials credentials) {
-        if (countConsecutiveFailedLogins(credentials) > LOCK_ATTEMPTS) {
-            LoginAttempt mostRecent = getMostRecentFailedLogin(credentials);
+    public boolean isAccountLocked(String username) {
+        if (countConsecutiveFailedLogins(username) > LOCK_ATTEMPTS) {
+            LoginAttempt mostRecent = getMostRecentFailedLogin(username);
             Date lockPeriodStart = new Date(System.currentTimeMillis() - LOCK_PERIOD_MS);
 
             if (mostRecent.getDateAttempted().after(lockPeriodStart)) {
-                log.info("username " + credentials.getUsername() + " is locked due to more than " + LOCK_ATTEMPTS + " failures in the last " + LOCK_PERIOD_MS + " milliseconds");
+                log.info("username " + username + " is locked due to more than " + LOCK_ATTEMPTS + " failures in the last " + LOCK_PERIOD_MS + " milliseconds");
 
                 return true;
             } else {
@@ -402,6 +410,7 @@ public class InfusionsoftAuthenticationService {
                 accountToAdd.put("type", account.getAppType());
                 accountToAdd.put("appName", account.getAppName());
                 accountToAdd.put("userName", account.getAppUsername());
+                accountToAdd.put("appAlias", account.getAlias());
 
                 accountsArray.add(accountToAdd);
             }

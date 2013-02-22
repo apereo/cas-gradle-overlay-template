@@ -105,13 +105,13 @@
             <div class="control-group">
                 <label class="control-label" for="username">Password</label>
                 <div class="controls">
-                    <input id="password1" name="password1" value="" type="password"/>
+                    <input id="password1" name="password1" value="" type="password" autocomplete="off"/>
                 </div>
             </div>
             <div class="control-group">
                 <label class="control-label" for="username">Confirm Password</label>
                 <div class="controls">
-                    <input id="password2" name="password2" value="" type="password"/>
+                    <input id="password2" name="password2" value="" type="password" autocomplete="off"/>
                 </div>
             </div>
         </fieldset>
@@ -137,7 +137,7 @@
             <fieldset>
                 <label class="control-label" for="currentPasswordVisible">Current Password</label>
                 <div class="controls">
-                    <input type="password" id="currentPasswordVisible" name="currentPasswordVisible" style="width: 230px"/>
+                    <input type="password" id="currentPasswordVisible" name="currentPasswordVisible" autocomplete="off" style="width: 230px"/>
                 </div>
             </fieldset>
         </form>

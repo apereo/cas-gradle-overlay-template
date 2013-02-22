@@ -32,7 +32,7 @@ public class InfusionsoftAuthenticationViaFormAction extends AuthenticationViaFo
         log.info("processing form authentication for username " + credentials.getUsername());
 
         // If the account is locked, stop right there.
-        if (infusionsoftAuthenticationService.isAccountLocked(credentials)) {
+        if (infusionsoftAuthenticationService.isAccountLocked(credentials.getUsername())) {
             try {
                 log.info("account is locked for username " + credentials.getUsername());
                 messageContext.addMessage(new MessageBuilder().error().code("login.lockedTooManyFailures").defaultText("login.lockedTooManyFailures").build());
@@ -56,7 +56,7 @@ public class InfusionsoftAuthenticationViaFormAction extends AuthenticationViaFo
         } else if (result.equals("error")) {
             infusionsoftAuthenticationService.recordLoginAttempt(credentials, false);
 
-            int recentFailures = Math.min(6, infusionsoftAuthenticationService.countConsecutiveFailedLogins(credentials));
+            int recentFailures = Math.min(6, infusionsoftAuthenticationService.countConsecutiveFailedLogins(credentials.getUsername()));
             String messageCode = "login.failed" + recentFailures;
 
             messageContext.clearMessages();

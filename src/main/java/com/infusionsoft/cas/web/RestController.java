@@ -401,6 +401,44 @@ public class RestController extends MultiActionController {
     }
 
     /**
+     * Authenticates caller credentials against their CAS account.
+     * Returns a JSON object with user info if successful. Unlike authenticateUser, this call doesn't require an API
+     * key but does enforce account locking if there are too many wrong guesses.
+     */
+    public ModelAndView authenticateUserCredentials(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String username = request.getParameter("username");
+        String md5password = request.getParameter("md5password");
+
+        log.debug("trying to authenticate " + username + " with password " + md5password);
+
+        User user = infusionsoftDataService.findUser(username, md5password);
+
+        if (user == null) {
+            log.info("failed to authenticate " + username + " with MD5 password hash");
+
+            infusionsoftAuthenticationService.recordLoginAttempt(username, false);
+
+            response.sendError(401);
+        } else if (infusionsoftAuthenticationService.isAccountLocked(username)) {
+            log.warn("successfully authenticated " + username + " with MD5 password hash, but account is locked!");
+
+            response.sendError(401);
+        } else {
+            log.info("successfully authenticated " + username + " with MD5 password hash");
+
+            try {
+                response.setContentType("application/json");
+                response.getWriter().write(infusionsoftAuthenticationService.buildUserInfoJSON(user));
+            } catch (Exception e) {
+                log.error("failed to create JSON response", e);
+                response.sendError(500);
+            }
+        }
+
+        return null;
+    }
+
+    /**
      * Called from trusted clients to get info about a CAS user profile. This can be obtained either by the username
      * (the Infusionsoft ID of the user they are searching for) or, if that is unknown, by a combination of local
      * appName, appType, and appUsername.
