@@ -296,6 +296,7 @@ public class InfusionsoftAuthenticationService {
 
         Cookie cookie = new Cookie("CASTGC", ticketGrantingTicket);
         cookie.setPath(contextPath);
+        cookie.setSecure(true);
 
         response.addCookie(cookie);
 
@@ -350,7 +351,7 @@ public class InfusionsoftAuthenticationService {
                     List<User> users = (List<User>) hibernateTemplate.find("from User user where user.username = ?", principal.getId());
 
                     if (users.size() > 0) {
-                        retVal = (User) users.get(0);
+                        retVal = users.get(0);
 
                         log.info("resolved user id=" + retVal.getId() + " for ticket " + tgt);
                     } else {
