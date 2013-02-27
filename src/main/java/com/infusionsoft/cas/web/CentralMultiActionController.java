@@ -6,6 +6,7 @@ import com.infusionsoft.cas.types.AppType;
 import com.infusionsoft.cas.types.CommunityAccountDetails;
 import com.infusionsoft.cas.types.User;
 import com.infusionsoft.cas.types.UserAccount;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.validator.EmailValidator;
 import org.apache.log4j.Logger;
@@ -163,7 +164,7 @@ public class CentralMultiActionController extends MultiActionController {
     public ModelAndView linkReferer(HttpServletRequest request, HttpServletResponse response) {
         Map<String, Object> model = new HashMap<String, Object>();
         String appType = request.getParameter("appType");
-        String appName = request.getParameter("appName");
+        String appName = ValidationUtils.sanitizeAppName(request.getParameter("appName"));
 
         model.put("appName", appName);
         model.put("appType", appType);
@@ -238,7 +239,7 @@ public class CentralMultiActionController extends MultiActionController {
     public ModelAndView associate(HttpServletRequest request, HttpServletResponse response) throws IOException {
         Map<String, Object> model = new HashMap<String, Object>();
         String appType = request.getParameter("appType");
-        String appName = request.getParameter("appName").toLowerCase();
+        String appName = ValidationUtils.sanitizeAppName(request.getParameter("appName"));
         String appUsername = request.getParameter("appUsername").toLowerCase();
         String appPassword = request.getParameter("appPassword");
 
@@ -280,9 +281,9 @@ public class CentralMultiActionController extends MultiActionController {
 
         if (model.containsKey("error")) {
             if (request.getParameter("linkReferer") != null) {
-                model.put("appName", request.getParameter("appName"));
+                model.put("appName", appName);
                 model.put("appType", request.getParameter("appType"));
-                model.put("appDomain", request.getParameter("appName") + "." + infusionsoftAuthenticationService.getCrmDomain());
+                model.put("appDomain", appName + "." + infusionsoftAuthenticationService.getCrmDomain());
 
                 return new ModelAndView("infusionsoft/ui/central/linkReferer", model);
             } else if (appType.equals(AppType.CRM)) {
@@ -425,7 +426,7 @@ public class CentralMultiActionController extends MultiActionController {
      */
     public ModelAndView renameAccount(HttpServletRequest request, HttpServletResponse response) throws IOException {
         Long accountId = new Long(request.getParameter("id"));
-        String alias = request.getParameter("value");
+        String alias = ValidationUtils.sanitizeAppAlias(request.getParameter("value"));
         User user = infusionsoftAuthenticationService.getCurrentUser(request);
         UserAccount account = infusionsoftDataService.findUserAccount(user, accountId);
 
@@ -434,7 +435,7 @@ public class CentralMultiActionController extends MultiActionController {
             hibernateTemplate.update(account);
 
             response.setContentType("text/plain");
-            response.getWriter().write(alias);
+            response.getWriter().write(StringEscapeUtils.escapeHtml(account.getAlias()));
         } catch (Exception e) {
             log.error("failed to update alias for account " + accountId, e);
 

@@ -89,7 +89,7 @@
             success: function(response) {
                 $(".quick-editable").removeClass("editing");
                 $("#quick-editor").hide();
-                $("#quick-editable-" + id).html(alias);
+                $("#quick-editable-" + id).html(response);
             }
         });
 
@@ -134,7 +134,7 @@
                             <div class="account-delete">&times;</div>
                             <div class="account-info">
                                 <div id="account_${account.id}" class="account-title">
-                                    <span id="quick-editable-${account.id}" accountId="${account.id}" class="quick-editable">${empty account.alias ? account.appName : account.alias}</span>
+                                    <span id="quick-editable-${account.id}" accountId="${account.id}" class="quick-editable">${fn:escapeXml(empty account.alias ? account.appName : account.alias)}</span>
                                 </div>
                                 <div class="account-detail">Infusionsoft Account</div>
                                 <div class="account-detail">${account.appName}.${crmDomain}</div>
@@ -155,7 +155,7 @@
                             <div class="account-delete">&times;</div>
                             <div class="account-info">
                                 <div id="account_${account.id}" class="account-title">
-                                    <span id="quick-editable-${account.id}" accountId="${account.id}" class="quick-editable">${empty account.alias ? account.appName : account.alias}</span>
+                                    <span id="quick-editable-${account.id}" accountId="${account.id}" class="quick-editable">${fn:escapeXml(empty account.alias ? account.appName : account.alias)}</span>
                                 </div>
                                 <div class="account-detail">CustomerHub App</div>
                                 <div class="account-detail">${account.appName}.${customerHubDomain}</div>

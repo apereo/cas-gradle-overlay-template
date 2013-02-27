@@ -264,6 +264,8 @@
     <bean id="userFilter" name="userFilter" class="com.infusionsoft.cas.web.UserFilter"
           p:infusionsoftAuthenticationService-ref="infusionsoftAuthenticationService"/>
 
+    <bean id="securityFilter" name="securityFilter" class="com.infusionsoft.cas.web.SecurityFilter"/>
+
     <bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
         <property name="host" value="${infusionsoft.mail.host}"/>
     </bean>

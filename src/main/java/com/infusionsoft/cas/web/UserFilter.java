@@ -64,11 +64,6 @@ public class UserFilter implements Filter {
             session.removeAttribute("refererAppType");
         }
 
-        if (request.getServletPath().startsWith("/login") || request.getServletPath().startsWith("/logout")) {
-            response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate, private");
-            response.setHeader("Pragma", "no-cache");
-        }
-
         // Protect the central controller, logged in users only!
         if (session.getAttribute("user") == null && request.getServletPath().startsWith("/central")) {
             response.sendRedirect(contextPath + "/login");

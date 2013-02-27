@@ -18,6 +18,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -50,7 +51,12 @@ public class RegistrationMultiActionController extends MultiActionController {
             log.info("user already has a CAS session! clearing it before allowing registration");
 
             infusionsoftAuthenticationService.destroyTicketGrantingTicket(request, response);
-            response.sendRedirect(request.getRequestURL().toString() + "?" + request.getQueryString());
+
+            if (StringUtils.isEmpty(registrationCode)) {
+                response.sendRedirect(request.getRequestURL().toString());
+            } else {
+                response.sendRedirect(request.getRequestURL().toString() + "?registrationCode=" + URLEncoder.encode(registrationCode, "UTF-8"));
+            }
 
             return null;
         }
@@ -358,7 +364,7 @@ public class RegistrationMultiActionController extends MultiActionController {
      */
     public ModelAndView getLogoImageUrl(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String appType = request.getParameter("appType");
-        String appName = request.getParameter("appName");
+        String appName = ValidationUtils.sanitizeAppName(request.getParameter("appName"));
         String url = "";
 
         try {
