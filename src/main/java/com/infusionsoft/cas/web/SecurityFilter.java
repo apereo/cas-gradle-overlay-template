@@ -22,24 +22,22 @@ public class SecurityFilter implements Filter {
         HttpServletResponse response = (HttpServletResponse) servletResponse;
         String path = request.getServletPath();
 
-        if (path.startsWith("/login") || path.startsWith("/logout")) {
-            log.debug("adding no-cache headers to " + path);
-
-            response.addHeader("Cache-Control", "no-cache, no-store, must-revalidate, private");
-            response.setHeader("Pragma", "no-cache");
-        }
-
         if (!path.startsWith("/registration/banner")) {
             log.debug("adding no-frame headers to " + path);
 
             response.setHeader("X-Frame-Options", "SAMEORIGIN");
         }
 
-        log.debug("adding no-sniff headers to " + path);
-
         response.setHeader("X-Content-Type-Options", "nosniff");
 
         filterChain.doFilter(request, response);
+
+        if (path.startsWith("/login") || path.startsWith("/logout")) {
+            log.debug("adding no-cache headers to " + path);
+
+            response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate, private");
+            response.setHeader("Pragma", "no-cache");
+        }
     }
 
     public void destroy() {
