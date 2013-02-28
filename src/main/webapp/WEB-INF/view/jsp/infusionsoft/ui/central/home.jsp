@@ -125,56 +125,54 @@
         <div style="clear: both"></div>
     </div>
 
-    <c:if test="${fn:length(accounts) > 0}">
-        <div class="accounts">
-            <c:forEach var="account" items="${accounts}">
-                <c:choose>
-                    <c:when test="${account.appType == 'crm'}">
-                        <div accountId="${account.id}" href="${crmProtocol}://${account.appName}.${crmDomain}:${crmPort}" class="account crm-account">
-                            <div class="account-delete">&times;</div>
-                            <div class="account-info">
-                                <div id="account_${account.id}" class="account-title">
-                                    <span id="quick-editable-${account.id}" accountId="${account.id}" class="quick-editable">${fn:escapeXml(empty account.alias ? account.appName : account.alias)}</span>
-                                </div>
-                                <div class="account-detail">Infusionsoft Account</div>
-                                <div class="account-detail">${account.appName}.${crmDomain}</div>
+    <div class="accounts">
+        <c:forEach var="account" items="${accounts}">
+            <c:choose>
+                <c:when test="${account.appType == 'crm'}">
+                    <div accountId="${account.id}" href="${crmProtocol}://${account.appName}.${crmDomain}:${crmPort}" class="account crm-account">
+                        <div class="account-delete">&times;</div>
+                        <div class="account-info">
+                            <div id="account_${account.id}" class="account-title">
+                                <span id="quick-editable-${account.id}" accountId="${account.id}" class="quick-editable">${fn:escapeXml(empty account.alias ? account.appName : account.alias)}</span>
                             </div>
+                            <div class="account-detail">Infusionsoft Account</div>
+                            <div class="account-detail">${account.appName}.${crmDomain}</div>
                         </div>
-                    </c:when>
-                    <c:when test="${account.appType == 'community'}">
-                        <div accountId="${account.id}" href="http://${communityDomain}/caslogin.php" class="account forum-account">
-                            <div class="account-delete">&times;</div>
-                            <div class="account-info">
-                                <div class="account-title">Infusionsoft Community</div>
-                                <div class="account-detail">${communityDomain}</div>
-                            </div>
-                        </div>
-                    </c:when>
-                    <c:otherwise>
-                        <div accountId="${account.id}" href="https://${account.appName}.${customerHubDomain}" class="account customerhub-account">
-                            <div class="account-delete">&times;</div>
-                            <div class="account-info">
-                                <div id="account_${account.id}" class="account-title">
-                                    <span id="quick-editable-${account.id}" accountId="${account.id}" class="quick-editable">${fn:escapeXml(empty account.alias ? account.appName : account.alias)}</span>
-                                </div>
-                                <div class="account-detail">CustomerHub App</div>
-                                <div class="account-detail">${account.appName}.${customerHubDomain}</div>
-                            </div>
-                        </div>
-                    </c:otherwise>
-                </c:choose>
-            </c:forEach>
-            <div href="${marketplaceUrl}" class="account marketplace-account">
-                <div class="account-delete">&times;</div>
-                <div class="account-info">
-                    <div id="account_${account.id}" class="account-title">
-                        <span>Marketplace</span>
                     </div>
-                    <div class="account-detail">${marketplaceDomain}</div>
+                </c:when>
+                <c:when test="${account.appType == 'community'}">
+                    <div accountId="${account.id}" href="http://${communityDomain}/caslogin.php" class="account forum-account">
+                        <div class="account-delete">&times;</div>
+                        <div class="account-info">
+                            <div class="account-title">Infusionsoft Community</div>
+                            <div class="account-detail">${communityDomain}</div>
+                        </div>
+                    </div>
+                </c:when>
+                <c:otherwise>
+                    <div accountId="${account.id}" href="https://${account.appName}.${customerHubDomain}" class="account customerhub-account">
+                        <div class="account-delete">&times;</div>
+                        <div class="account-info">
+                            <div id="account_${account.id}" class="account-title">
+                                <span id="quick-editable-${account.id}" accountId="${account.id}" class="quick-editable">${fn:escapeXml(empty account.alias ? account.appName : account.alias)}</span>
+                            </div>
+                            <div class="account-detail">CustomerHub App</div>
+                            <div class="account-detail">${account.appName}.${customerHubDomain}</div>
+                        </div>
+                    </div>
+                </c:otherwise>
+            </c:choose>
+        </c:forEach>
+        <div href="${marketplaceUrl}" class="account marketplace-account">
+            <div class="account-delete">&times;</div>
+            <div class="account-info">
+                <div id="account_${account.id}" class="account-title">
+                    <span>Marketplace</span>
                 </div>
+                <div class="account-detail">${marketplaceDomain}</div>
             </div>
         </div>
-    </c:if>
+    </div>
 </div>
 
 <div id="quick-editor">
