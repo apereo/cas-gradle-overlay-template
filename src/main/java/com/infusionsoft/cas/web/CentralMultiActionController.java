@@ -368,8 +368,6 @@ public class CentralMultiActionController extends MultiActionController {
                     passwordService.setPasswordForUser(user, password1);
                 }
 
-                hibernateTemplate.update(user);
-
                 infusionsoftAuthenticationService.createTicketGrantingTicket(username, request, response);
             }
         } catch (Exception e) {

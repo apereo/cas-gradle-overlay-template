@@ -101,8 +101,8 @@ public class PasswordService {
 
         user.getPasswords().add(userPassword);
 
+//        hibernateTemplate.update(user);
         hibernateTemplate.save(userPassword);
-        hibernateTemplate.update(user);
 
         log.info("set password for user " + user.getId());
     }
