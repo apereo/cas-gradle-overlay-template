@@ -193,11 +193,13 @@ public class RegistrationMultiActionController extends MultiActionController {
             URL serviceUrl = new URL((String) session.getAttribute("serviceUrl"));
 
             appName = infusionsoftAuthenticationService.guessAppName(serviceUrl);
-            appType = infusionsoftAuthenticationService.guessAppName(serviceUrl);
+            appType = infusionsoftAuthenticationService.guessAppType(serviceUrl);
+
+            log.debug("app url is " + infusionsoftAuthenticationService.buildAppUrl(appType, appName));
 
             model.put("appName", appName);
             model.put("appType", appType);
-            model.put("appDomain", appName + "." + infusionsoftAuthenticationService.getCrmDomain());
+            model.put("appDomain", new URL(infusionsoftAuthenticationService.buildAppUrl(appType, appName)).getHost());
         } catch (Exception e) {
             log.warn("failed to parse appName/appType from serviceUrl", e);
         }

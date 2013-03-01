@@ -37,14 +37,15 @@ h2 {
     margin: 0 0 5px 0;
     padding: 0;
     font-size: 15px;
-    font-weight: bold;
 }
 
 h2.apps {
     background: url(../images/apps-icon.png) left center no-repeat;
     padding: 0 0 0 40px;
-    font-size: 18px;
+    font-size: 25px;
     line-height: 40px;
+    font-weight: 300;
+    color: #40434C;
 }
 
 .bold {
@@ -249,7 +250,6 @@ h2.apps {
     background: #fff;
     border: 1px solid #dddddd;
     border-top: none;
-    min-height: 400px;
 }
 
 #biglogo {
@@ -283,12 +283,17 @@ h2.apps {
 }
 
 .buttonbar {
-    padding: 10px;
+    padding: 7px;
     background: #f5f5f5;
     margin: 30px 0 0 0;
     border-radius: 5px;
     -moz-border-radius: 5px;
     -webkit-border-radius: 5px;
+    height: 28px;
+}
+
+.buttonbar .btn {
+    float: right;
 }
 
 .btn {
@@ -341,8 +346,8 @@ label {
 }
 
 .accounts .account form {
-	margin: 0;
-	padding: 0;
+    margin: 0;
+    padding: 0;
 }
 
 .accounts .account-info {
@@ -448,10 +453,6 @@ p {
 }
 
 .btn {
-    -moz-border-bottom-colors: none;
-    -moz-border-left-colors: none;
-    -moz-border-right-colors: none;
-    -moz-border-top-colors: none;
     background-color: #F9F9F9;
     background-repeat: no-repeat;
     border-color: #BBBBBB;
@@ -469,6 +470,9 @@ p {
     position: relative;
     text-decoration: none;
     background-image: none;
+    box-shadow: none;
+    -webkit-box-shadow: none;
+    -moz-box-shadow: none;
 }
 
 .btn:hover {
@@ -477,11 +481,17 @@ p {
     text-decoration: none;
 }
 
+.btn:active {
+    top: 1px;
+    border-bottom: 1px solid #bbb;
+    color: #444444;
+    text-decoration: none;
+    box-shadow: none;
+    -webkit-box-shadow: none;
+    -moz-box-shadow: none;
+}
+
 .btn.btn-primary {
-    -moz-border-bottom-colors: none;
-    -moz-border-left-colors: none;
-    -moz-border-right-colors: none;
-    -moz-border-top-colors: none;
     background-color: #70BD49;
     border-color: #4E972A;
     border-image: none;
@@ -494,13 +504,19 @@ p {
     font: 700 12px 'Open Sans',Arial,Verdana,Sans-Serif;
     padding: 4px 12px;
     position: relative;
-    text-shadow: 0 1px 0 #579B3C;
+    text-shadow: 0 1px 0 rgb(87, 155, 60);
     background-image: none;
 }
 
 .btn.btn-primary:hover {
     background-color: #77C94E;
     color: #FFFFFF;
+}
+
+.btn.btn-primary:active {
+    top: 1px;
+    border-bottom: 1px solid #4b8c2c;
+    color: #fff;
 }
 
 .control-group .sign-in-button {
@@ -525,7 +541,17 @@ p {
     padding: 8px 0px;
     width: 251px;
     display: block;
-    margin: 0;
+    margin-bottom: 0;
 }
 
+.control-group .sign-in-button:hover {
+    color: #fff;
+    background-color: #77c94e;
+}
+
+.control-group .sign-in-button:active {
+    top: 1px;
+    border-bottom: 1px solid #4b8c2c;
+    color: #fff;
+}
 

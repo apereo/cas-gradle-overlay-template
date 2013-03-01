@@ -32,7 +32,7 @@
 </style>
 
 <div class="modal-title">
-    Success!<br/>
+    Your ID Has Been Created Successfully!
 </div>
 
 <div id="register">
@@ -49,8 +49,7 @@
     </div>
     <br/>
     <p>
-        You've successfully created your Infusionsoft ID. From now on you'll be able to access all aspects of
-        Infusionsoft with this email address and password.
+        This is your Infusionsoft ID. You will sign in to your account(s) with this email address and password.
     </p>
 
     <div style="text-align: right; margin-top: 15px">

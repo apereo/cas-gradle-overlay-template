@@ -21,10 +21,16 @@
         padding: 30px;
     }
 
+    #forgot-password {
+        width: 336px;
+        margin: 5px auto;
+        text-align: center;
+    }
+
 </style>
 
 <div class="modal-title">
-    Step 2: Connect this account with your Infusionsoft ID
+    Step 2: Connect This Account To <br/> Your Infusionsoft ID
 </div>
 <div id="verification">
     <c:if test="${error != null}">
@@ -34,7 +40,7 @@
     </c:if>
 
     <p>
-        Please verify you are a user of ${appDomain}. Enter your old username and password for this account below.
+        To connect this account to your Infusionsoft ID, please enter your previous username and password.
     </p>
     <form action="verify" method="post" id="verificationForm" cssClass="form-vertical">
         <div class="control-group">
@@ -56,3 +62,9 @@
         </div>
     </form>
 </div>
+
+<c:if test="${appType == 'crm'}">
+    <div id="forgot-password">
+        <a href="https://${appDomain}/app/forgotPassword/enterEmail">Forgot your previous password for ${appDomain}?</a>
+    </div>
+</c:if>

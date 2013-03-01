@@ -16,7 +16,7 @@
 
 <div id="main">
     <h2 class="apps">
-        Link a CustomerHub Account
+        Connect a CustomerHub Account
     </h2>
 
     <c:if test="${error != null}">
@@ -36,7 +36,7 @@
 
         <fieldset>
             <div class="control-group">
-                <label for="appName" class="control-label">App URL</label>
+                <label for="appName" class="control-label">Account URL</label>
                 <div class="controls">
                     <input id="appName" name="appName" type="text" value="${fn:escapeXml(appName)}"/>.${customerHubDomain}
                 </div>
@@ -56,7 +56,7 @@
         </fieldset>
 
         <div class="buttonbar">
-            <input type="submit" value="Link Account" class="btn btn-primary"/>
+            <input type="submit" value="Connect Account" class="btn btn-primary"/>
             <a href="${centralUrl}" class="btn">Cancel</a>
         </div>
     </form>

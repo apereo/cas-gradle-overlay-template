@@ -15,19 +15,26 @@
 <script type="text/javascript">
     $(document).ready(function() {
         $("#username").attr("placeholder", "email address");
+        $("#username").focus(function() {
+            $("#username").attr("hiddenplaceholder", $("#username").attr("placeholder"));
+            $("#username").attr("placeholder", "");
+        });
+        $("#username").blur(function() {
+            $("#username").attr("placeholder", $("#username").attr("hiddenplaceholder"));
+        });
+        $("#username").placeholder();
+        $("#username").blur();
+
         $("#password").attr("placeholder", "password");
-
-        $("#username, #password").focus(function() {
-            $(this).attr("hiddenplaceholder", $(this).attr("placeholder"));
-            $(this).attr("placeholder", "");
+        $("#password").focus(function() {
+            $("#password").attr("hiddenplaceholder", $("#password").attr("placeholder"));
+            $("#password").attr("placeholder", "");
         });
-
-        $("#username, #password").blur(function() {
-            $(this).attr("placeholder", $(this).attr("hiddenplaceholder"));
+        $("#password").blur(function() {
+            $("#password").attr("placeholder", $("#password").attr("hiddenplaceholder"));
         });
-
-        $("input").placeholder();
-        $("input").blur();
+        $("#password").placeholder();
+        $("#password").blur();
 
         $.ajax({
             url: "${getLogoImageUrl}",
@@ -93,13 +100,17 @@
 
     #username {
         background: url(/images/username-bg.png) 8px center no-repeat;
+        text-indent: 32px;
+        padding: 9px 3px;
+        border-radius: 4px;
+        -webkit-border-radius: 4px;
+        -moz-border-radius: 4px;
+        width: 243px;
+        margin-bottom: 15px;
     }
 
     #password {
         background: url(/images/password-bg.png) 8px center no-repeat;
-    }
-
-    #password, #username {
         text-indent: 32px;
         padding: 9px 3px;
         border-radius: 4px;

@@ -16,7 +16,7 @@
 
 <div id="main">
     <h2 class="apps">
-        Link a Community Account
+        Connect a Community Profile
     </h2>
 
     <c:if test="${error != null}">
@@ -51,7 +51,7 @@
         </table>
 
         <div class="buttonbar">
-            <input type="submit" value="Link Account" class="btn btn-primary"/>
+            <input type="submit" value="Connect Account" class="btn btn-primary"/>
             <a href="${centralUrl}" class="btn">Cancel</a>
         </div>
     </form>

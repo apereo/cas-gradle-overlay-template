@@ -7,7 +7,7 @@
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 
-<meta name="decorator" content="anonymous"/>
+<meta name="decorator" content="modal"/>
 
 <c:url var="associateUrl" value="/central/associate"/>
 <c:url var="homeUrl" value="/central/home"/>
