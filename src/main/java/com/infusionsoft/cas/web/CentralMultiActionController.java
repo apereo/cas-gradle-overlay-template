@@ -1,5 +1,7 @@
 package com.infusionsoft.cas.web;
 
+import com.infusionsoft.cas.exceptions.AppCredentialsExpiredException;
+import com.infusionsoft.cas.exceptions.AppCredentialsInvalidException;
 import com.infusionsoft.cas.exceptions.UsernameTakenException;
 import com.infusionsoft.cas.services.*;
 import com.infusionsoft.cas.types.AppType;
@@ -265,11 +267,17 @@ public class CentralMultiActionController extends MultiActionController {
                 } else {
                     model.put("error", "registration.error.invalidLegacyCredentials");
                 }
-            } else if (infusionsoftAuthenticationService.verifyAppCredentials(appType, appName, appUsername, appPassword)) {
-                infusionsoftDataService.associateAccountToUser(currentUser, appType, appName, appUsername);
-                infusionsoftAuthenticationService.createTicketGrantingTicket(currentUser.getUsername(), request, response);
             } else {
-                model.put("error", "registration.error.invalidLegacyCredentials");
+                try {
+                    infusionsoftAuthenticationService.verifyAppCredentials(appType, appName, appUsername, appPassword);
+
+                    infusionsoftDataService.associateAccountToUser(currentUser, appType, appName, appUsername);
+                    infusionsoftAuthenticationService.createTicketGrantingTicket(currentUser.getUsername(), request, response);
+                } catch (AppCredentialsExpiredException e) {
+                    model.put("error", "registration.error.expiredLegacyCredentials");
+                } catch (AppCredentialsInvalidException e) {
+                    model.put("error", "registration.error.invalidLegacyCredentials");
+                }
             }
 
             model.put("appUrl", infusionsoftAuthenticationService.buildAppUrl(appType, appName));

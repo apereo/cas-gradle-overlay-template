@@ -175,7 +175,7 @@
 
         <div class="control-group">
             <div class="controls">
-                <form:input title="Email Address" cssClass="required" cssErrorClass="error" id="username" size="25" tabindex="1" accesskey="${userNameAccessKey}" path="username" autocomplete="false" htmlEscape="true" />
+                <form:input title="Email Address" cssClass="required" cssErrorClass="error" id="username" size="25" tabindex="1" accesskey="${userNameAccessKey}" path="username" autocomplete="off" htmlEscape="true" />
             </div>
         </div>
 

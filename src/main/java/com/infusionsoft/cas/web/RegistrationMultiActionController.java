@@ -1,5 +1,7 @@
 package com.infusionsoft.cas.web;
 
+import com.infusionsoft.cas.exceptions.AppCredentialsExpiredException;
+import com.infusionsoft.cas.exceptions.AppCredentialsInvalidException;
 import com.infusionsoft.cas.services.*;
 import com.infusionsoft.cas.types.AppType;
 import com.infusionsoft.cas.types.PendingUserAccount;
@@ -234,20 +236,23 @@ public class RegistrationMultiActionController extends MultiActionController {
         String appPassword = request.getParameter("appPassword");
         Map<String, Object> model = new HashMap<String, Object>();
 
-        if (infusionsoftAuthenticationService.verifyAppCredentials(appType, appName, appUsername, appPassword)) {
-            try {
-                UserAccount account = infusionsoftDataService.associateAccountToUser(user, appType, appName, appUsername);
+        try {
+            infusionsoftAuthenticationService.verifyAppCredentials(appType, appName, appUsername, appPassword);
 
-                infusionsoftAuthenticationService.createTicketGrantingTicket(user.getUsername(), request, response);
+            UserAccount account = infusionsoftDataService.associateAccountToUser(user, appType, appName, appUsername);
 
-                return new ModelAndView("redirect:success", "appUrl", infusionsoftAuthenticationService.buildAppUrl(account.getAppType(), account.getAppName()));
-            } catch (Exception e) {
-                log.error("failed to associate verified credentials", e);
-            }
+            infusionsoftAuthenticationService.createTicketGrantingTicket(user.getUsername(), request, response);
+
+            return new ModelAndView("redirect:success", "appUrl", infusionsoftAuthenticationService.buildAppUrl(account.getAppType(), account.getAppName()));
+        } catch (AppCredentialsExpiredException e) {
+            model.put("error", "registration.error.expiredLegacyCredentials");
+        } catch (Exception e) {
+            log.error("failed to associate verified credentials", e);
+
+            model.put("error", "registration.error.invalidLegacyCredentials");
         }
 
         model.put("appUsername", appUsername);
-        model.put("error", "registration.error.invalidLegacyCredentials");
 
         return new ModelAndView("infusionsoft/ui/registration/verification", model);
     }

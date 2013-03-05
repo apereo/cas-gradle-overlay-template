@@ -2,6 +2,8 @@ package com.infusionsoft.cas.services;
 
 import com.infusionsoft.cas.auth.InfusionsoftCredentials;
 import com.infusionsoft.cas.auth.LetMeInCredentials;
+import com.infusionsoft.cas.exceptions.AppCredentialsExpiredException;
+import com.infusionsoft.cas.exceptions.AppCredentialsInvalidException;
 import com.infusionsoft.cas.types.*;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -258,22 +260,22 @@ public class InfusionsoftAuthenticationService {
 
     /**
      * Checks with an app whether a user's legacy credentials are correct. This should be done before we allow them to
-     * link that account to their CAS account.
+     * link that account to their CAS account. Throws an exception if the credentials are invalid, expired, etc.
      */
-    public boolean verifyAppCredentials(String appType, String appName, String appUsername, String appPassword) {
-        boolean valid = false;
-
+    public void verifyAppCredentials(String appType, String appName, String appUsername, String appPassword) throws AppCredentialsInvalidException, AppCredentialsExpiredException {
         if (StringUtils.equals(appType, AppType.CRM)) {
-            valid = crmService.authenticateUser(appName, appUsername, appPassword);
+            crmService.authenticateUser(appName, appUsername, appPassword);
         } else if (StringUtils.equals(appType, AppType.COMMUNITY)) {
-            valid = communityService.authenticateUser(appUsername, appPassword) != null;
+            if (communityService.authenticateUser(appUsername, appPassword) == null) {
+                throw new AppCredentialsInvalidException("community credentials are invalid or could not be verified");
+            }
         } else if (StringUtils.equals(appType, AppType.CUSTOMERHUB)) {
-            valid = customerHubService.authenticateUser(appName, appUsername, appPassword);
+            if (!customerHubService.authenticateUser(appName, appUsername, appPassword)) {
+                throw new AppCredentialsInvalidException("customerhub credentials are invalid or could not be verified");
+            }
         } else {
-            log.warn("we don't know how to verify credentials for app type " + appType);
+            throw new AppCredentialsInvalidException("we don't know how to verify credentials for app type " + appType);
         }
-
-        return valid;
     }
 
     /**

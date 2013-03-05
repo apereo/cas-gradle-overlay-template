@@ -144,10 +144,15 @@
 
     <bean id="flowUrlHandler" class="org.jasig.cas.web.flow.CasDefaultFlowUrlHandler"/>
 
+    <bean id="exceptionLoggingListener" class="com.infusionsoft.cas.web.webflow.LoggingFlowExecutionListener"/>
+
     <webflow:flow-executor id="flowExecutor" flow-registry="flowRegistry">
         <webflow:flow-execution-attributes>
             <webflow:always-redirect-on-pause value="false"/>
         </webflow:flow-execution-attributes>
+        <webflow:flow-execution-listeners>
+            <webflow:listener ref="exceptionLoggingListener"/>
+        </webflow:flow-execution-listeners>
     </webflow:flow-executor>
 
     <webflow:flow-registry id="flowRegistry" flow-builder-services="builder">

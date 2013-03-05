@@ -1,5 +1,7 @@
 package com.infusionsoft.cas.services;
 
+import com.infusionsoft.cas.exceptions.AppCredentialsExpiredException;
+import com.infusionsoft.cas.exceptions.AppCredentialsInvalidException;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.log4j.Logger;
 import org.apache.xmlrpc.XmlRpcClient;
@@ -38,7 +40,7 @@ public class CrmService {
     /**
      * Verifies a username and password against a CRM app.
      */
-    public boolean authenticateUser(String appName, String appUsername, String appPassword) {
+    public void authenticateUser(String appName, String appUsername, String appPassword) throws AppCredentialsInvalidException, AppCredentialsExpiredException {
         try {
             XmlRpcClient client = new XmlRpcClient(buildCrmUrl(appName) + "/api/xmlrpc");
             Vector<String> params = new Vector<String>();
@@ -53,20 +55,22 @@ public class CrmService {
 
             if (response != null) {
                 log.info("getTemporaryKey returned a response " + response + " of type " + response.getClass());
-
-                return true;
             } else {
-                log.warn("unable to verify credentials! no temp key was returned for this username and password");
+                throw new AppCredentialsInvalidException("no response! unable to verify crm credentials for " + appUsername + " on " + appName);
             }
-        } catch (MalformedURLException e) {
-            log.error("couldn't verify app credentials: xml-rpc url is invalid!", e);
         } catch (IOException e) {
             log.warn("web service call failed", e);
+
+            throw new AppCredentialsInvalidException("unable to verify crm credentials for " + appUsername + " on " + appName, e);
         } catch (XmlRpcException e) {
             log.info("app credentials are invalid", e);
-        }
 
-        return false;
+            if (e.getMessage().contains("FailedLoginAttemptPasswordExpired")) {
+                throw new AppCredentialsExpiredException("password is expired for " + appUsername + " on " + appName, e);
+            } else {
+                throw new AppCredentialsInvalidException("credentials are invalid for " + appUsername + " on " + appName, e);
+            }
+        }
     }
 
     public void setCrmProtocol(String crmProtocol) {

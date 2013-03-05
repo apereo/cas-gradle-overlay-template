@@ -18,7 +18,7 @@
         color: #000;
         background: #fff;
         width: 276px;
-        margin: 10px auto;
+        margin: 120px auto;
         border: 1px solid #DDDDDD;
         border-radius: 4px;
         padding: 30px;
@@ -36,11 +36,20 @@
 </style>
 
 <div id="linkReferer">
-    <c:if test="${not empty error}">
-        <div class="alert alert-error" style="margin: -20px -20px 20px -20px">
-            <spring:message code="${error}"/>
-        </div>
-    </c:if>
+    <c:choose>
+        <c:when test="${error == 'registration.error.expiredLegacyCredentials'}">
+            <div class="alert alert-error" style="margin: -20px -20px 20px -20px">
+                Your old password is expired! Please
+                <a target="oldapp" href="${appUrl}/app/authentication/login">sign in the old way</a>
+                to reset it, then try again.
+            </div>
+        </c:when>
+        <c:when test="${error != null}">
+            <div class="alert alert-error" style="margin: -20px -20px 20px -20px">
+                <spring:message code="${error}"/>
+            </div>
+        </c:when>
+    </c:choose>
 
     <form action="${associateUrl}" method="post" id="fm1" class="form-vertical">
         <input type="hidden" name="linkReferer" value="true"/>

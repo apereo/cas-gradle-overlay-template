@@ -31,11 +31,21 @@
         Connect an Infusionsoft Account
     </h2>
 
-    <c:if test="${error != null}">
-        <div class="alert alert-error" style="margin-top: 10px">
-            <spring:message code="${error}"/>
-        </div>
-    </c:if>
+    <c:choose>
+        <c:when test="${error == 'registration.error.expiredLegacyCredentials'}">
+            <div class="alert alert-error" style="margin-top: 10px">
+                Your old password is expired! Please
+                <a target="oldapp" href="${appUrl}/app/authentication/login">sign in the old way</a>
+                to reset it, then try again.
+            </div>
+        </c:when>
+        <c:when test="${error != null}">
+            <div class="alert alert-error" style="margin-top: 10px">
+                <spring:message code="${error}"/>
+            </div>
+        </c:when>
+    </c:choose>
+
 
     <p>
         Connect an existing account to your Infusionsoft ID! Enter the username and password you were using before

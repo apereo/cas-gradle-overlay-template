@@ -79,9 +79,9 @@ public class InfusionsoftAuthenticationViaFormAction extends AuthenticationViaFo
             String appType = infusionsoftAuthenticationService.guessAppType(new URL(service));
 
             if (StringUtils.isNotEmpty(appName) && StringUtils.isNotEmpty(appType)) {
-                boolean valid = infusionsoftAuthenticationService.verifyAppCredentials(appType, appName, appUsername, appPassword);
+                try {
+                    infusionsoftAuthenticationService.verifyAppCredentials(appType, appName, appUsername, appPassword);
 
-                if (valid) {
                     log.info("verified that " + appUsername + " is a legacy user at " + service);
 
                     PendingUserAccount account = infusionsoftDataService.createPendingUserAccount(appType, appName, appUsername, "", "", "", false);
@@ -91,7 +91,7 @@ public class InfusionsoftAuthenticationViaFormAction extends AuthenticationViaFo
                     context.getRequestScope().put("registrationCode", account.getRegistrationCode());
 
                     return true;
-                } else {
+                } catch (Exception e) {
                     log.info("unable to verify " + appUsername + " at " + service);
                 }
             } else {
