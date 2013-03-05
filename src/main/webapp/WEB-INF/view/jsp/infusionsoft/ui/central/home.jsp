@@ -149,8 +149,8 @@
                         </div>
                     </div>
                 </c:when>
-                <c:otherwise>
-                    <div accountId="${account.id}" href="https://${account.appName}.${customerHubDomain}" class="account customerhub-account">
+                <c:when test="${account.appType == 'customerhub'}">
+                    <div accountId="${account.id}" href="https://${account.appName}.${customerHubDomain}/admin" class="account customerhub-account">
                         <div class="account-delete">&times;</div>
                         <div class="account-info">
                             <div id="account_${account.id}" class="account-title">
@@ -160,7 +160,7 @@
                             <div class="account-detail">${account.appName}.${customerHubDomain}</div>
                         </div>
                     </div>
-                </c:otherwise>
+                </c:when>
             </c:choose>
         </c:forEach>
         <div href="${marketplaceUrl}" class="account marketplace-account">
