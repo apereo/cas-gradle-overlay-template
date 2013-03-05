@@ -14,27 +14,30 @@
 
 <script type="text/javascript">
     $(document).ready(function() {
-        $("#username").attr("placeholder", "email address");
-        $("#username").focus(function() {
-            $("#username").attr("hiddenplaceholder", $("#username").attr("placeholder"));
-            $("#username").attr("placeholder", "");
-        });
-        $("#username").blur(function() {
-            $("#username").attr("placeholder", $("#username").attr("hiddenplaceholder"));
-        });
-        $("#username").placeholder();
-        $("#username").blur();
+        try {
+            $("#username").attr("placeholder", "email address");
+            $("#username").focus(function() {
+                $("#username").val("");
+                $("#username").attr("hiddenplaceholder", $("#username").attr("placeholder"));
+                $("#username").attr("placeholder", "");
+            });
+            $("#username").blur(function() {
+                $("#username").attr("placeholder", $("#username").attr("hiddenplaceholder"));
+            });
+            $("#username").placeholder();
 
-        $("#password").attr("placeholder", "password");
-        $("#password").focus(function() {
-            $("#password").attr("hiddenplaceholder", $("#password").attr("placeholder"));
-            $("#password").attr("placeholder", "");
-        });
-        $("#password").blur(function() {
-            $("#password").attr("placeholder", $("#password").attr("hiddenplaceholder"));
-        });
-        $("#password").placeholder();
-        $("#password").blur();
+            $("#password").attr("placeholder", "password");
+            $("#password").focus(function() {
+                $("#password").attr("hiddenplaceholder", $("#password").attr("placeholder"));
+                $("#password").attr("placeholder", "");
+            });
+            $("#password").blur(function() {
+                $("#password").attr("placeholder", $("#password").attr("hiddenplaceholder"));
+            });
+            $("#password").placeholder();
+        } catch (e) {
+            alert("error: " + e);
+        }
 
         $.ajax({
             url: "${getLogoImageUrl}",
