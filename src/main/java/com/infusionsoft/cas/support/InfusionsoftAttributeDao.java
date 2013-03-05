@@ -1,5 +1,6 @@
 package com.infusionsoft.cas.support;
 
+import com.infusionsoft.cas.services.InfusionsoftAuthenticationService;
 import com.infusionsoft.cas.types.User;
 import com.infusionsoft.cas.types.UserAccount;
 import org.apache.commons.digester.ObjectParamRule;
@@ -8,6 +9,8 @@ import org.jasig.services.persondir.support.AbstractFlatteningPersonAttributeDao
 import org.jasig.services.persondir.support.AttributeNamedPersonImpl;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 
 import java.util.*;
@@ -16,7 +19,8 @@ import java.util.*;
  * Special class for adding custom Infusionsoft attributes to the CAS/SAML response. This is how downstream applications
  * know if users are mapped to a local account, among other things.
  */
-public class InfusionsoftAttributeDao extends AbstractFlatteningPersonAttributeDao {
+public class InfusionsoftAttributeDao extends AbstractFlatteningPersonAttributeDao implements ApplicationContextAware {
+    private ApplicationContext context;
     private HibernateTemplate hibernateTemplate;
     private IPersonAttributes backingPerson = null;
 
@@ -47,6 +51,7 @@ public class InfusionsoftAttributeDao extends AbstractFlatteningPersonAttributeD
             List<UserAccount> accounts = hibernateTemplate.find("FROM UserAccount ua WHERE ua.user = ? and ua.disabled = ?", currUser, false);
             JSONObject rootObj = new JSONObject();
             JSONArray accountsArray = new JSONArray();
+            InfusionsoftAuthenticationService infusionsoftAuthenticationService = (InfusionsoftAuthenticationService) context.getBean("infusionsoftAuthenticationService");
 
             for(UserAccount currAccount : accounts) {
                 JSONObject accountToAdd = new JSONObject();
@@ -54,6 +59,7 @@ public class InfusionsoftAttributeDao extends AbstractFlatteningPersonAttributeD
                 accountToAdd.put("type", currAccount.getAppType());
                 accountToAdd.put("appName", currAccount.getAppName());
                 accountToAdd.put("userName", currAccount.getAppUsername());
+                accountToAdd.put("appUrl", infusionsoftAuthenticationService.buildAppUrl(currAccount.getAppType(), currAccount.getAppName()));
 
                 accountsArray.add(accountToAdd);
             }
@@ -96,6 +102,10 @@ public class InfusionsoftAttributeDao extends AbstractFlatteningPersonAttributeD
 
     public void setHibernateTemplate(HibernateTemplate hibernateTemplate) {
         this.hibernateTemplate = hibernateTemplate;
+    }
+
+    public void setApplicationContext(ApplicationContext context) {
+        this.context = context;
     }
 
     public Map<String, List<Object>> getBackingMap() {

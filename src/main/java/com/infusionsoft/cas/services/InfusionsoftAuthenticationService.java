@@ -414,6 +414,7 @@ public class InfusionsoftAuthenticationService {
                 accountToAdd.put("appName", account.getAppName());
                 accountToAdd.put("userName", account.getAppUsername());
                 accountToAdd.put("appAlias", account.getAlias());
+                accountToAdd.put("appUrl", buildAppUrl(account.getAppType(), account.getAppName()));
 
                 accountsArray.add(accountToAdd);
             }

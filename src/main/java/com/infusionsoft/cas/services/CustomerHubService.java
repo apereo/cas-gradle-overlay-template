@@ -35,7 +35,17 @@ public class CustomerHubService {
     private String customerHubProtocol;
     private int customerHubPort = 443;
 
+    /**
+     * Builds a URL where users of this app should be sent after login.
+     */
     public String buildUrl(String appName) {
+        return buildBaseUrl(appName) + "/admin";
+    }
+
+    /**
+     * Builds a base URL for web services calls and what-not.
+     */
+    public String buildBaseUrl(String appName) {
         return customerHubProtocol + "://" + appName + "." + customerHubDomain + ":" + customerHubPort;
     }
 
@@ -45,7 +55,7 @@ public class CustomerHubService {
     public boolean authenticateUser(String appName, String appUsername, String appPassword) {
         try {
             HttpClient client = getHttpClient(appName);
-            HttpPost post = new HttpPost(buildUrl(appName) + "/account/authenticate_user");
+            HttpPost post = new HttpPost(buildBaseUrl(appName) + "/account/authenticate_user");
             StringEntity input = new StringEntity(createAuthenticateUserRequest(appUsername, appPassword));
 
             post.addHeader("Accept", "application/json");
@@ -76,7 +86,7 @@ public class CustomerHubService {
     public String getLogoUrl(String appName) {
         try {
             HttpClient client = getHttpClient(appName);
-            HttpGet get = new HttpGet(buildUrl(appName) + "/account/logo");
+            HttpGet get = new HttpGet(buildBaseUrl(appName) + "/account/logo");
 
             get.addHeader("Accept", "application/json");
             get.addHeader("Content-Type", "application/json");
