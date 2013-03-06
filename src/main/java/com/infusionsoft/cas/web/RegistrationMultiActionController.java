@@ -250,6 +250,7 @@ public class RegistrationMultiActionController extends MultiActionController {
             return new ModelAndView("redirect:success", "appUrl", infusionsoftAuthenticationService.buildAppUrl(account.getAppType(), account.getAppName()));
         } catch (AppCredentialsExpiredException e) {
             model.put("error", "registration.error.expiredLegacyCredentials");
+            model.put("appUrl", infusionsoftAuthenticationService.buildAppUrl(appType, appName));
         } catch (Exception e) {
             log.error("failed to associate verified credentials", e);
 
