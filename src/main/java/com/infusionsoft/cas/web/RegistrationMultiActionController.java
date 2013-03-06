@@ -112,7 +112,11 @@ public class RegistrationMultiActionController extends MultiActionController {
 
             model.put("user", user);
 
-            if (username == null || username.isEmpty() || !EmailValidator.getInstance().isValid(username)) {
+            if (StringUtils.isEmpty(firstName)) {
+                model.put("error", "registration.error.invalidLastName");
+            } else if (StringUtils.isEmpty(lastName)) {
+                model.put("error", "registration.error.invalidFirstName");
+            } else if (username == null || username.isEmpty() || !EmailValidator.getInstance().isValid(username)) {
                 model.put("error", "registration.error.invalidUsername");
             } else if (hibernateTemplate.find("from User u where u.username = ?", username).size() > 0) {
                 model.put("error", "registration.error.usernameInUse");
