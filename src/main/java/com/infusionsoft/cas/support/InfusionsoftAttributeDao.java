@@ -67,7 +67,10 @@ public class InfusionsoftAttributeDao extends AbstractFlatteningPersonAttributeD
             rootObj.put("accounts", accountsArray);
 
             resultsMap.put("id", Arrays.asList(new Object[] { String.valueOf(currUser.getId()) }));
-            resultsMap.put("accounts", Arrays.asList(new Object[] { rootObj }));
+
+            // Get rid of the JSON-optional escaped slashes because Ruby's Psych parser chokes on them
+            resultsMap.put("accounts", Arrays.asList(new Object[] { rootObj.toJSONString().replaceAll("\\\\/", "/") }));
+
             resultsMap.put("displayName", Arrays.asList(new Object[] { currUser.getFirstName() + " " + currUser.getLastName() }));
             resultsMap.put("firstName", Arrays.asList(new Object[] { currUser.getFirstName() }));
             resultsMap.put("lastName", Arrays.asList(new Object[] { currUser.getLastName() }));

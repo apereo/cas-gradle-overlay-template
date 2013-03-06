@@ -422,7 +422,8 @@ public class InfusionsoftAuthenticationService {
 
         json.put("accounts", accountsArray);
 
-        return json.toJSONString();
+        // Get rid of the JSON-optional escaped slashes because Ruby's Psych parser chokes on them
+        return json.toJSONString().replaceAll("\\\\/", "/");
     }
 
     public void setCentralAuthenticationService(CentralAuthenticationService centralAuthenticationService) {

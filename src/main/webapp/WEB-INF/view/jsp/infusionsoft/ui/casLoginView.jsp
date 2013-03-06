@@ -15,18 +15,12 @@
 <script type="text/javascript">
     $(document).ready(function() {
         try {
-            $("#username").attr("placeholder", "email address");
-            $("#username").focus(function() {
-                $("#username").val("");
-                $("#username").attr("hiddenplaceholder", $("#username").attr("placeholder"));
-                $("#username").attr("placeholder", "");
-            });
+            /*
+
             $("#username").blur(function() {
                 $("#username").attr("placeholder", $("#username").attr("hiddenplaceholder"));
             });
-            $("#username").placeholder();
 
-            $("#password").attr("placeholder", "password");
             $("#password").focus(function() {
                 $("#password").attr("hiddenplaceholder", $("#password").attr("placeholder"));
                 $("#password").attr("placeholder", "");
@@ -34,6 +28,13 @@
             $("#password").blur(function() {
                 $("#password").attr("placeholder", $("#password").attr("hiddenplaceholder"));
             });
+            */
+
+            $("#username").attr("placeholder", "email address");
+            $("#password").attr("placeholder", "password");
+            $("#username").blur();
+            $("#password").blur();
+            $("#username").placeholder();
             $("#password").placeholder();
         } catch (e) {
             alert("error: " + e);
@@ -155,6 +156,21 @@
     :-ms-input-placeholder { font-style: italic; } /* ie */
     input:-moz-placeholder { font-style: italic; }
 
+    ::-webkit-input-placeholder{
+        color: #ccc;
+        font-style:italic;
+    }
+    :focus::-webkit-input-placeholder{
+        text-indent: -999px
+    }
+    ::-moz-placeholder {
+        color: #ccc;
+        font-style:italic;
+    }
+    :focus::-moz-placeholder{
+        text-indent: -999px
+    }
+
 </style>
 
 <c:set var="daysRemaining" value="${sessionScope.daysToMigrate}"/>
@@ -178,13 +194,13 @@
 
         <div class="control-group">
             <div class="controls">
-                <form:input title="Email Address" cssClass="required" cssErrorClass="error" id="username" size="25" tabindex="1" accesskey="${userNameAccessKey}" path="username" autocomplete="off" htmlEscape="true" />
+                <form:input title="Email Address" cssClass="" cssErrorClass="error" id="username" size="25" tabindex="1" accesskey="${userNameAccessKey}" path="username" autocomplete="off" htmlEscape="true" />
             </div>
         </div>
 
         <div class="control-group">
             <div class="controls">
-                <form:password title="Password" cssClass="required" cssErrorClass="error" id="password" size="25" tabindex="2" path="password" accesskey="${passwordAccessKey}" htmlEscape="true" autocomplete="off" />
+                <form:password title="Password" cssClass="" cssErrorClass="error" id="password" size="25" tabindex="2" path="password" accesskey="${passwordAccessKey}" htmlEscape="true" autocomplete="off" />
             </div>
         </div>
 
