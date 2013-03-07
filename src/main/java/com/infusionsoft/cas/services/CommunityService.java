@@ -1,6 +1,6 @@
 package com.infusionsoft.cas.services;
 
-import com.infusionsoft.cas.exceptions.CASMappingException;
+import com.infusionsoft.cas.exceptions.AccountException;
 import com.infusionsoft.cas.exceptions.UsernameTakenException;
 import com.infusionsoft.cas.types.AppType;
 import com.infusionsoft.cas.types.CommunityAccountDetails;
@@ -67,7 +67,7 @@ public class CommunityService {
      * Calls out to the Community web service to try to create a new user. This is for users who create their Community
      * profile through CAS.
      */
-    public UserAccount registerCommunityUserAccount(User user, CommunityAccountDetails details) throws RestClientException, UsernameTakenException, CASMappingException {
+    public UserAccount registerCommunityUserAccount(User user, CommunityAccountDetails details) throws RestClientException, UsernameTakenException, AccountException {
         RestTemplate restTemplate = new RestTemplate();
 
         log.info("preparing REST call to " + communityBaseUrl);

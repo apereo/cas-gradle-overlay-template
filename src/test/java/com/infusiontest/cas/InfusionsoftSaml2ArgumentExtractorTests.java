@@ -1,9 +1,11 @@
 package com.infusiontest.cas;
 
-import com.infusionsoft.cas.web.InfusionsoftSaml2ArgumentExtractor;
-import junit.framework.TestCase;
+import com.infusionsoft.cas.support.InfusionsoftSaml2ArgumentExtractor;
 import org.jasig.cas.util.PrivateKeyFactoryBean;
 import org.jasig.cas.util.PublicKeyFactoryBean;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.mock.web.MockHttpServletRequest;
 
@@ -11,13 +13,14 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 
 /**
- * Simple test for the SAMLv2 argument extractor.
+ * Simple test for the SAMLv2 argument extractor. Heavily borrowed from the GoogleAccountsArgumentExtractor tests
+ * in the CAS source tree.
  */
-public class InfusionsoftSaml2ArgumentExtractorTests extends TestCase {
-
+public class InfusionsoftSaml2ArgumentExtractorTests {
     private InfusionsoftSaml2ArgumentExtractor extractor;
 
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         final PublicKeyFactoryBean pubKeyFactoryBean = new PublicKeyFactoryBean();
         final PrivateKeyFactoryBean privKeyFactoryBean = new PrivateKeyFactoryBean();
 
@@ -29,19 +32,18 @@ public class InfusionsoftSaml2ArgumentExtractorTests extends TestCase {
 
         pubKeyFactoryBean.setLocation(pubKeyResource);
         privKeyFactoryBean.setLocation(privKeyResource);
-        assertTrue(privKeyFactoryBean.getObjectType().equals(PrivateKey.class));
-        assertTrue(pubKeyFactoryBean.getObjectType().equals(PublicKey.class));
+        Assert.assertTrue(privKeyFactoryBean.getObjectType().equals(PrivateKey.class));
+        Assert.assertTrue(pubKeyFactoryBean.getObjectType().equals(PublicKey.class));
         pubKeyFactoryBean.afterPropertiesSet();
         privKeyFactoryBean.afterPropertiesSet();
 
         this.extractor = new InfusionsoftSaml2ArgumentExtractor();
         this.extractor.setPrivateKey((PrivateKey) privKeyFactoryBean.getObject());
         this.extractor.setPublicKey((PublicKey) pubKeyFactoryBean.getObject());
-
-        super.setUp();
     }
 
+    @Test
     public void testNoService() {
-        assertNull(this.extractor.extractService(new MockHttpServletRequest()));
+        Assert.assertNull(this.extractor.extractService(new MockHttpServletRequest()));
     }
 }

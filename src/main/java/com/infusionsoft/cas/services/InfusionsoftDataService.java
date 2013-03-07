@@ -1,6 +1,6 @@
 package com.infusionsoft.cas.services;
 
-import com.infusionsoft.cas.exceptions.CASMappingException;
+import com.infusionsoft.cas.exceptions.AccountException;
 import com.infusionsoft.cas.types.*;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.StringUtils;
@@ -124,7 +124,7 @@ public class InfusionsoftDataService {
     /**
      * Associates an external account to a CAS user.
      */
-    public UserAccount associateAccountToUser(User user, String appType, String appName, String appUsername) throws CASMappingException {
+    public UserAccount associateAccountToUser(User user, String appType, String appName, String appUsername) throws AccountException {
         UserAccount account = findUserAccount(user, appName, appType, appUsername);
 
         try {
@@ -145,7 +145,7 @@ public class InfusionsoftDataService {
                 hibernateTemplate.update(account);
             }
         } catch (Exception e) {
-            throw new CASMappingException("failed to associate user to app account", e);
+            throw new AccountException("failed to associate user to app account", e);
         }
 
         return account;
@@ -156,7 +156,7 @@ public class InfusionsoftDataService {
      * will return the newly associated user account. If there's already a disabled user account matching the
      * registration (unlikely), re-enable it instead of creating a duplicate.
      */
-    public UserAccount associatePendingAccountToUser(User user, String registrationCode) throws CASMappingException {
+    public UserAccount associatePendingAccountToUser(User user, String registrationCode) throws AccountException {
         PendingUserAccount pendingAccount = findPendingUserAccount(registrationCode);
         UserAccount account = findUserAccount(user, pendingAccount.getAppName(), pendingAccount.getAppType(), pendingAccount.getAppUsername());
 
@@ -183,7 +183,7 @@ public class InfusionsoftDataService {
 
             hibernateTemplate.delete(pendingAccount);
         } catch (Exception e) {
-            throw new CASMappingException("failed to associate user " + user.getId() + " to registration code " + registrationCode, e);
+            throw new AccountException("failed to associate user " + user.getId() + " to registration code " + registrationCode, e);
         }
 
         return account;

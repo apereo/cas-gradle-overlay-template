@@ -1,5 +1,6 @@
 package com.infusionsoft.cas.services;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
@@ -46,7 +47,15 @@ public class CustomerHubService {
      * Builds a base URL for web services calls and what-not.
      */
     public String buildBaseUrl(String appName) {
-        return customerHubProtocol + "://" + appName + "." + customerHubDomain + ":" + customerHubPort;
+        StringBuffer baseUrl = new StringBuffer(customerHubProtocol + "://" + appName + "." + customerHubDomain);
+
+        if ( StringUtils.equals("http", customerHubProtocol) && customerHubPort != 80) {
+            baseUrl.append(":").append(customerHubPort);
+        } else if (StringUtils.equals("https", customerHubProtocol) && customerHubPort != 443) {
+            baseUrl.append(":").append(customerHubPort);
+        }
+
+        return baseUrl.toString();
     }
 
     /**

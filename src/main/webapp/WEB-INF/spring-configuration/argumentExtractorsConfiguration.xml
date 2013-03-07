@@ -25,7 +25,7 @@
     />
     -->
 
-    <bean id="googleAccountsArgumentExtractor" class="com.infusionsoft.cas.web.InfusionsoftSaml2ArgumentExtractor"
+    <bean id="googleAccountsArgumentExtractor" class="com.infusionsoft.cas.support.InfusionsoftSaml2ArgumentExtractor"
           p:privateKey-ref="privateKeyFactoryBean"
           p:publicKey-ref="publicKeyFactoryBean"
           p:httpClient-ref="httpClient" />

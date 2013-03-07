@@ -1,4 +1,4 @@
-package com.infusionsoft.cas.web;
+package com.infusionsoft.cas.support;
 
 import org.jasig.cas.authentication.principal.WebApplicationService;
 import org.jasig.cas.web.support.AbstractSingleSignOutEnabledArgumentExtractor;

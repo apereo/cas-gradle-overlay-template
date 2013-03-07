@@ -4,8 +4,10 @@ import com.infusionsoft.cas.web.ValidationUtils;
 import junit.framework.Assert;
 import org.testng.annotations.Test;
 
+/**
+ * Test case of some of the string validation/sanitizing functionality.
+ */
 public class ValidationUtilsTest {
-
     @Test
     public void testSanitizeAppName() {
         Assert.assertEquals("Normal app name should be unchanged", "myawesomeapp", ValidationUtils.sanitizeAppName("myawesomeapp"));

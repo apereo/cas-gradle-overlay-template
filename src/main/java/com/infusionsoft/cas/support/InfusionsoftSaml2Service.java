@@ -1,4 +1,4 @@
-package com.infusionsoft.cas.web;
+package com.infusionsoft.cas.support;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.log4j.Logger;
