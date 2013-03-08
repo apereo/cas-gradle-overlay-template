@@ -1,6 +1,8 @@
 package com.infusionsoft.cas.support;
 
+import org.apache.commons.codec.StringEncoder;
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 import org.jasig.cas.authentication.principal.AbstractWebApplicationService;
 import org.jasig.cas.authentication.principal.Response;
@@ -11,6 +13,7 @@ import org.jdom.Namespace;
 import org.springframework.util.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
+import java.beans.XMLEncoder;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.UnsupportedEncodingException;
@@ -27,7 +30,8 @@ import java.util.zip.InflaterInputStream;
  *
  * This guy Scott Battaglia loves to make everything "final" so it can't be extended in a meaningful way. Most of the
  * important methods are private so we can't use composition either. Therefore we pretty much pasted the code in here
- * and changed it to meet our needs.
+ * and changed it to meet our needs. Someday we could build a much more elegant implementation if we have nothing better
+ * to do.
  */
 public class InfusionsoftSaml2Service extends AbstractWebApplicationService {
     private static final Logger log = Logger.getLogger(InfusionsoftSaml2Service.class);
@@ -42,43 +46,37 @@ public class InfusionsoftSaml2Service extends AbstractWebApplicationService {
 
     private static final String CONST_RELAY_STATE = "RelayState";
 
-    private static final String TEMPLATE_SAML_RESPONSE = "<samlp:Response ID=\"<RESPONSE_ID>\" IssueInstant=\"<ISSUE_INSTANT>\" Version=\"2.0\""
-            + " xmlns=\"urn:oasis:names:tc:SAML:2.0:assertion\""
-            + " xmlns:samlp=\"urn:oasis:names:tc:SAML:2.0:protocol\""
-            + " xmlns:xenc=\"http://www.w3.org/2001/04/xmlenc#\">"
-            + "<samlp:Status>"
-            + "<samlp:StatusCode Value=\"urn:oasis:names:tc:SAML:2.0:status:Success\" />"
-            + "</samlp:Status>"
-            + "<Assertion ID=\"<ASSERTION_ID>\""
-            + " IssueInstant=\"2003-04-17T00:46:02Z\" Version=\"2.0\""
-            + " xmlns=\"urn:oasis:names:tc:SAML:2.0:assertion\">"
-            + "<Issuer>https://www.opensaml.org/IDP</Issuer>"
-            + "<Subject>"
-            + "<NameID Format=\"urn:oasis:names:tc:SAML:2.0:nameid-format:emailAddress\">"
-            + "<USERNAME_STRING>"
-            + "</NameID>"
-            + "<"
-            + "<SubjectConfirmation Method=\"urn:oasis:names:tc:SAML:2.0:cm:bearer\">"
-            + "<SubjectConfirmationData Recipient=\"<ACS_URL>\" NotOnOrAfter=\"<NOT_ON_OR_AFTER>\" InResponseTo=\"<REQUEST_ID>\" />"
-            + "</SubjectConfirmation>"
-            + "</Subject>"
-            + "<Conditions NotBefore=\"2003-04-17T00:46:02Z\""
-            + " NotOnOrAfter=\"<NOT_ON_OR_AFTER>\">"
-            + "<AudienceRestriction>"
-            + "<Audience><ACS_URL></Audience>"
-            + "</AudienceRestriction>"
-            + "</Conditions>"
-            + "<AuthnStatement AuthnInstant=\"<AUTHN_INSTANT>\">"
-            + "<AuthnContext>"
-            + "<AuthnContextClassRef>"
-            + "urn:oasis:names:tc:SAML:2.0:ac:classes:Password"
-            + "</AuthnContextClassRef>"
-            + "</AuthnContext>"
-            + "</AuthnStatement>"
-//            + "<AttributeStatement>"
-//            + "<ATTRIBUTES>"
-//            + "</AttributeStatement>"
-            + "</Assertion></samlp:Response>";
+    // TODO - we lifted this from the CAS Google Accounts implementation, but it is a very stupid way to make XML
+    private static final String TEMPLATE_SAML_RESPONSE = "<?xml version=\"1.0\"?>" +
+            "<samlp:Response ID=\"<RESPONSE_ID>\" IssueInstant=\"<ISSUE_INSTANT>\" Version=\"2.0\" xmlns=\"urn:oasis:names:tc:SAML:2.0:assertion\" xmlns:samlp=\"urn:oasis:names:tc:SAML:2.0:protocol\" xmlns:xenc=\"http://www.w3.org/2001/04/xmlenc#\">" +
+            "  <samlp:Status>" +
+            "    <samlp:StatusCode Value=\"urn:oasis:names:tc:SAML:2.0:status:Success\" />" +
+            "  </samlp:Status>" +
+            "  <Assertion ID=\"<ASSERTION_ID>\" IssueInstant=\"2003-04-17T00:46:02Z\" Version=\"2.0\" xmlns=\"urn:oasis:names:tc:SAML:2.0:assertion\">" +
+            "    <Issuer>https://www.opensaml.org/IDP</Issuer>" +
+            "    <Subject>" +
+            "      <NameID Format=\"urn:oasis:names:tc:SAML:2.0:nameid-format:emailAddress\">" +
+            "        <USERNAME_STRING>" +
+            "      </NameID>" +
+            "      <SubjectConfirmation Method=\"urn:oasis:names:tc:SAML:2.0:cm:bearer\">" +
+            "        <SubjectConfirmationData Recipient=\"<ACS_URL>\" NotOnOrAfter=\"<NOT_ON_OR_AFTER>\" InResponseTo=\"<REQUEST_ID>\" />" +
+            "      </SubjectConfirmation>" +
+            "    </Subject>" +
+            "    <Conditions NotBefore=\"2003-04-17T00:46:02Z\" NotOnOrAfter=\"<NOT_ON_OR_AFTER>\">" +
+            "      <AudienceRestriction>" +
+            "        <Audience><ACS_URL></Audience>" +
+            "      </AudienceRestriction>" +
+            "    </Conditions>" +
+            "    <AuthnStatement AuthnInstant=\"<AUTHN_INSTANT>\">" +
+            "      <AuthnContext>" +
+            "        <AuthnContextClassRef>urn:oasis:names:tc:SAML:2.0:ac:classes:Password</AuthnContextClassRef>" +
+            "      </AuthnContext>" +
+            "    </AuthnStatement>" +
+            "    <AttributeStatement>" +
+            "      <ATTRIBUTES>" +
+            "    </AttributeStatement>" +
+            "  </Assertion>" +
+            "</samlp:Response>";
 
     private final String relayState;
 
@@ -90,15 +88,13 @@ public class InfusionsoftSaml2Service extends AbstractWebApplicationService {
 
     private final String alternateUserName;
 
-    protected InfusionsoftSaml2Service(final String id, final String relayState, final String requestId,
-                                       final PrivateKey privateKey, final PublicKey publicKey, final String alternateUserName) {
+    protected InfusionsoftSaml2Service(final String id, final String relayState, final String requestId, final PrivateKey privateKey, final PublicKey publicKey, final String alternateUserName) {
         this(id, id, null, relayState, requestId, privateKey, publicKey, alternateUserName);
     }
 
-    protected InfusionsoftSaml2Service(final String id, final String originalUrl,
-                                       final String artifactId, final String relayState, final String requestId,
-                                       final PrivateKey privateKey, final PublicKey publicKey, final String alternateUserName) {
+    protected InfusionsoftSaml2Service(final String id, final String originalUrl, final String artifactId, final String relayState, final String requestId, final PrivateKey privateKey, final PublicKey publicKey, final String alternateUserName) {
         super(id, originalUrl, artifactId, null);
+
         this.relayState = relayState;
         this.privateKey = privateKey;
         this.publicKey = publicKey;
@@ -142,6 +138,7 @@ public class InfusionsoftSaml2Service extends AbstractWebApplicationService {
         final Map<String, String> parameters = new HashMap<String, String>();
         final String samlResponse = constructSamlResponse();
         final String signedResponse = SamlUtils.signSamlResponse(samlResponse, this.privateKey, this.publicKey);
+
         parameters.put("SAMLResponse", signedResponse);
         parameters.put("RelayState", this.relayState);
 
@@ -170,6 +167,7 @@ public class InfusionsoftSaml2Service extends AbstractWebApplicationService {
             userId = getPrincipal().getId();
         } else {
             final String attributeValue = (String) getPrincipal().getAttributes().get(this.alternateUserName);
+
             if (attributeValue == null) {
                 userId = getPrincipal().getId();
             } else {
@@ -185,29 +183,32 @@ public class InfusionsoftSaml2Service extends AbstractWebApplicationService {
         samlResponse = samlResponse.replace("<ASSERTION_ID>", createID());
         samlResponse = samlResponse.replaceAll("<ACS_URL>", getId());
         samlResponse = samlResponse.replace("<REQUEST_ID>", this.requestId);
-//        samlResponse = samlResponse.replace("<ATTRIBUTES>", constructSamlAttributes());
+
+        Map<String, Object> attributes = getPrincipal().getAttributes();
+        StringBuffer attributesXml = new StringBuffer();
+
+        for (String attributeName : attributes.keySet()) {
+            attributesXml.append(constructSamlAttribute(attributeName, attributes.get(attributeName).toString()));
+        }
+
+        samlResponse = samlResponse.replace("<ATTRIBUTES>", attributesXml.toString());
 
         return samlResponse;
     }
 
-    private String constructSamlAttributes() {
+    private String constructSamlAttribute(String name, String value) {
         try {
-            Element samlAttribute = new Element("Attribute");
+            StringBuffer saml = new StringBuffer();
 
-            samlAttribute.setAttribute("FriendlyName", "Email");
-            samlAttribute.setAttribute("Name", "INFUSIONSOFT_EMAIL");
-            samlAttribute.setAttribute("NameFormat", "urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified");
+            saml.append("<Attribute NameFormat=\"urn:oasis:names:tc:SAML:2.0:attrname-format:basic\" Name=\"" + StringEscapeUtils.escapeXml(name) + "\">");
+            saml.append("  <AttributeValue xsi:type=\"xs:string\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">");
+            saml.append(StringEscapeUtils.escapeXml(value));
+            saml.append("  </AttributeValue>");
+            saml.append("</Attribute>");
 
-            Element samlAttributeValue = new Element("AttributeValue", Namespace.getNamespace("xmlns", "http://www.w3.org/2001/XMLSchema"));
-            samlAttributeValue.setText("andy.hawkes@infusionsoft.com");
-
-            samlAttribute.addContent(samlAttributeValue);
-
-            log.info("created SAML attributes: " + samlAttribute.toString());
-
-            return samlAttribute.toString();
+            return saml.toString();
         } catch (Exception e) {
-            log.error("failed to construct SAML attributes", e);
+            log.error("failed to construct SAML attribute for name=" + name + ", value=" + value, e);
 
             return "";
         }

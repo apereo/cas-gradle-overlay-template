@@ -42,17 +42,17 @@
         </layout>
     </appender>
 
-       <appender name="graphExecutionTimes" class="org.perf4j.log4j.GraphingStatisticsAppender">
-           <!-- Possible GraphTypes are Mean, Min, Max, StdDev, Count and TPS -->
-           <param name="GraphType" value="Mean"/>
-           <!-- The tags of the timed execution blocks to graph are specified here -->
-           <param name="TagNamesToGraph" value="DESTROY_TICKET_GRANTING_TICKET,GRANT_SERVICE_TICKET,GRANT_PROXY_GRANTING_TICKET,VALIDATE_SERVICE_TICKET,CREATE_TICKET_GRANTING_TICKET" />
-       </appender>
+    <appender name="graphExecutionTimes" class="org.perf4j.log4j.GraphingStatisticsAppender">
+        <!-- Possible GraphTypes are Mean, Min, Max, StdDev, Count and TPS -->
+        <param name="GraphType" value="Mean"/>
+        <!-- The tags of the timed execution blocks to graph are specified here -->
+        <param name="TagNamesToGraph" value="DESTROY_TICKET_GRANTING_TICKET,GRANT_SERVICE_TICKET,GRANT_PROXY_GRANTING_TICKET,VALIDATE_SERVICE_TICKET,CREATE_TICKET_GRANTING_TICKET" />
+    </appender>
 
-       <appender name="graphExecutionTPS" class="org.perf4j.log4j.GraphingStatisticsAppender">
-           <param name="GraphType" value="TPS" />
-           <param name="TagNamesToGraph" value="DESTROY_TICKET_GRANTING_TICKET,GRANT_SERVICE_TICKET,GRANT_PROXY_GRANTING_TICKET,VALIDATE_SERVICE_TICKET,CREATE_TICKET_GRANTING_TICKET" />
-       </appender>
+    <appender name="graphExecutionTPS" class="org.perf4j.log4j.GraphingStatisticsAppender">
+        <param name="GraphType" value="TPS" />
+        <param name="TagNamesToGraph" value="DESTROY_TICKET_GRANTING_TICKET,GRANT_SERVICE_TICKET,GRANT_PROXY_GRANTING_TICKET,VALIDATE_SERVICE_TICKET,CREATE_TICKET_GRANTING_TICKET" />
+    </appender>
 
     <!-- Loggers -->
     <!--
@@ -82,15 +82,15 @@
     </logger>
 
     <logger name="org.springframework.web">
-        <level value="INFO" />
+        <level value="WARN" />
     </logger>
 
     <logger name="org.springframework.webflow">
-        <level value="DEBUG" />
+        <level value="WARN" />
     </logger>
 
     <logger name="org.jasig" additivity="true">
-        <level value="DEBUG" />
+        <level value="INFO" />
         <appender-ref ref="cas" />
     </logger>
 
@@ -115,7 +115,7 @@
         cleartext authentication credentials
     -->
     <logger name="org.jasig.cas.web.flow" additivity="true">
-        <level value="DEBUG" />
+        <level value="INFO" />
         <appender-ref ref="cas" />
     </logger>
 
