@@ -213,6 +213,7 @@
           p:infusionsoftAuthenticationService-ref="infusionsoftAuthenticationService"
           p:passwordService-ref="infusionsoftPasswordService"
           p:infusionsoftDataService-ref="infusionsoftDataService"
+          p:crmService-ref="crmService"
           p:mailService-ref="mailService"/>
 
     <bean id="centralMultiActionController" class="com.infusionsoft.cas.web.CentralMultiActionController"
@@ -220,7 +221,8 @@
           p:infusionsoftDataService-ref="infusionsoftDataService"
           p:hibernateTemplate-ref="hibernateTemplate"
           p:passwordService-ref="infusionsoftPasswordService"
-          p:communityService-ref="communityService"/>
+          p:communityService-ref="communityService"
+          p:crmService-ref="crmService"/>
 
     <bean id="restController" class="com.infusionsoft.cas.web.RestController"
           p:hibernateTemplate-ref="hibernateTemplate"

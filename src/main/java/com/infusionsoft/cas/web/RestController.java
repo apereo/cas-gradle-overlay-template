@@ -384,6 +384,7 @@ public class RestController extends MultiActionController {
 
         if (user == null) {
             log.info("failed to authenticate " + username + " with MD5 password hash");
+            response.setContentType("application/json");
             response.sendError(401);
         } else {
             log.info("successfully authenticated " + username + " with MD5 password hash");
@@ -393,6 +394,7 @@ public class RestController extends MultiActionController {
                 response.getWriter().write(infusionsoftAuthenticationService.buildUserInfoJSON(user));
             } catch (Exception e) {
                 log.error("failed to create JSON response", e);
+                response.setContentType("application/json");
                 response.sendError(500);
             }
         }

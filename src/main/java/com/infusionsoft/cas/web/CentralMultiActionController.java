@@ -34,6 +34,7 @@ public class CentralMultiActionController extends MultiActionController {
     private InfusionsoftDataService infusionsoftDataService;
     private CustomerHubService customerHubService;
     private CommunityService communityService;
+    private CrmService crmService;
     private PasswordService passwordService;
     private HibernateTemplate hibernateTemplate;
 
@@ -267,14 +268,18 @@ public class CentralMultiActionController extends MultiActionController {
                 } else {
                     model.put("error", "registration.error.invalidLegacyCredentials");
                 }
+            } else if (appType.equals(AppType.CRM) && !crmService.isCasEnabled(appName)) {
+                model.put("error", "registration.error.ssoIsNotEnabled");
             } else {
                 try {
-                    infusionsoftAuthenticationService.verifyAppCredentials(appType, appName, appUsername, appPassword);
+                    try {
+                        infusionsoftAuthenticationService.verifyAppCredentials(appType, appName, appUsername, appPassword);
+                    } catch (AppCredentialsExpiredException e) {
+                        log.info("accepting expired credentials for " + appUsername + " at " + appName + "/" + appType);
+                    }
 
                     infusionsoftDataService.associateAccountToUser(currentUser, appType, appName, appUsername);
                     infusionsoftAuthenticationService.createTicketGrantingTicket(currentUser.getUsername(), request, response);
-                } catch (AppCredentialsExpiredException e) {
-                    model.put("error", "registration.error.expiredLegacyCredentials");
                 } catch (AppCredentialsInvalidException e) {
                     model.put("error", "registration.error.invalidLegacyCredentials");
                 }
@@ -491,5 +496,9 @@ public class CentralMultiActionController extends MultiActionController {
 
     public void setCustomerHubService(CustomerHubService customerHubService) {
         this.customerHubService = customerHubService;
+    }
+
+    public void setCrmService(CrmService crmService) {
+        this.crmService = crmService;
     }
 }

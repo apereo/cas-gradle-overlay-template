@@ -23,7 +23,7 @@
         <script type="text/javascript" src="<c:url value="/js/jquery.flipCounter.1.2.pack.js" />"></script>
         <script type="text/javascript" src="<c:url value="/js/jquery.placeholder.js"/>"></script>
         <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700,800" type="text/css">
-        <decorator:head/>
+        <script language='javascript' async='true' type='text/javascript' src='https://d3b3ehuo35wzeh.cloudfront.net/users/8035/walkme_8035_https.js'></script>        <decorator:head/>
     </head>
     <body>
             <decorator:body/>

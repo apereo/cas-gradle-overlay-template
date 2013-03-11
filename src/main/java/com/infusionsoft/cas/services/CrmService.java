@@ -37,6 +37,30 @@ public class CrmService {
         return url.toString();
     }
 
+    public boolean isCasEnabled(String appName) {
+        boolean enabled = false;
+
+        try {
+            XmlRpcClient client = new XmlRpcClient(buildCrmUrl(appName) + "/api/xmlrpc");
+
+            log.debug("attempting to check if CAS is enabled at url " + client.getURL());
+
+            Object response = client.execute("DataService.isSsoEnabled", new Vector<String>());
+
+            if (response != null) {
+                log.info("isSsoEnabled returned a response " + response + " of type " + response.getClass());
+
+                enabled = Boolean.valueOf(response.toString());
+            } else {
+                throw new IOException("no response! unable to tell if CAS is enabled on " + appName);
+            }
+        } catch (Exception e) {
+            log.error("unable to tell if CAS is enabled on " + appName, e);
+        }
+
+        return enabled;
+    }
+
     /**
      * Verifies a username and password against a CRM app.
      */

@@ -35,6 +35,7 @@ public class RegistrationMultiActionController extends MultiActionController {
     private InfusionsoftAuthenticationService infusionsoftAuthenticationService;
     private InfusionsoftDataService infusionsoftDataService;
     private CustomerHubService customerHubService;
+    private CrmService crmService;
     private PasswordService passwordService;
     private MailService mailService;
     private HibernateTemplate hibernateTemplate;
@@ -240,21 +241,26 @@ public class RegistrationMultiActionController extends MultiActionController {
         String appPassword = request.getParameter("appPassword");
         Map<String, Object> model = new HashMap<String, Object>();
 
-        try {
-            infusionsoftAuthenticationService.verifyAppCredentials(appType, appName, appUsername, appPassword);
+        if (appType.equals(AppType.CRM) && !crmService.isCasEnabled(appName)) {
+            model.put("error", "registration.error.ssoIsNotEnabled");
+        } else {
+            try {
+                try {
+                    infusionsoftAuthenticationService.verifyAppCredentials(appType, appName, appUsername, appPassword);
+                } catch (AppCredentialsExpiredException e) {
+                    log.info("accepting expired credentials for " + appUsername + " at " + appName + "/" + appType);
+                }
 
-            UserAccount account = infusionsoftDataService.associateAccountToUser(user, appType, appName, appUsername);
+                UserAccount account = infusionsoftDataService.associateAccountToUser(user, appType, appName, appUsername);
 
-            infusionsoftAuthenticationService.createTicketGrantingTicket(user.getUsername(), request, response);
+                infusionsoftAuthenticationService.createTicketGrantingTicket(user.getUsername(), request, response);
 
-            return new ModelAndView("redirect:success", "appUrl", infusionsoftAuthenticationService.buildAppUrl(account.getAppType(), account.getAppName()));
-        } catch (AppCredentialsExpiredException e) {
-            model.put("error", "registration.error.expiredLegacyCredentials");
-            model.put("appUrl", infusionsoftAuthenticationService.buildAppUrl(appType, appName));
-        } catch (Exception e) {
-            log.error("failed to associate verified credentials", e);
+                return new ModelAndView("redirect:success", "appUrl", infusionsoftAuthenticationService.buildAppUrl(account.getAppType(), account.getAppName()));
+            } catch (Exception e) {
+                log.error("failed to associate verified credentials", e);
 
-            model.put("error", "registration.error.invalidLegacyCredentials");
+                model.put("error", "registration.error.invalidLegacyCredentials");
+            }
         }
 
         model.put("appUsername", appUsername);
@@ -428,5 +434,9 @@ public class RegistrationMultiActionController extends MultiActionController {
 
     public void setCustomerHubService(CustomerHubService customerHubService) {
         this.customerHubService = customerHubService;
+    }
+
+    public void setCrmService(CrmService crmService) {
+        this.crmService = crmService;
     }
 }
