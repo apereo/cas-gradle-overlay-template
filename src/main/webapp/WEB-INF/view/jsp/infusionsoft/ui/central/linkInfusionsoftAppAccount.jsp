@@ -41,7 +41,7 @@
         </c:when>
         <c:when test="${error == 'registration.error.invalidLegacyCredentials'}">
             <div class="alert alert-error" style="margin-top: 10px">
-                The credentials you entered were invalid!
+                You've entered an incorrect username and/or password.
                 <a target="oldapp" href="https://${appDomain}/app/forgotPassword/enterEmail">Forgot your password on ${appDomain}?</a>
             </div>
         </c:when>

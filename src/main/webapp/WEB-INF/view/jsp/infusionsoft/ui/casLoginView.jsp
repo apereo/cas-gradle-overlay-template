@@ -124,6 +124,10 @@
         margin-bottom: 15px;
     }
 
+    .greetings p {
+        color: #fff;
+    }
+
     #biglogo {
         margin-top: 0px;
         height: 100px;

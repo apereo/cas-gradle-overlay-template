@@ -42,12 +42,12 @@
             style: {
                 border: {
                     width: 6,
-                    radius: 6,
-                    color: "#dddddd"
+                    radius: 6
                 },
                 padding: 15,
                 textAlign: 'left',
-                tip: true
+                tip: true,
+                name: "cream"
             }
         });
     });

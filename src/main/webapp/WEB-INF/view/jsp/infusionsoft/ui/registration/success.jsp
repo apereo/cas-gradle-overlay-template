@@ -32,7 +32,7 @@
 </style>
 
 <div class="modal-title">
-    This Is Your Infusionsoft ID!
+    Success! This Is Your Infusionsoft ID!
 </div>
 
 <div id="register">
