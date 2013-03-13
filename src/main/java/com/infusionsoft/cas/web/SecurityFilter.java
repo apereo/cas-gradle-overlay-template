@@ -22,14 +22,17 @@ public class SecurityFilter implements Filter {
         HttpServletResponse response = (HttpServletResponse) servletResponse;
         String path = request.getServletPath();
 
-        if (!path.startsWith("/registration/banner")) {
+        // The banner gets framed by CRM apps so it needs to allow framing; all others forbid it
+        if (!request.getRequestURI().contains("registration/banner")) {
             response.setHeader("X-Frame-Options", "SAMEORIGIN");
         }
 
+        // Prevent content-type sniffing by certain browsers
         response.setHeader("X-Content-Type-Options", "nosniff");
 
         filterChain.doFilter(request, response);
 
+        // Forcibly set no-cache headers
         if (path.startsWith("/login") || path.startsWith("/logout")) {
             response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate, private");
             response.setHeader("Pragma", "no-cache");

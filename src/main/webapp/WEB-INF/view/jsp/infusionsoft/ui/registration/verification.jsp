@@ -27,10 +27,22 @@
         text-align: center;
     }
 
+    #bypass {
+        text-align: center;
+        margin: 28px 0 0 0;
+    }
+
+    #bypass a {
+        color: #aaa;
+    }
+
 </style>
 
 <div class="modal-title">
-    Step 2: Connect This Account To <br/> Your Infusionsoft ID
+    Success! Now, Please Connect This <br/> Account To Your Infusionsoft ID.
+</div>
+<div class="instructions">
+    All fields are required
 </div>
 <div id="verification">
     <c:choose>
@@ -49,7 +61,11 @@
     </c:choose>
 
     <p>
-        To connect this account to your Infusionsoft ID, please enter your previous username and password.
+        This account, ${appDomain}, must be connected to your Infusionsoft ID before you can access it.
+    </p>
+    <p>
+        To connect this account to your Infusionsoft ID, enter the username and password you were using before you
+        created your Infusionsoft ID.
     </p>
     <form action="verify" method="post" id="verificationForm" cssClass="form-vertical">
         <div class="control-group">
@@ -67,7 +83,7 @@
         </div>
 
         <div class="row btn-row" style="text-align: right">
-            <input class="btn btn-primary" name="submit" accesskey="l" value="Next &raquo;" tabindex="4" type="submit" />
+            <input class="btn btn-primary" name="submit" accesskey="l" value="Connect Account" tabindex="4" type="submit" />
         </div>
     </form>
 </div>
@@ -77,3 +93,9 @@
         <a href="https://${appDomain}/app/forgotPassword/enterEmail">Forgot your previous password for ${appDomain}?</a>
     </div>
 </c:if>
+
+<div id="bypass">
+    <a href="/central/home">Go To Account Central</a>
+</div>
+
+

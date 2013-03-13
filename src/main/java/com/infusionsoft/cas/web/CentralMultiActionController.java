@@ -284,7 +284,7 @@ public class CentralMultiActionController extends MultiActionController {
                     model.put("error", "registration.error.invalidLegacyCredentials");
                 }
             }
-
+            model.put("appDomain", new URL(infusionsoftAuthenticationService.buildAppUrl(appType, appName)).getHost());
             model.put("appUrl", infusionsoftAuthenticationService.buildAppUrl(appType, appName));
         } catch (Exception e) {
             log.error("failed to associate account", e);

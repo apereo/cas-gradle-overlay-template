@@ -12,7 +12,7 @@
 <style type="text/css">
 
     #forgot {
-        color: #000;
+        color: #444;
         background: #fff;
         width: 276px;
         margin: 10px auto;
@@ -24,6 +24,7 @@
     #back-to-signin {
         width: 336px;
         margin: 5px auto;
+        text-align: center;
     }
 
 </style>
@@ -37,7 +38,7 @@
 
     <form action="recover" method="post" id="fm1" class="form-vertical">
         <div class="control-group">
-            <label for="username" class="control-label">Email Address</label>
+            <label for="username" class="control-label">Please enter your email address</label>
             <div class="controls">
                 <input type="text" class="required" id="username" name="username" size="25" tabindex="1" style="width: 266px" />
             </div>

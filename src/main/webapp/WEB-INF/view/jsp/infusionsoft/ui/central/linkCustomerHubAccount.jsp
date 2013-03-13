@@ -30,8 +30,8 @@
         <input name="user" type="hidden" value="${user.id}"/>
 
         <p>
-            Connect a CustomerHub account to your Infusionsoft ID!
-            Just this once, enter the old username and password you were using before you created your Infusionsoft ID.
+            To connect an account to your Infusionsoft ID, enter the username and password you were using before you
+            created your Infusionsoft ID.
         </p>
 
         <fieldset>

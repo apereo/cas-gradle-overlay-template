@@ -207,7 +207,7 @@
         <input type="hidden" name="lt" value="${loginTicket}" />
         <input type="hidden" name="execution" value="${flowExecutionKey}" />
         <input type="hidden" name="_eventId" value="submit" />
-        <label class="checkbox"><input type="checkbox" name="rememberMe" id="rememberMe" value="true" checked="checked"/> Remember Me</label>
+        <label class="checkbox"><input type="checkbox" name="rememberMe" id="rememberMe" value="true" checked="checked"/> Sign me in for a week</label>
 
         <div class="control-group">
             <input class="btn btn-primary sign-in-button" name="submit" accesskey="l" value="Sign In" tabindex="4" type="submit" />

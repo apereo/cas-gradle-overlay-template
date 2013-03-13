@@ -39,6 +39,12 @@
                 to reset it, then try again.
             </div>
         </c:when>
+        <c:when test="${error == 'registration.error.invalidLegacyCredentials'}">
+            <div class="alert alert-error" style="margin-top: 10px">
+                The credentials you entered were invalid!
+                <a target="oldapp" href="https://${appDomain}/app/forgotPassword/enterEmail">Forgot your password on ${appDomain}?</a>
+            </div>
+        </c:when>
         <c:when test="${error != null}">
             <div class="alert alert-error" style="margin-top: 10px">
                 <spring:message code="${error}"/>
@@ -46,10 +52,9 @@
         </c:when>
     </c:choose>
 
-
     <p>
-        Connect an existing account to your Infusionsoft ID! Enter the username and password you were using before
-        you created your Infusionsoft ID.
+        To connect an account to your Infusionsoft ID, enter the username and password you were using before you
+        created your Infusionsoft ID.
     </p>
 
     <form id="associateForm" action="associate" method="post" class="form-horizontal">

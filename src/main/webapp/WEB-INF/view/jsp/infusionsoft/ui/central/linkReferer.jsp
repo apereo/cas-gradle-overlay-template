@@ -18,7 +18,7 @@
         color: #000;
         background: #fff;
         width: 276px;
-        margin: 120px auto;
+        margin: 0 auto;
         border: 1px solid #DDDDDD;
         border-radius: 4px;
         padding: 30px;
@@ -33,8 +33,23 @@
         margin: 5px auto;
     }
 
+    #bypass {
+        text-align: center;
+        margin: 28px 0 0 0;
+    }
+
+    #bypass a {
+        color: #aaa;
+    }
+
 </style>
 
+<div class="modal-title">
+    Please Connect This <br/> Account To Your Infusionsoft ID.
+</div>
+<div class="instructions">
+    All fields are required
+</div>
 <div id="linkReferer">
     <c:choose>
         <c:when test="${error == 'registration.error.expiredLegacyCredentials'}">
@@ -51,44 +66,45 @@
         </c:when>
     </c:choose>
 
-    <form action="${associateUrl}" method="post" id="fm1" class="form-vertical">
+    <p>
+        This account, ${appDomain}, must be connected to your Infusionsoft ID before you can access it.
+    </p>
+    <p>
+        To connect this account to your Infusionsoft ID, enter the username and password you were using before you
+        created your Infusionsoft ID.
+    </p>
+    <form action="${associateUrl}" method="post" id="fm1" cssClass="form-vertical">
         <input type="hidden" name="linkReferer" value="true"/>
         <input type="hidden" name="appName" value="${appName}"/>
         <input type="hidden" name="appType" value="${appType}"/>
         <input type="hidden" name="destination" value="app"/>
 
-        <h2>Verify Account</h2>
-
-        <p>
-            To connect this account, <strong>${appDomain}</strong>, to your Infusionsoft
-            ID, please enter your previous username and password.
-            <a target="transition" href="http://ug.infusionsoft.com/article/AA-01207/0/Infusionsoft-ID-Transition.html">Learn more.</a>
-        </p>
-
-        <fieldset>
-            <div class="control-group">
-                <label class="control-label" for="username">Username</label>
-                <div class="controls">
-                    <input id="username" name="appUsername" value="" type="text"/>
-                </div>
+        <div class="control-group">
+            <label for="appUsername" class="control-label">Username</label>
+            <div class="controls">
+                <input type="text" name="appUsername" id="appUsername" autocomplete="false" style="width: 266px" />
             </div>
-            <div class="control-group">
-                <label class="control-label" for="password">Password</label>
-                <div class="controls">
-                    <input id="password" name="appPassword" value="" type="password"/>
-                </div>
-            </div>
-        </fieldset>
+        </div>
 
-        <div class="control-group" style="text-align: right">
-            <input class="btn btn-primary" name="submit" accesskey="l" value="Verify" tabindex="4" type="submit" />
-            <input class="btn" name="cancel" value="Cancel" tabindex="4" type="submit" />
+        <div class="control-group">
+            <label for="appPassword" class="control-label">Password</label>
+            <div class="controls">
+                <input type="password" name="appPassword" id="appPassword" autocomplete="false" style="width: 266px" />
+            </div>
+        </div>
+
+        <div class="row btn-row" style="text-align: right">
+            <input class="btn btn-primary" name="submit" accesskey="l" value="Connect Account" tabindex="4" type="submit" />
         </div>
     </form>
 </div>
 
 <c:if test="${appType == 'crm'}">
     <div id="forgot-password">
-        <a href="https://${appDomain}/app/forgotPassword/enterEmail">Forgot your password on ${appDomain}?</a>
+        <a href="https://${appDomain}/app/forgotPassword/enterEmail">Forgot your previous password for ${appDomain}?</a>
     </div>
 </c:if>
+
+<div id="bypass">
+    <a href="/central/home">Go To Account Central</a>
+</div>

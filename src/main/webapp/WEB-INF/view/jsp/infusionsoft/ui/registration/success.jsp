@@ -32,7 +32,7 @@
 </style>
 
 <div class="modal-title">
-    Your ID Has Been Created Successfully!
+    This Is Your Infusionsoft ID!
 </div>
 
 <div id="register">
@@ -49,15 +49,15 @@
     </div>
     <br/>
     <p>
-        This is your Infusionsoft ID. You will sign in to your account(s) with this email address and password.
+        You will sign in to your accounts with this email address and password.
     </p>
 
     <div style="text-align: right; margin-top: 15px">
         <c:if test="${not empty appUrl}">
-            <a class="btn btn-primary" href="${appUrl}">Go To My Account</a>
+            <a class="btn btn-primary" href="${appUrl}">Done</a>
         </c:if>
         <c:if test="${empty appUrl}">
-            <a class="btn btn-primary" href="${centralUrl}">Go To My Account</a>
+            <a class="btn btn-primary" href="${centralUrl}">Done</a>
         </c:if>
     </div>
 </div>

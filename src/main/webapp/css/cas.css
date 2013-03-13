@@ -17,7 +17,12 @@ acronym {
 }
 
 p {
-    margin: 8px 0 12px 0;
+    margin: 0px 0 20px 0;
+    color: #444;
+}
+
+th {
+    font-weight: 600;
 }
 
 a {
@@ -36,11 +41,13 @@ a img {
 h2 {
     margin: 0 0 5px 0;
     padding: 0;
-    font-size: 15px;
+    font-size: 20px;
+    color: #444;
+    font-weight: 300;
 }
 
 h2.apps {
-    background: url(../images/apps-icon.png) left center no-repeat;
+    background: url(https://signin.infusiontest.com/images/apps-icon.png) left center no-repeat;
     padding: 0 0 0 40px;
     font-size: 25px;
     line-height: 40px;
@@ -69,7 +76,7 @@ h2.apps {
 }
 
 #headerbg {
-    background: url(../images/header-gradient.png);
+    background: url(https://signin.infusiontest.com/images/header-gradient.png);
 }
 
 #header {
@@ -88,13 +95,12 @@ h2.apps {
     display: block;
     width: 150px;
     height: 48px;
-    background: url(../images/header-logo.png) no-repeat;
+    background: url(https://signin.infusiontest.com/images/header-logo.png) no-repeat;
 }
 
 #header #title {
     margin: 0 0 0 150px;
-    font-family: arial, sans-serif;
-    font-size: 16px;
+    font-size: 18px;
     font-weight: normal;
     color: #808384;
 }
@@ -107,18 +113,18 @@ h2.apps {
 }
 
 #modalheaderbg {
-    background: url(../images/modal-gradient.png) repeat-x;
+    background: url(https://signin.infusiontest.com/images/modal-gradient.png) repeat-x;
 }
 
 #modalheader {
     height: 49px;
     width: 962px;
     margin: 0 auto;
-    background: url(../images/modal-logo.png) 0 0 no-repeat;
+    background: url(https://signin.infusiontest.com/images/modal-logo.png) 0 0 no-repeat;
 }
 
 #navbg {
-    background: url(../images/nav-gradient.png) repeat-x;
+    background: url(https://signin.infusiontest.com/images/nav-gradient.png) repeat-x;
 }
 
 #nav {
@@ -269,7 +275,7 @@ h2.apps {
     float: left;
     width: 59px;
     height: 68px;
-    background: url(../images/incognito.png);
+    background: url(https://signin.infusiontest.com/images/incognito.png);
 }
 
 .usercard .name {
@@ -399,10 +405,6 @@ label {
     font-weight: normal;
 }
 
-.form-vertical label.control-label {
-    font-weight: bold;
-}
-
 .modal-body {
     padding: 10px 30px;
 }
@@ -446,10 +448,6 @@ label {
 body {
     font: 12px Open Sans, Arial, Helvetica, Verdana, sans-serif;
     color: #444;
-}
-
-p {
-    margin: 0px 0 20px 0;
 }
 
 .btn {
@@ -554,4 +552,60 @@ p {
     border-bottom: 1px solid #4b8c2c;
     color: #fff;
 }
+
+.required-explanation {
+    font-size: 12px;
+    color: #888;
+    font-style: italic;
+    margin-top: 2px;
+}
+
+.control-label a {
+    font-weight: normal;
+    text-align: right;
+    margin-left: 129px;
+}
+
+.control-label-explanation {
+    font-weight: normal;
+}
+
+#main p {
+    margin-bottom: 20px;
+}
+
+#verification p, #linkReferer p {
+    margin-bottom: 12px;
+}
+
+#verification form, #linkReferer form {
+    margin-top: 20px;
+}
+
+#forgot-password {
+    text-align: center;
+}
+
+#account-central-login {
+    text-align: center;
+    margin: 28px 0 0 0;
+}
+
+#account-central-login a {
+    color: #aaa;
+}
+
+.form-horizontal .control-label{float:left;width:120px;padding-top:5px;text-align:right;}
+
+.form-horizontal .controls { margin-left: 140px; }
+
+.instructions {
+    font-size: 11px;
+    font-style: italic;
+    color: #ccc;
+    text-align: center;
+    margin: 18px auto;
+}
+
+
 

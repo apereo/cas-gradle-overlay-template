@@ -44,7 +44,7 @@
 <div id="register">
     <div class="alert alert-info">
         Already have a community profile?
-        <a href="${linkCommunityAccountUrl}" data-toggle="modal">Link your existing profile to your Infusionsoft ID.</a>
+        <a href="${linkCommunityAccountUrl}" data-toggle="modal">Connect your existing profile to your Infusionsoft ID.</a>
     </div>
 
     <c:if test="${not empty error}">
@@ -186,8 +186,8 @@
         </div>
 
         <div class="buttonbar" style="text-align: right">
-            <a href="${centralUrl}" class="btn">Back</a>
             <input type="submit" value="Create Profile" class="btn btn-primary"/>
+            <a href="${centralUrl}" class="btn">Back</a>
         </div>
     </form>
 </div>
