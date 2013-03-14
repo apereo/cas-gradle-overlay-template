@@ -8,6 +8,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.validator.EmailValidator;
 import org.apache.log4j.Logger;
 import org.json.simple.JSONObject;
+import org.springframework.context.MessageSource;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJacksonHttpMessageConverter;
 import org.springframework.http.server.ServletServerHttpResponse;
@@ -18,11 +19,9 @@ import org.springframework.web.servlet.mvc.multiaction.MultiActionController;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.MessageInterpolator;
 import java.io.IOException;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Really simple controller that provides HTTP JSON services for registering users.
@@ -40,6 +39,7 @@ public class RestController extends MultiActionController {
     private InfusionsoftAuthenticationService infusionsoftAuthenticationService;
     private InfusionsoftDataService infusionsoftDataService;
     private PasswordService passwordService;
+    private MessageSource messageSource;
     private String requiredApiKey;
 
     /**
@@ -414,27 +414,39 @@ public class RestController extends MultiActionController {
         log.debug("trying to authenticate " + username + " with password " + md5password);
 
         User user = infusionsoftDataService.findUser(username, md5password);
+        String error = null;
 
         if (user == null) {
             log.info("failed to authenticate " + username + " with MD5 password hash");
 
             infusionsoftAuthenticationService.recordLoginAttempt(username, false);
 
-            response.sendError(401);
-        } else if (infusionsoftAuthenticationService.isAccountLocked(username)) {
-            log.warn("successfully authenticated " + username + " with MD5 password hash, but account is locked!");
+            error = "login.failed1";
+        } else if (passwordService.isPasswordExpired(user)) {
+            log.info("authenticated " + username + " with MD5 password hash, but password is expired");
 
-            response.sendError(401);
+            error = "login.passwordExpired";
+        } else if (infusionsoftAuthenticationService.isAccountLocked(username)) {
+            log.warn("authenticated " + username + " with MD5 password hash, but account is locked!");
+
+            error = "login.lockedTooManyFailures";
         } else {
             log.info("successfully authenticated " + username + " with MD5 password hash");
+        }
 
-            try {
+        try {
+            if (error != null) {
+                response.setStatus(401);
+                response.setContentType("application/json");
+                response.getWriter().write(buildErrorJson(error));
+            } else {
+                response.setStatus(200);
                 response.setContentType("application/json");
                 response.getWriter().write(infusionsoftAuthenticationService.buildUserInfoJSON(user));
-            } catch (Exception e) {
-                log.error("failed to create JSON response", e);
-                response.sendError(500);
             }
+        } catch (Exception e) {
+            log.error("failed to create JSON response", e);
+            response.sendError(500);
         }
 
         return null;
@@ -504,5 +516,18 @@ public class RestController extends MultiActionController {
 
     public void setInfusionsoftAuthenticationService(InfusionsoftAuthenticationService infusionsoftAuthenticationService) {
         this.infusionsoftAuthenticationService = infusionsoftAuthenticationService;
+    }
+
+    public void setMessageSource(MessageSource messageSource) {
+        this.messageSource = messageSource;
+    }
+
+    private String buildErrorJson(String code) {
+        JSONObject json = new JSONObject();
+
+        json.put("code", code);
+        json.put("message", messageSource.getMessage(code, new Object[] {}, Locale.ENGLISH));
+
+        return json.toJSONString();
     }
 }

@@ -229,6 +229,7 @@
           p:infusionsoftDataService-ref="infusionsoftDataService"
           p:passwordService-ref="infusionsoftPasswordService"
           p:infusionsoftAuthenticationService-ref="infusionsoftAuthenticationService"
+          p:messageSource-ref="messageSource"
           p:requiredApiKey="${infusionsoft.cas.apikey}"/>
 
     <bean id="logoutController" class="org.jasig.cas.web.LogoutController"
@@ -293,6 +294,8 @@
         <constructor-arg index="0" ref="servicesManager"/>
         <constructor-arg index="1" value="${cas.securityContext.serviceProperties.service}"/>
     </bean>
+
+    <bean id="messageSource" class="org.springframework.context.support.ResourceBundleMessageSource" p:basename="messages"/>
 
     <bean id="messageInterpolator" class="org.jasig.cas.util.SpringAwareMessageMessageInterpolator"/>
 
