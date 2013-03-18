@@ -23,7 +23,6 @@
         <script type="text/javascript" src="<c:url value="/js/jquery.placeholder.js"/>"></script>
         <script type="text/javascript" src="<c:url value="/js/cas.js" />"></script>
         <script type="text/javascript" src="<c:url value="/js/jquery.qtip-1.0.0-rc3.min.js"/>"></script>
-        <script language='javascript' async='true' type='text/javascript' src='https://d3b3ehuo35wzeh.cloudfront.net/users/8035/walkme_8035_https.js'></script>
         <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700,800" type="text/css">
     </head>
     <body>
@@ -60,5 +59,6 @@
                 <decorator:body/>
             </div>
         </div>
+        <script type="text/javascript">(function() {var walkme = document.createElement('script'); walkme.type = 'text/javascript'; walkme.async = true; walkme.src = 'https://d3b3ehuo35wzeh.cloudfront.net/users/6543/walkme_6543_https.js'; var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(walkme, s);})();</script>
     </body>
 </html>

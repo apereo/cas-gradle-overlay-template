@@ -114,12 +114,14 @@
             </a>
             <ul class="dropdown-menu">
                 <li><a href="${linkInfusionsoftAppAccount}">Connect an Infusionsoft Account</a></li>
+                <%--
                 <li><a href="${linkCustomerHubAccount}">Connect a CustomerHub Account</a></li>
                 <c:if test="${!hasCommunityAccount}">
                     <li><a href="${linkCommunityAccount}">Connect a Community Profile</a></li>
                     <li class="divider"></li>
                     <li><a href="${createCommunityAccount}">Create a Community Profile</a></li>
                 </c:if>
+                --%>
             </ul>
         </div>
         <div style="clear: both"></div>
