@@ -10,6 +10,8 @@ import org.jdom.Document;
 import org.springframework.util.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.UnsupportedEncodingException;
@@ -28,7 +30,7 @@ import java.util.zip.InflaterInputStream;
  * important methods are private so we can't use composition either. Therefore we pretty much pasted the code in here
  * and changed it to meet our needs. Someday we could build a much better implementation if we have nothing better
  * to do.
- *
+ * <p/>
  * TODO: this code should be taken out back and fed to Mr. Wu's pigs
  */
 public class InfusionsoftSaml2Service extends AbstractWebApplicationService {
@@ -198,7 +200,11 @@ public class InfusionsoftSaml2Service extends AbstractWebApplicationService {
 
         samlResponse = samlResponse.replace("<ATTRIBUTES>", attributesXml.toString());
 
-        log.debug("returning SAMLv2 response: " + samlResponse);
+        log.debug("about to sign SAMLv2 response: " + samlResponse);
+
+        samlResponse = SamlHelper.signAssertion(samlResponse, publicKey, privateKey);
+
+        log.debug("returning signed SAMLv2 response: " + samlResponse);
 
         return samlResponse;
     }
