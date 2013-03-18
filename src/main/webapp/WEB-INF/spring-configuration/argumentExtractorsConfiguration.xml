@@ -17,23 +17,16 @@
  	<bean id="samlArgumentExtractor" class="org.jasig.cas.web.support.SamlArgumentExtractor"
              p:httpClient-ref="httpClient" />
 
-    <!--
-    <bean id="googleAccountsArgumentExtractor" class="org.jasig.cas.web.support.GoogleAccountsArgumentExtractor"
+    <bean id="saml2ArgumentExtractor" class="com.infusionsoft.cas.support.InfusionsoftSaml2ArgumentExtractor"
           p:privateKey-ref="privateKeyFactoryBean"
           p:publicKey-ref="publicKeyFactoryBean"
           p:httpClient-ref="httpClient"
-    />
-    -->
-
-    <bean id="googleAccountsArgumentExtractor" class="com.infusionsoft.cas.support.InfusionsoftSaml2ArgumentExtractor"
-          p:privateKey-ref="privateKeyFactoryBean"
-          p:publicKey-ref="publicKeyFactoryBean"
-          p:httpClient-ref="httpClient" />
+          p:serverPrefix="${server.prefix}"/>
 
  	<util:list id="argumentExtractors">
 		 <ref bean="casArgumentExtractor" />
  		 <ref bean="samlArgumentExtractor" />
-         <ref bean="googleAccountsArgumentExtractor" />
+         <ref bean="saml2ArgumentExtractor" />
  	</util:list>
 
     <bean id="privateKeyFactoryBean" class="org.jasig.cas.util.PrivateKeyFactoryBean"

@@ -1,6 +1,5 @@
 package com.infusionsoft.cas.support;
 
-import org.apache.commons.codec.StringEncoder;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
@@ -8,12 +7,9 @@ import org.jasig.cas.authentication.principal.AbstractWebApplicationService;
 import org.jasig.cas.authentication.principal.Response;
 import org.jasig.cas.util.SamlUtils;
 import org.jdom.Document;
-import org.jdom.Element;
-import org.jdom.Namespace;
 import org.springframework.util.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
-import java.beans.XMLEncoder;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.UnsupportedEncodingException;
@@ -27,11 +23,13 @@ import java.util.zip.InflaterInputStream;
 /**
  * Our own version of Scott Battaglia's famous Google Accounts Service, wherein we add a few extra SAML claims needed
  * by Mashery (FirstName, LastName, Email).
- *
+ * <p/>
  * This guy Scott Battaglia loves to make everything "final" so it can't be extended in a meaningful way. Most of the
  * important methods are private so we can't use composition either. Therefore we pretty much pasted the code in here
- * and changed it to meet our needs. Someday we could build a much more elegant implementation if we have nothing better
+ * and changed it to meet our needs. Someday we could build a much better implementation if we have nothing better
  * to do.
+ *
+ * TODO: this code should be taken out back and fed to Mr. Wu's pigs
  */
 public class InfusionsoftSaml2Service extends AbstractWebApplicationService {
     private static final Logger log = Logger.getLogger(InfusionsoftSaml2Service.class);
@@ -53,7 +51,7 @@ public class InfusionsoftSaml2Service extends AbstractWebApplicationService {
             "    <samlp:StatusCode Value=\"urn:oasis:names:tc:SAML:2.0:status:Success\" />" +
             "  </samlp:Status>" +
             "  <Assertion ID=\"<ASSERTION_ID>\" IssueInstant=\"2003-04-17T00:46:02Z\" Version=\"2.0\" xmlns=\"urn:oasis:names:tc:SAML:2.0:assertion\">" +
-            "    <Issuer>https://www.opensaml.org/IDP</Issuer>" +
+            "    <Issuer><ISSUER_STRING></Issuer>" +
             "    <Subject>" +
             "      <NameID Format=\"urn:oasis:names:tc:SAML:2.0:nameid-format:emailAddress\">" +
             "        <USERNAME_STRING>" +
@@ -88,6 +86,8 @@ public class InfusionsoftSaml2Service extends AbstractWebApplicationService {
 
     private final String alternateUserName;
 
+    private String issuer;
+
     protected InfusionsoftSaml2Service(final String id, final String relayState, final String requestId, final PrivateKey privateKey, final PublicKey publicKey, final String alternateUserName) {
         this(id, id, null, relayState, requestId, privateKey, publicKey, alternateUserName);
     }
@@ -108,12 +108,16 @@ public class InfusionsoftSaml2Service extends AbstractWebApplicationService {
             final String xmlRequest = decodeAuthnRequestXML(request.getParameter(CONST_PARAM_SERVICE));
 
             if (!StringUtils.hasText(xmlRequest)) {
+                log.debug("no SAMLv2 request found");
+
                 return null;
             }
 
             final Document document = SamlUtils.constructDocumentFromXmlString(xmlRequest);
 
             if (document == null) {
+                log.debug("unable to construct XML document");
+
                 return null;
             }
 
@@ -177,6 +181,7 @@ public class InfusionsoftSaml2Service extends AbstractWebApplicationService {
 
         samlResponse = samlResponse.replace("<USERNAME_STRING>", userId);
         samlResponse = samlResponse.replace("<RESPONSE_ID>", createID());
+        samlResponse = samlResponse.replace("<ISSUER_STRING>", issuer);
         samlResponse = samlResponse.replace("<ISSUE_INSTANT>", SamlUtils.getCurrentDateAndTime());
         samlResponse = samlResponse.replace("<AUTHN_INSTANT>", SamlUtils.getCurrentDateAndTime());
         samlResponse = samlResponse.replaceAll("<NOT_ON_OR_AFTER>", SamlUtils.getFormattedDateAndTime(c.getTime()));
@@ -192,6 +197,8 @@ public class InfusionsoftSaml2Service extends AbstractWebApplicationService {
         }
 
         samlResponse = samlResponse.replace("<ATTRIBUTES>", attributesXml.toString());
+
+        log.debug("returning SAMLv2 response: " + samlResponse);
 
         return samlResponse;
     }
@@ -230,8 +237,12 @@ public class InfusionsoftSaml2Service extends AbstractWebApplicationService {
         return String.valueOf(chars);
     }
 
-    private static String decodeAuthnRequestXML(
-            final String encodedRequestXmlString) {
+    /**
+     * Attempts to decode the Base64-encoded, possibly compressed, XML authentication request.
+     */
+    private static String decodeAuthnRequestXML(final String encodedRequestXmlString) {
+        log.debug("attempting to decode authentication request from encoded XML: " + encodedRequestXmlString);
+
         if (encodedRequestXmlString == null) {
             return null;
         }
@@ -245,10 +256,28 @@ public class InfusionsoftSaml2Service extends AbstractWebApplicationService {
         final String inflated = inflate(decodedBytes);
 
         if (inflated != null) {
+            log.debug("decompressed XML: " + inflated);
+
             return inflated;
         }
 
-        return zlibDeflate(decodedBytes);
+        log.debug("attempting to zlibDeflate");
+
+        final String deflated = zlibDeflate(decodedBytes);
+
+        if (deflated != null) {
+            log.debug("deflated XML: " + deflated);
+
+            return deflated;
+        }
+
+        try {
+            return new String(decodedBytes, "UTF-8");
+        } catch (Exception e) {
+            log.debug("unable to make any sense out of the authentication request", e);
+
+            return null;
+        }
     }
 
     private static String zlibDeflate(final byte[] bytes) {
@@ -265,6 +294,8 @@ public class InfusionsoftSaml2Service extends AbstractWebApplicationService {
             }
             return new String(baos.toByteArray());
         } catch (final Exception e) {
+            log.debug("unable to deflate bytes; this probably isn't zipped content");
+
             return null;
         } finally {
             try {
@@ -280,6 +311,8 @@ public class InfusionsoftSaml2Service extends AbstractWebApplicationService {
             final byte[] xmlBytes = xml.getBytes("UTF-8");
             return Base64.decodeBase64(xmlBytes);
         } catch (final Exception e) {
+            log.debug("Base64 decoding failed", e);
+
             return null;
         }
     }
@@ -309,5 +342,9 @@ public class InfusionsoftSaml2Service extends AbstractWebApplicationService {
         } catch (final UnsupportedEncodingException e) {
             throw new RuntimeException("Cannot find encoding: UTF-8", e);
         }
+    }
+
+    public void setIssuer(String issuer) {
+        this.issuer = issuer;
     }
 }
