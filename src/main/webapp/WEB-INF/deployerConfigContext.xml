@@ -164,7 +164,8 @@
     </bean>
 
     <bean id="hibernateSessionFactory"
-          class="org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean">
+          class="org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean"
+          depends-on="flyway">
         <property name="dataSource" ref="hibernateDataSource"/>
         <property name="annotatedClasses">
             <list>
@@ -287,6 +288,11 @@
 		p:jobDetail-ref="jobDetailGarbageMan"
 		p:startDelay="1800000"
 		p:repeatInterval="1800000" />
+
+    <bean id="flyway" class="com.googlecode.flyway.core.Flyway" init-method="migrate" depends-on="dataSource">
+        <property name="dataSource" ref="hibernateDataSource"/>
+        <property name="initOnMigrate" value="true"/>
+    </bean>
 
     <tx:advice id="transactionAdvice" transaction-manager="hibernateTransactionManager">
         <tx:attributes>
