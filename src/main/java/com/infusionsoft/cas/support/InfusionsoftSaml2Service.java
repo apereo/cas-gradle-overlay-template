@@ -47,8 +47,9 @@ public class InfusionsoftSaml2Service extends AbstractWebApplicationService {
     private static final String CONST_RELAY_STATE = "RelayState";
 
     // TODO - we lifted this from the CAS Google Accounts implementation, but it is a very stupid way to make XML
-    private static final String TEMPLATE_SAML_RESPONSE = "<?xml version=\"1.0\"?>" +
+    private static final String TEMPLATE_SAML_RESPONSE = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
             "<samlp:Response ID=\"<RESPONSE_ID>\" IssueInstant=\"<ISSUE_INSTANT>\" Version=\"2.0\" xmlns=\"urn:oasis:names:tc:SAML:2.0:assertion\" xmlns:samlp=\"urn:oasis:names:tc:SAML:2.0:protocol\" xmlns:xenc=\"http://www.w3.org/2001/04/xmlenc#\">" +
+            "  <Issuer><ISSUER_STRING></Issuer>" +
             "  <samlp:Status>" +
             "    <samlp:StatusCode Value=\"urn:oasis:names:tc:SAML:2.0:status:Success\" />" +
             "  </samlp:Status>" +
@@ -110,15 +111,13 @@ public class InfusionsoftSaml2Service extends AbstractWebApplicationService {
             final String xmlRequest = decodeAuthnRequestXML(request.getParameter(CONST_PARAM_SERVICE));
 
             if (!StringUtils.hasText(xmlRequest)) {
-                log.debug("no SAMLv2 request found");
-
                 return null;
             }
 
             final Document document = SamlUtils.constructDocumentFromXmlString(xmlRequest);
 
             if (document == null) {
-                log.debug("unable to construct XML document");
+                log.warn("unable to construct XML document from SAML request");
 
                 return null;
             }
@@ -142,11 +141,21 @@ public class InfusionsoftSaml2Service extends AbstractWebApplicationService {
         log.debug("creating SAMLv2 response");
 
         final Map<String, String> parameters = new HashMap<String, String>();
-        final String samlResponse = constructSamlResponse();
-        final String signedResponse = SamlUtils.signSamlResponse(samlResponse, this.privateKey, this.publicKey);
 
-        parameters.put("SAMLResponse", signedResponse);
-        parameters.put("RelayState", this.relayState);
+        try {
+            String samlResponse = constructSamlResponse();
+            String signedResponse = SamlUtils.signSamlResponse(samlResponse, this.privateKey, this.publicKey);
+            String base64Response = Base64.encodeBase64String(signedResponse.getBytes("UTF-8"));
+
+            log.debug("SAMLResponse (raw): " + signedResponse);
+            log.debug("SAMLResponse (Base64): " + base64Response);
+            log.debug("RelayState: " + relayState);
+
+            parameters.put("SAMLResponse", base64Response);
+            parameters.put("RelayState", this.relayState);
+        } catch (Exception e) {
+            log.error("failed to construct SAMLv2 response", e);
+        }
 
         return Response.getPostResponse(getOriginalUrl(), parameters);
     }
@@ -181,15 +190,15 @@ public class InfusionsoftSaml2Service extends AbstractWebApplicationService {
             }
         }
 
-        samlResponse = samlResponse.replace("<USERNAME_STRING>", userId);
-        samlResponse = samlResponse.replace("<RESPONSE_ID>", createID());
-        samlResponse = samlResponse.replace("<ISSUER_STRING>", issuer);
-        samlResponse = samlResponse.replace("<ISSUE_INSTANT>", SamlUtils.getCurrentDateAndTime());
-        samlResponse = samlResponse.replace("<AUTHN_INSTANT>", SamlUtils.getCurrentDateAndTime());
+        samlResponse = samlResponse.replaceAll("<USERNAME_STRING>", userId);
+        samlResponse = samlResponse.replaceAll("<RESPONSE_ID>", createID());
+        samlResponse = samlResponse.replaceAll("<ISSUER_STRING>", issuer);
+        samlResponse = samlResponse.replaceAll("<ISSUE_INSTANT>", SamlUtils.getCurrentDateAndTime());
+        samlResponse = samlResponse.replaceAll("<AUTHN_INSTANT>", SamlUtils.getCurrentDateAndTime());
         samlResponse = samlResponse.replaceAll("<NOT_ON_OR_AFTER>", SamlUtils.getFormattedDateAndTime(c.getTime()));
-        samlResponse = samlResponse.replace("<ASSERTION_ID>", createID());
+        samlResponse = samlResponse.replaceAll("<ASSERTION_ID>", createID());
         samlResponse = samlResponse.replaceAll("<ACS_URL>", getId());
-        samlResponse = samlResponse.replace("<REQUEST_ID>", this.requestId);
+        samlResponse = samlResponse.replaceAll("<REQUEST_ID>", this.requestId);
 
         Map<String, Object> attributes = getPrincipal().getAttributes();
         StringBuffer attributesXml = new StringBuffer();
@@ -200,11 +209,9 @@ public class InfusionsoftSaml2Service extends AbstractWebApplicationService {
 
         samlResponse = samlResponse.replace("<ATTRIBUTES>", attributesXml.toString());
 
-        log.debug("about to sign SAMLv2 response: " + samlResponse);
-
-        samlResponse = SamlHelper.signAssertion(samlResponse, publicKey, privateKey);
-
-        log.debug("returning signed SAMLv2 response: " + samlResponse);
+//        log.debug("about to sign SAMLv2 response: " + samlResponse);
+//        samlResponse = SamlHelper.signAssertion(samlResponse, publicKey, privateKey);
+//        log.debug("returning signed SAMLv2 response: " + samlResponse);
 
         return samlResponse;
     }
