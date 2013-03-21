@@ -81,8 +81,12 @@
         <level value="INFO" />
     </logger>
 
+    <logger name="org.springframework.web.client">
+        <level value="DEBUG" />
+    </logger>
+
     <logger name="org.springframework.web">
-        <level value="WARN" />
+        <level value="INFO" />
     </logger>
 
     <logger name="org.springframework.webflow">

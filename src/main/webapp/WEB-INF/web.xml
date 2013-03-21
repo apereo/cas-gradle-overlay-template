@@ -116,6 +116,11 @@
 
     <filter-mapping>
         <filter-name>springSecurityFilterChain</filter-name>
+        <url-pattern>/oauth/*</url-pattern>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>springSecurityFilterChain</filter-name>
         <url-pattern>/rest/*</url-pattern>
     </filter-mapping>
 
@@ -206,6 +211,11 @@
     <servlet-mapping>
         <servlet-name>cas</servlet-name>
         <url-pattern>/central/*</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>cas</servlet-name>
+        <url-pattern>/oauth/*</url-pattern>
     </servlet-mapping>
 
     <servlet-mapping>

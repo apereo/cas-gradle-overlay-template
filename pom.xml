@@ -59,6 +59,7 @@
                     <path>/</path>
                     <warSourceDirectory>${basedir}/target/${artifactId}-${version}</warSourceDirectory>
                     <contextFile>${basedir}/tomcat/context.xml</contextFile>
+                    <port>7070</port>
                     <httpsPort>7443</httpsPort>
                     <keystoreFile>${basedir}/tomcat/infusiontest.com.jks</keystoreFile>
                     <keystorePass>[er1c]5425</keystorePass>

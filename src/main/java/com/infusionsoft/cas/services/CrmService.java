@@ -26,7 +26,7 @@ public class CrmService {
      * Builds a base URL to a CRM app.
      */
     public String buildCrmUrl(String appName) {
-        StringBuffer url = new StringBuffer(crmProtocol + "://" + appName + "." + crmDomain);
+        StringBuffer url = new StringBuffer(crmProtocol + "://" + buildCrmHostName(appName));
 
         if (crmProtocol.equals("http") && crmPort != 80) {
             url.append(":").append(crmPort);
@@ -35,6 +35,10 @@ public class CrmService {
         }
 
         return url.toString();
+    }
+
+    public String buildCrmHostName(String appName) {
+        return appName + "." + crmDomain;
     }
 
     public boolean isCasEnabled(String appName) {

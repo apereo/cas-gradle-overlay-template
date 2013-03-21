@@ -5,6 +5,7 @@ import com.infusionsoft.cas.types.AppType;
 import com.infusionsoft.cas.types.User;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+import org.springframework.web.filter.OncePerRequestFilter;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
@@ -21,23 +22,22 @@ import java.util.Date;
  * user authentication, and it's too big a pain to hook into them. This filter also keeps track of a registration
  * code if one is sent on the initial request.
  */
-public class UserFilter implements Filter {
+public class UserFilter extends OncePerRequestFilter {
     private static final Logger log = Logger.getLogger(UserFilter.class);
 
     private InfusionsoftAuthenticationService infusionsoftAuthenticationService;
     private String contextPath = null;
 
-    public void init(FilterConfig filterConfig) throws ServletException {
-        contextPath = filterConfig.getServletContext().getContextPath();
+    @Override
+    protected void initFilterBean() throws ServletException {
+        contextPath = getServletContext().getContextPath();
     }
 
-    public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
-        HttpServletRequest request = (HttpServletRequest) servletRequest;
-        HttpServletResponse response = (HttpServletResponse) servletResponse;
-
+    @Override
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         // Don't do anything for the RestController.
         // TODO - dumb to do it this way but filter-mapping expressions are so clumsy
-        if (request.getContextPath().startsWith("/rest")) {
+        if (request.getContextPath().startsWith("/rest") || request.getContextPath().startsWith("/oauth")) {
             filterChain.doFilter(request, response);
 
             return;

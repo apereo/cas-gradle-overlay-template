@@ -11,10 +11,12 @@
 	</description>
 
 	<sec:http entry-point-ref="casProcessingFilterEntryPoint" auto-config="true">
-        <sec:intercept-url pattern="/registration/*" filters="none" />
-        <sec:intercept-url pattern="/central/*" filters="none" />
-        <sec:intercept-url pattern="/rest/*" filters="none" />
+        <sec:intercept-url pattern="/*" filters="none" />
+        <sec:intercept-url pattern="/registration/**" filters="none" />
+        <sec:intercept-url pattern="/central/**" filters="none" />
+        <sec:intercept-url pattern="/rest/**" filters="none" />
         <sec:intercept-url pattern="/services/loggedout.html" filters="none" />
+        <sec:intercept-url pattern="/oauth/**" access="ROLE_USER" />
         <sec:intercept-url pattern="/**" access="${cas.securityContext.serviceProperties.adminRoles}" />
         <sec:logout logout-url="/services/logout.html" logout-success-url="/services/loggedOut.html" />
         <sec:custom-filter ref="casProcessingFilter" after="CAS_FILTER" />
@@ -33,8 +35,8 @@
 		p:filterProcessesUrl="/services/j_acegi_cas_security_check">
         <property name="authenticationSuccessHandler">
             <bean class="org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler"
-                p:alwaysUseDefaultTargetUrl="true"
-                p:defaultTargetUrl="/services/manage.html" />
+                p:alwaysUseDefaultTargetUrl="false"
+                p:defaultTargetUrl="/central/home" />
         </property>
         <property name="authenticationFailureHandler">
             <bean class="org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler">
@@ -56,6 +58,11 @@
             <constructor-arg index="0" value="${cas.securityContext.ticketValidator.casServerUrlPrefix}" />
             </bean>
         </property>
+    </bean>
+
+    <bean id="userDetailsService" class="com.infusionsoft.cas.services.CasUserDetailsService">
+        <property name="dataSource" ref="dataSource"/>
+        <property name="usersByUsernameQuery" value="select username, password_encoded_md5, enabled from user join user_password on user.id = user_password.user_id where active = 1 and username = ?"/>
     </bean>
 
     <!--

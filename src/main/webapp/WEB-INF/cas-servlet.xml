@@ -50,58 +50,24 @@
     <bean class="org.springframework.web.servlet.mvc.SimpleControllerHandlerAdapter"/>
 
     <bean id="handlerMappingC" class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
-        <property
-                name="mappings">
+        <property name="mappings">
             <props>
-                <prop
-                        key="/logout">
-                    logoutController
-                </prop>
-                <prop
-                        key="/serviceValidate">
-                    serviceValidateController
-                </prop>
-                <prop
-                        key="/validate">
-                    legacyValidateController
-                </prop>
-                <prop
-                        key="/proxy">
-                    proxyController
-                </prop>
-                <prop
-                        key="/proxyValidate">
-                    proxyValidateController
-                </prop>
-                <prop
-                        key="/samlValidate">
-                    samlValidateController
-                </prop>
-
-                <prop
-                        key="/services/add.html">
-                    addRegisteredServiceSimpleFormController
-                </prop>
-
-                <prop
-                        key="/services/edit.html">
-                    editRegisteredServiceSimpleFormController
-                </prop>
-
-                <prop
-                        key="/services/loggedOut.html">
-                    serviceLogoutViewController
-                </prop>
-
-                <prop key="/services/viewStatistics.html">
-                    viewStatisticsController
-                </prop>
-
+                <prop key="/logout">logoutController</prop>
+                <prop key="/serviceValidate">serviceValidateController</prop>
+                <prop key="/validate">legacyValidateController</prop>
+                <prop key="/proxy">proxyController</prop>
+                <prop key="/proxyValidate">proxyValidateController</prop>
+                <prop key="/samlValidate">samlValidateController</prop>
+                <prop key="/services/add.html">addRegisteredServiceSimpleFormController</prop>
+                <prop key="/services/edit.html">editRegisteredServiceSimpleFormController</prop>
+                <prop key="/services/loggedOut.html">serviceLogoutViewController</prop>
+                <prop key="/services/viewStatistics.html">viewStatisticsController</prop>
                 <prop key="/registration/*">registrationMultiActionController</prop>
                 <prop key="/central/*">centralMultiActionController</prop>
                 <prop key="/rest/*">restController</prop>
                 <prop key="/services/*">manageRegisteredServicesMultiActionController</prop>
                 <prop key="/openid/*">openIdProviderController</prop>
+                <prop key="/oauth/**">oauthController</prop>
                 <prop key="/authorizationFailure.html">passThroughController</prop>
                 <prop key="/403.html">passThroughController</prop>
             </props>
@@ -223,6 +189,12 @@
           p:passwordService-ref="infusionsoftPasswordService"
           p:communityService-ref="communityService"
           p:crmService-ref="crmService"/>
+
+    <bean id="oauthController" class="com.infusionsoft.cas.oauth.OAuthController"
+          p:crmService-ref="crmService"
+          p:masheryService-ref="masheryService"
+          p:infusionsoftDataService-ref="infusionsoftDataService"
+          p:infusionsoftAuthenticationService-ref="infusionsoftAuthenticationService"/>
 
     <bean id="restController" class="com.infusionsoft.cas.web.RestController"
           p:hibernateTemplate-ref="hibernateTemplate"

@@ -88,10 +88,13 @@ public class CentralMultiActionController extends MultiActionController {
 
                 return new ModelAndView("redirect:linkReferer", model);
             } else {
-                log.info("user " + user.getId() + " will be redirected to the home page");
-
-                // TODO - if they requested a service, should we send them there instead?
-                return new ModelAndView("redirect:home");
+                if (service != null) {
+                    log.info("user " + user.getId() + " will be redirected to " + service);
+                    return new ModelAndView("redirect:" + service);
+                } else {
+                    log.info("user " + user.getId() + " will be redirected to the home page");
+                    return new ModelAndView("redirect:home");
+                }
             }
         }
 
