@@ -19,6 +19,7 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.util.*;
 import java.util.zip.DataFormatException;
+import java.util.zip.GZIPOutputStream;
 import java.util.zip.Inflater;
 import java.util.zip.InflaterInputStream;
 
@@ -47,7 +48,7 @@ public class InfusionsoftSaml2Service extends AbstractWebApplicationService {
     private static final String CONST_RELAY_STATE = "RelayState";
 
     // TODO - we lifted this from the CAS Google Accounts implementation, but it is a very stupid way to make XML
-    private static final String TEMPLATE_SAML_RESPONSE = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
+    private static final String TEMPLATE_SAML_RESPONSE = "<?xml version=\"1.0\"?>" +
             "<samlp:Response ID=\"<RESPONSE_ID>\" IssueInstant=\"<ISSUE_INSTANT>\" Version=\"2.0\" xmlns=\"urn:oasis:names:tc:SAML:2.0:assertion\" xmlns:samlp=\"urn:oasis:names:tc:SAML:2.0:protocol\" xmlns:xenc=\"http://www.w3.org/2001/04/xmlenc#\">" +
             "  <Issuer><ISSUER_STRING></Issuer>" +
             "  <samlp:Status>" +
@@ -90,6 +91,10 @@ public class InfusionsoftSaml2Service extends AbstractWebApplicationService {
     private final String alternateUserName;
 
     private String issuer;
+
+    private boolean gzipEnabled = false;
+
+    private boolean signAssertionOnly = true;
 
     protected InfusionsoftSaml2Service(final String id, final String relayState, final String requestId, final PrivateKey privateKey, final PublicKey publicKey, final String alternateUserName) {
         this(id, id, null, relayState, requestId, privateKey, publicKey, alternateUserName);
@@ -144,8 +149,35 @@ public class InfusionsoftSaml2Service extends AbstractWebApplicationService {
 
         try {
             String samlResponse = constructSamlResponse();
-            String signedResponse = SamlUtils.signSamlResponse(samlResponse, this.privateKey, this.publicKey);
-            String base64Response = Base64.encodeBase64String(signedResponse.getBytes("UTF-8"));
+            String signedResponse;
+            String base64Response;
+
+            if (signAssertionOnly) {
+                log.debug("signing SAML assertion");
+
+                signedResponse = SamlHelper.signAssertion(samlResponse, this.privateKey, this.publicKey);
+            } else {
+                log.debug("signing SAML response");
+
+                signedResponse = SamlUtils.signSamlResponse(samlResponse, this.privateKey, this.publicKey);
+            }
+
+            if (gzipEnabled) {
+                log.debug("Base64 encoding gzipped SAML response");
+
+                ByteArrayOutputStream output = new ByteArrayOutputStream();
+                GZIPOutputStream gzip = new GZIPOutputStream(output);
+
+                gzip.write(signedResponse.getBytes("UTF-8"));
+                gzip.close();
+                output.close();
+
+                base64Response = Base64.encodeBase64String(output.toByteArray());
+            } else {
+                log.debug("Base64 encoding SAML response");
+
+                base64Response = Base64.encodeBase64String(signedResponse.getBytes("UTF-8"));
+            }
 
             log.debug("SAMLResponse (raw): " + signedResponse);
             log.debug("SAMLResponse (Base64): " + base64Response);
@@ -204,7 +236,7 @@ public class InfusionsoftSaml2Service extends AbstractWebApplicationService {
         StringBuffer attributesXml = new StringBuffer();
 
         for (String attributeName : attributes.keySet()) {
-            attributesXml.append(constructSamlAttribute(attributeName, attributes.get(attributeName).toString()));
+            attributesXml.append(constructSamlAttribute(attributeName.toLowerCase(), attributes.get(attributeName).toString()));
         }
 
         samlResponse = samlResponse.replace("<ATTRIBUTES>", attributesXml.toString());
