@@ -136,8 +136,9 @@ public class MasheryService {
         return wrappedMasheryOAuthApplication.getResult();
     }
 
-    MasheryAuthorizationCode createAuthorizationCode(String clientId, String scope, String redirectUri, String username) {
-        String userContext = username + "|" + scope;
+    MasheryAuthorizationCode createAuthorizationCode(String clientId, String requestedScope, String application, String redirectUri, String username) {
+        String scope = requestedScope + "|" + application;
+        String userContext = username + "|" + application;
 
         MasheryJsonRpcRequest masheryJsonRpcRequest = new MasheryJsonRpcRequest();
         masheryJsonRpcRequest.setMethod("oauth2.createAuthorizationCode");

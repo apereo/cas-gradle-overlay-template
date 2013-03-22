@@ -55,6 +55,7 @@ public class OAuthController extends MultiActionController {
         String clientId = request.getParameter("client_id");
         String redirectUri = request.getParameter("redirect_uri");
         String responseType = request.getParameter("response_type");
+        String scope = request.getParameter("scope");
 
         ModelAndView modelAndView = new ModelAndView("infusionsoft/ui/oauth/authorize");
 
@@ -78,6 +79,7 @@ public class OAuthController extends MultiActionController {
 
         modelAndView.addObject("client_id", clientId);
         modelAndView.addObject("redirect_uri", redirectUri);
+        modelAndView.addObject("requestedScope", scope);
         modelAndView.addObject("apps", crmAccounts);
 
         return modelAndView;
@@ -91,7 +93,9 @@ public class OAuthController extends MultiActionController {
         if (request.getParameter("allow") != null) {
             String clientId = request.getParameter("client_id");
             String redirectUri = request.getParameter("redirect_uri");
-            String scope = request.getParameter("scope");
+            String requestedScope = request.getParameter("requestedScope");
+            String application = request.getParameter("application");
+
             User user = infusionsoftAuthenticationService.getCurrentUser(request);
             List<UserAccount> accounts = infusionsoftDataService.findSortedUserAccounts(user);
             List<String> crmAccounts = new LinkedList<String>();
@@ -102,8 +106,8 @@ public class OAuthController extends MultiActionController {
                 }
             }
 
-            if (crmAccounts.contains(scope)) {
-                MasheryAuthorizationCode masheryAuthorizationCode = masheryService.createAuthorizationCode(clientId, scope, redirectUri, user.getUsername());
+            if (crmAccounts.contains(application)) {
+                MasheryAuthorizationCode masheryAuthorizationCode = masheryService.createAuthorizationCode(clientId, requestedScope, application, redirectUri, user.getUsername());
 
                 if (masheryAuthorizationCode != null && masheryAuthorizationCode.getUri() != null) {
                     return new ModelAndView("redirect:" + masheryAuthorizationCode.getUri().getUri());

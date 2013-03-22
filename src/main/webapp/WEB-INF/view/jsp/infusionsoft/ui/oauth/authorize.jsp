@@ -94,13 +94,14 @@
                     <input type="hidden" name="client_id" value="${client_id}">
                     <input type="hidden" name="redirect_uri" value="${redirect_uri}">
                     <input type="hidden" name="response_type" value="${response_type}">
+                    <input type="hidden" name="requestedScope" value="${requestedScope}">
                     <c:choose>
                         <c:when test="${fn:length(apps) > 1}">
                             <br/>
                             Which application would you like to allow <strong>${masheryApplication.name}</strong> access to?
 
                             <div class="selectApp">
-                                <select class="inf-select default-input field-valid" name="scope">
+                                <select class="inf-select default-input field-valid" name="application">
                                     <option value="">Please Select One</option>
                                     <c:forEach var="app" items="${apps}">
                                         <option value="${app}">${app}</option>
@@ -112,7 +113,7 @@
                             <br/>
                             Allow <strong>${masheryApplication.name}</strong> access?
 
-                            <input type="hidden" name="scope" value="${apps[0]}">
+                            <input type="hidden" name="application" value="${apps[0]}">
                         </c:otherwise>
                     </c:choose>
 
