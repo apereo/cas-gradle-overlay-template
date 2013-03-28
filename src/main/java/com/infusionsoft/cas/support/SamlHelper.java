@@ -1,9 +1,7 @@
 package com.infusionsoft.cas.support;
 
 import org.apache.log4j.Logger;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
+import org.w3c.dom.*;
 import org.xml.sax.InputSource;
 
 import javax.xml.bind.Element;
@@ -60,33 +58,6 @@ public class SamlHelper {
 
             log.debug("signing assertion with URI " + id);
 
-            DOMSignContext dsc = new DOMSignContext(privateKey, assertion);
-            XMLSignatureFactory signatureFactory = XMLSignatureFactory.getInstance("DOM");
-            List transforms = new ArrayList();
-
-            transforms.add(signatureFactory.newTransform(Transform.ENVELOPED, (TransformParameterSpec) null));
-            transforms.add(signatureFactory.newTransform("http://www.w3.org/2001/10/xml-exc-c14n#",(TransformParameterSpec) null));
-
-            Reference ref = signatureFactory.newReference("#" + id, signatureFactory.newDigestMethod(DigestMethod.SHA1, null), transforms, null, null);
-            SignedInfo si = signatureFactory.newSignedInfo(signatureFactory.newCanonicalizationMethod(CanonicalizationMethod.INCLUSIVE_WITH_COMMENTS, (C14NMethodParameterSpec) null), signatureFactory.newSignatureMethod(SignatureMethod.RSA_SHA1, null), Collections.singletonList(ref));
-            KeyInfoFactory kif = signatureFactory.getKeyInfoFactory();
-            KeyValue kv = kif.newKeyValue(publicKey);
-            KeyInfo ki = kif.newKeyInfo(Collections.singletonList(kv));
-            //XMLSignature signature = signatureFactory.newXMLSignature(si, ki);
-
-            XMLSignature signature = signatureFactory.newXMLSignature(si, null);
-
-            signature.sign(dsc);
-
-            Node signatureNode = document.getElementsByTagNameNS("*", "Signature").item(0);
-            Node subjectNode = document.getElementsByTagNameNS("*", "Subject").item(0);
-
-            log.debug("signature node is " + signatureNode);
-            log.debug("subject node is " + subjectNode);
-
-            assertion.removeChild(signatureNode);
-            assertion.insertBefore(signatureNode, subjectNode);
-
             setPrefixOnElements(document, "Issuer", "saml");
             setPrefixOnElements(document, "Assertion", "saml");
             setPrefixOnElements(document, "Subject", "saml");
@@ -105,6 +76,31 @@ public class SamlHelper {
             setPrefixOnElements(document, "AttributeValue", "saml");
             setPrefixOnElements(document, "AttributeStatement", "saml");
 
+            DOMSignContext dsc = new DOMSignContext(privateKey, assertion);
+            XMLSignatureFactory signatureFactory = XMLSignatureFactory.getInstance("DOM");
+            List transforms = new ArrayList();
+
+            transforms.add(signatureFactory.newTransform(Transform.ENVELOPED, (TransformParameterSpec) null));
+            transforms.add(signatureFactory.newTransform("http://www.w3.org/2001/10/xml-exc-c14n#",(TransformParameterSpec) null));
+
+            Reference ref = signatureFactory.newReference("#" + id, signatureFactory.newDigestMethod(DigestMethod.SHA1, null), transforms, null, null);
+            SignedInfo si = signatureFactory.newSignedInfo(signatureFactory.newCanonicalizationMethod(CanonicalizationMethod.INCLUSIVE_WITH_COMMENTS, (C14NMethodParameterSpec) null), signatureFactory.newSignatureMethod(SignatureMethod.RSA_SHA1, null), Collections.singletonList(ref));
+            KeyInfoFactory kif = signatureFactory.getKeyInfoFactory();
+            KeyValue kv = kif.newKeyValue(publicKey);
+            KeyInfo ki = kif.newKeyInfo(Collections.singletonList(kv));
+
+            //XMLSignature signature = signatureFactory.newXMLSignature(si, ki);
+            XMLSignature signature = signatureFactory.newXMLSignature(si, null);
+
+            signature.sign(dsc);
+
+            Node signatureNode = document.getElementsByTagNameNS("*", "Signature").item(0);
+            Node subjectNode = document.getElementsByTagNameNS("*", "Subject").item(0);
+
+            assertion.removeChild(signatureNode);
+            assertion.insertBefore(signatureNode, subjectNode);
+
+            // Look at all the silly nonsense we have to do for Mashery
             setPrefixOnElements(document, "Signature", "ds");
             setPrefixOnElements(document, "SignedInfo", "ds");
             setPrefixOnElements(document, "CanonicalizationMethod", "ds");
@@ -122,7 +118,6 @@ public class SamlHelper {
 
             trans.transform(new DOMSource(document), new StreamResult(output));
 
-            // Mashery claims they don't like UTF-8 encoding in the prolog. WTF?
             return new String(output.toByteArray(), "UTF-8");
         } catch (Exception e) {
             log.error("failed to sign SAMLv2 assertion!", e);

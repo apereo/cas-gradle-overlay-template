@@ -1,6 +1,7 @@
 package com.infusionsoft.cas.support;
 
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 import org.jasig.cas.authentication.principal.AbstractWebApplicationService;
@@ -57,9 +58,7 @@ public class InfusionsoftSaml2Service extends AbstractWebApplicationService {
             "  <Assertion ID=\"<ASSERTION_ID>\" IssueInstant=\"2003-04-17T00:46:02Z\" Version=\"2.0\" xmlns=\"urn:oasis:names:tc:SAML:2.0:assertion\">" +
             "    <Issuer><ISSUER_STRING></Issuer>" +
             "    <Subject>" +
-            "      <NameID Format=\"urn:oasis:names:tc:SAML:2.0:nameid-format:emailAddress\">" +
-            "        <USERNAME_STRING>" +
-            "      </NameID>" +
+            "      <NameID Format=\"urn:oasis:names:tc:SAML:2.0:nameid-format:emailAddress\"><USERNAME_STRING></NameID>" +
             "      <SubjectConfirmation Method=\"urn:oasis:names:tc:SAML:2.0:cm:bearer\">" +
             "        <SubjectConfirmationData Recipient=\"<ACS_URL>\" NotOnOrAfter=\"<NOT_ON_OR_AFTER>\" InResponseTo=\"<REQUEST_ID>\" />" +
             "      </SubjectConfirmation>" +
@@ -69,7 +68,7 @@ public class InfusionsoftSaml2Service extends AbstractWebApplicationService {
             "        <Audience><ACS_URL></Audience>" +
             "      </AudienceRestriction>" +
             "    </Conditions>" +
-            "    <AuthnStatement AuthnInstant=\"<AUTHN_INSTANT>\">" +
+            "    <AuthnStatement AuthnInstant=\"<AUTHN_INSTANT>\" SessionIndex=\"<SESSION_INDEX>\">" +
             "      <AuthnContext>" +
             "        <AuthnContextClassRef>urn:oasis:names:tc:SAML:2.0:ac:classes:Password</AuthnContextClassRef>" +
             "      </AuthnContext>" +
@@ -231,6 +230,7 @@ public class InfusionsoftSaml2Service extends AbstractWebApplicationService {
         samlResponse = samlResponse.replaceAll("<ASSERTION_ID>", createID());
         samlResponse = samlResponse.replaceAll("<ACS_URL>", getId());
         samlResponse = samlResponse.replaceAll("<REQUEST_ID>", this.requestId);
+        samlResponse = samlResponse.replaceAll("<SESSION_INDEX>", RandomStringUtils.randomNumeric(12));
 
         Map<String, Object> attributes = getPrincipal().getAttributes();
         StringBuffer attributesXml = new StringBuffer();
@@ -253,9 +253,9 @@ public class InfusionsoftSaml2Service extends AbstractWebApplicationService {
             StringBuffer saml = new StringBuffer();
 
             saml.append("<Attribute NameFormat=\"urn:oasis:names:tc:SAML:2.0:attrname-format:basic\" Name=\"" + StringEscapeUtils.escapeXml(name) + "\">");
-            saml.append("  <AttributeValue xsi:type=\"xs:string\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">");
+            saml.append("<AttributeValue xsi:type=\"xs:string\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">");
             saml.append(StringEscapeUtils.escapeXml(value));
-            saml.append("  </AttributeValue>");
+            saml.append("</AttributeValue>");
             saml.append("</Attribute>");
 
             return saml.toString();
@@ -286,11 +286,11 @@ public class InfusionsoftSaml2Service extends AbstractWebApplicationService {
      * Attempts to decode the Base64-encoded, possibly compressed, XML authentication request.
      */
     private static String decodeAuthnRequestXML(final String encodedRequestXmlString) {
-        log.debug("attempting to decode authentication request from encoded XML: " + encodedRequestXmlString);
-
         if (encodedRequestXmlString == null) {
             return null;
         }
+
+        log.debug("attempting to decode authentication request from encoded XML: " + encodedRequestXmlString);
 
         final byte[] decodedBytes = base64Decode(encodedRequestXmlString);
 

@@ -40,6 +40,7 @@ public class RegistrationMultiActionController extends MultiActionController {
     private MailService mailService;
     private HibernateTemplate hibernateTemplate;
     private UniqueTicketIdGenerator ticketIdGenerator;
+    private boolean promptToAssociate = false;
 
     /**
      * Shows the registration form.
@@ -187,7 +188,7 @@ public class RegistrationMultiActionController extends MultiActionController {
 
     /**
      * If the user came here from an app, verify that they are already associated to it. If so, send them to the
-     * success action. If not, show the form to get their credentials.
+     * success action. If not, and prompting to associate is enabled, show the form to get their credentials.
      */
     public ModelAndView verification(HttpServletRequest request, HttpServletResponse response) {
         User user = infusionsoftAuthenticationService.getCurrentUser(request);
@@ -212,7 +213,7 @@ public class RegistrationMultiActionController extends MultiActionController {
         }
 
         if (StringUtils.isNotEmpty(appName) && StringUtils.isNotEmpty(appType)) {
-            if (infusionsoftAuthenticationService.isUserAssociated(user, appType, appName)) {
+            if (infusionsoftAuthenticationService.isUserAssociated(user, appType, appName) || !promptToAssociate) {
                 return new ModelAndView("redirect:success");
             } else {
                 return new ModelAndView("infusionsoft/ui/registration/verification", model);
@@ -438,5 +439,9 @@ public class RegistrationMultiActionController extends MultiActionController {
 
     public void setCrmService(CrmService crmService) {
         this.crmService = crmService;
+    }
+
+    public void setPromptToAssociate(boolean promptToAssociate) {
+        this.promptToAssociate = promptToAssociate;
     }
 }

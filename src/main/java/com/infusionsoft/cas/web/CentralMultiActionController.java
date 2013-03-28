@@ -37,6 +37,7 @@ public class CentralMultiActionController extends MultiActionController {
     private CrmService crmService;
     private PasswordService passwordService;
     private HibernateTemplate hibernateTemplate;
+    private boolean promptToAssociate = false;
 
     /**
      * Gatekeeper that checks if the requested service is associated. If it's an unassociated app,
@@ -72,13 +73,14 @@ public class CentralMultiActionController extends MultiActionController {
             String appName = infusionsoftAuthenticationService.guessAppName(new URL(service));
             String appType = infusionsoftAuthenticationService.guessAppType(new URL(service));
 
+            // Determine if the user needs to be associated to this app, or can be redirected there immediately
             if (infusionsoftAuthenticationService.isAppAssociated(user, new URL(service))) {
                 log.info("user " + user.getId() + " is associated with app: " + service + "; redirecting to " + appName + "/" + appType);
 
                 session.removeAttribute("serviceUrl"); // to prevent stale tickets being reused
 
                 return new ModelAndView("redirect:" + service);
-            } else if (appName != null && appType != null) {
+            } else if (promptToAssociate && appName != null && appType != null) {
                 log.info("user " + user.getId() + " was referred from an unassociated app " + appName + "/" + appType + "(" + service + ")");
 
                 Map<String, Object> model = new HashMap<String, Object>();
@@ -87,16 +89,14 @@ public class CentralMultiActionController extends MultiActionController {
                 model.put("appType", appType);
 
                 return new ModelAndView("redirect:linkReferer", model);
-            } else {
-                if (service != null) {
-                    log.info("user " + user.getId() + " will be redirected to " + service);
-                    return new ModelAndView("redirect:" + service);
-                } else {
-                    log.info("user " + user.getId() + " will be redirected to the home page");
-                    return new ModelAndView("redirect:home");
-                }
+            } else if (appType == null) {
+                log.info("user " + user.getId() + " will be redirected directly to " + service);
+
+                return new ModelAndView("redirect:" + service);
             }
         }
+
+        log.info("user " + user.getId() + " will be redirected to the home page");
 
         return new ModelAndView("redirect:home");
     }
@@ -503,5 +503,9 @@ public class CentralMultiActionController extends MultiActionController {
 
     public void setCrmService(CrmService crmService) {
         this.crmService = crmService;
+    }
+
+    public void setPromptToAssociate(boolean promptToAssociate) {
+        this.promptToAssociate = promptToAssociate;
     }
 }

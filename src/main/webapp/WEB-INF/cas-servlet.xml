@@ -180,7 +180,8 @@
           p:passwordService-ref="infusionsoftPasswordService"
           p:infusionsoftDataService-ref="infusionsoftDataService"
           p:crmService-ref="crmService"
-          p:mailService-ref="mailService"/>
+          p:mailService-ref="mailService"
+          p:promptToAssociate="${infusionsoft.cas.registration.promptToAssociate}"/>
 
     <bean id="centralMultiActionController" class="com.infusionsoft.cas.web.CentralMultiActionController"
           p:infusionsoftAuthenticationService-ref="infusionsoftAuthenticationService"
@@ -188,7 +189,9 @@
           p:hibernateTemplate-ref="hibernateTemplate"
           p:passwordService-ref="infusionsoftPasswordService"
           p:communityService-ref="communityService"
-          p:crmService-ref="crmService"/>
+          p:customerHubService-ref="customerHubService"
+          p:crmService-ref="crmService"
+          p:promptToAssociate="${infusionsoft.cas.central.promptToAssociate}"/>
 
     <bean id="oauthController" class="com.infusionsoft.cas.oauth.OAuthController"
           p:crmService-ref="crmService"

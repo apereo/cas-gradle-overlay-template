@@ -30,10 +30,10 @@
  	</util:list>
 
     <bean id="privateKeyFactoryBean" class="org.jasig.cas.util.PrivateKeyFactoryBean"
-          p:location="classpath:saml-infusiontest.com-private.p8"
+          p:location="${saml2.privateKey}"
           p:algorithm="RSA" />
 
     <bean id="publicKeyFactoryBean"	class="org.jasig.cas.util.PublicKeyFactoryBean"
-          p:location="classpath:saml-infusiontest.com-public.key"
+          p:location="${saml2.publicKey}"
           p:algorithm="RSA" />
 </beans>

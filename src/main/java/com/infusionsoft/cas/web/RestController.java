@@ -28,6 +28,7 @@ import java.util.*;
  * REST purists, please don't be offended by the use of the POST verb to create or authenticate users.
  * We just want something easy that does the job.
  */
+// TODO - make better and more consistent use of HTTP 4xx error codes throughout
 @Controller
 public class RestController extends MultiActionController {
     private static final Logger log = Logger.getLogger(RestController.class);
@@ -45,6 +46,7 @@ public class RestController extends MultiActionController {
     /**
      * Registers a new user account and returns a simple JSON object.
      */
+     // TODO - pretty sure nothing uses this. Should probably delete.
     public ModelAndView register(HttpServletRequest request, HttpServletResponse response) throws IOException {
         Map<String, Object> model = new HashMap<String, Object>();
         String apiKey = request.getParameter("apiKey");
@@ -241,6 +243,7 @@ public class RestController extends MultiActionController {
      * Finds and reassociates accounts that have been disassociated previously. This is for the case where the admin
      * of an Infusionsoft app deactivates and later reactivates one of their users.
      */
+    // TODO - consider making this return JSON responses similar to the other API calls
     public ModelAndView reassociateAccounts(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String apiKey = request.getParameter("apiKey");
         String appName = request.getParameter("appName");
@@ -281,6 +284,7 @@ public class RestController extends MultiActionController {
      * when an app instance is deleted; in this case, if the appUsername is not passed then it will unlink ALL
      * accounts for that app.
      */
+    // TODO - consider making this return JSON responses similar to the other API calls
     public ModelAndView disassociateAccounts(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String apiKey = request.getParameter("apiKey");
         String appName = request.getParameter("appName");
