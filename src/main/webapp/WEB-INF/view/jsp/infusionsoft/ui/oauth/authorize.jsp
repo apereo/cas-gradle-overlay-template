@@ -10,15 +10,6 @@
 
 <style type="text/css">
 
-    #access {
-        width: 600px;
-        padding: 30px;
-        margin: 40px auto;
-        background: #fff;
-        border: 1px solid #DDDDDD;
-        border-radius: 4px;
-    }
-
     #access_multi {
         width: 600px;
         padding: 30px;
@@ -35,20 +26,9 @@
         width: 500px;
     }
 
-    #instructions {
-        font-size: 11px;
-        font-style: italic;
-        color: #ccc;
-        text-align: center;
-        margin: 15px auto;
-    }
 
     .controls input[type=text], .controls input[type=password] {
         width: 316px;
-    }
-
-    .alert {
-        margin: -20px -20px 20px -20px;
     }
 
     .buttons {
@@ -89,7 +69,15 @@
     <div>
 
         <div id="access_multi">
-            <div class="accessText">The application <strong>${masheryApplication.name}</strong> by ${masheryMember.displayName} would like the ability to interact with one of your Infusionsoft applications.<br/>
+            <div class="accessText">
+                <p>
+                    The application <strong>${masheryApplication.name}</strong> by <strong>${masheryMember.displayName}</strong> would like the ability to interact with one of your Infusionsoft applications.
+                </p>
+
+                <p style="font-size: 14px;">
+                    <em>${masheryApplication.description}</em>
+                </p>
+
                 <form style="text-align:center; margin:30px 0 ;" action="processAuthorization" method="post">
                     <input type="hidden" name="client_id" value="${client_id}">
                     <input type="hidden" name="redirect_uri" value="${redirect_uri}">
@@ -97,21 +85,27 @@
                     <input type="hidden" name="requestedScope" value="${requestedScope}">
                     <c:choose>
                         <c:when test="${fn:length(apps) > 1}">
-                            <br/>
-                            Which application would you like to allow <strong>${masheryApplication.name}</strong> access to?
+                            <p>
+                                Which application would you like to allow <strong>${masheryApplication.name}</strong> access to?
+                            </p>
+
 
                             <div class="selectApp">
-                                <select class="inf-select default-input field-valid" name="application">
-                                    <option value="">Please Select One</option>
-                                    <c:forEach var="app" items="${apps}">
-                                        <option value="${app}">${app}</option>
-                                    </c:forEach>
-                                </select>
+                                <p>
+                                    <select class="inf-select default-input field-valid" name="application">
+                                        <option value="">Please Select One</option>
+                                        <c:forEach var="app" items="${apps}">
+                                            <option value="${app}">${app}</option>
+                                        </c:forEach>
+                                    </select>
+                                </p>
                             </div>
+
                         </c:when>
                         <c:otherwise>
-                            <br/>
-                            Allow <strong>${masheryApplication.name}</strong> access?
+                            <p>
+                                Allow <strong>${masheryApplication.name}</strong> access?
+                            </p>
 
                             <input type="hidden" name="application" value="${apps[0]}">
                         </c:otherwise>
