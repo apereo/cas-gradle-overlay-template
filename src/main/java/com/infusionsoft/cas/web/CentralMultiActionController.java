@@ -89,7 +89,7 @@ public class CentralMultiActionController extends MultiActionController {
                 model.put("appType", appType);
 
                 return new ModelAndView("redirect:linkReferer", model);
-            } else if (appType == null) {
+            } else if (appType == null || appType == AppType.CAS) {
                 log.info("user " + user.getId() + " will be redirected directly to " + service);
 
                 return new ModelAndView("redirect:" + service);
