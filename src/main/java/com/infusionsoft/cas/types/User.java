@@ -10,7 +10,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-@Entity
+@Entity(name = "User")
 @Table(name = "user")
 public class User implements Serializable {
     private Long id;
@@ -81,7 +81,7 @@ public class User implements Serializable {
         this.enabled = enabled;
     }
 
-    @OneToMany(targetEntity = UserAccount.class, cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(targetEntity = UserAccount.class, cascade = CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "user")
     public Set<UserAccount> getAccounts() {
         return accounts;
     }
@@ -90,7 +90,7 @@ public class User implements Serializable {
         this.accounts = accounts;
     }
 
-    @OneToMany(targetEntity = UserPassword.class, cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(targetEntity = UserPassword.class, cascade = CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "user")
     public List<UserPassword> getPasswords() {
 		return passwords;
 	}
