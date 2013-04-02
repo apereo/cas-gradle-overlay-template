@@ -10,7 +10,6 @@
         can be moved between tiers without modification.
     </description>
 
-    <!--<context:property-placeholder location="file://${casPropertiesFile}, /WEB-INF/cas.properties" ignore-resource-not-found="true" />-->
     <context:property-placeholder location="/WEB-INF/cas.properties, file://${casPropertiesFile}" ignore-unresolvable="true" ignore-resource-not-found="true" />
 
 </beans>

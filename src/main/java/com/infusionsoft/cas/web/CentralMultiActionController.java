@@ -39,6 +39,10 @@ public class CentralMultiActionController extends MultiActionController {
     private HibernateTemplate hibernateTemplate;
     private boolean promptToAssociate = false;
 
+    private boolean connectAccountCrmEnabled = false;
+    private boolean connectAccountCommunityEnabled = false;
+    private boolean connectAccountCustomerHubEnabled = false;
+
     /**
      * Gatekeeper that checks if the requested service is associated. If it's an unassociated app,
      * redirects the user to a page where they can link it up. If it's already pending association, make
@@ -92,6 +96,7 @@ public class CentralMultiActionController extends MultiActionController {
             } else if (appType == null || appType == AppType.CAS) {
                 log.info("user " + user.getId() + " will be redirected directly to " + service);
 
+                session.removeAttribute("serviceUrl"); // to prevent stale tickets being reused
                 return new ModelAndView("redirect:" + service);
             }
         }
@@ -120,6 +125,9 @@ public class CentralMultiActionController extends MultiActionController {
             model.put("marketplaceDomain", infusionsoftAuthenticationService.getMarketplaceDomain());
             model.put("marketplaceUrl", infusionsoftAuthenticationService.getMarketplaceLoginUrl());
             model.put("accounts", infusionsoftDataService.findSortedUserAccounts(user));
+            model.put("connectAccountCrmEnabled", connectAccountCrmEnabled);
+            model.put("connectAccountCommunityEnabled", connectAccountCommunityEnabled);
+            model.put("connectAccountCustomerHubEnabled", connectAccountCustomerHubEnabled);
 
             return new ModelAndView("infusionsoft/ui/central/home", model);
         } else {
@@ -507,5 +515,17 @@ public class CentralMultiActionController extends MultiActionController {
 
     public void setPromptToAssociate(boolean promptToAssociate) {
         this.promptToAssociate = promptToAssociate;
+    }
+
+    public void setConnectAccountCrmEnabled(boolean connectAccountCrmEnabled) {
+        this.connectAccountCrmEnabled = connectAccountCrmEnabled;
+    }
+
+    public void setConnectAccountCommunityEnabled(boolean connectAccountCommunityEnabled) {
+        this.connectAccountCommunityEnabled = connectAccountCommunityEnabled;
+    }
+
+    public void setConnectAccountCustomerHubEnabled(boolean connectAccountCustomerHubEnabled) {
+        this.connectAccountCustomerHubEnabled = connectAccountCustomerHubEnabled;
     }
 }

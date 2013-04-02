@@ -191,7 +191,10 @@
           p:communityService-ref="communityService"
           p:customerHubService-ref="customerHubService"
           p:crmService-ref="crmService"
-          p:promptToAssociate="${infusionsoft.cas.central.promptToAssociate}"/>
+          p:promptToAssociate="${infusionsoft.cas.central.promptToAssociate}"
+          p:connectAccountCommunityEnabled="${infusionsoft.cas.connect.account.community.enabled}"
+          p:connectAccountCrmEnabled="${infusionsoft.cas.connect.account.crm.enabled}"
+          p:connectAccountCustomerHubEnabled="${infusionsoft.cas.connect.account.customerhub.enabled}"/>
 
     <bean id="oauthController" class="com.infusionsoft.cas.oauth.OAuthController"
           p:crmService-ref="crmService"
