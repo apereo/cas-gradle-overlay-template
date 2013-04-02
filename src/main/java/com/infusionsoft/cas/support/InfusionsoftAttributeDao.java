@@ -50,21 +50,9 @@ public class InfusionsoftAttributeDao extends AbstractFlatteningPersonAttributeD
             User currUser = users.get(0);
             List<UserAccount> accounts = hibernateTemplate.find("FROM UserAccount ua WHERE ua.user = ? and ua.disabled = ?", currUser, false);
             JSONObject rootObj = new JSONObject();
-            JSONArray accountsArray = new JSONArray();
             InfusionsoftAuthenticationService infusionsoftAuthenticationService = (InfusionsoftAuthenticationService) context.getBean("infusionsoftAuthenticationService");
 
-            for(UserAccount currAccount : accounts) {
-                JSONObject accountToAdd = new JSONObject();
-
-                accountToAdd.put("type", currAccount.getAppType());
-                accountToAdd.put("appName", currAccount.getAppName());
-                accountToAdd.put("userName", currAccount.getAppUsername());
-                accountToAdd.put("appUrl", infusionsoftAuthenticationService.buildAppUrl(currAccount.getAppType(), currAccount.getAppName()));
-
-                accountsArray.add(accountToAdd);
-            }
-
-            rootObj.put("accounts", accountsArray);
+            rootObj.put("accounts", infusionsoftAuthenticationService.buildUserAccountsJSON(accounts));
 
             resultsMap.put("id", Arrays.asList(new Object[] { String.valueOf(currUser.getId()) }));
 

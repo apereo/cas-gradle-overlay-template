@@ -22,6 +22,7 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.net.URL;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
@@ -403,10 +404,16 @@ public class InfusionsoftAuthenticationService {
         json.put("displayName", user.getFirstName() + " " + user.getLastName());
         json.put("firstName", user.getFirstName());
         json.put("lastName", user.getLastName());
+        json.put("accounts", buildUserAccountsJSON(user.getAccounts()));
 
+        // Get rid of the JSON-optional escaped slashes because Ruby's Psych parser chokes on them
+        return json.toJSONString().replaceAll("\\\\/", "/");
+    }
+
+    public JSONArray buildUserAccountsJSON(Collection<UserAccount> userAccounts) {
         JSONArray accountsArray = new JSONArray();
 
-        for (UserAccount account : user.getAccounts()) {
+        for (UserAccount account : userAccounts) {
             if (!account.isDisabled()) {
                 JSONObject accountToAdd = new JSONObject();
 
@@ -419,11 +426,7 @@ public class InfusionsoftAuthenticationService {
                 accountsArray.add(accountToAdd);
             }
         }
-
-        json.put("accounts", accountsArray);
-
-        // Get rid of the JSON-optional escaped slashes because Ruby's Psych parser chokes on them
-        return json.toJSONString().replaceAll("\\\\/", "/");
+        return accountsArray;
     }
 
     public void setCentralAuthenticationService(CentralAuthenticationService centralAuthenticationService) {
