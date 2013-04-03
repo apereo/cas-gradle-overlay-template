@@ -27,7 +27,8 @@ public class MailService {
     public void sendWelcomeEmail(User user) {
         try {
             MimeMessage message = mailSender.createMimeMessage();
-            message.setHeader("X-InfApp", "crm");
+            message.setHeader("X-InfApp", "cas");
+            message.setHeader("X-inf-package", "transactional");
             message.setHeader("Package", "transactional");
             MimeMessageHelper helper = new MimeMessageHelper(message);
 
@@ -57,7 +58,8 @@ public class MailService {
     public void sendPasswordResetEmail(User user) {
         try {
             MimeMessage message = mailSender.createMimeMessage();
-            message.setHeader("X-InfApp", "crm");
+            message.setHeader("X-InfApp", "cas");
+            message.setHeader("X-inf-package", "transactional");
             message.setHeader("Package", "transactional");
             MimeMessageHelper helper = new MimeMessageHelper(message);
 
