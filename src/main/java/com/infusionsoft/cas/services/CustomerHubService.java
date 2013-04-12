@@ -17,6 +17,8 @@ import org.apache.log4j.TTCCLayout;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -25,16 +27,26 @@ import java.io.InputStreamReader;
 /**
  * Service for communicating back and forth with CustomerHub.
  */
+@Service
 public class CustomerHubService {
     private static final Logger log = Logger.getLogger(CustomerHubService.class);
 
     private DefaultHttpClient customerHubHttpClient;
 
-    private String customerHubDomain;
-    private String customerHubApiUsername;
-    private String customerHubApiPassword;
-    private String customerHubProtocol;
-    private int customerHubPort = 443;
+    @Value("${infusionsoft.customerhub.domain}")
+    String customerHubDomain;
+
+    @Value("${infusionsoft.customerhub.api.username}")
+    String customerHubApiUsername;
+
+    @Value("${infusionsoft.customerhub.api.password}")
+    String customerHubApiPassword;
+
+    @Value("${infusionsoft.customerhub.protocol}")
+    String customerHubProtocol;
+
+    @Value("${infusionsoft.customerhub.port}")
+    int customerHubPort = 443;
 
     /**
      * Builds a URL where users of this app should be sent after login.
@@ -47,9 +59,9 @@ public class CustomerHubService {
      * Builds a base URL for web services calls and what-not.
      */
     public String buildBaseUrl(String appName) {
-        StringBuffer baseUrl = new StringBuffer(customerHubProtocol + "://" + appName + "." + customerHubDomain);
+        StringBuilder baseUrl = new StringBuilder(customerHubProtocol + "://" + appName + "." + customerHubDomain);
 
-        if ( StringUtils.equals("http", customerHubProtocol) && customerHubPort != 80) {
+        if (StringUtils.equals("http", customerHubProtocol) && customerHubPort != 80) {
             baseUrl.append(":").append(customerHubPort);
         } else if (StringUtils.equals("https", customerHubProtocol) && customerHubPort != 443) {
             baseUrl.append(":").append(customerHubPort);
@@ -119,26 +131,6 @@ public class CustomerHubService {
         return null;
     }
 
-    public void setCustomerHubDomain(String customerHubDomain) {
-        this.customerHubDomain = customerHubDomain;
-    }
-
-    public void setCustomerHubApiUsername(String customerHubApiUsername) {
-        this.customerHubApiUsername = customerHubApiUsername;
-    }
-
-    public void setCustomerHubApiPassword(String customerHubApiPassword) {
-        this.customerHubApiPassword = customerHubApiPassword;
-    }
-
-    public void setCustomerHubPort(int customerHubPort) {
-        this.customerHubPort = customerHubPort;
-    }
-
-    public void setCustomerHubProtocol(String customerHubProtocol) {
-        this.customerHubProtocol = customerHubProtocol;
-    }
-
     private synchronized HttpClient getHttpClient(String appName) {
         if (customerHubHttpClient == null) {
             customerHubHttpClient = new DefaultHttpClient();
@@ -174,11 +166,11 @@ public class CustomerHubService {
 
         CustomerHubService service = new CustomerHubService();
 
-        service.setCustomerHubDomain("customerhubtest.com");
-        service.setCustomerHubPort(80);
-        service.setCustomerHubProtocol("http");
-        service.setCustomerHubApiUsername("manage");
-        service.setCustomerHubApiPassword("9e88a5d9f7eb778d9400abcbd1362b017a47f7b907e3c23a26a004c10af4d38b");
+        service.customerHubDomain = "customerhubtest.com";
+        service.customerHubPort = 80;
+        service.customerHubProtocol = "http";
+        service.customerHubApiUsername = "manage";
+        service.customerHubApiPassword = "9e88a5d9f7eb778d9400abcbd1362b017a47f7b907e3c23a26a004c10af4d38b";
 
         System.out.println("authenticated? " + service.authenticateUser("ndl", "nate@infusionsoft.com", "baylee00"));
         System.out.println("logo: " + service.getLogoUrl("ndl"));

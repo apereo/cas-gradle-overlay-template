@@ -1,7 +1,6 @@
 package com.infusionsoft.cas.web;
 
-import com.infusionsoft.cas.services.InfusionsoftAuthenticationService;
-import org.apache.log4j.Logger;
+import org.springframework.stereotype.Component;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
@@ -11,8 +10,8 @@ import java.io.IOException;
 /**
  * Filter that sets headers for security purposes, mostly to get around issues identified by OWASP ZAP.
  */
+@Component
 public class SecurityFilter implements Filter {
-    private static final Logger log = Logger.getLogger(SecurityFilter.class);
 
     public void init(FilterConfig filterConfig) throws ServletException {
     }

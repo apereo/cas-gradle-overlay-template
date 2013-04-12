@@ -1,5 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
+
+    Licensed to Jasig under one or more contributor license
+    agreements. See the NOTICE file distributed with this work
+    for additional information regarding copyright ownership.
+    Jasig licenses this file to you under the Apache License,
+    Version 2.0 (the "License"); you may not use this file
+    except in compliance with the License.  You may obtain a
+    copy of the License at the following location:
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an
+    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+    KIND, either express or implied.  See the License for the
+    specific language governing permissions and limitations
+    under the License.
+
+-->
+<!--
 	| deployerConfigContext.xml centralizes into one file some of the declarative configuration that
 	| all CAS deployers will need to modify.
 	|
@@ -12,19 +32,22 @@
 	| declaration to replace the default SimpleTestUsernamePasswordAuthenticationHandler with
 	| one implementing your approach for authenticating usernames and passwords.
 	+-->
+
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xmlns:p="http://www.springframework.org/schema/p"
-       xmlns:aop="http://www.springframework.org/schema/aop"
-       xmlns:tx="http://www.springframework.org/schema/tx" xmlns:context="http://www.springframework.org/schema/context"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
-       http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.0.xsd
-       http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.0.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+       xmlns:p="http://www.springframework.org/schema/p" xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 
-    <import resource="spring-configuration/propertyFileConfigurer.xml"/>
+    <context:component-scan base-package="com.infusionsoft"/>
 
-    <context:component-scan base-package="com.infusionsoft.cas"/>
-
+    <!--
+        | This bean declares our AuthenticationManager.  The CentralAuthenticationService service bean
+        | declared in applicationContext.xml picks up this AuthenticationManager by reference to its id,
+        | "authenticationManager".  Most deployers will be able to use the default AuthenticationManager
+        | implementation and so do not need to change the class of this bean.  We include the whole
+        | AuthenticationManager here in the userConfigContext.xml so that you can see the things you will
+        | need to change in context.
+        +-->
     <bean id="authenticationManager" class="org.jasig.cas.authentication.AuthenticationManagerImpl">
         <!--
               | This is the List of CredentialToPrincipalResolvers that identify what Principal is trying to authenticate.
@@ -51,12 +74,6 @@
                         | need to change this bean declaration (or add additional declarations) to declare a CredentialsToPrincipalResolver that supports the
                         | Credentials you are using.
                         +-->
-                <!--
-                <bean class="com.infusionsoft.cas.auth.InfusionsoftCredentialsToPrincipalResolver">
-
-                </bean>
-                -->
-
                 <bean class="org.jasig.cas.authentication.principal.UsernamePasswordCredentialsToPrincipalResolver">
                     <property name="attributeRepository" ref="attributeRepository"/>
                 </bean>
@@ -84,216 +101,37 @@
                 <!-- Authenticates services via an SSL callback. -->
                 <bean class="org.jasig.cas.authentication.handler.support.HttpBasedServiceCredentialsAuthenticationHandler"
                       p:httpClient-ref="httpClient">
-                    <property name="requireSecure" value="false"/>
+                    <!--<property name="requireSecure" value="false"/>-->
                 </bean>
 
-                <!-- Authenticates a username and password. -->
-                <bean class="com.infusionsoft.cas.auth.InfusionsoftAuthenticationHandler">
-                    <property name="hibernateTemplate" ref="hibernateTemplate"/>
-                    <property name="passwordEncoder" ref="passwordEncoder"/>
-                </bean>
+                <ref bean="infusionsoftAuthenticationHandler"/>
             </list>
         </property>
-
-        <!-- For "remember me" functionality. -->
-        <property name="authenticationMetaDataPopulators">
-            <list>
-                <bean class="org.jasig.cas.authentication.principal.RememberMeAuthenticationMetaDataPopulator"/>
-            </list>
-        </property>
-    </bean>
-
-
-    <bean id="passwordEncoder" class="org.jasig.cas.authentication.handler.DefaultPasswordEncoder">
-        <constructor-arg index="0" value="SHA-256"/>
-    </bean>
-
-    <bean id="attributeRepository" class="com.infusionsoft.cas.support.InfusionsoftAttributeDao">
-        <property name="hibernateTemplate" ref="hibernateTemplate"/>
     </bean>
 
     <bean id="serviceRegistryDao" class="org.jasig.cas.services.JpaServiceRegistryDaoImpl"
           p:entityManagerFactory-ref="entityManagerFactory"/>
 
-    <bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
-        <property name="dataSource" ref="dataSource"/>
-        <property name="jpaVendorAdapter">
-            <bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter">
-                <property name="generateDdl" value="true"/>
-                <property name="showSql" value="false"/>
-            </bean>
-        </property>
-        <property name="jpaProperties">
-            <props>
-                <prop key="hibernate.dialect">org.hibernate.dialect.MySQL5Dialect</prop>
-                <prop key="hibernate.show_sql">false</prop>
-                <prop key="hibernate.hbm2ddl.auto">update</prop>
-            </props>
-        </property>
-    </bean>
-
-    <bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
-        <property name="entityManagerFactory" ref="entityManagerFactory"/>
-    </bean>
-
-    <tx:annotation-driven transaction-manager="transactionManager"/>
-
-    <bean id="dataSource" class="org.springframework.jndi.JndiObjectFactoryBean">
-        <property name="jndiName" value="java:comp/env/jdbc/cas"/>
-        <property name="resourceRef" value="true"/>
-    </bean>
-
     <bean id="auditTrailManager" class="com.github.inspektr.audit.support.Slf4jLoggingAuditTrailManager"/>
 
-    <bean id="hibernateDataSource" class="org.springframework.jndi.JndiObjectFactoryBean">
-        <property name="jndiName" value="java:comp/env/jdbc/cas"/>
-        <property name="resourceRef" value="true"/>
-    </bean>
-
-    <bean id="hibernateSessionFactory"
-          class="org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean"
-          depends-on="flyway">
-        <property name="dataSource" ref="hibernateDataSource"/>
-        <property name="annotatedClasses">
+    <bean id="healthCheckMonitor" class="org.jasig.cas.monitor.HealthCheckMonitor">
+        <property name="monitors">
             <list>
-                <value>com.infusionsoft.cas.types.User</value>
-                <value>com.infusionsoft.cas.types.UserAccount</value>
-                <value>com.infusionsoft.cas.types.UserPassword</value>
-                <value>com.infusionsoft.cas.types.PendingUserAccount</value>
-                <value>com.infusionsoft.cas.types.CommunityAccountDetails</value>
-                <value>com.infusionsoft.cas.types.LegacyAccount</value>
-                <value>com.infusionsoft.cas.types.MigratedApp</value>
-                <value>com.infusionsoft.cas.types.LoginAttempt</value>
+                <bean class="org.jasig.cas.monitor.MemoryMonitor"
+                      p:freeMemoryWarnThreshold="10"/>
+                <!--
+                  NOTE
+                  The following ticket registries support SessionMonitor:
+                    * DefaultTicketRegistry
+                    * JpaTicketRegistry
+                  Remove this monitor if you use an unsupported registry.
+                -->
+                <bean class="org.jasig.cas.monitor.SessionMonitor"
+                      p:ticketRegistry-ref="ticketRegistry"
+                      p:serviceTicketCountWarnThreshold="5000"
+                      p:sessionCountWarnThreshold="100000"/>
             </list>
         </property>
-        <property name="hibernateProperties">
-            <props>
-                <prop key="hibernate.dialect">org.hibernate.dialect.MySQL5Dialect</prop>
-                <prop key="hibernate.show_sql">false</prop>
-                <prop key="hibernate.hbm2ddl.auto">update</prop>
-            </props>
-        </property>
     </bean>
 
-    <bean id="hibernateTemplate" class="org.springframework.orm.hibernate3.HibernateTemplate">
-        <property name="sessionFactory" ref="hibernateSessionFactory"/>
-    </bean>
-
-    <bean id="hibernateTransactionManager" class="org.springframework.orm.hibernate3.HibernateTransactionManager">
-        <property name="sessionFactory" ref="hibernateSessionFactory"/>
-    </bean>
-
-    <bean id="infusionsoftAuthenticationService" class="com.infusionsoft.cas.services.InfusionsoftAuthenticationService">
-        <property name="centralAuthenticationService" ref="centralAuthenticationService"/>
-        <property name="hibernateTemplate" ref="hibernateTemplate"/>
-        <property name="ticketRegistry" ref="ticketRegistry"/>
-        <property name="serverPrefix" value="${server.prefix}"/>
-        <property name="crmDomain" value="${infusionsoft.crm.domain}"/>
-        <property name="crmProtocol" value="${infusionsoft.crm.protocol}"/>
-        <property name="crmPort" value="${infusionsoft.crm.port}"/>
-        <property name="marketplaceDomain" value="${infusionsoft.marketplace.domain}"/>
-        <property name="marketplaceLoginUrl" value="${infusionsoft.marketplace.loginurl}"/>
-        <property name="communityDomain" value="${infusionsoft.community.domain}"/>
-        <property name="customerHubDomain" value="${infusionsoft.customerhub.domain}"/>
-        <property name="migrationDateString" value="${infusionsoft.migration.date}"/>
-        <property name="crmService" ref="crmService"/>
-        <property name="communityService" ref="communityService"/>
-        <property name="customerHubService" ref="customerHubService"/>
-        <property name="ticketGrantingTicketCookieGenerator" ref="ticketGrantingTicketCookieGenerator"/>
-        <property name="warnCookieGenerator" ref="warnCookieGenerator"/>
-    </bean>
-
-    <bean id="infusionsoftPasswordService" class="com.infusionsoft.cas.services.PasswordService">
-        <property name="hibernateTemplate" ref="hibernateTemplate"/>
-        <property name="passwordEncoder" ref="passwordEncoder"/>
-    </bean>
-
-    <bean id="infusionsoftDataService" class="com.infusionsoft.cas.services.InfusionsoftDataService">
-        <property name="hibernateTemplate" ref="hibernateTemplate"/>
-    </bean>
-
-    <bean id="mailService" class="com.infusionsoft.cas.services.MailService">
-        <property name="mailSender" ref="mailSender"/>
-        <property name="serverPrefix" value="${server.prefix}"/>
-        <property name="velocityEngine" ref="velocityEngine"/>
-    </bean>
-
-    <bean id="crmService" class="com.infusionsoft.cas.services.CrmService">
-        <property name="crmProtocol" value="${infusionsoft.crm.protocol}"/>
-        <property name="crmDomain" value="${infusionsoft.crm.domain}"/>
-        <property name="crmPort" value="${infusionsoft.crm.port}"/>
-        <property name="crmVendorKey" value="${infusionsoft.crm.vendorkey}"/>
-    </bean>
-
-    <bean id="communityService" class="com.infusionsoft.cas.services.CommunityService">
-        <property name="infusionsoftDataService" ref="infusionsoftDataService"/>
-        <property name="hibernateTemplate" ref="hibernateTemplate"/>
-        <property name="communityBaseUrl" value="${infusionsoft.community.baseurl}"/>
-        <property name="communityApiKey" value="${infusionsoft.community.apikey}"/>
-    </bean>
-
-    <bean id="customerHubService" class="com.infusionsoft.cas.services.CustomerHubService">
-        <property name="customerHubDomain" value="${infusionsoft.customerhub.domain}"/>
-        <property name="customerHubApiUsername" value="${infusionsoft.customerhub.api.username}"/>
-        <property name="customerHubApiPassword" value="${infusionsoft.customerhub.api.password}"/>
-        <property name="customerHubProtocol" value="${infusionsoft.customerhub.protocol}"/>
-        <property name="customerHubPort" value="${infusionsoft.customerhub.port}"/>
-    </bean>
-
-    <bean id="masheryService" class="com.infusionsoft.cas.oauth.MasheryService"></bean>
-
-    <bean id="velocityEngine" class="org.springframework.ui.velocity.VelocityEngineFactoryBean">
-        <property name="velocityProperties">
-            <props>
-                <prop key="resource.loader">classpath</prop>
-                <prop key="classpath.resource.loader.class">org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader</prop>
-            </props>
-        </property>
-    </bean>
-
-    <bean id="userFilter" name="userFilter" class="com.infusionsoft.cas.web.UserFilter"
-          p:infusionsoftAuthenticationService-ref="infusionsoftAuthenticationService"/>
-
-    <bean id="securityFilter" name="securityFilter" class="com.infusionsoft.cas.web.SecurityFilter"/>
-
-    <bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
-        <property name="host" value="${infusionsoft.mail.host}"/>
-    </bean>
-
-    <bean id="templateMessage" class="org.springframework.mail.SimpleMailMessage">
-        <property name="from" value="info@infusionsoft.com"/>
-        <property name="subject" value="Important message from Infusionsoft"/>
-    </bean>
-
-    <bean id="garbageMan" class="com.infusionsoft.cas.support.GarbageMan"
-          p:hibernateTemplate-ref="hibernateTemplate"
-          p:loginAttemptMaxAge="86400000"/>
-
-    <bean id="jobDetailGarbageMan" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean"
-          p:targetObject-ref="garbageMan"
-          p:targetMethod="cleanup"/>
-
-    <bean id="triggerJobDetailGarbageMan" class="org.springframework.scheduling.quartz.SimpleTriggerBean"
-          p:jobDetail-ref="jobDetailGarbageMan"
-          p:startDelay="1800000"
-          p:repeatInterval="1800000"/>
-
-    <bean id="flyway" class="com.googlecode.flyway.core.Flyway" init-method="migrate" depends-on="dataSource">
-        <property name="dataSource" ref="hibernateDataSource"/>
-        <property name="initOnMigrate" value="true"/>
-    </bean>
-
-    <tx:advice id="transactionAdvice" transaction-manager="hibernateTransactionManager">
-        <tx:attributes>
-            <tx:method name="get*" read-only="true"/>
-            <tx:method name="*"/>
-        </tx:attributes>
-    </tx:advice>
-
-    <aop:config>
-        <!--
-        <aop:pointcut id="fooServiceOperation" expression="execution(* x.y.service.FooService.*(..))"/>
-        <aop:advisor advice-ref="transactionAdvice" pointcut-ref="fooServiceOperation"/>
-        -->
-    </aop:config>
 </beans>

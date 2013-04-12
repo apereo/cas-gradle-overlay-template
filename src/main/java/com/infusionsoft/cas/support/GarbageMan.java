@@ -1,36 +1,22 @@
 package com.infusionsoft.cas.support;
 
-
-import com.infusionsoft.cas.types.LoginAttempt;
+import com.infusionsoft.cas.services.UserService;
 import org.apache.log4j.Logger;
-import org.springframework.orm.hibernate3.HibernateTemplate;
-
-import java.util.Date;
-import java.util.List;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 /**
  * Simple Quartz job that cleans up old login attempts from the database.
  */
+@Component
 public class GarbageMan {
     private static final Logger log = Logger.getLogger(GarbageMan.class);
 
-    private HibernateTemplate hibernateTemplate;
-    private long loginAttemptMaxAge = 86400000;
+    @Autowired
+    UserService userService;
 
     public void cleanup() {
-        Date date = new Date(System.currentTimeMillis() - loginAttemptMaxAge);
-        List<LoginAttempt> attempts = (List<LoginAttempt>) hibernateTemplate.find("from LoginAttempt a where a.dateAttempted < ?", date);
-
-        log.info("deleting " + attempts.size() + " login attempts that occurred before " + date);
-
-        hibernateTemplate.deleteAll(attempts);
-    }
-
-    public void setLoginAttemptMaxAge(long loginAttemptMaxAge) {
-        this.loginAttemptMaxAge = loginAttemptMaxAge;
-    }
-
-    public void setHibernateTemplate(HibernateTemplate hibernateTemplate) {
-        this.hibernateTemplate = hibernateTemplate;
+        log.info("Cleaning up Login Attempts");
+        userService.cleanupLoginAttempts();
     }
 }

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:webflow="http://www.springframework.org/schema/webflow-config"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/webflow-config http://www.springframework.org/schema/webflow-config/spring-webflow-config-2.0.xsd"
+       xmlns:context="http://www.springframework.org/schema/context">
+
+
+    <!--<bean id="logoutController" class="org.jasig.cas.web.LogoutController"-->
+    <!--p:centralAuthenticationService-ref="centralAuthenticationService"-->
+    <!--p:logoutView="casLogoutView"-->
+    <!--p:warnCookieGenerator-ref="warnCookieGenerator"-->
+    <!--p:ticketGrantingTicketCookieGenerator-ref="ticketGrantingTicketCookieGenerator"-->
+    <!--p:followServiceRedirects="true"/>-->
+
+</beans>

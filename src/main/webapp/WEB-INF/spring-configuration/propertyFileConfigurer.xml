@@ -2,7 +2,8 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:context="http://www.springframework.org/schema/context"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+       http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
     <description>
         This file lets CAS know where you've stored the cas.properties file which details some of the configuration options
         that are specific to your environment. You can specify the location of the file here. You may wish to place the file outside
@@ -10,6 +11,12 @@
         can be moved between tiers without modification.
     </description>
 
-    <context:property-placeholder location="/WEB-INF/cas.properties, file://${casPropertiesFile}" ignore-unresolvable="true" ignore-resource-not-found="true" />
+    <context:property-placeholder
+            location="
+                /WEB-INF/cas.properties,
+                /WEB-INF/app-central.properties,
+                /WEB-INF/mashery.properties,
+                file://${casPropertiesFile}"
+            ignore-unresolvable="true" ignore-resource-not-found="true" system-properties-mode="FALLBACK"/>
 
 </beans>

@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd"
+       xmlns:context="http://www.springframework.org/schema/context">
+
+
+    <context:component-scan base-package="com.infusionsoft" use-default-filters="false">
+        <context:include-filter type="regex" expression="com\.infusionsoft.*controller.*"/>
+        <context:exclude-filter type="regex" expression="com\.infusionsoft.*controller.*\$[0-9]+"/>
+    </context:component-scan>
+
+    <bean class="org.springframework.web.servlet.mvc.annotation.DefaultAnnotationHandlerMapping"/>
+
+    <bean class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter"/>
+
+    <bean class="org.springframework.web.servlet.mvc.support.ControllerClassNameHandlerMapping"/>
+
+    <!-- View naming conventions -->
+    <bean id="viewNameTranslator" class="org.springframework.web.servlet.view.DefaultRequestToViewNameTranslator"/>
+
+    <!-- Resolver for JSP views -->
+    <bean id="internalViewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <property name="viewClass" value="org.springframework.web.servlet.view.JstlView"/>
+        <property name="prefix" value="/WEB-INF/view/jsp/"/>
+        <property name="suffix" value=".jsp"/>
+    </bean>
+
+    <!--<bean id="exceptionLoggingListener" class="com.infusionsoft.cas.web.webflow.LoggingFlowExecutionListener"/>-->
+
+    <!--<bean id="authenticationViaFormAction" class="com.infusionsoft.cas.web.webflow.InfusionsoftAuthenticationViaFormAction"-->
+    <!--p:centralAuthenticationService-ref="centralAuthenticationService"-->
+    <!--p:infusionsoftAuthenticationService-ref="infusionsoftAuthenticationService"-->
+    <!--p:infusionsoftDataService-ref="infusionsoftDataService"-->
+    <!--p:warnCookieGenerator-ref="warnCookieGenerator"/>-->
+
+    <!--<webflow:flow-executor id="flowExecutor" flow-registry="flowRegistry">-->
+    <!--<webflow:flow-execution-attributes>-->
+    <!--<webflow:always-redirect-on-pause value="false"/>-->
+    <!--</webflow:flow-execution-attributes>-->
+    <!--<webflow:flow-execution-listeners>-->
+    <!--<webflow:listener ref="exceptionLoggingListener"/>-->
+    <!--</webflow:flow-execution-listeners>-->
+    <!--</webflow:flow-executor>-->
+
+    <!--<webflow:flow-registry id="flowRegistry" flow-builder-services="builder">-->
+    <!--<webflow:flow-location path="/WEB-INF/login-webflow.xml" id="login"/>-->
+    <!--</webflow:flow-registry>-->
+
+    <!--<webflow:flow-builder-services id="builder" view-factory-creator="viewFactoryCreator"-->
+    <!--expression-parser="expressionParser"/>-->
+
+    <!--<bean id="expressionParser" class="org.springframework.webflow.expression.WebFlowOgnlExpressionParser"/>-->
+
+    <!--<bean id="viewFactoryCreator" class="org.springframework.webflow.mvc.builder.MvcViewFactoryCreator">-->
+    <!--<property name="viewResolvers">-->
+    <!--<list>-->
+    <!--<ref bean="viewResolver"/>-->
+    <!--</list>-->
+    <!--</property>-->
+    <!--</bean>-->
+
+</beans>

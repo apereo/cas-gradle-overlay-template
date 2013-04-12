@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
+<!DOCTYPE log4j:configuration SYSTEM "http://logging.apache.org/log4j/1.2/apidocs/org/apache/log4j/xml/doc-files/log4j.dtd">
 
-<log4j:configuration debug="false" xmlns:log4j="http://jakarta.apache.org/log4j/">
+<log4j:configuration debug="false">
     <!--
       This default ConsoleAppender is used to log all NON perf4j messages
       to System.out
@@ -74,19 +74,22 @@
         apply DEBUG level logging on a an org.springframework.* package level (i.e. org.springframework.dao)
     -->
     <logger name="org.springframework">
-        <level value="INFO" />
+        <level value="WARN" />
     </logger>
 
     <logger name="org.springframework.security">
-        <level value="INFO" />
+        <level value="DEBUG" />
+        <appender-ref ref="cas" />
     </logger>
 
-    <logger name="org.springframework.web">
-        <level value="INFO" />
+    <logger name="org.springframework.web.servlet.mvc">
+        <level value="DEBUG" />
+        <appender-ref ref="cas" />
     </logger>
 
     <logger name="org.springframework.webflow">
-        <level value="WARN" />
+        <level value="INFO" />
+        <appender-ref ref="cas" />
     </logger>
 
     <logger name="org.jasig" additivity="true">
@@ -109,6 +112,11 @@
         <appender-ref ref="cas" />
     </logger>
 
+    <logger name="org.hibernate">
+        <level value="WARN" />
+        <appender-ref ref="cas" />
+    </logger>
+
     <!--
         WARNING: Setting the flow package to DEBUG will display
         the parameters posted to the login servlet including
@@ -124,7 +132,7 @@
       logger to System.out.
     -->
     <root>
-        <level value="ERROR" />
+        <level value="INFO" />
         <appender-ref ref="console" />
     </root>
 </log4j:configuration>

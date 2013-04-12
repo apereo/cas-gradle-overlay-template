@@ -1,12 +1,15 @@
 package com.infusionsoft.cas.services;
 
-import com.infusionsoft.cas.types.User;
+import com.infusionsoft.cas.domain.User;
 import org.apache.log4j.Logger;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.context.Context;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.stereotype.Service;
 
 import javax.mail.internet.MimeMessage;
 import java.io.StringWriter;
@@ -14,11 +17,17 @@ import java.io.StringWriter;
 /**
  * Simple service for sending transactional emails, like the Forgot Password email.
  */
+@Service
 public class MailService {
     private static final Logger log = Logger.getLogger(MailService.class);
 
+    @Value("${server.prefix}")
     private String serverPrefix = "";
+
+    @Autowired
     private JavaMailSender mailSender;
+
+    @Autowired
     private VelocityEngine velocityEngine;
 
     /**
@@ -82,17 +91,5 @@ public class MailService {
         } catch (Exception e) {
             log.error("failed to send password recovery email to user " + user.getId() + "(" + user.getUsername() + ")", e);
         }
-    }
-
-    public void setMailSender(JavaMailSender mailSender) {
-        this.mailSender = mailSender;
-    }
-
-    public void setVelocityEngine(VelocityEngine velocityEngine) {
-        this.velocityEngine = velocityEngine;
-    }
-
-    public void setServerPrefix(String serverPrefix) {
-        this.serverPrefix = serverPrefix;
     }
 }

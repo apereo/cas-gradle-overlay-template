@@ -13,6 +13,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJacksonHttpMessageConverter;
+import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.PostConstruct;
@@ -20,13 +21,12 @@ import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Service to communicate with the Mashery API
  */
+@Service
 public class MasheryService {
 
     @Value("${mashery.api.url}")
@@ -87,7 +87,7 @@ public class MasheryService {
         return retVal;
     }
 
-    MasheryOAuthApplication fetchOAuthApplication(String clientId, String redirectUri, String responseType) {
+    public MasheryOAuthApplication fetchOAuthApplication(String clientId, String redirectUri, String responseType) {
         MasheryJsonRpcRequest masheryJsonRpcRequest = new MasheryJsonRpcRequest();
         masheryJsonRpcRequest.setMethod("oauth2.fetchApplication");
 
@@ -106,7 +106,7 @@ public class MasheryService {
         return wrappedMasheryOAuthApplication.getResult();
     }
 
-    MasheryApplication fetchApplication(Integer id) {
+    public MasheryApplication fetchApplication(Integer id) {
         MasheryJsonRpcRequest masheryJsonRpcRequest = new MasheryJsonRpcRequest();
         masheryJsonRpcRequest.setMethod("application.fetch");
 
@@ -121,7 +121,7 @@ public class MasheryService {
         return wrappedMasheryOAuthApplication.getResult();
     }
 
-    MasheryMember fetchMember(String username) {
+    public MasheryMember fetchMember(String username) {
         MasheryJsonRpcRequest masheryJsonRpcRequest = new MasheryJsonRpcRequest();
         masheryJsonRpcRequest.setMethod("member.fetch");
 
@@ -136,7 +136,7 @@ public class MasheryService {
         return wrappedMasheryOAuthApplication.getResult();
     }
 
-    MasheryAuthorizationCode createAuthorizationCode(String clientId, String requestedScope, String application, String redirectUri, String username) {
+    public MasheryAuthorizationCode createAuthorizationCode(String clientId, String requestedScope, String application, String redirectUri, String username) {
         String scope = requestedScope + "|" + application;
         String userContext = username + "|" + application;
 

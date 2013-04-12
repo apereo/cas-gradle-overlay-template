@@ -1,40 +1,48 @@
 package com.infusionsoft.cas.auth;
 
-import com.infusionsoft.cas.types.User;
-import org.jasig.cas.authentication.handler.AuthenticationException;
+import com.infusionsoft.cas.services.InfusionsoftAuthenticationService;
+import com.infusionsoft.cas.services.PasswordService;
+import com.infusionsoft.cas.services.UserService;
+import org.jasig.cas.authentication.handler.*;
 import org.jasig.cas.authentication.handler.support.AbstractUsernamePasswordAuthenticationHandler;
 import org.jasig.cas.authentication.principal.UsernamePasswordCredentials;
-import org.springframework.orm.hibernate3.HibernateTemplate;
-
-import java.util.List;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 /**
  * Infusionsoft implementation of the authentication handler.
  */
+@Component
 public class InfusionsoftAuthenticationHandler extends AbstractUsernamePasswordAuthenticationHandler {
-    private HibernateTemplate hibernateTemplate;
 
-    protected boolean authenticateUsernamePasswordInternal(UsernamePasswordCredentials creds) throws AuthenticationException {
-        if (creds instanceof LetMeInCredentials) {
-            return true;
-        } else if (creds instanceof InfusionsoftCredentials) {
-            InfusionsoftCredentials credentials = (InfusionsoftCredentials) creds;
-            String encodedPassword = getPasswordEncoder().encode(credentials.getPassword());
-            List<User> users = hibernateTemplate.find("from UserPassword p where lower(p.user.username) = ? and p.passwordEncoded = ? and p.active = true", credentials.getUsername().toLowerCase(), encodedPassword);
+    @Autowired
+    InfusionsoftAuthenticationService infusionsoftAuthenticationService;
 
-            if (users.size() > 0) {
+    @Autowired
+    private PasswordService passwordService;
+
+    @Autowired
+    PasswordEncoder passwordEncoder;
+
+    protected boolean authenticateUsernamePasswordInternal(UsernamePasswordCredentials credentials) throws AuthenticationException {
+        boolean retVal;
+
+        boolean passwordValid = passwordService.isPasswordValid(credentials.getUsername(), credentials.getPassword());
+
+        if (passwordValid) {
+            if(infusionsoftAuthenticationService.isAccountLocked(credentials.getUsername())) {
+                infusionsoftAuthenticationService.recordLoginAttempt(credentials.getUsername(), false);
+                throw new BlockedCredentialsAuthenticationException();
+            } else {
+                infusionsoftAuthenticationService.recordLoginAttempt(credentials.getUsername(), true);
+                retVal = true;
                 log.info("authenticated CAS user " + credentials.getUsername());
-
-                return true;
             }
         } else {
-            log.error("got some credentials we don't know how to authenticate! " + creds.getClass());
+            infusionsoftAuthenticationService.recordLoginAttempt(credentials.getUsername(), false);
+            throw new BadUsernameOrPasswordAuthenticationException();
         }
 
-        return false;
-    }
-
-    public void setHibernateTemplate(HibernateTemplate hibernateTemplate) {
-        this.hibernateTemplate = hibernateTemplate;
+        return retVal;
     }
 }

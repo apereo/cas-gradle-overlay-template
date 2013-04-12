@@ -6,27 +6,36 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.log4j.Logger;
 import org.apache.xmlrpc.XmlRpcClient;
 import org.apache.xmlrpc.XmlRpcException;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.util.Vector;
 
 /**
  * Service for communicating with the Infusionsoft CRM (aka "the app").
  */
+@Service
 public class CrmService {
     private static final Logger log = Logger.getLogger(CrmService.class);
 
+    @Value("${infusionsoft.crm.protocol}")
     private String crmProtocol;
+
+    @Value("${infusionsoft.crm.domain}")
     private String crmDomain;
+
+    @Value("${infusionsoft.crm.port}")
     private int crmPort;
+
+    @Value("${infusionsoft.crm.vendorkey}")
     private String crmVendorKey;
 
     /**
      * Builds a base URL to a CRM app.
      */
     public String buildCrmUrl(String appName) {
-        StringBuffer url = new StringBuffer(crmProtocol + "://" + buildCrmHostName(appName));
+        StringBuilder url = new StringBuilder(crmProtocol + "://" + buildCrmHostName(appName));
 
         if (crmProtocol.equals("http") && crmPort != 80) {
             url.append(":").append(crmPort);
@@ -99,21 +108,5 @@ public class CrmService {
                 throw new AppCredentialsInvalidException("credentials are invalid for " + appUsername + " on " + appName, e);
             }
         }
-    }
-
-    public void setCrmProtocol(String crmProtocol) {
-        this.crmProtocol = crmProtocol;
-    }
-
-    public void setCrmDomain(String crmDomain) {
-        this.crmDomain = crmDomain;
-    }
-
-    public void setCrmPort(int crmPort) {
-        this.crmPort = crmPort;
-    }
-
-    public void setCrmVendorKey(String crmVendorKey) {
-        this.crmVendorKey = crmVendorKey;
     }
 }
