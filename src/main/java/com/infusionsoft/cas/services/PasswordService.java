@@ -6,6 +6,10 @@ import com.infusionsoft.cas.domain.UserPassword;
 public interface PasswordService {
     boolean isPasswordValid(String username, String password);
 
+    boolean passwordsMatch(UserPassword userPassword, String password);
+
+    boolean md5PasswordsMatch(UserPassword userPassword, String passwordEncodedMD5);
+
     boolean isPasswordExpired(User user);
 
     boolean isPasswordExpired(UserPassword password);

@@ -71,7 +71,7 @@
                 <configuration>
                     <server>myserver</server>
                     <path>/</path>
-                    <warSourceDirectory>${basedir}/target/${artifactId}-${version}</warSourceDirectory>
+                    <warSourceDirectory>${basedir}/target/${project.artifactId}-${project.version}</warSourceDirectory>
                     <contextFile>${basedir}/tomcat/context.xml</contextFile>
                     <port>7070</port>
                     <httpsPort>7443</httpsPort>
@@ -292,6 +292,12 @@
             <groupId>xmlrpc</groupId>
             <artifactId>xmlrpc</artifactId>
             <version>2.0.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>3.1</version>
         </dependency>
 
         <!-- Spring Security Managed Dependencies -->

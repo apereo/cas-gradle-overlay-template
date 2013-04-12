@@ -3,8 +3,8 @@ package com.infusionsoft.cas.services;
 import com.infusionsoft.cas.dao.*;
 import com.infusionsoft.cas.domain.*;
 import com.infusionsoft.cas.exceptions.AccountException;
-import org.apache.commons.lang.RandomStringUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -311,19 +311,11 @@ public class UserServiceImpl implements UserService {
     }
 
     /**
-     * Finds a user by username.
+     * Finds an enabled user by username.
      */
     @Override
-    public User findUser(String username) {
+    public User findEnabledUser(String username) {
         return userDAO.findByUsernameAndEnabled(username, true);
-    }
-
-    /**
-     * Finds a user by username and (already MD5-encrypted) password.
-     */
-    @Override
-    public User findUser(String username, String md5password) {
-        return userPasswordDAO.findByUsernameAndMD5Password(username, md5password).getUser();
     }
 
     @Override

@@ -40,9 +40,7 @@ public interface UserService {
 
     PendingUserAccount findPendingUserAccount(String registrationCode);
 
-    User findUser(String username);
-
-    User findUser(String username, String md5password);
+    User findEnabledUser(String username);
 
     void cleanupLoginAttempts();
 

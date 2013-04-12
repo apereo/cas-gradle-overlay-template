@@ -1,14 +1,12 @@
 package com.infusionsoft.cas.services;
 
+import com.infusionsoft.cas.auth.LoginResult;
 import com.infusionsoft.cas.dao.LoginAttemptDAO;
-import com.infusionsoft.cas.domain.AppType;
-import com.infusionsoft.cas.domain.LoginAttempt;
-import com.infusionsoft.cas.domain.User;
-import com.infusionsoft.cas.domain.UserAccount;
+import com.infusionsoft.cas.domain.*;
 import com.infusionsoft.cas.exceptions.AppCredentialsExpiredException;
 import com.infusionsoft.cas.exceptions.AppCredentialsInvalidException;
 import com.infusionsoft.cas.support.AppHelper;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.jasig.cas.authentication.principal.Principal;
 import org.jasig.cas.ticket.Ticket;
@@ -65,6 +63,9 @@ public class InfusionsoftAuthenticationServiceImpl implements InfusionsoftAuthen
 
     @Autowired
     UserService userService;
+
+    @Autowired
+    PasswordService passwordService;
 
     @Autowired
     AppHelper appHelper;
@@ -172,12 +173,79 @@ public class InfusionsoftAuthenticationServiceImpl implements InfusionsoftAuthen
         return appType;
     }
 
+    @Override
+    public LoginResult attemptLoginWithMD5Password(String username, String md5password) {
+        log.debug("Trying to authenticate " + username + " with MD5 password");
+        return attemptLoginAndLogAttempts(username, null, md5password);
+    }
+
+    @Override
+    public LoginResult attemptLogin(String username, String password) {
+        log.debug("Trying to authenticate " + username + " with password");
+        return attemptLoginAndLogAttempts(username, password, null);
+    }
+
+    private LoginResult attemptLoginAndLogAttempts(String username, String password, String md5password) {
+        LoginResult loginResult = attemptLoginInternal(username, password, md5password);
+        switch (loginResult.getLoginStatus()) {
+            case Success:
+                log.info("Authenticated CAS user " + username);
+                recordLoginAttempt(username, true);
+                break;
+            case PasswordExpired:
+                log.info("Authenticated CAS user " + username + " with expired password");
+                recordLoginAttempt(username, true);
+                break;
+            case AccountLocked:
+            case BadPassword:
+            case DisabledUser:
+            case NoSuchUser:
+                recordLoginAttempt(username, false);
+                break;
+            default:
+                throw new IllegalStateException("Unknown value for loginResult: " + loginResult);
+        }
+        return loginResult;
+    }
+
+    private LoginResult attemptLoginInternal(String username, String password, String md5password) {
+
+        User user = userService.loadUser(username);
+        if (user == null)
+            return LoginResult.NoSuchUser();
+        if (!user.isEnabled())
+            return LoginResult.DisabledUser(user);
+
+        UserPassword userPassword = passwordService.getPasswordForUser(user);
+        if (userPassword == null)
+            return LoginResult.BadPassword(user);
+        if (passwordService.isPasswordExpired(userPassword))
+            return LoginResult.PasswordExpired(user);
+
+        if (StringUtils.isNotEmpty(password)) {
+            if (!passwordService.passwordsMatch(userPassword, password))
+                return LoginResult.BadPassword(user);
+        } else if (StringUtils.isNotEmpty(md5password)) {
+            if (!passwordService.md5PasswordsMatch(userPassword, md5password))
+                return LoginResult.BadPassword(user);
+        } else {
+            return LoginResult.BadPassword(user);
+        }
+
+        if (isAccountLocked(username)) {
+            return LoginResult.AccountLocked(user);
+        } else if (passwordService.isPasswordExpired(user)) {
+            return LoginResult.PasswordExpired(user);
+        }
+
+        return LoginResult.Success(user);
+    }
+
     /**
      * Records a login attempt, and whether it was successful or not. This is used for account locking
      * in the case of too many failures.
      */
-    @Override
-    public void recordLoginAttempt(String username, boolean success) {
+    private void recordLoginAttempt(String username, boolean success) {
         LoginAttempt attempt = new LoginAttempt();
 
         attempt.setUsername(username);

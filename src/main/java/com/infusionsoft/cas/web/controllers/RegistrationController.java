@@ -6,7 +6,7 @@ import com.infusionsoft.cas.domain.User;
 import com.infusionsoft.cas.domain.UserAccount;
 import com.infusionsoft.cas.services.*;
 import com.infusionsoft.cas.support.AppHelper;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.validator.EmailValidator;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -136,7 +136,7 @@ public class RegistrationController {
                 model.put("error", "registration.error.invalidFirstName");
             } else if (username == null || username.isEmpty() || !EmailValidator.getInstance().isValid(username)) {
                 model.put("error", "registration.error.invalidUsername");
-            } else if (userService.findUser(username) != null) {
+            } else if (userService.loadUser(username) != null) {
                 model.put("error", "registration.error.usernameInUse");
             } else if (StringUtils.isEmpty(password1) || StringUtils.isEmpty(password2)) {
                 model.put("error", "registration.error.invalidPassword");
@@ -237,7 +237,7 @@ public class RegistrationController {
                 return new ModelAndView("registration/reset", "recoveryCode", recoveryCode);
             }
         } else if (StringUtils.isNotEmpty(username)) {
-            User user = userService.findUser(username);
+            User user = userService.findEnabledUser(username);
 
             if (user != null) {
                 recoveryCode = userService.resetPassword(user);

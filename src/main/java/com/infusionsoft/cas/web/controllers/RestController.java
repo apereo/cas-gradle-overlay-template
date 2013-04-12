@@ -1,5 +1,6 @@
 package com.infusionsoft.cas.web.controllers;
 
+import com.infusionsoft.cas.auth.LoginResult;
 import com.infusionsoft.cas.dao.UserAccountDAO;
 import com.infusionsoft.cas.domain.*;
 import com.infusionsoft.cas.services.InfusionsoftAuthenticationService;
@@ -7,7 +8,7 @@ import com.infusionsoft.cas.services.MigrationService;
 import com.infusionsoft.cas.services.PasswordService;
 import com.infusionsoft.cas.services.UserService;
 import com.infusionsoft.cas.support.JsonHelper;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.validator.EmailValidator;
 import org.apache.log4j.Logger;
 import org.json.simple.JSONObject;
@@ -18,6 +19,7 @@ import org.springframework.http.converter.json.MappingJacksonHttpMessageConverte
 import org.springframework.http.server.ServletServerHttpResponse;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
@@ -306,7 +308,7 @@ public class RestController {
      * Disassociates an account or accounts from an Infusionsoft ID. This can be called from trusted systems when one of
      * their local users is deleted or deactivated, to also remove the mapping on the CAS side. It can also be called
      * when an app instance is deleted; in this case, if the appUsername is not passed then it will unlink ALL
-     * accounts for that app.
+     * accounts for that app instance.
      */
     // TODO - consider making this return JSON responses similar to the other API calls
     @RequestMapping
@@ -392,78 +394,49 @@ public class RestController {
     }
 
     /**
-     * Called from the Infusionsoft app's data service to authenticate caller credentials against their CAS account.
+     * Authenticates caller credentials against their CAS account.  Pass in a username and either a password or
+     * an MD5 hash of the password.  Enforces account locking if there are too many wrong guesses.
      * Returns a JSON object with user info if successful.
      */
-    @RequestMapping
+    @RequestMapping(value = "/authenticateUser", method = RequestMethod.POST)
     public ModelAndView authenticateUser(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        String apiKey = request.getParameter("apiKey");
         String username = request.getParameter("username");
+        String password = request.getParameter("password");
         String md5password = request.getParameter("md5password");
 
-        // Validate the API key
-        if (!requiredApiKey.equals(apiKey)) {
-            log.warn("Invalid API access: apiKey = " + apiKey);
-            response.sendError(401);
-
-            return null;
-        }
-
-        log.debug("trying to authenticate " + username + " with password " + md5password);
-
-        User user = userService.findUser(username, md5password);
-
-        if (user == null) {
-            log.info("failed to authenticate " + username + " with MD5 password hash");
-            response.setContentType("application/json");
-            response.sendError(401);
-        } else {
-            log.info("successfully authenticated " + username + " with MD5 password hash");
-
-            try {
-                response.setContentType("application/json");
-                response.getWriter().write(jsonHelper.buildUserInfoJSON(user));
-            } catch (Exception e) {
-                log.error("failed to create JSON response", e);
-                response.setContentType("application/json");
-                response.sendError(500);
-            }
-        }
-
-        return null;
-    }
-
-    /**
-     * Authenticates caller credentials against their CAS account.
-     * Returns a JSON object with user info if successful. Unlike authenticateUser, this call doesn't require an API
-     * key but does enforce account locking if there are too many wrong guesses.
-     */
-    @RequestMapping
-    public ModelAndView authenticateUserCredentials(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        String username = request.getParameter("username");
-        String md5password = request.getParameter("md5password");
-
-        log.debug("trying to authenticate " + username + " with password " + md5password);
-
-        User user = userService.findUser(username, md5password);
         String error = null;
-
-        if (user == null) {
-            log.info("failed to authenticate " + username + " with MD5 password hash");
-
-            infusionsoftAuthenticationService.recordLoginAttempt(username, false);
-
-            error = "login.failed1";
-        } else if (passwordService.isPasswordExpired(user)) {
-            log.info("authenticated " + username + " with MD5 password hash, but password is expired");
-
-            error = "login.passwordExpired";
-        } else if (infusionsoftAuthenticationService.isAccountLocked(username)) {
-            log.warn("authenticated " + username + " with MD5 password hash, but account is locked!");
-
-            error = "login.lockedTooManyFailures";
+        LoginResult loginResult = null;
+        if (StringUtils.isEmpty(username)) {
+            error = "login.noUsername";
+        } else if (StringUtils.isNotEmpty(password)) {
+            loginResult = infusionsoftAuthenticationService.attemptLogin(username, password);
+        } else if (StringUtils.isNotEmpty(password)) {
+            loginResult = infusionsoftAuthenticationService.attemptLoginWithMD5Password(username, md5password);
         } else {
-            log.info("successfully authenticated " + username + " with MD5 password hash");
+            error = "login.noPassword";
+        }
+
+        if (error != null) {
+            switch (loginResult.getLoginStatus()) {
+                case AccountLocked:
+                    error = "login.lockedTooManyFailures";
+                    break;
+                case BadPassword:
+                case DisabledUser:
+                case NoSuchUser:
+                    error = "login.failed1";
+                    break;
+                case PasswordExpired:
+                    error = "login.passwordExpired";
+                    break;
+                case Success:
+                    error = null;
+                    break;
+                default:
+                    log.error("Unknown value for loginResult: " + loginResult);
+                    error = "Unknown value for loginResult: " + loginResult;
+                    break;
+            }
         }
 
         try {
@@ -474,7 +447,7 @@ public class RestController {
             } else {
                 response.setStatus(200);
                 response.setContentType("application/json");
-                response.getWriter().write(jsonHelper.buildUserInfoJSON(user));
+                response.getWriter().write(jsonHelper.buildUserInfoJSON(loginResult.getUser()));
             }
         } catch (Exception e) {
             log.error("failed to create JSON response", e);
@@ -486,13 +459,17 @@ public class RestController {
 
     /**
      * Called from trusted clients to get info about a CAS user profile. This can be obtained either by the username
-     * (the Infusionsoft ID of the user they are searching for) or, if that is unknown, by a combination of local
-     * appName, appType, and appUsername.
+     * (the Infusionsoft ID of the user they are searching for), by the CAS global ID, or by a combination of local
+     * appName, appType, and appUsername.  Only returns enabled accounts.
      */
     @RequestMapping
     public ModelAndView getUserInfo(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String apiKey = request.getParameter("apiKey");
+        // One of:
         String username = request.getParameter("username");
+        // OR
+        String casGlobalIdString = request.getParameter("casGlobalId");
+        // OR
         String appName = request.getParameter("appName");
         String appType = request.getParameter("appType");
         String appUsername = request.getParameter("appUsername");
@@ -505,10 +482,23 @@ public class RestController {
             return null;
         }
 
-        User user = null;
+        // Parse the casGlobalId
+        long casGlobalId = 0;
+        if (StringUtils.isNotEmpty(casGlobalIdString)) {
+            try {
+                casGlobalId = Long.parseLong(casGlobalIdString);
+            } catch (NumberFormatException e) {
+            }
+        }
 
-        if (StringUtils.isNotEmpty(username)) {
-            user = userService.findUser(username);
+        // Lookup the user
+        User user = null;
+        if (casGlobalId > 0) {
+            user = userService.loadUser(casGlobalId);
+            if (user != null && !user.isEnabled())
+                user = null;
+        } else if (StringUtils.isNotEmpty(username)) {
+            user = userService.findEnabledUser(username);
         } else {
             List<UserAccount> accounts = userAccountDAO.findByAppNameAndAppTypeAndAppUsernameAndDisabled(appName, appType, appUsername, false);
 
@@ -530,6 +520,5 @@ public class RestController {
 
         return null;
     }
-
 
 }

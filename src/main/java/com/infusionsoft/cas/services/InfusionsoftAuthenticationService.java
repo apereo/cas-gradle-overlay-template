@@ -1,13 +1,12 @@
 package com.infusionsoft.cas.services;
 
 import com.infusionsoft.cas.domain.LoginAttempt;
+import com.infusionsoft.cas.auth.LoginResult;
 import com.infusionsoft.cas.domain.User;
 import com.infusionsoft.cas.exceptions.AppCredentialsExpiredException;
 import com.infusionsoft.cas.exceptions.AppCredentialsInvalidException;
-import org.jasig.cas.ticket.TicketException;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
@@ -21,7 +20,9 @@ public interface InfusionsoftAuthenticationService {
 
     String guessAppType(URL url);
 
-    void recordLoginAttempt(String username, boolean success);
+    LoginResult attemptLoginWithMD5Password(String username, String md5password);
+
+    LoginResult attemptLogin(String username, String password);
 
     List<LoginAttempt> getRecentLoginAttempts(String username);
 

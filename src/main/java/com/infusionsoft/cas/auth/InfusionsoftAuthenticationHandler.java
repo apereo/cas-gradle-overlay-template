@@ -1,9 +1,10 @@
 package com.infusionsoft.cas.auth;
 
 import com.infusionsoft.cas.services.InfusionsoftAuthenticationService;
-import com.infusionsoft.cas.services.PasswordService;
-import com.infusionsoft.cas.services.UserService;
-import org.jasig.cas.authentication.handler.*;
+import org.jasig.cas.authentication.handler.AuthenticationException;
+import org.jasig.cas.authentication.handler.BadUsernameOrPasswordAuthenticationException;
+import org.jasig.cas.authentication.handler.BlockedCredentialsAuthenticationException;
+import org.jasig.cas.authentication.handler.PasswordEncoder;
 import org.jasig.cas.authentication.handler.support.AbstractUsernamePasswordAuthenticationHandler;
 import org.jasig.cas.authentication.principal.UsernamePasswordCredentials;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,30 +20,24 @@ public class InfusionsoftAuthenticationHandler extends AbstractUsernamePasswordA
     InfusionsoftAuthenticationService infusionsoftAuthenticationService;
 
     @Autowired
-    private PasswordService passwordService;
-
-    @Autowired
     PasswordEncoder passwordEncoder;
 
     protected boolean authenticateUsernamePasswordInternal(UsernamePasswordCredentials credentials) throws AuthenticationException {
-        boolean retVal;
+        LoginResult loginResult = infusionsoftAuthenticationService.attemptLogin(credentials.getUsername(), credentials.getPassword());
 
-        boolean passwordValid = passwordService.isPasswordValid(credentials.getUsername(), credentials.getPassword());
-
-        if (passwordValid) {
-            if(infusionsoftAuthenticationService.isAccountLocked(credentials.getUsername())) {
-                infusionsoftAuthenticationService.recordLoginAttempt(credentials.getUsername(), false);
+        switch (loginResult.getLoginStatus()) {
+            case AccountLocked:
+            case DisabledUser:
                 throw new BlockedCredentialsAuthenticationException();
-            } else {
-                infusionsoftAuthenticationService.recordLoginAttempt(credentials.getUsername(), true);
-                retVal = true;
-                log.info("authenticated CAS user " + credentials.getUsername());
-            }
-        } else {
-            infusionsoftAuthenticationService.recordLoginAttempt(credentials.getUsername(), false);
-            throw new BadUsernameOrPasswordAuthenticationException();
+            case BadPassword:
+            case NoSuchUser:
+                throw new BadUsernameOrPasswordAuthenticationException();
+            case PasswordExpired:
+            case Success:
+                return true;
+            default:
+                throw new IllegalStateException("Unknown value for loginResult: " + loginResult);
         }
 
-        return retVal;
     }
 }

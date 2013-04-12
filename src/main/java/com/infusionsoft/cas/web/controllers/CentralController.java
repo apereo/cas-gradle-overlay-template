@@ -10,8 +10,8 @@ import com.infusionsoft.cas.exceptions.UsernameTakenException;
 import com.infusionsoft.cas.services.*;
 import com.infusionsoft.cas.support.AppHelper;
 import com.infusionsoft.cas.web.ValidationUtils;
-import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.validator.EmailValidator;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -392,7 +392,7 @@ public class CentralController {
             userService.updateUserAccount(account);
 
             response.setContentType("text/plain");
-            response.getWriter().write(StringEscapeUtils.escapeHtml(account.getAlias()));
+            response.getWriter().write(StringEscapeUtils.escapeHtml4(account.getAlias()));
         } catch (Exception e) {
             log.error("failed to update alias for account " + accountId, e);
 

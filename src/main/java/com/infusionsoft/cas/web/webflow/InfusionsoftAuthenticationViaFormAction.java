@@ -1,7 +1,7 @@
 //package com.infusionsoft.cas.web.webflow;
 //
 //import com.infusionsoft.cas.services.InfusionsoftAuthenticationService;
-//import org.apache.commons.lang.StringUtils;
+//import org.apache.commons.lang3.StringUtils;
 //import org.apache.log4j.Logger;
 //import org.jasig.cas.authentication.principal.Credentials;
 //import org.jasig.cas.authentication.principal.UsernamePasswordCredentials;

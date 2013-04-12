@@ -5,7 +5,7 @@ import com.infusionsoft.cas.dao.UserPasswordDAO;
 import com.infusionsoft.cas.domain.User;
 import com.infusionsoft.cas.domain.UserPassword;
 import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.jasig.cas.authentication.handler.PasswordEncoder;
 import org.joda.time.DateMidnight;
@@ -63,6 +63,23 @@ public class PasswordServiceImpl implements PasswordService {
         log.debug("checking if encoded password " + encodedPassword + " is valid for user " + username + ": " + (userPassword != null));
 
         return userPassword != null;
+    }
+
+    /**
+     * Checks if the passwords match
+     */
+    @Override
+    public boolean passwordsMatch(UserPassword userPassword, String password) {
+        String encodedPassword = passwordEncoder.encode(password);
+        return StringUtils.equals(userPassword.getPasswordEncoded(), encodedPassword);
+    }
+
+    /**
+     * Checks if the MD5 encoded passwords match
+     */
+    @Override
+    public boolean md5PasswordsMatch(UserPassword userPassword, String passwordEncodedMD5) {
+        return StringUtils.equals(userPassword.getPasswordEncodedMD5(), passwordEncodedMD5);
     }
 
     /**
