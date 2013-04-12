@@ -19,7 +19,6 @@ import java.util.zip.DeflaterOutputStream;
  * Test case for the SAMLv2 service. Ripped off the CAS one for GoogleAccountService.
  */
 public class InfusionsoftSaml2ServiceTests extends TestCase {
-    private InfusionsoftSaml2Service infusionsoftSaml2Service;
 
     public static InfusionsoftSaml2Service getInfusionsoftSaml2Service() throws Exception {
         final PublicKeyFactoryBean pubKeyFactoryBean = new PublicKeyFactoryBean();
@@ -47,14 +46,13 @@ public class InfusionsoftSaml2ServiceTests extends TestCase {
     }
 
     protected void setUp() throws Exception {
-        this.infusionsoftSaml2Service = getInfusionsoftSaml2Service();
-        this.infusionsoftSaml2Service.setPrincipal(new SimplePrincipal("user"));
+        InfusionsoftSaml2Service infusionsoftSaml2Service = getInfusionsoftSaml2Service();
+        infusionsoftSaml2Service.setPrincipal(new SimplePrincipal("user"));
     }
 
 
     // XXX: re-enable when we figure out JVM requirements
     public void testResponse() {
-        return;
         //    final Response response = this.infusionsoftSaml2Service.getResponse("ticketId");
         //  assertEquals(ResponseType.POST, response.getResponseType());
         //    assertTrue(response.getAttributes().containsKey("SAMLResponse"));

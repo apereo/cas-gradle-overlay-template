@@ -15,7 +15,7 @@ import java.util.Locale;
 public class JsonHelper {
 
     @Autowired
-    AppHelper appHelper;
+    public AppHelper appHelper;
 
     @Autowired
     MessageSource messageSource;

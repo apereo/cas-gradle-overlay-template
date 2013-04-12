@@ -14,13 +14,13 @@ public class AppHelper {
     private static final Logger log = Logger.getLogger(AppHelper.class);
 
     @Autowired
-    CrmService crmService;
+    public CrmService crmService;
 
     @Autowired
-    CommunityService communityService;
+    public CommunityService communityService;
 
     @Autowired
-    CustomerHubService customerHubService;
+    public CustomerHubService customerHubService;
 
     /**
      * Builds a URL for redirecting users to an app.

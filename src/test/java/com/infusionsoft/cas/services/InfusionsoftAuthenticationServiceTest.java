@@ -5,9 +5,9 @@ import com.infusionsoft.cas.domain.User;
 import com.infusionsoft.cas.domain.UserAccount;
 import com.infusionsoft.cas.support.AppHelper;
 import com.infusionsoft.cas.support.JsonHelper;
-import org.junit.Before;
-import org.junit.Test;
 import org.testng.Assert;
+import org.testng.annotations.BeforeTest;
+import org.testng.annotations.Test;
 
 import java.net.URL;
 import java.util.LinkedHashSet;
@@ -17,25 +17,34 @@ import java.util.LinkedHashSet;
  */
 public class InfusionsoftAuthenticationServiceTest {
     private InfusionsoftAuthenticationServiceImpl infusionsoftAuthenticationService;
-    private JsonHelper jsonHelper = new JsonHelper();
+    private JsonHelper jsonHelper;
 
-    @Before
+    @BeforeTest
     public void setUp() {
         CrmService crmService = new CrmService();
-        crmService.setCrmDomain("infusionsoft.com");
-        crmService.setCrmPort(443);
-        crmService.setCrmProtocol("https");
+        crmService.crmDomain = "infusionsoft.com";
+        crmService.crmPort = 443;
+        crmService.crmProtocol = "https";
 
         CustomerHubService customerHubService = new CustomerHubService();
-        customerHubService.setCustomerHubDomain("customerhub.net");
-        customerHubService.setCustomerHubPort(443);
-        customerHubService.setCustomerHubProtocol("https");
+        customerHubService.customerHubDomain = "customerhub.net";
+        customerHubService.customerHubPort = 443;
+        customerHubService.customerHubProtocol = "https";
 
         CommunityServiceImpl communityService = new CommunityServiceImpl();
         communityService.communityBaseUrl = "http://community.infusionsoft.com";
 
+        AppHelper appHelper = new AppHelper();
+        appHelper.crmService = crmService;
+        appHelper.customerHubService = customerHubService;
+        appHelper.communityService = communityService;
+
+        jsonHelper = new JsonHelper();
+        jsonHelper.appHelper = appHelper;
+
+
         infusionsoftAuthenticationService = new InfusionsoftAuthenticationServiceImpl();
-        infusionsoftAuthenticationService.appHelper = new AppHelper();
+        infusionsoftAuthenticationService.appHelper = appHelper;
         infusionsoftAuthenticationService.serverPrefix = "https://signin.infusionsoft.com";
         infusionsoftAuthenticationService.crmProtocol = "https";
         infusionsoftAuthenticationService.crmDomain = "infusionsoft.com";

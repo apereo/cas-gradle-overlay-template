@@ -28,7 +28,7 @@ public class CommunityServiceImpl implements CommunityService {
     private static final Logger log = Logger.getLogger(CommunityServiceImpl.class);
 
     @Autowired
-    private UserService userService;
+    UserService userService;
 
     @Autowired
     CommunityAccountDetailsDAO communityAccountDetailsDAO;

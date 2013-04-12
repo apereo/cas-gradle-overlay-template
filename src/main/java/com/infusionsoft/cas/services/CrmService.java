@@ -20,16 +20,16 @@ public class CrmService {
     private static final Logger log = Logger.getLogger(CrmService.class);
 
     @Value("${infusionsoft.crm.protocol}")
-    private String crmProtocol;
+    String crmProtocol;
 
     @Value("${infusionsoft.crm.domain}")
-    private String crmDomain;
+    String crmDomain;
 
     @Value("${infusionsoft.crm.port}")
-    private int crmPort;
+    int crmPort;
 
     @Value("${infusionsoft.crm.vendorkey}")
-    private String crmVendorKey;
+    String crmVendorKey;
 
     /**
      * Builds a base URL to a CRM app.

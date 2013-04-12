@@ -3,11 +3,11 @@ package com.infusiontest.cas;
 import com.infusionsoft.cas.support.InfusionsoftSaml2ArgumentExtractor;
 import org.jasig.cas.util.PrivateKeyFactoryBean;
 import org.jasig.cas.util.PublicKeyFactoryBean;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.mock.web.MockHttpServletRequest;
+import org.testng.Assert;
+import org.testng.annotations.BeforeTest;
+import org.testng.annotations.Test;
 
 import java.security.PrivateKey;
 import java.security.PublicKey;
@@ -19,7 +19,7 @@ import java.security.PublicKey;
 public class InfusionsoftSaml2ArgumentExtractorTests {
     private InfusionsoftSaml2ArgumentExtractor extractor;
 
-    @Before
+    @BeforeTest
     public void setUp() throws Exception {
         final PublicKeyFactoryBean pubKeyFactoryBean = new PublicKeyFactoryBean();
         final PrivateKeyFactoryBean privKeyFactoryBean = new PrivateKeyFactoryBean();
