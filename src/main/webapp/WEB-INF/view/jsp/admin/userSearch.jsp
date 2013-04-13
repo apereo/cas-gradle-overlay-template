@@ -3,22 +3,25 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <html>
 <head>
-    <title>Admin - User Search</title>
+    <title>Infusionsoft ID Search</title>
 
     <meta name="decorator" content="central"/>
 
 </head>
 <body>
 
-<div style="width: 100%">
-    <form>
-        <input type="text" name="username"/>
-        <button type="submit">Search</button>
-    </form>
-</div>
+<form class=".form-search">
+    <fieldset>
+        <legend>Search</legend>
+        <div class="input-append">
+            <input type="text" class="input-medium search-query span2" name="username" placeholder="Infusionsoft ID" value="${username}"/>
+            <button type="submit" class="btn"><i class="icon-search"></i></button>
+        </div>
+    </fieldset>
+</form>
 
 <c:if test="${!empty users}">
-    <table>
+    <table class="table table-bordered table-striped">
         <tr>
             <th>
                 Infusionsoft ID

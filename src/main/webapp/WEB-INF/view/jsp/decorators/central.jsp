@@ -22,7 +22,6 @@
     <script type="text/javascript" src="<c:url value="/js/bootstrap.min.js"/>"></script>
     <script type="text/javascript" src="<c:url value="/js/jquery.jeditable.js"/>"></script>
     <script type="text/javascript" src="<c:url value="/js/jquery.placeholder.js"/>"></script>
-    <script type="text/javascript" src="<c:url value="/js/cas.js" />"></script>
     <script type="text/javascript" src="<c:url value="/js/jquery.qtip-1.0.0-rc3.min.js"/>"></script>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700,800" type="text/css">
 </head>
@@ -54,6 +53,15 @@
 </div>
 <div class="wrapper">
     <div id="content">
+        <c:if test="${error}">
+            <div class="alert alert-error">${error}</div>
+        </c:if>
+        <c:if test="${success}">
+            <div class="alert alert-error">${success}</div>
+        </c:if>
+        <c:if test="${info}">
+            <div class="alert alert-error">${info}</div>
+        </c:if>
         <decorator:body/>
     </div>
 </div>

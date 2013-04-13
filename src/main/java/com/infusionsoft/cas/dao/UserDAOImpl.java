@@ -2,7 +2,6 @@ package com.infusionsoft.cas.dao;
 
 import com.infusionsoft.cas.domain.User;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.TypedQuery;
 import java.util.List;
@@ -23,8 +22,9 @@ public class UserDAOImpl extends AbstractJpaDAO<User> implements UserDAO {
 
     @Override
     public List<User> findByUsernameWildcard(String username) {
+
         TypedQuery<User> query = entityManager.createQuery("SELECT u from User u where lower(u.username) like :username", User.class);
-        query.setParameter("username", username);
+        query.setParameter("username", "%" + username + "%");
 
         return query.getResultList();
     }

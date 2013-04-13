@@ -500,5 +500,8 @@ public class InfusionsoftAuthenticationServiceImpl implements InfusionsoftAuthen
         return false;
     }
 
-
+    @Override
+    public void unlockUser(String username) {
+        recordLoginAttempt(username, true);
+    }
 }

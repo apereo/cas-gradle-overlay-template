@@ -48,4 +48,6 @@ public interface InfusionsoftAuthenticationService {
     boolean isUserAssociated(User user, String appType, String appName);
 
     boolean hasCommunityAccount(User user);
+
+    void unlockUser(String username);
 }

@@ -1,9 +1,9 @@
 package com.infusionsoft.cas.web.controllers;
 
 import com.infusionsoft.cas.domain.User;
-import com.infusionsoft.cas.services.PasswordService;
+import com.infusionsoft.cas.services.InfusionsoftAuthenticationService;
 import com.infusionsoft.cas.services.UserService;
-import org.apache.log4j.Logger;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -12,10 +12,8 @@ import org.springframework.web.servlet.ModelAndView;
 @Controller
 public class AdminController {
 
-    private static final Logger log = Logger.getLogger(AdminController.class);
-
     @Autowired
-    PasswordService passwordService;
+    InfusionsoftAuthenticationService infusionsoftAuthenticationService;
 
     @Autowired
     UserService userService;
@@ -23,7 +21,11 @@ public class AdminController {
     @RequestMapping
     public ModelAndView userSearch(String username) {
         ModelAndView retVal = new ModelAndView("admin/userSearch");
-        retVal.getModel().put("users", userService.findByUsernameWildcard(username));
+
+        if (StringUtils.isNotEmpty(username)) {
+            retVal.getModel().put("users", userService.findByUsernameWildcard(StringUtils.trim(username)));
+            retVal.getModel().put("username", username);
+        }
 
         return retVal;
     }
@@ -35,7 +37,18 @@ public class AdminController {
         User user = userService.loadUser(id);
         String recoveryCode = userService.resetPassword(user);
 
-        retVal.getModel().put("recoveryCode", recoveryCode);
+        retVal.getModel().put("success", "Recovery Code Successful: " + recoveryCode);
+
+        return retVal;
+
+    }
+
+    @RequestMapping
+    public ModelAndView unlockUser(Long id) {
+        ModelAndView retVal = new ModelAndView("admin/userSearch");
+
+        User user = userService.loadUser(id);
+        infusionsoftAuthenticationService.unlockUser(user.getUsername());
 
         return retVal;
 
