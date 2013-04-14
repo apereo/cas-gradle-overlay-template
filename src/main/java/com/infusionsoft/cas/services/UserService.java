@@ -55,4 +55,7 @@ public interface UserService {
     boolean isDuplicateUsername(String username, Long id);
 
     String resetPassword(User user);
+
+    void changeAssociatedAppUsername(String username, String appName, String appType, String oldAppUsername, String newAppUsername);
+
 }

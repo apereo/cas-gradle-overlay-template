@@ -338,5 +338,21 @@ public class UserServiceImpl implements UserService {
     public boolean isDuplicateUsername(String username, Long id) {
         return userDAO.findByUsernameAndNotId(username, id) != null;
     }
+
+    /**
+     * Changes the application username that is associated with a user
+     */
+    @Override
+    public void changeAssociatedAppUsername(String username, String appName, String appType, String oldAppUsername, String newAppUsername) {
+        User user = loadUser(username);
+        if (user != null) {
+            UserAccount account = findUserAccount(user, appName, appType, oldAppUsername);
+            if (account != null) {
+                account.setAppUsername(newAppUsername);
+                userAccountDAO.update(account);
+                log.info("Changed application username from " + oldAppUsername + " to " + newAppUsername + " for user " + username + "on " + appName + "/" + appType);
+            }
+        }
+    }
 }
 

@@ -284,7 +284,7 @@ public class RestController {
             return null;
         }
 
-        // Find any matching accounts and disassociate them
+        // Find any matching accounts and reassociate them
         try {
             List<UserAccount> accounts = userService.findDisabledUserAccounts(appName, appType, appUsername);
 
@@ -341,6 +341,36 @@ public class RestController {
             log.error("failed to unlink user accounts mapped to local user " + appUsername + " on " + appName + "/" + appType);
 
             response.sendError(500);
+        }
+
+        return null;
+    }
+
+    /**
+     * Changes the application username that is associated with a user
+     */
+    // TODO - consider making this return JSON responses similar to the other API calls
+    @RequestMapping
+    public ModelAndView changeAssociatedAppUsername(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String apiKey = request.getParameter("apiKey");
+        String username = request.getParameter("username");
+        String appName = request.getParameter("appName");
+        String appType = request.getParameter("appType");
+        String oldAppUsername = request.getParameter("oldAppUsername");
+        String newAppUsername = request.getParameter("newAppUsername");
+
+        // Validate the API key
+        if (!requiredApiKey.equals(apiKey)) {
+            log.warn("Invalid API access: apiKey = " + apiKey);
+            response.sendError(401);
+        } else {
+            try {
+                userService.changeAssociatedAppUsername(username, appName, appType, oldAppUsername, newAppUsername);
+                response.getWriter().append("OK");
+            } catch (Exception e) {
+                log.error("Failed to change application username from " + oldAppUsername + " to " + newAppUsername + " for user " + username + "on " + appName + "/" + appType, e);
+                response.sendError(500);
+            }
         }
 
         return null;
