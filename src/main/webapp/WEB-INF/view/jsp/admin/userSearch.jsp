@@ -44,54 +44,59 @@
         </c:forEach>
         </tbody>
     </table>
-    <div class="pagination pagination-centered">
-        <%--Pages are 0 based--%>
-        <c:url var="searchUrl" value="/app/admin/userSearch?"/>
-        <c:set var="pagesHalfRange" value="${4}"/>
-        <ul>
-            <%--Previous--%>
-            <c:if test="${users.firstPage}">
-                <li class="disabled"><span>&laquo;</span></li>
-            </c:if>
-            <c:if test="${!users.firstPage}">
-                <li><a href="${searchUrl}page=${users.number - 1}">&laquo;</a></li>
-            </c:if>
+    <c:if test="${users.totalPages != 1}">
+        <div class="pagination pagination-centered">
+                <%--Pages are 0 based--%>
+            <c:url var="searchUrl" value="/app/admin/userSearch?"/>
+            <c:set var="pagesHalfRange" value="${4}"/>
+            <ul>
+                    <%--Previous--%>
+                <c:if test="${users.firstPage}">
+                    <li class="disabled"><span>&laquo;</span></li>
+                </c:if>
+                <c:if test="${!users.firstPage}">
+                    <li><a href="${searchUrl}page=${users.number - 1}">&laquo;</a></li>
+                </c:if>
 
-            <%--Pages--%>
-            <c:choose>
-                <c:when test="${users.number < 4}">
-                    <c:set var="begin" value="${0}"/>
-                </c:when>
-                <c:otherwise>
-                    <c:set var="begin" value="${users.number - 4}"/>
-                </c:otherwise>
-            </c:choose>
+                    <%--Pages--%>
+                <c:choose>
+                    <c:when test="${users.number < 4}">
+                        <c:set var="begin" value="${0}"/>
+                    </c:when>
+                    <c:otherwise>
+                        <c:set var="begin" value="${users.number - 4}"/>
+                    </c:otherwise>
+                </c:choose>
 
 
-            <c:choose>
-                <c:when test="${begin + 8  < users.totalPages}">
-                    <c:set var="end" value="${begin + 8}"/>
-                </c:when>
-                <c:otherwise>
-                    <c:set var="end" value="${users.totalPages - 1}"/>
-                    <c:set var="begin" value="${end - 8}"/>
-                </c:otherwise>
-            </c:choose>
+                <c:choose>
+                    <c:when test="${begin + 8  < users.totalPages}">
+                        <c:set var="end" value="${begin + 8}"/>
+                    </c:when>
+                    <c:otherwise>
+                        <c:set var="end" value="${users.totalPages - 1}"/>
 
-            <c:forEach var="page" begin="${begin}" end="${end}">
-                <c:set var="pageClass" value="${users.number == page ? 'active' : ''}"/>
-                <li class="${pageClass}"><a href="${searchUrl}page=${page}">${page + 1}</a></li>
-            </c:forEach>
+                        <c:if test="${end - 8 >= 0}">
+                            <c:set var="begin" value="${end - 8}"/>
+                        </c:if>
+                    </c:otherwise>
+                </c:choose>
 
-            <%--Next--%>
-            <c:if test="${users.lastPage}">
-                <li class="disabled"><span>&raquo;</span></li>
-            </c:if>
-            <c:if test="${!users.lastPage}">
-                <li><a href="${searchUrl}page=${users.number + 1}">&raquo;</a></li>
-            </c:if>
-        </ul>
-    </div>
+                <c:forEach var="page" begin="${begin}" end="${end}">
+                    <c:set var="pageClass" value="${users.number == page ? 'active' : ''}"/>
+                    <li class="${pageClass}"><a href="${searchUrl}page=${page}">${page + 1}</a></li>
+                </c:forEach>
+
+                    <%--Next--%>
+                <c:if test="${users.lastPage}">
+                    <li class="disabled"><span>&raquo;</span></li>
+                </c:if>
+                <c:if test="${!users.lastPage}">
+                    <li><a href="${searchUrl}page=${users.number + 1}">&raquo;</a></li>
+                </c:if>
+            </ul>
+        </div>
+    </c:if>
 </div>
 </body>
 </html>
