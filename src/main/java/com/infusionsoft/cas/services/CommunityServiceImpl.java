@@ -83,7 +83,7 @@ public class CommunityServiceImpl implements CommunityService {
      * profile through CAS.
      */
     @Override
-    public UserAccount registerCommunityUserAccount(User user, CommunityAccountDetails details) throws RestClientException, UsernameTakenException, AccountException {
+    public UserAccount registerCommunityUserAccount(User user, CommunityAccountDetails details, String ticketGrantingTicket) throws RestClientException, UsernameTakenException, AccountException {
         RestTemplate restTemplate = new RestTemplate();
 
         log.info("preparing REST call to " + communityBaseUrl);
@@ -100,7 +100,7 @@ public class CommunityServiceImpl implements CommunityService {
             throw new UsernameTakenException("the display name " + details.getDisplayName() + " is already taken");
         }
 
-        UserAccount account = userService.associateAccountToUser(user, AppType.COMMUNITY, "Infusionsoft Community", userId);
+        UserAccount account = userService.associateAccountToUser(user, AppType.COMMUNITY, "Infusionsoft Community", userId, ticketGrantingTicket);
 
         details.setUserAccount(account);
         communityAccountDetailsDAO.save(details);

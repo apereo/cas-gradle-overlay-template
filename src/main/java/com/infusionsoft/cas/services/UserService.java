@@ -28,7 +28,7 @@ public interface UserService {
 
     PendingUserAccount createPendingUserAccount(String appType, String appName, String appUsername, String firstName, String lastName, String email, boolean passwordVerificationRequired);
 
-    UserAccount associateAccountToUser(User user, String appType, String appName, String appUsername) throws AccountException;
+    UserAccount associateAccountToUser(User user, String appType, String appName, String appUsername, String ticketGrantingTicket) throws AccountException;
 
     UserAccount associatePendingAccountToUser(User user, String registrationCode) throws AccountException;
 

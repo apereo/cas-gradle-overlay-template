@@ -12,5 +12,5 @@ public interface CommunityService {
 
     String authenticateUser(String appUsername, String appPassword);
 
-    UserAccount registerCommunityUserAccount(User user, CommunityAccountDetails details) throws RestClientException, UsernameTakenException, AccountException;
+    UserAccount registerCommunityUserAccount(User user, CommunityAccountDetails details, String ticketGrantingTicket) throws RestClientException, UsernameTakenException, AccountException;
 }

@@ -14,7 +14,9 @@ import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.validator.EmailValidator;
 import org.apache.log4j.Logger;
+import org.jasig.cas.web.support.CookieRetrievingCookieGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
@@ -52,6 +54,10 @@ public class CentralController {
 
     @Autowired
     AppHelper appHelper;
+
+    @Autowired
+    @Qualifier("ticketGrantingTicketCookieGenerator")
+    CookieRetrievingCookieGenerator cookieRetrievingCookieGenerator;
 
     @Value("${infusionsoft.cas.central.promptToAssociate}")
     boolean promptToAssociate = false;
@@ -156,7 +162,7 @@ public class CentralController {
      * Creates a brand new community account and associates it to the CAS account.
      */
     @RequestMapping()
-    public ModelAndView createCommunityAccount(Boolean agreeToRules, String displayName, Integer infusionsoftExperience, String timeZone, String notificationEmailAddress, String twitterHandle) {
+    public ModelAndView createCommunityAccount(Boolean agreeToRules, String displayName, Integer infusionsoftExperience, String timeZone, String notificationEmailAddress, String twitterHandle, HttpServletRequest request) {
         Map<String, Object> model = new HashMap<String, Object>();
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         CommunityAccountDetails details = new CommunityAccountDetails();
@@ -184,7 +190,7 @@ public class CentralController {
             log.info("attempting to register a forum account for user " + user.getId());
 
             try {
-                communityService.registerCommunityUserAccount(user, details);
+                communityService.registerCommunityUserAccount(user, details, cookieRetrievingCookieGenerator.retrieveCookieValue(request));
 
                 return new ModelAndView("redirect:home");
             } catch (UsernameTakenException e) {
@@ -205,9 +211,10 @@ public class CentralController {
      * Associates the current user to a legacy account, after first validating the legacy username and password.
      */
     @RequestMapping
-    public ModelAndView associate(String appType, String appName, String appUsername, String appPassword, String cancel, String destination) throws Exception {
+    public ModelAndView associate(String appType, String appName, String appUsername, String appPassword, String cancel, String destination, HttpServletRequest request) throws Exception {
         Map<String, Object> model = new HashMap<String, Object>();
         String sanitizedAppName = ValidationUtils.sanitizeAppName(appName);
+        String ticketGrantingTicket = cookieRetrievingCookieGenerator.retrieveCookieValue(request);
 
         try {
             User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -215,21 +222,21 @@ public class CentralController {
             if (cancel != null) {
                 return new ModelAndView("redirect:home");
             } else if (StringUtils.isEmpty(appUsername)) {
-                model.put("error", "registration.error.invalidAppUsername");
+                model.put("connectError", "registration.error.invalidAppUsername");
             } else if (StringUtils.isEmpty(appPassword)) {
-                model.put("error", "registration.error.invalidPassword");
+                model.put("connectError", "registration.error.invalidPassword");
             } else if (appType.equals(AppType.COMMUNITY)) {
                 String communityUserId = communityService.authenticateUser(appUsername, appPassword);
 
                 sanitizedAppName = "community";
 
                 if (StringUtils.isNotEmpty(communityUserId)) {
-                    userService.associateAccountToUser(user, appType, sanitizedAppName, communityUserId);
+                    userService.associateAccountToUser(user, appType, sanitizedAppName, communityUserId, ticketGrantingTicket);
                 } else {
-                    model.put("error", "registration.error.invalidLegacyCredentials");
+                    model.put("connectError", "registration.error.invalidLegacyCredentials");
                 }
             } else if (appType.equals(AppType.CRM) && !crmService.isCasEnabled(sanitizedAppName)) {
-                model.put("error", "registration.error.ssoIsNotEnabled");
+                model.put("connectError", "registration.error.ssoIsNotEnabled");
             } else {
                 try {
                     try {
@@ -238,9 +245,9 @@ public class CentralController {
                         log.info("accepting expired credentials for " + appUsername + " at " + sanitizedAppName + "/" + appType);
                     }
 
-                    userService.associateAccountToUser(user, appType, sanitizedAppName, appUsername);
+                    userService.associateAccountToUser(user, appType, sanitizedAppName, appUsername, ticketGrantingTicket);
                 } catch (AppCredentialsInvalidException e) {
-                    model.put("error", "registration.error.invalidLegacyCredentials");
+                    model.put("connectError", "registration.error.invalidLegacyCredentials");
                 }
             }
             model.put("appDomain", new URL(appHelper.buildAppUrl(appType, sanitizedAppName)).getHost());
@@ -248,10 +255,10 @@ public class CentralController {
         } catch (Exception e) {
             log.error("failed to associate account", e);
 
-            model.put("error", "registration.error.couldNotAssociate");
+            model.put("connectError", "registration.error.couldNotAssociate");
         }
 
-        if (model.containsKey("error")) {
+        if (model.containsKey("connectError")) {
             if (appType.equals(AppType.CRM)) {
                 model.put("crmDomain", crmDomain);
 

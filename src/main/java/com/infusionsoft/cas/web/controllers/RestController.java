@@ -12,8 +12,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.validator.EmailValidator;
 import org.apache.log4j.Logger;
+import org.jasig.cas.web.support.CookieRetrievingCookieGenerator;
 import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJacksonHttpMessageConverter;
@@ -61,6 +63,10 @@ public class RestController {
 
     @Autowired
     UserService userService;
+
+    @Autowired
+    @Qualifier("ticketGrantingTicketCookieGenerator")
+    CookieRetrievingCookieGenerator cookieRetrievingCookieGenerator;
 
     @Value("${infusionsoft.cas.apikey}")
     private String requiredApiKey;
@@ -194,7 +200,7 @@ public class RestController {
                 model.put("user", user);
 
                 userService.addUser(user);
-                userService.associateAccountToUser(user, appType, appName, appUsername);
+                userService.associateAccountToUser(user, appType, appName, appUsername, cookieRetrievingCookieGenerator.retrieveCookieValue(request));
             }
         } catch (Exception e) {
             log.error("failed to create user account", e);
@@ -477,7 +483,7 @@ public class RestController {
                 }
             }
 
-            if(error != null) {
+            if (error == null) {
                 response.setStatus(200);
                 response.setContentType("application/json");
                 response.getWriter().write(jsonHelper.buildUserInfoJSON(loginResult.getUser()));

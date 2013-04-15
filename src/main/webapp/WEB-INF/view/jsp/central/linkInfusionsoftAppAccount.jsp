@@ -32,22 +32,22 @@
     </h2>
 
     <c:choose>
-        <c:when test="${error == 'registration.error.expiredLegacyCredentials'}">
+        <c:when test="${connectError == 'registration.error.expiredLegacyCredentials'}">
             <div class="alert alert-error" style="margin-top: 10px">
                 Your old password is expired! Please
                 <a target="oldapp" href="${appUrl}/app/authentication/login">sign in the old way</a>
                 to reset it, then try again.
             </div>
         </c:when>
-        <c:when test="${error == 'registration.error.invalidLegacyCredentials'}">
+        <c:when test="${connectError == 'registration.error.invalidLegacyCredentials'}">
             <div class="alert alert-error" style="margin-top: 10px">
                 You've entered an incorrect username and/or password.
                 <a target="oldapp" href="https://${appDomain}/app/forgotPassword/enterEmail">Forgot your password on ${appDomain}?</a>
             </div>
         </c:when>
-        <c:when test="${error != null}">
+        <c:when test="${connectError != null}">
             <div class="alert alert-error" style="margin-top: 10px">
-                <spring:message code="${error}"/>
+                <spring:message code="${connectError}"/>
             </div>
         </c:when>
     </c:choose>
