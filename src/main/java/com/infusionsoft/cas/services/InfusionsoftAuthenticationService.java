@@ -5,6 +5,9 @@ import com.infusionsoft.cas.auth.LoginResult;
 import com.infusionsoft.cas.domain.User;
 import com.infusionsoft.cas.exceptions.AppCredentialsExpiredException;
 import com.infusionsoft.cas.exceptions.AppCredentialsInvalidException;
+import org.joda.time.Days;
+import org.joda.time.Minutes;
+import org.joda.time.base.BaseSingleFieldPeriod;
 
 import javax.servlet.http.HttpServletRequest;
 import java.net.MalformedURLException;
@@ -24,7 +27,7 @@ public interface InfusionsoftAuthenticationService {
 
     LoginResult attemptLogin(String username, String password);
 
-    List<LoginAttempt> getRecentLoginAttempts(String username);
+    List<LoginAttempt> getRecentLoginAttempts(String username, BaseSingleFieldPeriod baseSingleFieldPeriod);
 
     int countConsecutiveFailedLogins(String username);
 

@@ -1,4 +1,4 @@
-package com.infusionsoft.cas.oauth.controller;
+package com.infusionsoft.cas.web.controllers;
 
 import com.infusionsoft.cas.domain.AppType;
 import com.infusionsoft.cas.domain.User;

@@ -4,24 +4,12 @@
 <html>
 <head>
     <title>Infusionsoft ID Search</title>
-
     <meta name="decorator" content="central"/>
-
 </head>
 <body>
-
-<form class=".form-search">
-    <fieldset>
-        <legend>Search</legend>
-        <div class="input-append">
-            <input type="text" class="input-medium search-query span2" name="username" placeholder="Infusionsoft ID" value="${username}"/>
-            <button type="submit" class="btn"><i class="icon-search"></i></button>
-        </div>
-    </fieldset>
-</form>
-
-<c:if test="${!empty users}">
-    <table class="table table-bordered table-striped">
+<div class="text-center">
+    <table class="table table-bordered table-striped dataTable" id="userTable">
+        <thead>
         <tr>
             <th>
                 Infusionsoft ID
@@ -36,8 +24,9 @@
                 Unlock
             </th>
         </tr>
-
-        <c:forEach var="user" items="${users}">
+        </thead>
+        <tbody>
+        <c:forEach var="user" items="${users.content}">
             <tr>
                 <td>
                         ${user.username}
@@ -53,8 +42,56 @@
                 </td>
             </tr>
         </c:forEach>
-
+        </tbody>
     </table>
-</c:if>
+    <div class="pagination pagination-centered">
+        <%--Pages are 0 based--%>
+        <c:url var="searchUrl" value="/app/admin/userSearch?"/>
+        <c:set var="pagesHalfRange" value="${4}"/>
+        <ul>
+            <%--Previous--%>
+            <c:if test="${users.firstPage}">
+                <li class="disabled"><span>&laquo;</span></li>
+            </c:if>
+            <c:if test="${!users.firstPage}">
+                <li><a href="${searchUrl}page=${users.number - 1}">&laquo;</a></li>
+            </c:if>
+
+            <%--Pages--%>
+            <c:choose>
+                <c:when test="${users.number < 4}">
+                    <c:set var="begin" value="${0}"/>
+                </c:when>
+                <c:otherwise>
+                    <c:set var="begin" value="${users.number - 4}"/>
+                </c:otherwise>
+            </c:choose>
+
+
+            <c:choose>
+                <c:when test="${begin + 8  < users.totalPages}">
+                    <c:set var="end" value="${begin + 8}"/>
+                </c:when>
+                <c:otherwise>
+                    <c:set var="end" value="${users.totalPages - 1}"/>
+                    <c:set var="begin" value="${end - 8}"/>
+                </c:otherwise>
+            </c:choose>
+
+            <c:forEach var="page" begin="${begin}" end="${end}">
+                <c:set var="pageClass" value="${users.number == page ? 'active' : ''}"/>
+                <li class="${pageClass}"><a href="${searchUrl}page=${page}">${page + 1}</a></li>
+            </c:forEach>
+
+            <%--Next--%>
+            <c:if test="${users.lastPage}">
+                <li class="disabled"><span>&raquo;</span></li>
+            </c:if>
+            <c:if test="${!users.lastPage}">
+                <li><a href="${searchUrl}page=${users.number + 1}">&raquo;</a></li>
+            </c:if>
+        </ul>
+    </div>
+</div>
 </body>
 </html>

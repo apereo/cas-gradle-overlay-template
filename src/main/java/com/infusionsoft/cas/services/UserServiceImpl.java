@@ -7,9 +7,10 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.servlet.ModelAndView;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -47,7 +48,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User addUser(User user) throws InfusionsoftValidationException {
-        user.getAuthorities().add(authorityDAO.getByAuthority("ROLE_USER"));
+        user.getAuthorities().add(authorityDAO.findByAuthority("ROLE_USER"));
         userDAO.save(user);
 
         passwordService.setPasswordForUser(user);
@@ -56,19 +57,27 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<User> findByUsernameWildcard(String usernameWildcard) {
-        return userDAO.findByUsernameWildcard(usernameWildcard);
+    public Page<User> findByUsernameLike(String username, Pageable pageable) {
+        if (StringUtils.isEmpty(username)) {
+            username = "%";
+        } else if (StringUtils.contains(username, "*") || StringUtils.contains(username, "%")) {
+            username = username.replace("*", "%");
+        } else {
+            username = "%" + username + "%";
+        }
+
+        return userDAO.findByUsernameLike(username, pageable);
     }
 
     @Override
     public void updateUser(User user) {
         //TODO: if this user is currently logged in then change the object in the security context
-        userDAO.update(user);
+        userDAO.save(user);
     }
 
     @Override
     public void updateUserAccount(UserAccount userAccount) {
-        userAccountDAO.update(userAccount);
+        userAccountDAO.save(userAccount);
     }
 
     @Override
@@ -78,7 +87,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User loadUser(Long id) {
-        return userDAO.getById(id);
+        return userDAO.findOne(id);
     }
 
     @Override
@@ -113,7 +122,7 @@ public class UserServiceImpl implements UserService {
 
         user.setPasswordRecoveryCode(recoveryCode);
 
-        userDAO.update(user);
+        userDAO.save(user);
 
         return user.getPasswordRecoveryCode();
     }
@@ -322,11 +331,11 @@ public class UserServiceImpl implements UserService {
     public void cleanupLoginAttempts() {
         long loginAttemptMaxAge = 86400000;
         Date date = new Date(System.currentTimeMillis() - loginAttemptMaxAge);
-        List<LoginAttempt> attempts = loginAttemptDAO.findByLessThanDateAttempted(date);
+        List<LoginAttempt> attempts = loginAttemptDAO.findByDateAttemptedLessThan(date);
 
         log.info("deleting " + attempts.size() + " login attempts that occurred before " + date);
 
-        loginAttemptDAO.deleteAll(attempts);
+        loginAttemptDAO.delete(attempts);
     }
 
     @Override
@@ -336,7 +345,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public boolean isDuplicateUsername(String username, Long id) {
-        return userDAO.findByUsernameAndNotId(username, id) != null;
+        return userDAO.findByUsernameAndIdNot(username, id) != null;
     }
 
     /**
@@ -349,7 +358,7 @@ public class UserServiceImpl implements UserService {
             UserAccount account = findUserAccount(user, appName, appType, oldAppUsername);
             if (account != null) {
                 account.setAppUsername(newAppUsername);
-                userAccountDAO.update(account);
+                userAccountDAO.save(account);
                 log.info("Changed application username from " + oldAppUsername + " to " + newAppUsername + " for user " + username + "on " + appName + "/" + appType);
             }
         }

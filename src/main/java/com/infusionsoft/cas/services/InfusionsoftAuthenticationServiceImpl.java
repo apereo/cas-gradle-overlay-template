@@ -13,6 +13,9 @@ import org.jasig.cas.ticket.Ticket;
 import org.jasig.cas.ticket.TicketGrantingTicket;
 import org.jasig.cas.ticket.registry.TicketRegistry;
 import org.jasig.cas.web.support.CookieRetrievingCookieGenerator;
+import org.joda.time.DateTime;
+import org.joda.time.Minutes;
+import org.joda.time.base.BaseSingleFieldPeriod;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -35,7 +38,7 @@ import java.util.List;
 public class InfusionsoftAuthenticationServiceImpl implements InfusionsoftAuthenticationService {
     private static final Logger log = Logger.getLogger(InfusionsoftAuthenticationServiceImpl.class);
 
-    private static final long LOCK_PERIOD_MS = 1800000; // 30 minutes
+    private static final BaseSingleFieldPeriod lockoutTimePeriod = Minutes.minutes(30);
     private static final int LOCK_ATTEMPTS = 5; // how many tries before locked
 
     @Autowired
@@ -187,58 +190,77 @@ public class InfusionsoftAuthenticationServiceImpl implements InfusionsoftAuthen
 
     private LoginResult attemptLoginAndLogAttempts(String username, String password, String md5password) {
         LoginResult loginResult = attemptLoginInternal(username, password, md5password);
+
         switch (loginResult.getLoginStatus()) {
             case Success:
                 log.info("Authenticated CAS user " + username);
                 recordLoginAttempt(username, true);
                 break;
+
             case PasswordExpired:
                 log.info("Authenticated CAS user " + username + " with expired password");
                 recordLoginAttempt(username, true);
                 break;
+
             case AccountLocked:
             case BadPassword:
             case DisabledUser:
             case NoSuchUser:
                 recordLoginAttempt(username, false);
                 break;
+
             default:
                 throw new IllegalStateException("Unknown value for loginResult: " + loginResult);
         }
+
         return loginResult;
     }
 
     private LoginResult attemptLoginInternal(String username, String password, String md5password) {
+        LoginResult retVal;
 
         User user = userService.loadUser(username);
-        if (user == null)
-            return LoginResult.NoSuchUser();
-        if (!user.isEnabled())
-            return LoginResult.DisabledUser(user);
-
-        UserPassword userPassword = passwordService.getPasswordForUser(user);
-        if (userPassword == null)
-            return LoginResult.BadPassword(user);
-        if (passwordService.isPasswordExpired(userPassword))
-            return LoginResult.PasswordExpired(user);
-
-        if (StringUtils.isNotEmpty(password)) {
-            if (!passwordService.passwordsMatch(userPassword, password))
-                return LoginResult.BadPassword(user);
-        } else if (StringUtils.isNotEmpty(md5password)) {
-            if (!passwordService.md5PasswordsMatch(userPassword, md5password))
-                return LoginResult.BadPassword(user);
+        if (user == null) {
+            retVal = LoginResult.NoSuchUser();
         } else {
-            return LoginResult.BadPassword(user);
+            if (!user.isEnabled()) {
+                retVal = LoginResult.DisabledUser(user);
+            } else {
+                UserPassword userPassword = passwordService.getPasswordForUser(user);
+
+                if (userPassword == null) {
+                    retVal = LoginResult.BadPassword(user);
+                } else {
+                    if (StringUtils.isNotEmpty(password)) {
+                        if (!passwordService.passwordsMatch(userPassword, password)) {
+                            retVal = LoginResult.BadPassword(user);
+                        } else {
+                            retVal = LoginResult.Success(user);
+                        }
+                    } else if (StringUtils.isNotEmpty(md5password)) {
+                        if (!passwordService.md5PasswordsMatch(userPassword, md5password)) {
+                            retVal = LoginResult.BadPassword(user);
+                        } else {
+                            retVal = LoginResult.Success(user);
+                        }
+                    } else {
+                        retVal = LoginResult.BadPassword(user);
+                    }
+                }
+            }
         }
 
-        if (isAccountLocked(username)) {
-            return LoginResult.AccountLocked(user);
-        } else if (passwordService.isPasswordExpired(user)) {
-            return LoginResult.PasswordExpired(user);
+        if (retVal.getLoginStatus() == LoginResult.LoginStatus.Success) {
+            if (passwordService.isPasswordExpired(user)) {
+                retVal = LoginResult.PasswordExpired(user);
+            }
+        } else {
+            if (isAccountLocked(username)) {
+                retVal = LoginResult.AccountLocked(user);
+            }
         }
 
-        return LoginResult.Success(user);
+        return retVal;
     }
 
     /**
@@ -256,14 +278,14 @@ public class InfusionsoftAuthenticationServiceImpl implements InfusionsoftAuthen
     }
 
     /**
-     * Returns all login attempts within the last 30 days, for a particular username.
+     * Returns all login attempts within the X days/minutes/seconds, for a particular username.
      * Of course, these may have been cleared out by the garbage man Quartz job.
      */
     @Override
-    public List<LoginAttempt> getRecentLoginAttempts(String username) {
-        Date thirtyDaysAgo = new Date(System.currentTimeMillis() - (86400000L * 30));
+    public List<LoginAttempt> getRecentLoginAttempts(String username, BaseSingleFieldPeriod baseSingleFieldPeriod) {
+        DateTime dateTime = new DateTime().minus(baseSingleFieldPeriod);
 
-        return loginAttemptDAO.findByUsernameGreaterThanDateAttempted(username, thirtyDaysAgo);
+        return loginAttemptDAO.findByUsernameAndDateAttemptedGreaterThanOrderByDateAttemptedDesc(username, dateTime.toDate());
     }
 
     /**
@@ -271,7 +293,7 @@ public class InfusionsoftAuthenticationServiceImpl implements InfusionsoftAuthen
      */
     @Override
     public int countConsecutiveFailedLogins(String username) {
-        List<LoginAttempt> attempts = getRecentLoginAttempts(username);
+        List<LoginAttempt> attempts = getRecentLoginAttempts(username, lockoutTimePeriod);
         int failures = 0;
 
         log.debug("recent login attempts: " + attempts.size());
@@ -294,15 +316,7 @@ public class InfusionsoftAuthenticationServiceImpl implements InfusionsoftAuthen
      */
     @Override
     public LoginAttempt getMostRecentFailedLogin(String username) {
-        List<LoginAttempt> attempts = getRecentLoginAttempts(username);
-
-        for (LoginAttempt attempt : attempts) {
-            if (!attempt.isSuccess()) {
-                return attempt;
-            }
-        }
-
-        return null;
+        return loginAttemptDAO.findByUsernameAndSuccessFalseOrderByDateAttemptedDesc(username);
     }
 
     /**
@@ -310,12 +324,13 @@ public class InfusionsoftAuthenticationServiceImpl implements InfusionsoftAuthen
      */
     @Override
     public boolean isAccountLocked(String username) {
+
         if (countConsecutiveFailedLogins(username) > LOCK_ATTEMPTS) {
             LoginAttempt mostRecent = getMostRecentFailedLogin(username);
-            Date lockPeriodStart = new Date(System.currentTimeMillis() - LOCK_PERIOD_MS);
+            DateTime lockPeriodStart = new DateTime().minus(lockoutTimePeriod);
 
-            if (mostRecent.getDateAttempted().after(lockPeriodStart)) {
-                log.info("username " + username + " is locked due to more than " + LOCK_ATTEMPTS + " failures in the last " + LOCK_PERIOD_MS + " milliseconds");
+            if (mostRecent.getDateAttempted().after(lockPeriodStart.toDate())) {
+                log.info("username " + username + " is locked due to more than " + LOCK_ATTEMPTS + " failures in the last " + lockoutTimePeriod.toString() + " milliseconds");
 
                 return true;
             } else {
@@ -376,57 +391,6 @@ public class InfusionsoftAuthenticationServiceImpl implements InfusionsoftAuthen
             throw new AppCredentialsInvalidException("we don't know how to verify credentials for app type " + appType);
         }
     }
-
-//    /**
-//     * Creates (or updates) a CAS ticket granting ticket. Sometimes this needs to be called after an attributes change,
-//     * to give the user a new ticket and refresh attributes. It should only be called when the user is already
-//     * authenticated and trusted, since it automatically creates a new session without validating the password.
-//     */
-//    //TODO: Removed from trying to get app up
-//    @Override
-//    public void createTicketGrantingTicket(String username, HttpServletRequest request, HttpServletResponse response) throws TicketException {
-//        LetMeInCredentials credentials = new LetMeInCredentials();
-//
-//        credentials.setUsername(username);
-//        credentials.setPassword("bogus");
-//
-//
-//        String ticketGrantingTicket = centralAuthenticationService.createTicketGrantingTicket(credentials);
-//        String contextPath = request.getContextPath();
-//
-//        if (!contextPath.endsWith("/")) {
-//            contextPath = contextPath + "/";
-//        }
-//
-//        Cookie cookie = new Cookie("CASTGC", ticketGrantingTicket);
-//        cookie.setPath(contextPath);
-//        cookie.setSecure(true);
-//
-//        response.addCookie(cookie);
-//
-//        log.info("set cookie CASTGC=" + ticketGrantingTicket);
-//    }
-
-//    /**
-//     * Gets the ticket granting ticket associated with the current request.
-//     */
-//    @Override
-//    public String getTicketGrantingTicketId(HttpServletRequest request) {
-//        return ticketGrantingTicketCookieGenerator.retrieveCookieValue(request);
-//    }
-
-//    /**
-//     * Destroys the ticket granting ticket associated with the current request.
-//     */
-//    @Override
-//    public void destroyTicketGrantingTicket(HttpServletRequest request, HttpServletResponse response) {
-//        String ticketGrantingTicketId = getTicketGrantingTicketId(request);
-//
-//        //TODO: Removed from trying to get app up
-//        centralAuthenticationService.destroyTicketGrantingTicket(ticketGrantingTicketId);
-//        ticketGrantingTicketCookieGenerator.removeCookie(response);
-//        warnCookieGenerator.removeCookie(response);
-//    }
 
     /**
      * Looks at the CAS cookies to determine the current user.

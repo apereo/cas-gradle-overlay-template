@@ -12,6 +12,7 @@ import org.joda.time.DateMidnight;
 import org.joda.time.DateTime;
 import org.joda.time.Days;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -58,7 +59,7 @@ public class PasswordServiceImpl implements PasswordService {
     public boolean isPasswordValid(String username, String password) {
         String encodedPassword = passwordEncoder.encode(password);
 
-        UserPassword userPassword = userPasswordDAO.findByUsernameAndPassword(username, encodedPassword);
+        UserPassword userPassword = userPasswordDAO.findByUser_UsernameAndPasswordEncodedAndActiveTrue(username, encodedPassword);
 
         log.debug("checking if encoded password " + encodedPassword + " is valid for user " + username + ": " + (userPassword != null));
 
@@ -105,7 +106,7 @@ public class PasswordServiceImpl implements PasswordService {
      */
     @Override
     public int getNumberOfDaysToPasswordExpirationDate(String userId) {
-        UserPassword userPassword = userPasswordDAO.findByUsername(userId);
+        UserPassword userPassword = userPasswordDAO.findByUser_UsernameAndActiveTrue(userId);
 
         DateMidnight createdDateTime = new DateTime(userPassword.getDateCreated().getTime()).toDateMidnight();
         DateMidnight expirationDateTime = createdDateTime.plusDays(DEFAULT_PASSWORD_EXPIRE_DAYS);
@@ -121,7 +122,7 @@ public class PasswordServiceImpl implements PasswordService {
      */
     @Override
     public UserPassword getPasswordForUser(User user) {
-        return userPasswordDAO.findByUsername(user.getUsername());
+        return userPasswordDAO.findByUser_UsernameAndActiveTrue(user.getUsername());
     }
 
     /**
@@ -140,10 +141,10 @@ public class PasswordServiceImpl implements PasswordService {
 
             for (UserPassword p : user.getPasswords()) {
                 p.setActive(false);
-                userPasswordDAO.update(p);
+                userPasswordDAO.save(p);
             }
 
-            userPasswordDAO.update(userPassword);
+            userPasswordDAO.save(userPassword);
 
             log.debug("Set password for user " + user.getId());
         }
@@ -192,10 +193,9 @@ public class PasswordServiceImpl implements PasswordService {
     /**
      * Checks if a password matches any of the last four passwords.
      */
-    @SuppressWarnings("unchecked")
     private boolean lastFourPasswordsContains(User user, String password) {
         String passwordEncoded = passwordEncoder.encode(password);
-        List<UserPassword> passwords = userPasswordDAO.findLastFourByUsername(user);
+        List<UserPassword> passwords = userPasswordDAO.findByUserAndActiveTrueOrderByDateCreatedDesc(user, new PageRequest(0, 4));
 
         for (int i = 0; i < passwords.size() && i < 4; i++) {
             if (passwords.get(i).getPasswordEncoded().equals(passwordEncoded)) {

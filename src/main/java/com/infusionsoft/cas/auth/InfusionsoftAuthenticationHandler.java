@@ -28,10 +28,11 @@ public class InfusionsoftAuthenticationHandler extends AbstractUsernamePasswordA
         switch (loginResult.getLoginStatus()) {
             case AccountLocked:
             case DisabledUser:
-                throw new BlockedCredentialsAuthenticationException();
+                throw new BlockedCredentialsAuthenticationException("login.lockedTooManyFailures");
             case BadPassword:
             case NoSuchUser:
-                throw new BadUsernameOrPasswordAuthenticationException();
+                int failedAttempts = infusionsoftAuthenticationService.countConsecutiveFailedLogins(credentials.getUsername());
+                throw new BadUsernameOrPasswordAuthenticationException("login.failed" + failedAttempts);
             case PasswordExpired:
             case Success:
                 return true;

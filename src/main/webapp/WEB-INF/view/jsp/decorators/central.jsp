@@ -14,7 +14,6 @@
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
-    <decorator:head/>
     <link type="text/css" rel="stylesheet" href="<c:url value="/css/bootstrap.min.css" />"/>
     <spring:theme code="standard.custom.css.file" var="customCssFile"/>
     <link type="text/css" rel="stylesheet" href="<c:url value="${customCssFile}" />"/>
@@ -24,6 +23,7 @@
     <script type="text/javascript" src="<c:url value="/js/jquery.placeholder.js"/>"></script>
     <script type="text/javascript" src="<c:url value="/js/jquery.qtip-1.0.0-rc3.min.js"/>"></script>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700,800" type="text/css">
+    <decorator:head/>
 </head>
 <body>
 <div id="headerbg">
@@ -46,21 +46,23 @@
             <li><a href="${homeLink}" class="${homeLinkSelected}">YOUR ACCOUNTS</a></li>
             <li><a href="${editProfileLink}" class="${editProfileLinkSelected}">EDIT YOUR ID</a></li>
             <sec:authorize access="hasRole('ROLE_ADMIN')">
-                <li><a href="/app/admin/userSearch" class="${editProfileLinkSelected}">USER SEARCH</a></li>
+                <form id="userSearch" class="navbar-search pull-right" action="/app/admin/userSearch">
+                    <input type="text" class="search-query" name="searchUsername" placeholder="Search Infusionsoft ID" value="${searchUsername}"/>
+                </form>
             </sec:authorize>
         </ul>
     </div>
 </div>
 <div class="wrapper">
     <div id="content">
-        <c:if test="${error}">
+        <c:if test="${not empty error}">
             <div class="alert alert-error">${error}</div>
         </c:if>
-        <c:if test="${success}">
-            <div class="alert alert-error">${success}</div>
+        <c:if test="${not empty success}">
+            <div class="alert alert-success">${success}</div>
         </c:if>
-        <c:if test="${info}">
-            <div class="alert alert-error">${info}</div>
+        <c:if test="${not empty info}">
+            <div class="alert alert-info">${info}</div>
         </c:if>
         <decorator:body/>
     </div>

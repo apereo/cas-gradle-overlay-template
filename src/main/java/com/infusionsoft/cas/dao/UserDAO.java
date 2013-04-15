@@ -1,17 +1,18 @@
 package com.infusionsoft.cas.dao;
 
 import com.infusionsoft.cas.domain.User;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.repository.PagingAndSortingRepository;
 
-import java.util.List;
-
-public interface UserDAO extends JpaDAO<User> {
+public interface UserDAO extends PagingAndSortingRepository<User, Long> {
     User findByUsername(String username);
 
-    User findByUsernameAndNotId(String username, Long id);
+    User findByUsernameAndIdNot(String username, Long id);
 
     User findByUsernameAndEnabled(String username, Boolean enabled);
 
     User findByPasswordRecoveryCode(String passwordRecoveryCode);
 
-    List<User> findByUsernameWildcard(String username);
+    Page<User> findByUsernameLike(String username, Pageable pageable);
 }

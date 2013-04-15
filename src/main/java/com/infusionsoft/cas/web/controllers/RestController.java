@@ -9,6 +9,7 @@ import com.infusionsoft.cas.services.PasswordService;
 import com.infusionsoft.cas.services.UserService;
 import com.infusionsoft.cas.support.JsonHelper;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.validator.EmailValidator;
 import org.apache.log4j.Logger;
 import org.json.simple.JSONObject;
@@ -436,48 +437,54 @@ public class RestController {
 
         String error = null;
         LoginResult loginResult = null;
-        if (StringUtils.isEmpty(username)) {
-            error = "login.noUsername";
-        } else if (StringUtils.isNotEmpty(password)) {
-            loginResult = infusionsoftAuthenticationService.attemptLogin(username, password);
-        } else if (StringUtils.isNotEmpty(password)) {
-            loginResult = infusionsoftAuthenticationService.attemptLoginWithMD5Password(username, md5password);
-        } else {
-            error = "login.noPassword";
-        }
-
-        if (error != null) {
-            switch (loginResult.getLoginStatus()) {
-                case AccountLocked:
-                    error = "login.lockedTooManyFailures";
-                    break;
-                case BadPassword:
-                case DisabledUser:
-                case NoSuchUser:
-                    error = "login.failed1";
-                    break;
-                case PasswordExpired:
-                    error = "login.passwordExpired";
-                    break;
-                case Success:
-                    error = null;
-                    break;
-                default:
-                    log.error("Unknown value for loginResult: " + loginResult);
-                    error = "Unknown value for loginResult: " + loginResult;
-                    break;
-            }
-        }
 
         try {
+            if (StringUtils.isEmpty(username)) {
+                error = "login.noUsername";
+            }
+
+            if (StringUtils.isEmpty(password) || StringUtils.isEmpty(md5password)) {
+                error = "login.noPassword";
+            }
+
             if (error != null) {
-                response.setStatus(401);
-                response.setContentType("application/json");
-                response.getWriter().write(jsonHelper.buildErrorJson(error));
-            } else {
+                if (StringUtils.isNotEmpty(password)) {
+                    loginResult = infusionsoftAuthenticationService.attemptLogin(username, password);
+                } else {
+                    loginResult = infusionsoftAuthenticationService.attemptLoginWithMD5Password(username, md5password);
+                }
+
+                switch (loginResult.getLoginStatus()) {
+                    case AccountLocked:
+                        error = "login.lockedTooManyFailures";
+                        break;
+                    case BadPassword:
+                    case DisabledUser:
+                    case NoSuchUser:
+                        int failedLoginAttempts = infusionsoftAuthenticationService.countConsecutiveFailedLogins(username);
+                        error = "login.failed" + failedLoginAttempts;
+                        break;
+                    case PasswordExpired:
+                        error = "login.passwordExpired";
+                        break;
+                    case Success:
+                        error = null;
+                        break;
+                    default:
+                        log.error("Unknown value for loginResult: " + loginResult);
+                        error = "Unknown value for loginResult: " + loginResult;
+                        break;
+                }
+            }
+
+            if(error != null) {
                 response.setStatus(200);
                 response.setContentType("application/json");
                 response.getWriter().write(jsonHelper.buildUserInfoJSON(loginResult.getUser()));
+            } else {
+                response.setStatus(401);
+                response.setContentType("application/json");
+                response.getWriter().write(jsonHelper.buildErrorJson(error));
             }
         } catch (Exception e) {
             log.error("failed to create JSON response", e);
@@ -513,13 +520,7 @@ public class RestController {
         }
 
         // Parse the casGlobalId
-        long casGlobalId = 0;
-        if (StringUtils.isNotEmpty(casGlobalIdString)) {
-            try {
-                casGlobalId = Long.parseLong(casGlobalIdString);
-            } catch (NumberFormatException e) {
-            }
-        }
+        long casGlobalId = NumberUtils.toLong(casGlobalIdString);
 
         // Lookup the user
         User user = null;

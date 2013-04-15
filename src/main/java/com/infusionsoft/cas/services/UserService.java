@@ -4,6 +4,8 @@ import com.infusionsoft.cas.domain.PendingUserAccount;
 import com.infusionsoft.cas.domain.User;
 import com.infusionsoft.cas.domain.UserAccount;
 import com.infusionsoft.cas.exceptions.AccountException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
@@ -50,7 +52,7 @@ public interface UserService {
 
     void updateUserAccount(UserAccount userAccount);
 
-    List<User> findByUsernameWildcard(String usernameWildcard);
+    Page<User> findByUsernameLike(String usernameWildcard, Pageable pageable);
 
     boolean isDuplicateUsername(String username, Long id);
 

@@ -34,7 +34,6 @@
 
     <!-- As of Spring SEC 3.1 -->
     <sec:http pattern="/app/registration/getLogoImageUrl*" security="none"/>
-    <sec:http pattern="/rest/**" security="none"/>
     <sec:http pattern="/app/rest/**" security="none"/>
 
     <sec:http pattern="/status/**" entry-point-ref="notAuthorizedEntryPoint" use-expressions="true" auto-config="true">
@@ -45,12 +44,9 @@
         <sec:logout success-handler-ref="infusionsoftLogoutSuccessHandler"/>
         <sec:custom-filter ref="casProcessingFilter" after="CAS_FILTER"/>
         <sec:intercept-url pattern="/app/registration/**" access="permitAll()"/>
-        <sec:intercept-url pattern="/registration/**" access="permitAll()"/>
-        <!--<sec:intercept-url pattern="/rest/**" access="permitAll()"/>-->
-
+        <sec:intercept-url pattern="/app/admin/**" access="hasRole('ROLE_ADMIN')"/>
         <sec:intercept-url pattern="/app/**" access="isAuthenticated()"/>
         <sec:intercept-url pattern="/services/**" access="denyAll()"/>
-        <!--<sec:intercept-url pattern="/services/**" access="hasRole('${cas.securityContext.serviceProperties.adminRoles}')"/>-->
     </sec:http>
 
     <sec:authentication-manager alias="casAuthenticationManager">
@@ -93,35 +89,8 @@
         </property>
     </bean>
 
-
-    <!--<sec:http entry-point-ref="casProcessingFilterEntryPoint" auto-config="true" use-expressions="true">-->
-    <!--<sec:logout logout-url="/services/logout.html" logout-success-url="/services/loggedOut.html"/>-->
-    <!--<sec:custom-filter ref="casProcessingFilter" after="CAS_FILTER"/>-->
-    <!--<sec:intercept-url pattern="/*" access="hasRole('ROLE_USER')"/>-->
-    <!--<sec:intercept-url pattern="/app/**" access="hasRole('ROLE_USER')"/>-->
-    <!--<sec:intercept-url pattern="/services/**" access="${cas.securityContext.serviceProperties.adminRoles}"/>-->
-    <!--&lt;!&ndash;<sec:intercept-url pattern="/central/**" access="isAuthenticated()"/>&ndash;&gt;-->
-    <!--&lt;!&ndash;<sec:intercept-url pattern="/oauth/**" access="isAuthenticated()"/>&ndash;&gt;-->
-    <!--&lt;!&ndash;<sec:intercept-url pattern="/registration/verification" access="isAuthenticated()"/>&ndash;&gt;-->
-    <!--&lt;!&ndash;<sec:intercept-url pattern="/registration/verify" access="isAuthenticated()"/>&ndash;&gt;-->
-    <!--&lt;!&ndash;<sec:intercept-url pattern="/registration/success" access="isAuthenticated()"/>&ndash;&gt;-->
-    <!--&lt;!&ndash;<sec:intercept-url pattern="/**" access="${cas.securityContext.serviceProperties.adminRoles}"/>&ndash;&gt;-->
-    <!--</sec:http>-->
-
-
     <bean id="passwordEncoder" class="org.jasig.cas.authentication.handler.DefaultPasswordEncoder">
         <constructor-arg index="0" value="SHA-256"/>
     </bean>
-
-
-    <!--<sec:user-service id="userDetailsService">-->
-    <!--<sec:user name="bradb@infusionsoft.com" password="notused" authorities="ROLE_USER" />-->
-    <!--</sec:user-service>-->
-
-    <!--<bean id="userDetailsService" class="com.infusionsoft.cas.services.CasUserDetailsService">-->
-        <!--<property name="dataSource" ref="dataSource"/>-->
-        <!--<property name="usersByUsernameQuery" value="select username, password_encoded, enabled from user join user_password on user.id = user_password.user_id where active = 1 and username = ?"/>-->
-        <!--<property name="authoritiesByUsernameQuery" value="select user.username, role.authority from user_role join user on user.id = user_role.user_id join role on role.id = user_role.role_id where user.username = ?"/>-->
-    <!--</bean>-->
 
 </beans>

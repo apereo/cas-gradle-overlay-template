@@ -3,11 +3,12 @@ package com.infusionsoft.cas.web.controllers;
 import com.infusionsoft.cas.domain.User;
 import com.infusionsoft.cas.services.InfusionsoftAuthenticationService;
 import com.infusionsoft.cas.services.UserService;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.servlet.ModelAndView;
 
 @Controller
 public class AdminController {
@@ -19,38 +20,32 @@ public class AdminController {
     UserService userService;
 
     @RequestMapping
-    public ModelAndView userSearch(String username) {
-        ModelAndView retVal = new ModelAndView("admin/userSearch");
+    public String userSearch(Model model, String searchUsername, Integer page) {
+        Page<User> users = userService.findByUsernameLike(searchUsername, new PageRequest(page != null ? page : 0, 10));
 
-        if (StringUtils.isNotEmpty(username)) {
-            retVal.getModel().put("users", userService.findByUsernameWildcard(StringUtils.trim(username)));
-            retVal.getModel().put("username", username);
-        }
+        model.addAttribute("users", users);
+        model.addAttribute("searchUsername", searchUsername);
 
-        return retVal;
+        return "admin/userSearch";
     }
 
     @RequestMapping
-    public ModelAndView resetPassword(Long id) {
-        ModelAndView retVal = new ModelAndView("admin/userSearch");
-
+    public String resetPassword(Long id, Model model) {
         User user = userService.loadUser(id);
         String recoveryCode = userService.resetPassword(user);
 
-        retVal.getModel().put("success", "Recovery Code Successful: " + recoveryCode);
+        model.addAttribute("success", "Recovery Code " + recoveryCode + " sent to " + user.getUsername());
 
-        return retVal;
-
+        return userSearch(model, null, 0);
     }
 
     @RequestMapping
-    public ModelAndView unlockUser(Long id) {
-        ModelAndView retVal = new ModelAndView("admin/userSearch");
-
+    public String unlockUser(Model model, Long id) {
         User user = userService.loadUser(id);
         infusionsoftAuthenticationService.unlockUser(user.getUsername());
 
-        return retVal;
+        model.addAttribute("success", "Unlocked " + user.getUsername());
 
+        return userSearch(model, null, 0);
     }
 }

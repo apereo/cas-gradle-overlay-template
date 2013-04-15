@@ -169,6 +169,10 @@ h2.apps {
     background: rgba(0, 0, 0, 0.05);
 }
 
+#userSearch {
+    margin: 0px;
+}
+
 /*************************************** CONTENT */
 #content {
     border-top: 1px solid #fff; /* REMOVES VERTICAL MARGIN COLLAPSING */

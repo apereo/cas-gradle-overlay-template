@@ -2,10 +2,11 @@ package com.infusionsoft.cas.dao;
 
 import com.infusionsoft.cas.domain.User;
 import com.infusionsoft.cas.domain.UserAccount;
+import org.springframework.data.repository.PagingAndSortingRepository;
 
 import java.util.List;
 
-public interface UserAccountDAO extends JpaDAO<UserAccount> {
+public interface UserAccountDAO extends PagingAndSortingRepository<UserAccount, Long> {
     List<UserAccount> findByUserAndDisabled(User user, Boolean disabled);
 
     UserAccount findByUserAndId(User user, Long id);
