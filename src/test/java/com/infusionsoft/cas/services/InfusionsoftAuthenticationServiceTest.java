@@ -82,7 +82,7 @@ public class InfusionsoftAuthenticationServiceTest {
         user.getAccounts().add(account2);
 
         String json = jsonHelper.buildUserInfoJSON(user);
-        String expected = "{\"id\":13,\"lastName\":\"User\",\"username\":\"test.user@infusionsoft.com\",\"accounts\":[{\"appUrl\":\"https://app1.infusionsoft.com\",\"appName\":\"app1\",\"userName\":\"user1\",\"appAlias\":\"My App #1\",\"type\":\"crm\"},{\"appUrl\":\"https://app2.customerhub.net/admin\",\"appName\":\"app2\",\"userName\":\"user2\",\"appAlias\":\"My App #2\",\"type\":\"customerhub\"}],\"firstName\":\"Test\",\"displayName\":\"Test User\"}";
+        String expected = "{\"lastName\":\"User\",\"username\":\"test.user@infusionsoft.com\",\"linkedApps\":[{\"appUrl\":\"https://app1.infusionsoft.com\",\"appName\":\"app1\",\"appAlias\":\"My App #1\",\"appType\":\"crm\",\"appUsername\":\"user1\"},{\"appUrl\":\"https://app2.customerhub.net/admin\",\"appName\":\"app2\",\"appAlias\":\"My App #2\",\"appType\":\"customerhub\",\"appUsername\":\"user2\"}],\"firstName\":\"Test\",\"displayName\":\"Test User\",\"casGlobalId\":13}";
 
         Assert.assertEquals(json, expected, "JSON must match the expected format");
     }
