@@ -2,6 +2,7 @@ package com.infusionsoft.cas.support;
 
 import com.infusionsoft.cas.domain.User;
 import com.infusionsoft.cas.domain.UserAccount;
+import org.apache.commons.lang.StringUtils;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,7 +48,7 @@ public class JsonHelper {
                 accountToAdd.put("appType", account.getAppType());
                 accountToAdd.put("appName", account.getAppName());
                 accountToAdd.put("appUsername", account.getAppUsername());
-                accountToAdd.put("appAlias", account.getAlias());
+                accountToAdd.put("appAlias", StringUtils.defaultIfEmpty(account.getAlias(), account.getAppName()));
                 accountToAdd.put("appUrl", appHelper.buildAppUrl(account.getAppType(), account.getAppName()));
 
                 accountsArray.add(accountToAdd);
