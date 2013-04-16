@@ -6,6 +6,7 @@ import com.infusionsoft.cas.services.UserService;
 import org.jasig.services.persondir.IPersonAttributes;
 import org.jasig.services.persondir.support.AbstractFlatteningPersonAttributeDao;
 import org.jasig.services.persondir.support.AttributeNamedPersonImpl;
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -56,11 +57,10 @@ public class InfusionsoftAttributeRepository extends AbstractFlatteningPersonAtt
             resultsMap.put("lastName", Arrays.asList(new Object[]{user.getLastName()}));
             resultsMap.put("email", Arrays.asList(new Object[]{user.getUsername()}));
 
-            JSONObject rootObj = new JSONObject();
             List<UserAccount> accounts = userService.findByUserAndDisabled(user, false);
-            rootObj.put("linkedApps", jsonHelper.buildUserAccountsJSON(accounts));
+            JSONArray accountsArray = jsonHelper.buildUserAccountsJSON(accounts);
             // Get rid of the JSON-optional escaped slashes because Ruby's Psych parser chokes on them
-            resultsMap.put("accounts", Arrays.asList(new Object[]{rootObj.toJSONString().replaceAll("\\\\/", "/")}));
+            resultsMap.put("accounts", Arrays.asList(new Object[]{accountsArray.toJSONString().replaceAll("\\\\/", "/")}));
         } else {
             logger.error("could not find a user record for: " + uid);
         }
