@@ -32,7 +32,11 @@
 
         <div id="userinfo">
             <c:url var="logoutUrl" value="/j_spring_security_logout"/>
-            Signed in as: <strong><sec:authentication property="principal.firstName"/> <sec:authentication property="principal.lastName"/></strong> |
+            <strong>
+                <sec:authentication property="principal.firstName"/> <sec:authentication property="principal.lastName"/>
+            </strong>
+            (<sec:authentication property="principal.username"/>)
+            |
             <a href="${logoutUrl}">Sign Out</a>
         </div>
         <span id="title">Account Central</span>
@@ -42,9 +46,9 @@
     <div id="nav">
         <ul>
             <c:url var="homeLink" value="/app/central/home"/>
-            <c:url var="editProfileLink" value="/app/central/editProfile"/>
+            <c:url var="editProfileLink" value="/app/profile/editProfile"/>
             <li><a href="${homeLink}" class="${homeLinkSelected}">YOUR ACCOUNTS</a></li>
-            <li><a href="${editProfileLink}" class="${editProfileLinkSelected}">EDIT YOUR ID</a></li>
+            <li><a href="${editProfileLink}" class="${editProfileLinkSelected}">EDIT YOUR PROFILE</a></li>
             <sec:authorize access="hasRole('ROLE_ADMIN')">
                 <form id="userSearch" class="navbar-search pull-right" action="/app/admin/userSearch">
                     <input type="text" class="search-query" name="searchUsername" placeholder="Search Infusionsoft ID" value="${searchUsername}"/>
@@ -55,16 +59,18 @@
 </div>
 <div class="wrapper">
     <div id="content">
-        <c:if test="${not empty error}">
-            <div class="alert alert-error">${error}</div>
-        </c:if>
-        <c:if test="${not empty success}">
-            <div class="alert alert-success">${success}</div>
-        </c:if>
-        <c:if test="${not empty info}">
-            <div class="alert alert-info">${info}</div>
-        </c:if>
-        <decorator:body/>
+        <div id="main">
+            <c:if test="${not empty error}">
+                <div class="alert alert-error"><spring:message code="${error}" text="${error}"/></div>
+            </c:if>
+            <c:if test="${not empty success}">
+                <div class="alert alert-success"><spring:message code="${success}" text="${success}"/></div>
+            </c:if>
+            <c:if test="${not empty info}">
+                <div class="alert alert-info"><spring:message code="${info}"  text="${info}"/></div>
+            </c:if>
+            <decorator:body/>
+        </div>
     </div>
 </div>
 <script type="text/javascript">(function () {

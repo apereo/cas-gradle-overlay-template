@@ -8,10 +8,18 @@ import com.infusionsoft.cas.exceptions.AppCredentialsInvalidException;
 import com.infusionsoft.cas.support.AppHelper;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
+import org.jasig.cas.CentralAuthenticationService;
+import org.jasig.cas.authentication.Authentication;
+import org.jasig.cas.authentication.AuthenticationManager;
+import org.jasig.cas.authentication.handler.AuthenticationException;
+import org.jasig.cas.authentication.principal.Credentials;
 import org.jasig.cas.authentication.principal.Principal;
+import org.jasig.cas.authentication.principal.UsernamePasswordCredentials;
 import org.jasig.cas.ticket.Ticket;
 import org.jasig.cas.ticket.TicketGrantingTicket;
+import org.jasig.cas.ticket.TicketGrantingTicketImpl;
 import org.jasig.cas.ticket.registry.TicketRegistry;
+import org.jasig.cas.ticket.support.TicketGrantingTicketExpirationPolicy;
 import org.jasig.cas.web.support.CookieRetrievingCookieGenerator;
 import org.joda.time.DateTime;
 import org.joda.time.Minutes;
@@ -19,6 +27,7 @@ import org.joda.time.base.BaseSingleFieldPeriod;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -65,6 +74,9 @@ public class InfusionsoftAuthenticationServiceImpl implements InfusionsoftAuthen
     LoginAttemptDAO loginAttemptDAO;
 
     @Autowired
+    AuthenticationManager authenticationManager;
+
+    @Autowired
     UserService userService;
 
     @Autowired
@@ -72,6 +84,9 @@ public class InfusionsoftAuthenticationServiceImpl implements InfusionsoftAuthen
 
     @Autowired
     AppHelper appHelper;
+
+    @Autowired
+    TicketGrantingTicketExpirationPolicy ticketGrantingTicketExpirationPolicy;
 
     @Value("${server.prefix}")
     String serverPrefix;
@@ -316,7 +331,15 @@ public class InfusionsoftAuthenticationServiceImpl implements InfusionsoftAuthen
      */
     @Override
     public LoginAttempt getMostRecentFailedLogin(String username) {
-        return loginAttemptDAO.findByUsernameAndSuccessFalseOrderByDateAttemptedDesc(username);
+        LoginAttempt retVal = null;
+
+        List<LoginAttempt> loginAttempts = loginAttemptDAO.findByUsernameAndSuccessFalseOrderByDateAttemptedDesc(username);
+
+        if (loginAttempts != null && !loginAttempts.isEmpty()) {
+            retVal = loginAttempts.get(0);
+        }
+
+        return retVal;
     }
 
     /**
@@ -467,5 +490,23 @@ public class InfusionsoftAuthenticationServiceImpl implements InfusionsoftAuthen
     @Override
     public void unlockUser(String username) {
         recordLoginAttempt(username, true);
+    }
+
+    @Override
+    public void autoLogin(String ticketGrantingTicketId, String username, String password) throws AuthenticationException {
+        UsernamePasswordCredentials credentials = new UsernamePasswordCredentials();
+        credentials.setUsername(username);
+        credentials.setPassword(password);
+
+//        if(ticketGrantingTicketId != null) {
+//            ticketRegistry.deleteTicket()
+//        }
+
+        final Authentication authentication = this.authenticationManager.authenticate(credentials);
+
+        final TicketGrantingTicket ticketGrantingTicket = new TicketGrantingTicketImpl(ticketGrantingTicketId, authentication, ticketGrantingTicketExpirationPolicy);
+
+        this.ticketRegistry.addTicket(ticketGrantingTicket);
+
     }
 }

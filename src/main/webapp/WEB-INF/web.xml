@@ -262,7 +262,7 @@
 
     <error-page>
         <error-code>403</error-code>
-        <location>/403.html</location>
+        <location>/app/error/notAuthorized</location>
     </error-page>
 
     <welcome-file-list>

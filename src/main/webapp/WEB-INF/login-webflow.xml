@@ -99,9 +99,9 @@
     </action-state>
 
     <end-state id="pwdWarningAbstractView">
-        <on-entry>
-            <set name="flowScope.passwordPolicyUrl" value="passwordPolicyAction.getPasswordPolicyUrl()"/>
-        </on-entry>
+        <!--<on-entry>-->
+            <!--<set name="flowScope.passwordPolicyUrl" value="passwordPolicyAction.getPasswordPolicyUrl()"/>-->
+        <!--</on-entry>-->
     </end-state>
     <end-state id="pwdWarningPostView" view="casWarnPassView" parent="#pwdWarningAbstractView"/>
     <end-state id="casExpiredPassView" view="casExpiredPassView" parent="#pwdWarningAbstractView"/>

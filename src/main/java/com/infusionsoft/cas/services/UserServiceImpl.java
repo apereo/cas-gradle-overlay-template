@@ -3,15 +3,9 @@ package com.infusionsoft.cas.services;
 import com.infusionsoft.cas.dao.*;
 import com.infusionsoft.cas.domain.*;
 import com.infusionsoft.cas.exceptions.AccountException;
-import com.infusionsoft.cas.support.InfusionsoftAttributeRepository;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
-import org.jasig.cas.CentralAuthenticationService;
-import org.jasig.cas.authentication.Authentication;
-import org.jasig.cas.ticket.Ticket;
-import org.jasig.cas.ticket.TicketGrantingTicket;
-import org.jasig.cas.ticket.registry.TicketRegistry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -51,12 +45,6 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     UserPasswordDAO userPasswordDAO;
-
-    @Autowired
-    TicketRegistry ticketRegistry;
-
-    @Autowired
-    InfusionsoftAttributeRepository infusionsoftAttributeRepository;
 
     @Override
     public User addUser(User user) throws InfusionsoftValidationException {
@@ -207,7 +195,7 @@ public class UserServiceImpl implements UserService {
      * Associates an external account to a CAS user.
      */
     @Override
-    public UserAccount associateAccountToUser(User user, String appType, String appName, String appUsername, String ticketGrantingTicket) throws AccountException {
+    public UserAccount associateAccountToUser(User user, String appType, String appName, String appUsername) throws AccountException {
         UserAccount account = findUserAccount(user, appName, appType, appUsername);
 
         try {
@@ -222,20 +210,6 @@ public class UserServiceImpl implements UserService {
             }
 
             userAccountDAO.save(account);
-
-
-            TicketGrantingTicket ticket = (TicketGrantingTicket) this.ticketRegistry.getTicket(ticketGrantingTicket, TicketGrantingTicket.class);
-
-            if (ticket != null) {
-                ticket.expire();
-                ticketRegistry.deleteTicket(ticketGrantingTicket);
-//                Authentication authentication = ticket.getAuthentication();
-//
-//                if (authentication != null) {
-//                    authentication.getAttributes().clear();
-//                    authentication.getAttributes().putAll(infusionsoftAttributeRepository.getUserAttributes(user.getUsername()));
-//                }
-            }
         } catch (Exception e) {
             throw new AccountException("failed to associate user to app account", e);
         }

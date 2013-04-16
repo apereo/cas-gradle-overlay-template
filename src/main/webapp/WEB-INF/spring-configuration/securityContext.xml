@@ -35,6 +35,8 @@
     <!-- As of Spring SEC 3.1 -->
     <sec:http pattern="/app/registration/getLogoImageUrl*" security="none"/>
     <sec:http pattern="/app/rest/**" security="none"/>
+    <sec:http pattern="/app/error/**" security="none"/>
+
 
     <sec:http pattern="/status/**" entry-point-ref="notAuthorizedEntryPoint" use-expressions="true" auto-config="true">
         <sec:intercept-url pattern="/status" access="hasIpAddress('${cas.securityContext.status.allowedSubnet}')"/>
@@ -45,6 +47,7 @@
         <sec:custom-filter ref="casProcessingFilter" after="CAS_FILTER"/>
         <sec:intercept-url pattern="/app/registration/**" access="permitAll()"/>
         <sec:intercept-url pattern="/app/admin/**" access="hasRole('ROLE_ADMIN')"/>
+        <sec:intercept-url pattern="/app/profile/updatePassword" access="isAnonymous() or isAuthenticated()"/>
         <sec:intercept-url pattern="/app/**" access="isAuthenticated()"/>
         <sec:intercept-url pattern="/services/**" access="denyAll()"/>
     </sec:http>
@@ -67,7 +70,7 @@
         </property>
         <property name="authenticationFailureHandler">
             <bean class="org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler">
-                <constructor-arg index="0" value="/authorizationFailure.html"/>
+                <constructor-arg index="0" value="/app/error/notAuthorized"/>
             </bean>
         </property>
     </bean>

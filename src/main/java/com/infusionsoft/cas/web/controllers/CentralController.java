@@ -14,12 +14,11 @@ import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.validator.EmailValidator;
 import org.apache.log4j.Logger;
-import org.jasig.cas.web.support.CookieRetrievingCookieGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -56,8 +55,7 @@ public class CentralController {
     AppHelper appHelper;
 
     @Autowired
-    @Qualifier("ticketGrantingTicketCookieGenerator")
-    CookieRetrievingCookieGenerator cookieRetrievingCookieGenerator;
+    AutoLoginService autoLoginService;
 
     @Value("${infusionsoft.cas.central.promptToAssociate}")
     boolean promptToAssociate = false;
@@ -99,26 +97,25 @@ public class CentralController {
      * Renders the Infusionsoft Central home page.
      */
     @RequestMapping
-    public ModelAndView home() {
-        Map<String, Object> model = new HashMap<String, Object>();
+    public String home(Model model) {
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-        model.put("user", user);
-        model.put("homeLinkSelected", "selected");
-        model.put("hasCommunityAccount", infusionsoftAuthenticationService.hasCommunityAccount(user));
-        model.put("crmDomain", crmDomain);
-        model.put("crmProtocol", crmProtocol);
-        model.put("crmPort", crmPort);
-        model.put("communityDomain", communityDomain);
-        model.put("customerHubDomain", customerHubDomain);
-        model.put("marketplaceDomain", marketplaceDomain);
-        model.put("marketplaceUrl", marketplaceLoginUrl);
-        model.put("accounts", userService.findSortedUserAccounts(user));
-        model.put("connectAccountCrmEnabled", connectAccountCrmEnabled);
-        model.put("connectAccountCommunityEnabled", connectAccountCommunityEnabled);
-        model.put("connectAccountCustomerHubEnabled", connectAccountCustomerHubEnabled);
+        model.addAttribute("user", user);
+        model.addAttribute("homeLinkSelected", "selected");
+        model.addAttribute("hasCommunityAccount", infusionsoftAuthenticationService.hasCommunityAccount(user));
+        model.addAttribute("crmDomain", crmDomain);
+        model.addAttribute("crmProtocol", crmProtocol);
+        model.addAttribute("crmPort", crmPort);
+        model.addAttribute("communityDomain", communityDomain);
+        model.addAttribute("customerHubDomain", customerHubDomain);
+        model.addAttribute("marketplaceDomain", marketplaceDomain);
+        model.addAttribute("marketplaceUrl", marketplaceLoginUrl);
+        model.addAttribute("accounts", userService.findSortedUserAccounts(user));
+        model.addAttribute("connectAccountCrmEnabled", connectAccountCrmEnabled);
+        model.addAttribute("connectAccountCommunityEnabled", connectAccountCommunityEnabled);
+        model.addAttribute("connectAccountCustomerHubEnabled", connectAccountCustomerHubEnabled);
 
-        return new ModelAndView("central/home", model);
+        return "central/home";
     }
 
     /**
@@ -162,7 +159,7 @@ public class CentralController {
      * Creates a brand new community account and associates it to the CAS account.
      */
     @RequestMapping()
-    public ModelAndView createCommunityAccount(Boolean agreeToRules, String displayName, Integer infusionsoftExperience, String timeZone, String notificationEmailAddress, String twitterHandle, HttpServletRequest request) {
+    public ModelAndView createCommunityAccount(Boolean agreeToRules, String displayName, Integer infusionsoftExperience, String timeZone, String notificationEmailAddress, String twitterHandle) {
         Map<String, Object> model = new HashMap<String, Object>();
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         CommunityAccountDetails details = new CommunityAccountDetails();
@@ -190,7 +187,7 @@ public class CentralController {
             log.info("attempting to register a forum account for user " + user.getId());
 
             try {
-                communityService.registerCommunityUserAccount(user, details, cookieRetrievingCookieGenerator.retrieveCookieValue(request));
+                communityService.registerCommunityUserAccount(user, details);
 
                 return new ModelAndView("redirect:home");
             } catch (UsernameTakenException e) {
@@ -211,10 +208,9 @@ public class CentralController {
      * Associates the current user to a legacy account, after first validating the legacy username and password.
      */
     @RequestMapping
-    public ModelAndView associate(String appType, String appName, String appUsername, String appPassword, String cancel, String destination, HttpServletRequest request) throws Exception {
+    public ModelAndView associate(String appType, String appName, String appUsername, String appPassword, String cancel, String destination, HttpServletRequest request, HttpServletResponse response) throws Exception {
         Map<String, Object> model = new HashMap<String, Object>();
         String sanitizedAppName = ValidationUtils.sanitizeAppName(appName);
-        String ticketGrantingTicket = cookieRetrievingCookieGenerator.retrieveCookieValue(request);
 
         try {
             User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -231,7 +227,7 @@ public class CentralController {
                 sanitizedAppName = "community";
 
                 if (StringUtils.isNotEmpty(communityUserId)) {
-                    userService.associateAccountToUser(user, appType, sanitizedAppName, communityUserId, ticketGrantingTicket);
+                    userService.associateAccountToUser(user, appType, sanitizedAppName, communityUserId);
                 } else {
                     model.put("connectError", "registration.error.invalidLegacyCredentials");
                 }
@@ -245,7 +241,8 @@ public class CentralController {
                         log.info("accepting expired credentials for " + appUsername + " at " + sanitizedAppName + "/" + appType);
                     }
 
-                    userService.associateAccountToUser(user, appType, sanitizedAppName, appUsername, ticketGrantingTicket);
+                    userService.associateAccountToUser(user, appType, sanitizedAppName, appUsername);
+                    autoLoginService.autoLogin(user.getUsername(), request, response);
                 } catch (AppCredentialsInvalidException e) {
                     model.put("connectError", "registration.error.invalidLegacyCredentials");
                 }
@@ -276,111 +273,6 @@ public class CentralController {
             return new ModelAndView("redirect:" + model.get("appUrl"));
         } else {
             return new ModelAndView("redirect:home");
-        }
-    }
-
-    /**
-     * Brings up the form to edit the user profile.
-     */
-    @RequestMapping
-    public ModelAndView editProfile() throws IOException {
-        try {
-            HashMap<String, Object> model = new HashMap<String, Object>();
-            User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-
-            model.put("user", user);
-            model.put("editProfileLinkSelected", "selected");
-
-            return new ModelAndView("central/editProfile", model);
-        } catch (Exception e) {
-            log.error("unable to load user for current request!", e);
-
-            return new ModelAndView("redirect:home");
-        }
-    }
-
-    /**
-     * Updates the user profile.
-     */
-    @RequestMapping
-    public ModelAndView updateProfile(String firstName, String lastName, String currentPassword, String password1, String password2) throws IOException {
-        Map<String, Object> model = new HashMap<String, Object>();
-
-        User user = userService.loadUser(SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString());
-
-        try {
-            if (!passwordService.isPasswordValid(user.getUsername(), currentPassword)) {
-                model.put("error", "editprofile.error.incorrectCurrentPassword");
-            } else if (StringUtils.isNotEmpty(password1) || StringUtils.isNotEmpty(password2)) {
-                user.setPassword(password1);
-                String passwordError = passwordService.validatePassword(user);
-
-                if (passwordError != null) {
-                    model.put("error", passwordError);
-                }
-            }
-
-            if (model.containsKey("error")) {
-                log.info("couldn't update user account for user " + user.getId() + ": " + model.get("error"));
-            } else {
-                user.setFirstName(firstName);
-                user.setLastName(lastName);
-                userService.updateUser(user);
-
-                if (StringUtils.isNotEmpty(password1)) {
-                    passwordService.setPasswordForUser(user);
-                }
-            }
-        } catch (Exception e) {
-            log.error("failed to update user account", e);
-
-            model.put("error", "editprofile.error.exception");
-        }
-
-        model.put("user", user);
-
-        if (model.containsKey("error")) {
-            return new ModelAndView("central/editProfile", model);
-        } else {
-            return new ModelAndView("redirect:home");
-        }
-    }
-
-    /**
-     * Shows a form demanding that the user reset their expired password.
-     */
-    @RequestMapping
-    public ModelAndView passwordExpired() {
-        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-
-        return new ModelAndView("central/passwordExpired", "user", user);
-    }
-
-    @RequestMapping
-    public ModelAndView updatePassword(String password1, String password2) {
-        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        Map<String, Object> model = new HashMap<String, Object>();
-
-        if (StringUtils.isEmpty(password1) || StringUtils.isEmpty(password2)) {
-            model.put("error", "registration.error.invalidPassword");
-        } else if (!password1.equals(password2)) {
-            model.put("error", "registration.error.passwordsNoMatch");
-        } else {
-            user.setPassword(password1);
-            String passwordError = passwordService.validatePassword(user);
-
-            if (passwordError != null) {
-                model.put("error", passwordError);
-            }
-        }
-
-        if (model.containsKey("error")) {
-            return new ModelAndView("central/passwordExpired", model);
-        } else {
-            user.setPassword(password1);
-            passwordService.setPasswordForUser(user);
-
-            return new ModelAndView("redirect:index");
         }
     }
 

@@ -2,13 +2,13 @@
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jstl/fmt_rt" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
-<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
+<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 
 <%@ page contentType="text/html; charset=UTF-8" %>
 
 <meta name="decorator" content="central"/>
 
-<c:url var="centralUrl" value="/app/central/home"/>
+<c:url var="editProfileUrl" value="/app/profile/editProfile"/>
 <c:url var="verifyExistingPasswordUrl" value="/app/central/verifyExistingPassword"/>
 
 <script type="text/javascript">
@@ -23,9 +23,14 @@
 
     function promptCurrentPassword() {
         $("#currentPasswordDialog").modal();
+        $("#currentPasswordVisible").focus();
 
         return false;
     }
+
+    $("#currentPasswordDialog").on("show", function () {
+
+    });
 
     function confirmCurrentPassword() {
         var currentPassword = $("#currentPasswordVisible").val();
@@ -34,12 +39,12 @@
         $.ajax("${verifyExistingPasswordUrl}", {
             type: "POST",
             data: { currentPassword: currentPassword },
-            success: function(response) {
+            success: function (response) {
                 $("#currentPassword").val($("#currentPasswordVisible").val());
                 $("#currentPasswordDialog").modal("hide");
-                $("#editProfileForm").submit();
+                $("#changePasswordForm").submit();
             },
-            error: function(response) {
+            error: function (response) {
                 $("#currentPasswordError").show();
             }
         });
@@ -64,57 +69,46 @@
 
 </style>
 
-<div id="main">
-    <h2 class="apps">
-        Edit Your Infusionsoft ID
-    </h2>
+<h2 class="apps">
+    Change Password
+</h2>
 
-    <p>
-        Edit the information that you use to sign into all of your accounts.
-    </p>
+<p>
+    Change your password that is used to sign into all of your accounts.
+</p>
 
-    <form id="editProfileForm" action="updateProfile" method="post" class="form-horizontal" onsubmit="return submitUpdates()">
-        <input id="currentPassword" name="currentPassword" value="" type="hidden"/>
+<form id="changePasswordForm" action="updatePassword" method="post" class="form-horizontal" onsubmit="return submitUpdates()">
+    <input id="username" name="username" value="${user.username}" type="hidden"/>
+    <input id="currentPassword" name="currentPassword" value="" type="hidden"/>
 
-        <c:if test="${error != null}">
-            <div class="alert">
-                <spring:message code="${error}"/>
-            </div>
-        </c:if>
-
-        <fieldset>
-            <div class="control-group">
-                <label class="control-label" for="firstName">First Name</label>
-                <div class="controls">
-                    <input id="firstName" name="firstName" value="${fn:escapeXml(user != null ? user.firstName : '')}" type="text"/>
-                </div>
-            </div>
-            <div class="control-group">
-                <label class="control-label" for="lastName">Last Name</label>
-                <div class="controls">
-                    <input id="lastName" name="lastName" value="${fn:escapeXml(user != null ? user.lastName : '')}" type="text"/>
-                </div>
-            </div>
-            <div class="control-group">
-                <label class="control-label" for="password1">Password</label>
-                <div class="controls">
-                    <input id="password1" name="password1" value="" type="password" autocomplete="off"/>
-                </div>
-            </div>
-            <div class="control-group">
-                <label class="control-label" for="password2">Confirm Password</label>
-                <div class="controls">
-                    <input id="password2" name="password2" value="" type="password" autocomplete="off"/>
-                </div>
-            </div>
-        </fieldset>
-
-        <div class="buttonbar">
-            <input type="submit" value="Save" class="btn btn-primary"/>
-            <a class="btn" href="${centralUrl}">Cancel</a>
+    <c:if test="${error != null}">
+        <div class="alert">
+            <spring:message code="${error}"/>
         </div>
-    </form>
-</div>
+    </c:if>
+
+    <fieldset>
+        <div class="control-group">
+            <label class="control-label" for="password1">Password</label>
+
+            <div class="controls">
+                <input id="password1" name="password1" value="" type="password" autocomplete="off"/>
+            </div>
+        </div>
+        <div class="control-group">
+            <label class="control-label" for="password2">Confirm Password</label>
+
+            <div class="controls">
+                <input id="password2" name="password2" value="" type="password" autocomplete="off"/>
+            </div>
+        </div>
+    </fieldset>
+
+    <div class="buttonbar">
+        <input type="submit" value="Save" class="btn btn-primary"/>
+        <a class="btn" href="${editProfileUrl}">Cancel</a>
+    </div>
+</form>
 
 <div class="modal hide" id="currentPasswordDialog" style="width: 300px; margin-left: -150px">
     <div class="modal-header">
@@ -129,8 +123,10 @@
         <form id="confirmCurrentPasswordForm" class="form-vertical" onsubmit="return confirmCurrentPassword()">
             <fieldset>
                 <label class="control-label" for="currentPasswordVisible">Current Password</label>
+
                 <div class="controls">
-                    <input type="password" id="currentPasswordVisible" name="currentPasswordVisible" autocomplete="off" style="width: 230px"/>
+                    <input type="password" id="currentPasswordVisible" name="currentPasswordVisible" autocomplete="off"
+                           style="width: 230px"/>
                 </div>
             </fieldset>
         </form>

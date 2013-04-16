@@ -87,8 +87,7 @@
             type: "POST",
             data: { id: id, value: alias },
             success: function (response) {
-                $(".quick-editable").removeClass("editing");
-                $("#quick-editor").hide();
+                hideQuickEditor();
                 $("#quick-editable-" + id).html(response);
             }
         });
@@ -97,87 +96,86 @@
     }
 
     function hideQuickEditor() {
+        $(".quick-editable").removeClass("editing");
         $("#quick-editor").hide();
     }
 
 </script>
 
-<div id="main">
-    <div class="titlebar">
-        <h2 class="apps" style="float: left">
-            <spring:message code="central.home.your.accounts"/>
-        </h2>
+<div class="titlebar">
+    <h2 class="apps" style="float: left">
+        <spring:message code="central.home.your.accounts"/>
+    </h2>
 
-        <c:if test="${connectAccountCrmEnabled || connectAccountCustomerHubEnabled || connectAccountCommunityEnabled}">
-            <div class="btn-group" style="float: right">
-                <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
-                    <spring:message code="central.home.connect.account"/>
-                    <span class="caret"></span>
-                </a>
-                <ul class="dropdown-menu">
-                    <c:if test="${connectAccountCrmEnabled}">
-                        <li><a href="${linkInfusionsoftAppAccount}"><spring:message code="central.home.connect.crm.account"/></a></li>
-                    </c:if>
-                    <c:if test="${connectAccountCustomerHubEnabled}">
-                        <li><a href="${linkCustomerHubAccount}"><spring:message code="central.home.connect.customerhub.account"/></a></li>
-                    </c:if>
-                    <c:if test="${connectAccountCommunityEnabled && !hasCommunityAccount}">
-                        <li><a href="${linkCommunityAccount}"><spring:message code="central.home.connect.community.account"/></a></li>
-                        <li class="divider"></li>
-                        <li><a href="${createCommunityAccount}"><spring:message code="central.home.create.community.account"/></a></li>
-                    </c:if>
-                </ul>
-            </div>
-        </c:if>
-        <div style="clear: both"></div>
-    </div>
+    <c:if test="${connectAccountCrmEnabled || connectAccountCustomerHubEnabled || connectAccountCommunityEnabled}">
+        <div class="btn-group" style="float: right">
+            <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
+                <spring:message code="central.home.connect.account"/>
+                <span class="caret"></span>
+            </a>
+            <ul class="dropdown-menu">
+                <c:if test="${connectAccountCrmEnabled}">
+                    <li><a href="${linkInfusionsoftAppAccount}"><spring:message code="central.home.connect.crm.account"/></a></li>
+                </c:if>
+                <c:if test="${connectAccountCustomerHubEnabled}">
+                    <li><a href="${linkCustomerHubAccount}"><spring:message code="central.home.connect.customerhub.account"/></a></li>
+                </c:if>
+                <c:if test="${connectAccountCommunityEnabled && !hasCommunityAccount}">
+                    <li><a href="${linkCommunityAccount}"><spring:message code="central.home.connect.community.account"/></a></li>
+                    <li class="divider"></li>
+                    <li><a href="${createCommunityAccount}"><spring:message code="central.home.create.community.account"/></a></li>
+                </c:if>
+            </ul>
+        </div>
+    </c:if>
+    <div style="clear: both"></div>
+</div>
 
-    <div class="accounts">
-        <c:forEach var="account" items="${accounts}">
-            <c:choose>
-                <c:when test="${account.appType == 'crm'}">
-                    <div accountId="${account.id}" href="${crmProtocol}://${account.appName}.${crmDomain}:${crmPort}" class="account crm-account">
-                        <div class="account-delete">&times;</div>
-                        <div class="account-info">
-                            <div id="account_${account.id}" class="account-title">
-                                <span id="quick-editable-${account.id}" accountId="${account.id}" class="quick-editable">${fn:escapeXml(empty account.alias ? account.appName : account.alias)}</span>
-                            </div>
-                            <div class="account-detail"><spring:message code="central.home.crm.account"/></div>
-                            <div class="account-detail">${account.appName}.${crmDomain}</div>
+<div class="accounts">
+    <c:forEach var="account" items="${accounts}">
+        <c:choose>
+            <c:when test="${account.appType == 'crm'}">
+                <div accountId="${account.id}" href="${crmProtocol}://${account.appName}.${crmDomain}:${crmPort}" class="account crm-account">
+                    <div class="account-delete">&times;</div>
+                    <div class="account-info">
+                        <div id="account_${account.id}" class="account-title">
+                            <span id="quick-editable-${account.id}" accountId="${account.id}" class="quick-editable">${fn:escapeXml(empty account.alias ? account.appName : account.alias)}</span>
                         </div>
+                        <div class="account-detail"><spring:message code="central.home.crm.account"/></div>
+                        <div class="account-detail">${account.appName}.${crmDomain}</div>
                     </div>
-                </c:when>
-                <c:when test="${account.appType == 'community'}">
-                    <div accountId="${account.id}" href="http://${communityDomain}/caslogin.php" class="account forum-account">
-                        <div class="account-delete">&times;</div>
-                        <div class="account-info">
-                            <div class="account-title"><spring:message code="central.home.community.account"/></div>
-                            <div class="account-detail">${communityDomain}</div>
-                        </div>
-                    </div>
-                </c:when>
-                <c:when test="${account.appType == 'customerhub'}">
-                    <div accountId="${account.id}" href="https://${account.appName}.${customerHubDomain}/admin" class="account customerhub-account">
-                        <div class="account-delete">&times;</div>
-                        <div class="account-info">
-                            <div id="account_${account.id}" class="account-title">
-                                <span id="quick-editable-${account.id}" accountId="${account.id}" class="quick-editable">${fn:escapeXml(empty account.alias ? account.appName : account.alias)}</span>
-                            </div>
-                            <div class="account-detail"><spring:message code="central.home.customerhub.account"/></div>
-                            <div class="account-detail">${account.appName}.${customerHubDomain}</div>
-                        </div>
-                    </div>
-                </c:when>
-            </c:choose>
-        </c:forEach>
-        <div href="${marketplaceUrl}" class="account marketplace-account">
-            <div class="account-delete">&times;</div>
-            <div class="account-info">
-                <div id="account_${account.id}" class="account-title">
-                    <span><spring:message code="central.home.marketplace.account"/></span>
                 </div>
-                <div class="account-detail">${marketplaceDomain}</div>
+            </c:when>
+            <c:when test="${account.appType == 'community'}">
+                <div accountId="${account.id}" href="http://${communityDomain}/caslogin.php" class="account forum-account">
+                    <div class="account-delete">&times;</div>
+                    <div class="account-info">
+                        <div class="account-title"><spring:message code="central.home.community.account"/></div>
+                        <div class="account-detail">${communityDomain}</div>
+                    </div>
+                </div>
+            </c:when>
+            <c:when test="${account.appType == 'customerhub'}">
+                <div accountId="${account.id}" href="https://${account.appName}.${customerHubDomain}/admin" class="account customerhub-account">
+                    <div class="account-delete">&times;</div>
+                    <div class="account-info">
+                        <div id="account_${account.id}" class="account-title">
+                            <span id="quick-editable-${account.id}" accountId="${account.id}" class="quick-editable">${fn:escapeXml(empty account.alias ? account.appName : account.alias)}</span>
+                        </div>
+                        <div class="account-detail"><spring:message code="central.home.customerhub.account"/></div>
+                        <div class="account-detail">${account.appName}.${customerHubDomain}</div>
+                    </div>
+                </div>
+            </c:when>
+        </c:choose>
+    </c:forEach>
+    <div href="${marketplaceUrl}" class="account marketplace-account">
+        <div class="account-delete">&times;</div>
+        <div class="account-info">
+            <div id="account_${account.id}" class="account-title">
+                <span><spring:message code="central.home.marketplace.account"/></span>
             </div>
+            <div class="account-detail">${marketplaceDomain}</div>
         </div>
     </div>
 </div>

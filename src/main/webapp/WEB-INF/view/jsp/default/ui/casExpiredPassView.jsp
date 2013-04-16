@@ -30,7 +30,7 @@
         </div>
     </c:if>
 
-    <form action="updatePassword" method="post" id="fm1" class="form-vertical">
+    <form action="/app/profile/updatePassword" method="post" id="fm1" class="form-vertical">
         <h2>Your Password Has Expired</h2>
         <p>
             It's been 90 days since you last changed your password. Please create a new password.
@@ -51,7 +51,8 @@
             </div>
         </fieldset>
 
-        <input name="resetCode" type="hidden" value="${resetCode}"/>
+        <input name="username" type="hidden" value="${credentials.username}"/>
+        <input name="currentPassword" type="hidden" value="${credentials.password}"/>
 
         <div class="control-group" style="text-align: right">
             <input class="btn btn-primary" name="submit" accesskey="l" value="Change Password" tabindex="4" type="submit" />

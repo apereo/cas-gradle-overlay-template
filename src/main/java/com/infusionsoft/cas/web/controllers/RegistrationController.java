@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.text.ParseException;
@@ -58,6 +59,9 @@ public class RegistrationController {
 
     @Autowired
     UserService userService;
+
+    @Autowired
+    AutoLoginService autoLoginService;
 
     @Value(value = "${infusionsoft.cas.registration.promptToAssociate}")
     boolean promptToAssociate = false;
@@ -115,7 +119,7 @@ public class RegistrationController {
      * Registers a new user account.
      */
     @RequestMapping
-    public ModelAndView register(String firstName, String lastName, String username, String password1, String password2, String eula, String registrationCode) {
+    public ModelAndView register(String firstName, String lastName, String username, String password1, String password2, String eula, String registrationCode, HttpServletRequest request, HttpServletResponse response) {
         boolean eulaChecked = StringUtils.equals(eula, "agreed");
         Map<String, Object> model = new HashMap<String, Object>();
         User user;
@@ -181,6 +185,7 @@ public class RegistrationController {
         if (model.containsKey("error")) {
             return new ModelAndView("registration/welcome", model);
         } else {
+            autoLoginService.autoLogin(username, request, response);
             return new ModelAndView("registration/success", model);
         }
     }

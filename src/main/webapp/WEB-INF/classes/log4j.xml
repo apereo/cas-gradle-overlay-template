@@ -78,12 +78,12 @@
     </logger>
 
     <logger name="org.springframework.security">
-        <level value="DEBUG" />
+        <level value="INFO" />
         <appender-ref ref="cas" />
     </logger>
 
     <logger name="org.springframework.web.servlet.mvc">
-        <level value="DEBUG" />
+        <level value="INFO" />
         <appender-ref ref="cas" />
     </logger>
 
@@ -108,7 +108,7 @@
     </logger>
 
     <logger name="com.infusionsoft">
-        <level value="DEBUG" />
+        <level value="INFO" />
         <appender-ref ref="cas" />
     </logger>
 

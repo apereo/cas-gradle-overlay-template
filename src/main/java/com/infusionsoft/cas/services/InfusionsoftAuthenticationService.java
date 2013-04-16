@@ -5,6 +5,7 @@ import com.infusionsoft.cas.auth.LoginResult;
 import com.infusionsoft.cas.domain.User;
 import com.infusionsoft.cas.exceptions.AppCredentialsExpiredException;
 import com.infusionsoft.cas.exceptions.AppCredentialsInvalidException;
+import org.jasig.cas.authentication.handler.AuthenticationException;
 import org.joda.time.Days;
 import org.joda.time.Minutes;
 import org.joda.time.base.BaseSingleFieldPeriod;
@@ -53,4 +54,6 @@ public interface InfusionsoftAuthenticationService {
     boolean hasCommunityAccount(User user);
 
     void unlockUser(String username);
+
+    void autoLogin(String ticketGrantingTicketId, String username, String password) throws AuthenticationException;
 }

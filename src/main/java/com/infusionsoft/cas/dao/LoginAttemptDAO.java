@@ -1,6 +1,7 @@
 package com.infusionsoft.cas.dao;
 
 import com.infusionsoft.cas.domain.LoginAttempt;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.repository.PagingAndSortingRepository;
 
 import java.util.Date;
@@ -11,5 +12,5 @@ public interface LoginAttemptDAO extends PagingAndSortingRepository<LoginAttempt
 
     List<LoginAttempt> findByDateAttemptedLessThan(Date dateAttempted);
 
-    LoginAttempt findByUsernameAndSuccessFalseOrderByDateAttemptedDesc(String username);
+    List<LoginAttempt> findByUsernameAndSuccessFalseOrderByDateAttemptedDesc(String username);
 }
