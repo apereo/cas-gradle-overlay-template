@@ -50,20 +50,17 @@ public class InfusionsoftAttributeRepository extends AbstractFlatteningPersonAtt
         Map<String, List<Object>> resultsMap = new HashMap<String, List<Object>>();
 
         if (user != null) {
-            List<UserAccount> accounts = userService.findByUserAndDisabled(user, false);
-            JSONObject rootObj = new JSONObject();
-
-            rootObj.put("accounts", jsonHelper.buildUserAccountsJSON(accounts));
-
             resultsMap.put("id", Arrays.asList(new Object[]{String.valueOf(user.getId())}));
-
-            // Get rid of the JSON-optional escaped slashes because Ruby's Psych parser chokes on them
-            resultsMap.put("accounts", Arrays.asList(new Object[]{rootObj.toJSONString().replaceAll("\\\\/", "/")}));
-
             resultsMap.put("displayName", Arrays.asList(new Object[]{user.getFirstName() + " " + user.getLastName()}));
             resultsMap.put("firstName", Arrays.asList(new Object[]{user.getFirstName()}));
             resultsMap.put("lastName", Arrays.asList(new Object[]{user.getLastName()}));
             resultsMap.put("email", Arrays.asList(new Object[]{user.getUsername()}));
+
+            JSONObject rootObj = new JSONObject();
+            List<UserAccount> accounts = userService.findByUserAndDisabled(user, false);
+            rootObj.put("linkedApps", jsonHelper.buildUserAccountsJSON(accounts));
+            // Get rid of the JSON-optional escaped slashes because Ruby's Psych parser chokes on them
+            resultsMap.put("accounts", Arrays.asList(new Object[]{rootObj.toJSONString().replaceAll("\\\\/", "/")}));
         } else {
             logger.error("could not find a user record for: " + uid);
         }

@@ -26,12 +26,12 @@ public class JsonHelper {
     public String buildUserInfoJSON(User user) {
         JSONObject json = new JSONObject();
 
-        json.put("id", user.getId());
+        json.put("casGlobalId", user.getId());
         json.put("username", user.getUsername());
         json.put("displayName", user.getFirstName() + " " + user.getLastName());
         json.put("firstName", user.getFirstName());
         json.put("lastName", user.getLastName());
-        json.put("accounts", buildUserAccountsJSON(user.getAccounts()));
+        json.put("linkedApps", buildUserAccountsJSON(user.getAccounts()));
 
         // Get rid of the JSON-optional escaped slashes because Ruby's Psych parser chokes on them
         return json.toJSONString().replaceAll("\\\\/", "/");
@@ -44,9 +44,9 @@ public class JsonHelper {
             if (!account.isDisabled()) {
                 JSONObject accountToAdd = new JSONObject();
 
-                accountToAdd.put("type", account.getAppType());
+                accountToAdd.put("appType", account.getAppType());
                 accountToAdd.put("appName", account.getAppName());
-                accountToAdd.put("userName", account.getAppUsername());
+                accountToAdd.put("appUsername", account.getAppUsername());
                 accountToAdd.put("appAlias", account.getAlias());
                 accountToAdd.put("appUrl", appHelper.buildAppUrl(account.getAppType(), account.getAppName()));
 
