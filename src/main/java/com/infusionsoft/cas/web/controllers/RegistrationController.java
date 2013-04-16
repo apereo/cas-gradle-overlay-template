@@ -4,6 +4,7 @@ import com.infusionsoft.cas.domain.AppType;
 import com.infusionsoft.cas.domain.PendingUserAccount;
 import com.infusionsoft.cas.domain.User;
 import com.infusionsoft.cas.domain.UserAccount;
+import com.infusionsoft.cas.exceptions.AccountException;
 import com.infusionsoft.cas.services.*;
 import com.infusionsoft.cas.support.AppHelper;
 import org.apache.commons.lang3.StringUtils;
@@ -15,6 +16,7 @@ import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
@@ -100,6 +102,33 @@ public class RegistrationController {
 
             return new ModelAndView("registration/welcome", model);
         }
+    }
+
+    /**
+     * Shows the registration form.
+     */
+    @RequestMapping
+    public String linkToExisting(Model model, String registrationCode, HttpServletRequest request, HttpServletResponse response) throws AccountException {
+        String retVal;
+
+        if (StringUtils.isNotEmpty(registrationCode)) {
+            PendingUserAccount pending = userService.findPendingUserAccount(registrationCode);
+
+            if (pending != null) {
+                User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+                userService.associatePendingAccountToUser(user, registrationCode);
+                autoLoginService.autoLogin(user.getUsername(), request, response);
+
+                retVal = "redirect:/app/central/home";
+            } else {
+                model.addAttribute("error", "Registration Code not found");
+                retVal = "registration/welcome";
+            }
+        } else {
+            return "registration/welcome";
+        }
+
+        return retVal;
     }
 
     /**

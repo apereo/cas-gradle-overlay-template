@@ -65,10 +65,10 @@
 </div>
 
 <div id="register">
-    <c:url var="loginUrl" value="/login"/>
+    <c:url var="linkToExistingUrl" value="/app/registration/linkToExisting"/>
 
     <div class="alert alert-info">
-        Already created your Infusionsoft ID? <a href="${loginUrl}">Sign in</a>
+        Already created your Infusionsoft ID? <a href="${linkToExistingUrl}?registrationCode=${registrationCode}">Sign in</a>
     </div>
 
     <form id="registerForm" action="register" method="post" class="form-vertical">
@@ -76,7 +76,7 @@
 
         <c:if test="${error != null}">
             <div class="alert alert-error" style="margin-top: 10px">
-                <spring:message code="${error}"/>
+                <spring:message code="${error}" text="${error}"/>
             </div>
         </c:if>
 
