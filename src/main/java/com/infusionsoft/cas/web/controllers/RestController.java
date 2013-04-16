@@ -276,6 +276,7 @@ public class RestController {
         String appName = request.getParameter("appName");
         String appType = request.getParameter("appType");
         String appUsername = request.getParameter("appUsername");
+        String casGlobalIdString = request.getParameter("casGlobalId");
 
         // Validate the API key
         if (!requiredApiKey.equals(apiKey)) {
@@ -285,12 +286,24 @@ public class RestController {
             return null;
         }
 
-        // Find any matching accounts and reassociate them
+        // Parse the casGlobalId
+        long casGlobalId = NumberUtils.toLong(casGlobalIdString);
+
         try {
-            List<UserAccount> accounts = userService.findDisabledUserAccounts(appName, appType, appUsername);
 
+            // Find any matching accounts by casGlobalId and reassociate them
+            List<UserAccount> accounts;
+            if (casGlobalId > 0) {
+                accounts = userService.findDisabledUserAccounts(appName, appType, casGlobalId);
+                log.info("found " + accounts.size() + " disabled user accounts mapped to local user with casGlobalId = " + casGlobalId + " on " + appName + "/" + appType);
+                for (UserAccount account : accounts) {
+                    userService.enableUserAccount(account);
+                }
+            }
+
+            // Find any remaining matching accounts and reassociate them
+            accounts = userService.findDisabledUserAccounts(appName, appType, appUsername);
             log.info("found " + accounts.size() + " disabled user accounts mapped to local user " + appUsername + " on " + appName + "/" + appType);
-
             for (UserAccount account : accounts) {
                 userService.enableUserAccount(account);
             }
@@ -318,6 +331,7 @@ public class RestController {
         String appName = request.getParameter("appName");
         String appType = request.getParameter("appType");
         String appUsername = request.getParameter("appUsername");
+        String casGlobalIdString = request.getParameter("casGlobalId");
 
         // Validate the API key
         if (!requiredApiKey.equals(apiKey)) {
@@ -327,12 +341,24 @@ public class RestController {
             return null;
         }
 
-        // Find any matching accounts and disassociate them
+        // Parse the casGlobalId
+        long casGlobalId = NumberUtils.toLong(casGlobalIdString);
+
         try {
-            List<UserAccount> accounts = userService.findEnabledUserAccounts(appName, appType, appUsername);
 
+            // Find any matching accounts by casGlobalId and disassociate them
+            List<UserAccount> accounts;
+            if (casGlobalId > 0) {
+                accounts = userService.findEnabledUserAccounts(appName, appType, casGlobalId);
+                log.info("found " + accounts.size() + " user accounts mapped to local user with casGlobalId = " + casGlobalId + " on " + appName + "/" + appType);
+                for (UserAccount account : accounts) {
+                    userService.disableAccount(account);
+                }
+            }
+
+            // Find any remaining matching accounts and disassociate them
+            accounts = userService.findEnabledUserAccounts(appName, appType, appUsername);
             log.info("found " + accounts.size() + " user accounts mapped to local user " + appUsername + " on " + appName + "/" + appType);
-
             for (UserAccount account : accounts) {
                 userService.disableAccount(account);
             }

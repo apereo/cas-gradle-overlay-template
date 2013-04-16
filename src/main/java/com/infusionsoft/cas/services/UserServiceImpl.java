@@ -257,9 +257,8 @@ public class UserServiceImpl implements UserService {
     }
 
     /**
-     * Finds any linked user accounts to a given app and local username. It's possible multiple Infusionsoft IDs
-     * may be linked to the same local username on the same app. If a null or blank appUsername is passed, it will
-     * return all linked user accounts for that app name and type.
+     * Finds any linked user accounts to a given app and local username.
+     * If a null or blank appUsername is passed, it will return all linked user accounts for that app name and type.
      */
     @Override
     public List<UserAccount> findEnabledUserAccounts(String appName, String appType, String appUsername) {
@@ -268,6 +267,14 @@ public class UserServiceImpl implements UserService {
         } else {
             return userAccountDAO.findByAppNameAndAppTypeAndAppUsernameAndDisabled(appName, appType, appUsername, false);
         }
+    }
+
+    /**
+     * Finds any linked user accounts to a given app and CAS global ID.
+     */
+    @Override
+    public List<UserAccount> findEnabledUserAccounts(String appName, String appType, long casGlobalId) {
+        return userAccountDAO.findByAppNameAndAppTypeAndUserIdAndDisabled(appName, appType, casGlobalId, false);
     }
 
     /**
@@ -281,6 +288,15 @@ public class UserServiceImpl implements UserService {
             return userAccountDAO.findByAppNameAndAppTypeAndAppUsernameAndDisabled(appName, appType, appUsername, true);
         }
     }
+
+    /**
+     * Finds any linked user accounts to a given app and CAS global ID that have been disabled.
+     */
+    @Override
+    public List<UserAccount> findDisabledUserAccounts(String appName, String appType, long casGlobalId) {
+        return userAccountDAO.findByAppNameAndAppTypeAndUserIdAndDisabled(appName, appType, casGlobalId, true);
+    }
+
 
     /**
      * Disables a linked user account.
