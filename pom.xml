@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>cas</artifactId>
     <packaging>war</packaging>
-    <version>1.0.0.522</version>
+    <version>1.0.0.523-SNAPSHOT</version>
 
     <parent>
         <groupId>com.infusionsoft</groupId>
@@ -28,9 +28,9 @@
     </properties>
 
     <scm>
-        <connection>scm:svn:https://scm.infusiontest.com/svn/cas/tags/cas-1.0.0.522</connection>
-        <developerConnection>scm:svn:https://scm.infusiontest.com/svn/cas/tags/cas-1.0.0.522</developerConnection>
-        <url>https://scm.infusiontest.com/svn/cas/tags/cas-1.0.0.522</url>
+        <connection>scm:svn:https://scm.infusiontest.com/svn/cas/trunk</connection>
+        <developerConnection>scm:svn:https://scm.infusiontest.com/svn/cas/trunk</developerConnection>
+        <url>https://scm.infusiontest.com/svn/cas/trunk</url>
     </scm>
 
     <build>
