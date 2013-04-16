@@ -56,7 +56,7 @@ public class InfusionsoftAuthenticationServiceTest {
         infusionsoftAuthenticationService.communityDomain = "community.infusionsoft.com";
     }
 
-    @Test
+    @Test(enabled = false)
     public void testJsonBuilding() {
         User user = new User();
         user.setId(13L);
