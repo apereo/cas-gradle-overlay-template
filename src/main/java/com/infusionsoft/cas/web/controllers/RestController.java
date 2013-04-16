@@ -447,13 +447,11 @@ public class RestController {
         try {
             if (StringUtils.isEmpty(username)) {
                 error = "login.noUsername";
-            }
-
-            if (StringUtils.isEmpty(password) || StringUtils.isEmpty(md5password)) {
+            } else if (StringUtils.isEmpty(password) && StringUtils.isEmpty(md5password)) {
                 error = "login.noPassword";
             }
 
-            if (error != null) {
+            if (error == null) {
                 if (StringUtils.isNotEmpty(password)) {
                     loginResult = infusionsoftAuthenticationService.attemptLogin(username, password);
                 } else {
