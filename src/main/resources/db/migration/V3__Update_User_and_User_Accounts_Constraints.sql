@@ -1,5 +1,5 @@
 /**
- * Adds a unique index on the user_account table.
+ * Adds a unique index on the user_account table and updates not null constraints on user_account and user.
  **/
 
 ALTER TABLE `user_account` ADD UNIQUE KEY `app_type_name_username` (`app_type`, `app_name`, `app_username`);
