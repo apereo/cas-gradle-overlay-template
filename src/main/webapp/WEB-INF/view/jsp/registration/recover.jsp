@@ -46,11 +46,9 @@
         <div class="control-group">
             <label for="recoveryCode" class="control-label">Recovery Code</label>
             <div class="controls">
-                <input type="text" class="required" id="recoveryCode" name="recoveryCode" size="25" tabindex="1" style="width: 266px" />
+                <input type="text" class="required" id="recoveryCode" name="recoveryCode" value="${recoveryCode}" size="25" tabindex="1" style="width: 266px" />
             </div>
         </div>
-
-        <input name="recoveryCode" type="hidden" value="${recoveryCode}"/>
 
         <div class="control-group" style="text-align: right">
             <input class="btn btn-primary" name="submit" accesskey="l" value="Next" tabindex="4" type="submit" />
