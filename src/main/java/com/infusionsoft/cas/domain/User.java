@@ -8,6 +8,7 @@ import org.joda.time.DateTime;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -72,7 +73,8 @@ public class User implements Serializable, UserDetails {
         this.lastName = lastName;
     }
 
-    @Column(name = "username", unique = true, length = 120)
+    @NotNull
+    @Column(name = "username", unique = true, length = 120, nullable = false)
     @Email
     @Length(min = 8, max = 120)
     public String getUsername() {
@@ -102,7 +104,8 @@ public class User implements Serializable, UserDetails {
         this.passwordRecoveryCodeCreatedTime = passwordRecoveryCodeCreatedTime;
     }
 
-    @Column(name = "enabled")
+    @NotNull
+    @Column(name = "enabled", nullable = false)
     public boolean isEnabled() {
         return enabled;
     }

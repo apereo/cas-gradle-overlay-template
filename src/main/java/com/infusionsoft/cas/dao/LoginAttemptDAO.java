@@ -1,7 +1,6 @@
 package com.infusionsoft.cas.dao;
 
 import com.infusionsoft.cas.domain.LoginAttempt;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.repository.PagingAndSortingRepository;
 
 import java.util.Date;

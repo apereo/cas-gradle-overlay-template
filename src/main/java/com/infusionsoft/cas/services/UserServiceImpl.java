@@ -148,8 +148,8 @@ public class UserServiceImpl implements UserService {
      * Finds a user account by for a user.
      */
     @Override
-    public UserAccount findUserAccount(User user, String appName, String appType, String appUsername) {
-        return userAccountDAO.findByUserAndAppNameAndAppTypeAndAppUsername(user, appName, appType, appUsername);
+    public UserAccount findUserAccount(User user, String appName, String appType) {
+        return userAccountDAO.findByUserAndAppNameAndAppType(user, appName, appType);
     }
 
     /**
@@ -205,7 +205,7 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public UserAccount associateAccountToUser(User user, String appType, String appName, String appUsername) throws AccountException {
-        UserAccount account = findUserAccount(user, appName, appType, appUsername);
+        UserAccount account = findUserAccount(user, appName, appType);
 
         try {
             if (account == null) {
@@ -215,6 +215,7 @@ public class UserServiceImpl implements UserService {
                 account.setAppName(appName);
                 account.setAppUsername(appUsername);
             } else {
+                account.setAppUsername(appUsername);
                 account.setDisabled(false);
             }
 
@@ -234,7 +235,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserAccount associatePendingAccountToUser(User user, String registrationCode) throws AccountException {
         PendingUserAccount pendingAccount = findPendingUserAccount(registrationCode);
-        UserAccount account = findUserAccount(user, pendingAccount.getAppName(), pendingAccount.getAppType(), pendingAccount.getAppUsername());
+        UserAccount account = findUserAccount(user, pendingAccount.getAppName(), pendingAccount.getAppType());
 
         try {
             if (account == null) {
@@ -250,6 +251,7 @@ public class UserServiceImpl implements UserService {
                 userAccountDAO.save(account);
                 userDAO.save(user);
             } else {
+                account.setAppUsername(pendingAccount.getAppUsername());
                 account.setDisabled(false);
 
                 userDAO.save(user);
@@ -374,14 +376,14 @@ public class UserServiceImpl implements UserService {
      * Changes the application username that is associated with a user
      */
     @Override
-    public void changeAssociatedAppUsername(String username, String appName, String appType, String oldAppUsername, String newAppUsername) {
-        User user = loadUser(username);
+    public void changeAssociatedAppUsername(User user, String appName, String appType, String newAppUsername) {
         if (user != null) {
-            UserAccount account = findUserAccount(user, appName, appType, oldAppUsername);
+            UserAccount account = findUserAccount(user, appName, appType);
             if (account != null) {
+                String oldAppUsername = account.getAppUsername();
                 account.setAppUsername(newAppUsername);
                 userAccountDAO.save(account);
-                log.info("Changed application username from " + oldAppUsername + " to " + newAppUsername + " for user " + username + "on " + appName + "/" + appType);
+                log.info("Changed application username on " + appName + "/" + appType + " for CAS user " + user.getUsername() + " from " + oldAppUsername + " to " + newAppUsername);
             }
         }
     }

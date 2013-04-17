@@ -22,7 +22,7 @@ public interface UserService {
 
     UserAccount findUserAccount(User user, Long accountId);
 
-    UserAccount findUserAccount(User user, String appName, String appType, String appUsername);
+    UserAccount findUserAccount(User user, String appName, String appType);
 
     List<UserAccount> findSortedUserAccounts(User user);
 
@@ -62,6 +62,6 @@ public interface UserService {
 
     String resetPassword(User user);
 
-    void changeAssociatedAppUsername(String username, String appName, String appType, String oldAppUsername, String newAppUsername);
+    void changeAssociatedAppUsername(User user, String appName, String appType, String newAppUsername);
 
 }

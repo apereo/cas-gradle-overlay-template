@@ -1,13 +1,11 @@
 package com.infusionsoft.cas.domain;
 
-import com.infusionsoft.cas.domain.User;
-
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 
 @Entity
-@Table(name = "user_account", uniqueConstraints = {@UniqueConstraint(columnNames = {"user_id", "app_name", "app_type"})})
+@Table(name = "user_account", uniqueConstraints = {@UniqueConstraint(columnNames = {"user_id", "app_name", "app_type"}), @UniqueConstraint(name = "app_type_name_username", columnNames = {"app_type", "app_name", "app_username"})})
 public class UserAccount implements Serializable {
     private Long id;
     private User user;
@@ -27,7 +25,8 @@ public class UserAccount implements Serializable {
         this.id = id;
     }
 
-    @ManyToOne(targetEntity = User.class)
+    @NotNull
+    @ManyToOne(targetEntity = User.class, optional = false)
     public User getUser() {
         return user;
     }
@@ -45,8 +44,8 @@ public class UserAccount implements Serializable {
         this.alias = alias;
     }
 
-    @Column(name = "app_name", length = 255)
     @NotNull
+    @Column(name = "app_name", length = 255, nullable = false)
     public String getAppName() {
         return appName;
     }
@@ -55,8 +54,8 @@ public class UserAccount implements Serializable {
         this.appName = appName;
     }
 
-    @Column(name = "app_username", length = 255)
     @NotNull
+    @Column(name = "app_username", length = 255, nullable = false)
     public String getAppUsername() {
         return appUsername;
     }
@@ -65,8 +64,8 @@ public class UserAccount implements Serializable {
         this.appUsername = appUsername;
     }
 
-    @Column(name = "app_type", length = 255)
     @NotNull
+    @Column(name = "app_type", length = 255, nullable = false)
     public String getAppType() {
         return appType;
     }
@@ -75,7 +74,8 @@ public class UserAccount implements Serializable {
         this.appType = appType;
     }
 
-    @Column(name = "disabled")
+    @NotNull
+    @Column(name = "disabled", nullable = false)
     public boolean isDisabled() {
         return disabled;
     }

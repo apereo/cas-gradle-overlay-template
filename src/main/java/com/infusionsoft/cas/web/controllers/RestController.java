@@ -380,11 +380,13 @@ public class RestController {
     @RequestMapping
     public ModelAndView changeAssociatedAppUsername(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String apiKey = request.getParameter("apiKey");
-        String username = request.getParameter("username");
+        String casGlobalIdString = request.getParameter("casGlobalId");
         String appName = request.getParameter("appName");
         String appType = request.getParameter("appType");
-        String oldAppUsername = request.getParameter("oldAppUsername");
         String newAppUsername = request.getParameter("newAppUsername");
+
+        // Parse the casGlobalId
+        long casGlobalId = NumberUtils.toLong(casGlobalIdString);
 
         // Validate the API key
         if (!requiredApiKey.equals(apiKey)) {
@@ -392,10 +394,10 @@ public class RestController {
             response.sendError(401);
         } else {
             try {
-                userService.changeAssociatedAppUsername(username, appName, appType, oldAppUsername, newAppUsername);
+                userService.changeAssociatedAppUsername(userService.loadUser(casGlobalId), appName, appType, newAppUsername);
                 response.getWriter().append("OK");
             } catch (Exception e) {
-                log.error("Failed to change application username from " + oldAppUsername + " to " + newAppUsername + " for user " + username + "on " + appName + "/" + appType, e);
+                log.error("Failed to change application username to " + newAppUsername + "on " + appName + "/" + appType + " for CAS user " + casGlobalId, e);
                 response.sendError(500);
             }
         }
@@ -454,6 +456,8 @@ public class RestController {
      * Authenticates caller credentials against their CAS account.  Pass in a username and either a password or
      * an MD5 hash of the password.  Enforces account locking if there are too many wrong guesses.
      * Returns a JSON object with user info if successful.
+     *
+     * NOTE: this call does *not* use an API key, because the password is the authentication
      */
     @RequestMapping(value = "/authenticateUser", method = RequestMethod.POST)
     public ModelAndView authenticateUser(HttpServletRequest request, HttpServletResponse response) throws IOException {
