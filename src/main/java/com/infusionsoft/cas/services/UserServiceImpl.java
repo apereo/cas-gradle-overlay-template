@@ -205,6 +205,7 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public UserAccount associateAccountToUser(User user, String appType, String appName, String appUsername) throws AccountException {
+        ensureAccountIsNotLinkedToDifferentUser(appName, appType, appUsername, user);
         UserAccount account = findUserAccount(user, appName, appType);
 
         try {
@@ -235,6 +236,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserAccount associatePendingAccountToUser(User user, String registrationCode) throws AccountException {
         PendingUserAccount pendingAccount = findPendingUserAccount(registrationCode);
+        ensureAccountIsNotLinkedToDifferentUser(pendingAccount.getAppName(), pendingAccount.getAppType(), pendingAccount.getAppUsername(), user);
         UserAccount account = findUserAccount(user, pendingAccount.getAppName(), pendingAccount.getAppType());
 
         try {
@@ -308,7 +310,6 @@ public class UserServiceImpl implements UserService {
         return userAccountDAO.findByAppNameAndAppTypeAndUserIdAndDisabled(appName, appType, casGlobalId, true);
     }
 
-
     /**
      * Disables a linked user account.
      */
@@ -376,16 +377,23 @@ public class UserServiceImpl implements UserService {
      * Changes the application username that is associated with a user
      */
     @Override
-    public void changeAssociatedAppUsername(User user, String appName, String appType, String newAppUsername) {
+    public void changeAssociatedAppUsername(User user, String appName, String appType, String newAppUsername) throws AccountException {
         if (user != null) {
             UserAccount account = findUserAccount(user, appName, appType);
             if (account != null) {
+                ensureAccountIsNotLinkedToDifferentUser(appName, appType, newAppUsername, user);
                 String oldAppUsername = account.getAppUsername();
                 account.setAppUsername(newAppUsername);
                 userAccountDAO.save(account);
                 log.info("Changed application username on " + appName + "/" + appType + " for CAS user " + user.getUsername() + " from " + oldAppUsername + " to " + newAppUsername);
             }
         }
+    }
+
+    private void ensureAccountIsNotLinkedToDifferentUser(String appName, String appType, String appUsername, User user) throws AccountException {
+        List<UserAccount> accounts = userAccountDAO.findByAppNameAndAppTypeAndAppUsernameAndUserNot(appName, appType, appUsername, user);
+        if (accounts != null && !accounts.isEmpty())
+            throw new AccountException("Account " + appUsername + " on " + appName + "/" + appType + " is already linked to a different Infusionsoft ID", null);
     }
 }
 

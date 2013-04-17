@@ -62,6 +62,6 @@ public interface UserService {
 
     String resetPassword(User user);
 
-    void changeAssociatedAppUsername(User user, String appName, String appType, String newAppUsername);
+    void changeAssociatedAppUsername(User user, String appName, String appType, String newAppUsername) throws AccountException;
 
 }

@@ -2,7 +2,10 @@
  * Adds a unique index on the user_account table and updates not null constraints on user_account and user.
  **/
 
+/*
+TODO: this needs run once the bad data is cleaned out on proofing and production
 ALTER TABLE `user_account` ADD UNIQUE KEY `app_type_name_username` (`app_type`, `app_name`, `app_username`);
+*/
 
 ALTER TABLE `user_account`
 	CHANGE COLUMN `disabled` `enabled` BIT(1) NOT NULL,

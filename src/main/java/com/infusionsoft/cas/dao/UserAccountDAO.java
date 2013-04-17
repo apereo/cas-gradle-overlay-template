@@ -13,6 +13,8 @@ public interface UserAccountDAO extends PagingAndSortingRepository<UserAccount, 
 
     UserAccount findByUserAndAppNameAndAppType(User user, String appName, String appType);
 
+    List<UserAccount> findByAppNameAndAppTypeAndAppUsernameAndUserNot(String appName, String appType, String appUsername, User user);
+
     List<UserAccount> findByUserAndAppTypeAndDisabled(User user, String appType, Boolean disabled);
 
     List<UserAccount> findByAppNameAndAppTypeAndDisabled(String appName, String appType, Boolean disabled);
