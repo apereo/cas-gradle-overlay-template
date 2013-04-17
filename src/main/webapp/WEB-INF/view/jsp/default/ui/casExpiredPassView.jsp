@@ -5,7 +5,7 @@
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jstl/fmt_rt" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
-<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
+<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 
 <meta name="decorator" content="anonymous"/>
 
@@ -23,15 +23,31 @@
 
 </style>
 
-<div id="reset">
-    <c:if test="${not empty error}">
-        <div class="alert alert-error" style="margin: -20px -20px 20px -20px">
-            <spring:message code="${error}"/>
-        </div>
-    </c:if>
+<script>
+    $(document).ready(function () {
+        $("#fm1").submit(function () {
+            $.post("/app/profile/ajaxUpdatePassword", $("#fm1").serialize(), "json")
+                    .done(function () {
+                        window.location = "/app/central/home";
+                    })
+                    .fail(function (data) {
+                        var myData = $.parseJSON(data.responseText);
+                        $("#error").html(myData.errorMessage);
+                        $("#error").removeClass("hide");
+                    });
 
-    <form action="/app/profile/updatePassword" method="post" id="fm1" class="form-vertical">
+            return false;
+        });
+    });
+</script>
+
+
+<div id="reset">
+    <div id="error" class="alert alert-error hide" style="margin: -20px -20px 20px -20px"></div>
+
+    <form id="fm1" class="form-vertical">
         <h2>Your Password Has Expired</h2>
+
         <p>
             It's been 90 days since you last changed your password. Please create a new password.
         </p>
@@ -39,12 +55,14 @@
         <fieldset>
             <div class="control-group">
                 <label class="control-label" for="password1">Password</label>
+
                 <div class="controls">
                     <input id="password1" name="password1" value="" type="password" style="width: 266px"/>
                 </div>
             </div>
             <div class="control-group">
                 <label class="control-label" for="password2">Confirm Password</label>
+
                 <div class="controls">
                     <input id="password2" name="password2" value="" type="password" style="width: 266px"/>
                 </div>
@@ -53,9 +71,10 @@
 
         <input name="username" type="hidden" value="${credentials.username}"/>
         <input name="currentPassword" type="hidden" value="${credentials.password}"/>
+        <input id="redirectFrom" name="redirectFrom" value="expirePassword" type="hidden"/>
 
         <div class="control-group" style="text-align: right">
-            <input class="btn btn-primary" name="submit" accesskey="l" value="Change Password" tabindex="4" type="submit" />
+            <input class="btn btn-primary" name="submit" accesskey="l" value="Change Password" tabindex="4" type="submit"/>
         </div>
     </form>
 </div>

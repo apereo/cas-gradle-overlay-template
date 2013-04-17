@@ -7,6 +7,9 @@ import com.infusionsoft.cas.services.UserService;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
@@ -37,6 +40,9 @@ public class ProfileController {
 
     @Autowired
     AutoLoginService autoLoginService;
+
+    @Autowired
+    MessageSource messageSource;
 
     /**
      * Brings up the form to edit the user profile.
@@ -97,24 +103,33 @@ public class ProfileController {
      * Updates the user password.
      */
     @RequestMapping
-    public ModelAndView changePassword() throws IOException {
+    public String changePassword(Model model, String error) throws IOException {
         try {
-            HashMap<String, Object> model = new HashMap<String, Object>();
             User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-            model.put("user", user);
-            model.put("changeProfileLinkSelected", "selected");
+            model.addAttribute("user", user);
+            model.addAttribute("changeProfileLinkSelected", "selected");
 
-            return new ModelAndView("profile/changePassword", model);
+            model.addAttribute("error", error);
+
+            return "profile/changePassword";
         } catch (Exception e) {
             log.error("unable to load user for current request!", e);
 
-            return new ModelAndView("redirect:/central/home");
+            return "redirect:/central/home";
         }
     }
 
     @RequestMapping
-    public String updatePassword(Model model, String username, String currentPassword, String password1, String password2, @RequestHeader String referer, HttpServletRequest request, HttpServletResponse response) {
+    public String updatePassword(Model model, String username, String currentPassword, String password1, String password2, String redirectFrom, HttpServletRequest request, HttpServletResponse response) {
+
+        String redirectView;
+        if ("expirePassword".equals(redirectFrom)) {
+            redirectView = "/login";
+        } else {
+            redirectView = "/app/profile/changePassword";
+        }
+
         if (StringUtils.isEmpty(password1) || StringUtils.isEmpty(password2)) {
             model.addAttribute("error", "registration.error.invalidPassword");
         } else if (!password1.equals(password2)) {
@@ -132,21 +147,56 @@ public class ProfileController {
                     model.addAttribute("error", passwordError);
                 } else {
                     passwordService.setPasswordForUser(user);
+                    model.addAttribute("success", "editprofile.success.changePassword");
                 }
             }
         }
 
-
         if (model.containsAttribute("error")) {
-            return referer;
+            return "redirect:" + redirectView;
         } else {
             autoLoginService.autoLogin(username, request, response);
 
             if (!(SecurityContextHolder.getContext().getAuthentication() instanceof AnonymousAuthenticationToken)) {
                 return centralController.home(model);
             } else {
-                return "redirect:" + referer;
+                return "redirect:" + redirectView;
             }
+        }
+    }
+
+    @RequestMapping
+    public ResponseEntity<String> ajaxUpdatePassword(String username, String currentPassword, String password1, String password2, HttpServletRequest request, HttpServletResponse response) {
+
+        String error = null;
+
+        if (StringUtils.isEmpty(password1) || StringUtils.isEmpty(password2)) {
+            error = "registration.error.invalidPassword";
+        } else if (!password1.equals(password2)) {
+            error = "registration.error.passwordsNoMatch";
+        } else {
+            if (!passwordService.isPasswordValid(username, currentPassword)) {
+                error = "editprofile.error.incorrectCurrentPassword";
+            } else if (StringUtils.isNotEmpty(password1) || StringUtils.isNotEmpty(password2)) {
+                User user = userService.loadUser(username);
+                user.setPassword(password1);
+
+                String passwordError = passwordService.validatePassword(user);
+
+                if (passwordError != null) {
+                    error = passwordError;
+                } else {
+                    passwordService.setPasswordForUser(user);
+                }
+            }
+        }
+
+        if (StringUtils.isNotEmpty(error)) {
+
+            return new ResponseEntity<String>("{\"errorMessage\": \"" + messageSource.getMessage(error, null, request.getLocale()) + "\"}", HttpStatus.UNAUTHORIZED);
+        } else {
+            autoLoginService.autoLogin(username, request, response);
+            return new ResponseEntity<String>(HttpStatus.OK);
         }
     }
 }

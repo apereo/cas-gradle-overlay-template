@@ -36,6 +36,7 @@
             $("#password").blur();
             $("#username").placeholder();
             $("#password").placeholder();
+            $("#username").focus();
         } catch (e) {
             alert("error: " + e);
         }

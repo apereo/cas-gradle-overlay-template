@@ -259,6 +259,7 @@ public class RegistrationController {
         log.info("password recovery request for email " + username);
 
         if (StringUtils.isNotEmpty(recoveryCode)) {
+            //Checking provided recovery code
             User user = userService.findUserByRecoveryCode(recoveryCode);
 
             if (user == null) {
@@ -271,20 +272,19 @@ public class RegistrationController {
                 return new ModelAndView("registration/reset", "recoveryCode", recoveryCode);
             }
         } else if (StringUtils.isNotEmpty(username)) {
+            //Recovery Code Requested
             User user = userService.findEnabledUser(username);
 
             if (user != null) {
-                recoveryCode = userService.resetPassword(user);
-
-                log.info("password recovery code " + recoveryCode + " created for user " + user.getId());
-
-                return new ModelAndView("registration/recover", "recoveryCode", recoveryCode);
+                userService.resetPassword(user);
+                log.info("password recovery code created for user " + user.getId());
             } else {
                 log.warn("password recovery attempted for non-existent user: " + username);
-
-                return new ModelAndView("registration/forgot", "error", "forgotpassword.noSuchUser");
             }
+
+            return new ModelAndView("registration/recover");
         } else {
+            //Not requesting new code nor provided existing code
             return new ModelAndView("registration/forgot");
         }
     }
@@ -293,7 +293,7 @@ public class RegistrationController {
      * Resets the user's password, if the recovery code is valid and the new password meets the rules.
      */
     @RequestMapping
-    public ModelAndView reset(String recoveryCode, String password1, String password2) {
+    public ModelAndView reset(String recoveryCode, String password1, String password2, HttpServletRequest request, HttpServletResponse response) {
         Map<String, Object> model = new HashMap<String, Object>();
         User user = userService.findUserByRecoveryCode(recoveryCode);
 
@@ -319,7 +319,9 @@ public class RegistrationController {
         } else {
             passwordService.setPasswordForUser(user);
 
-            return new ModelAndView("redirect:/login");
+            autoLoginService.autoLogin(user.getUsername(), request, response);
+
+            return new ModelAndView("redirect:/app/central/home");
         }
     }
 

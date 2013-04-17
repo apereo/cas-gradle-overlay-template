@@ -2,6 +2,7 @@ package com.infusionsoft.cas.dao;
 
 import com.infusionsoft.cas.domain.User;
 import com.infusionsoft.cas.domain.UserPassword;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.repository.PagingAndSortingRepository;
 
@@ -12,5 +13,5 @@ public interface UserPasswordDAO extends PagingAndSortingRepository<UserPassword
 
     UserPassword findByUser_UsernameAndActiveTrue(String username);
 
-    List<UserPassword> findByUserAndActiveTrueOrderByDateCreatedDesc(User user, Pageable pageable);
+    Page<UserPassword> findByUser(User user, Pageable pageable);
 }

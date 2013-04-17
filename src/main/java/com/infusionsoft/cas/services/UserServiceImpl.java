@@ -6,6 +6,7 @@ import com.infusionsoft.cas.exceptions.AccountException;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
+import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -106,7 +107,14 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public User findUserByRecoveryCode(String recoveryCode) {
-        return userDAO.findByPasswordRecoveryCode(recoveryCode);
+        User retVal = null;
+        User user = userDAO.findByPasswordRecoveryCode(recoveryCode);
+
+        if(user != null && user.getPasswordRecoveryCodeCreatedTime().plusMinutes(30).isAfter(new DateTime())) {
+            retVal = user;
+        }
+
+        return retVal;
     }
 
     /**
@@ -121,6 +129,7 @@ public class UserServiceImpl implements UserService {
         }
 
         user.setPasswordRecoveryCode(recoveryCode);
+        user.setPasswordRecoveryCodeCreatedTime(new DateTime());
 
         userDAO.save(user);
 

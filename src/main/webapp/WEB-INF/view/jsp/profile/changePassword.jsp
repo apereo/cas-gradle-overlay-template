@@ -80,12 +80,7 @@
 <form id="changePasswordForm" action="updatePassword" method="post" class="form-horizontal" onsubmit="return submitUpdates()">
     <input id="username" name="username" value="${user.username}" type="hidden"/>
     <input id="currentPassword" name="currentPassword" value="" type="hidden"/>
-
-    <c:if test="${error != null}">
-        <div class="alert">
-            <spring:message code="${error}"/>
-        </div>
-    </c:if>
+    <input id="redirectFrom" name="redirectFrom" value="changePassword" type="hidden"/>
 
     <fieldset>
         <div class="control-group">

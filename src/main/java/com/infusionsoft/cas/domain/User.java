@@ -1,8 +1,10 @@
 package com.infusionsoft.cas.domain;
 
+import org.hibernate.annotations.Type;
 import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.NotBlank;
+import org.joda.time.DateTime;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
@@ -28,6 +30,7 @@ public class User implements Serializable, UserDetails {
     private String username;
 
     private String passwordRecoveryCode;
+    private DateTime passwordRecoveryCodeCreatedTime;
     private boolean enabled;
     private Set<Authority> authorities = new HashSet<Authority>();
     private Set<UserAccount> accounts = new HashSet<UserAccount>();
@@ -87,6 +90,16 @@ public class User implements Serializable, UserDetails {
 
     public void setPasswordRecoveryCode(String passwordRecoveryCode) {
         this.passwordRecoveryCode = passwordRecoveryCode;
+    }
+
+    @Column(name = "password_recovery_code_created_time", nullable = true)
+    @Type(type="org.jadira.usertype.dateandtime.joda.PersistentDateTime")
+    public DateTime getPasswordRecoveryCodeCreatedTime() {
+        return passwordRecoveryCodeCreatedTime;
+    }
+
+    public void setPasswordRecoveryCodeCreatedTime(DateTime passwordRecoveryCodeCreatedTime) {
+        this.passwordRecoveryCodeCreatedTime = passwordRecoveryCodeCreatedTime;
     }
 
     @Column(name = "enabled")

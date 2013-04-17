@@ -12,12 +12,13 @@ import org.joda.time.DateMidnight;
 import org.joda.time.DateTime;
 import org.joda.time.Days;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
-import java.util.List;
 
 /**
  * Service that validates all our funky password rules.
@@ -195,10 +196,10 @@ public class PasswordServiceImpl implements PasswordService {
      */
     private boolean lastFourPasswordsContains(User user, String password) {
         String passwordEncoded = passwordEncoder.encode(password);
-        List<UserPassword> passwords = userPasswordDAO.findByUserAndActiveTrueOrderByDateCreatedDesc(user, new PageRequest(0, 4));
+        Page<UserPassword> passwords = userPasswordDAO.findByUser(user, new PageRequest(0, 4, Sort.Direction.DESC, "DateCreated"));
 
-        for (int i = 0; i < passwords.size() && i < 4; i++) {
-            if (passwords.get(i).getPasswordEncoded().equals(passwordEncoded)) {
+        for (int i = 0; i < passwords.getNumberOfElements(); i++) {
+            if (passwords.getContent().get(i).getPasswordEncoded().equals(passwordEncoded)) {
                 return true;
             }
         }
