@@ -125,7 +125,7 @@ public class RegistrationController {
                 retVal = "registration/welcome";
             }
         } else {
-            return "registration/welcome";
+            return "redirect:/app/central/home";
         }
 
         return retVal;
