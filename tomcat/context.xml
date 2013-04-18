@@ -1,4 +1,4 @@
-<Context>
+<Context useHttpOnly="true">
 
     <!-- maxActive: Maximum number of database connections in pool. Make sure you
          configure your mysqld max_connections large enough to handle

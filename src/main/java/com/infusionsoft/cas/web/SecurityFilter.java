@@ -32,7 +32,7 @@ public class SecurityFilter implements Filter {
         filterChain.doFilter(request, response);
 
         // Forcibly set no-cache headers
-        if (path.startsWith("/login") || path.startsWith("/logout")) {
+        if (path.startsWith("/login") || path.startsWith("/logout") || path.startsWith("/app")) {
             response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate, private");
             response.setHeader("Pragma", "no-cache");
         }
