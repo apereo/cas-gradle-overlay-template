@@ -522,6 +522,28 @@ body {
     color: #fff;
 }
 
+.btn-group > .btn,
+.btn-group > .dropdown-menu,
+.btn-group > .popover {
+    font-size: 12px;
+}
+
+
+.dropdown-menu > li > a:hover,
+.dropdown-menu > li > a:focus,
+.dropdown-submenu:hover > a,
+.dropdown-submenu:focus > a {
+    color: #fff;
+    text-decoration: none;
+    background: #808080;
+    background: -moz-linear-gradient(top, #808080 0%, #676767 100%);
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#808080), color-stop(100%,#676767));
+    background: -webkit-linear-gradient(top, #808080 0%,#676767 100%);
+    background: -o-linear-gradient(top, #808080 0%,#676767 100%);
+    background: -ms-linear-gradient(top, #808080 0%,#676767 100%);
+    background: linear-gradient(top, #808080 0%,#676767 100%);
+}
+
 .control-group .sign-in-button {
     background-color: #70bd49;
     -moz-border-radius: 4px;
