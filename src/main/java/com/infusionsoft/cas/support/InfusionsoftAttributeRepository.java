@@ -50,6 +50,12 @@ public class InfusionsoftAttributeRepository extends AbstractFlatteningPersonAtt
         User user = userService.loadUser(uid);
         Map<String, List<Object>> resultsMap = new HashMap<String, List<Object>>();
 
+        /****************************************************************************************************
+         * * * WARNING * * *
+         * If the format/content of this map ever changes in a way that affects parsing on the receiving end,
+         * the TICKETGRANTINGTICKET table needs to be completely cleared, since the old tickets stored there
+         * will still have the old format
+         ****************************************************************************************************/
         if (user != null) {
             resultsMap.put("id", Arrays.asList(new Object[]{String.valueOf(user.getId())}));
             resultsMap.put("displayName", Arrays.asList(new Object[]{user.getFirstName() + " " + user.getLastName()}));

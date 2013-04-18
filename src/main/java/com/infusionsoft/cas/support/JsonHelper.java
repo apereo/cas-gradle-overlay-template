@@ -45,6 +45,12 @@ public class JsonHelper {
             if (!account.isDisabled()) {
                 JSONObject accountToAdd = new JSONObject();
 
+                /****************************************************************************************************
+                 * * * WARNING * * *
+                 * If the format/content of this JSON ever changes in a way that affects parsing on the receiving end,
+                 * the TICKETGRANTINGTICKET table needs to be completely cleared, since the old tickets stored there
+                 * will still have the old format
+                 ****************************************************************************************************/
                 accountToAdd.put("appType", account.getAppType());
                 accountToAdd.put("appName", account.getAppName());
                 accountToAdd.put("appUsername", account.getAppUsername());
