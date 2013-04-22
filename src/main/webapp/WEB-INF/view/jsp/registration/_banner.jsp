@@ -7,7 +7,6 @@
     }
 
     .greetings-bg {
-        height: 220px;
         overflow: hidden;
         margin: 0;
         background: #70bc3e; /* Old browsers */
@@ -113,19 +112,22 @@
             <h1>Introducing Your Infusionsoft ID!</h1>
 
             <div class="greetings-left">
-                <p>
-                    Your Infusionsoft ID can be used to sign in to Infusionsoft, CustomerHub, Marketplace and Community.
-                    Create your Infusionsoft ID today! All customers will need to create their Infusionsoft ID by
-                    <strong><fmt:formatDate value="${migrationDate}" pattern="MMMMMMMMMM d, yyyy"/></strong>.
-                </p>
+
 
                 <p>
-                    <c:if test="${not empty appUrl && daysRemaining > 0 && hittingCasDirectly}">
-                        Not ready to make the switch? <a target="_top" href="${appUrl}/app/authentication/login">Sign in the old way.</a>
-                    </c:if>
-                    Have questions about Infusionsoft ID?
-                    <a class="learnmore" target="learnmore" href="http://ug.infusionsoft.com/article/AA-01207/0/Infusionsoft-ID-Transition.html">Learn more.</a>
+                    Your Infusionsoft ID allows you to sign in to Infusionsoft, CustomerHub, Marketplace and Community
+                    using the same email address and password. Eliminate the hassle of having to remember separate sign-in
+                    information for each account.Create your Infusionsoft ID today! All customers will need to create
+                    their Infusionsoft ID by <strong><fmt:formatDate value="${migrationDate}" pattern="MMMMMMMMMM d, yyyy"/></strong>.
                 </p>
+
+                <p>Have questions about Infusionsoft ID? Read our <a class="learnmore" target="learnmore" href="http://ug.infusionsoft.com/article/AA-01207/0/Infusionsoft-ID-Transition.html">help article </a> or call 1-800-408-2240.</p>
+
+                <c:if test="${not empty appUrl && daysRemaining > 0 && hittingCasDirectly}">
+                    <p>
+                        Not ready to make the switch? <a target="_top" href="${appUrl}/app/authentication/login">Sign in the old way.</a>
+                    </p>
+                </c:if>
 
                 <div class="button-bar">
                     <c:url var="registrationUrl" value="/app/registration/welcome"/>
