@@ -117,7 +117,7 @@
                 <p>
                     Your Infusionsoft ID allows you to sign in to Infusionsoft, CustomerHub, Marketplace and Community
                     using the same email address and password. Eliminate the hassle of having to remember separate sign-in
-                    information for each account.Create your Infusionsoft ID today! All customers will need to create
+                    information for each account. Create your Infusionsoft ID today! All customers will need to create
                     their Infusionsoft ID by <strong><fmt:formatDate value="${migrationDate}" pattern="MMMMMMMMMM d, yyyy"/></strong>.
                 </p>
 
