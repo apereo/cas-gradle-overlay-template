@@ -212,6 +212,7 @@ public class RegistrationController {
         }
 
         if (model.containsKey("error")) {
+            model.put("registrationCode", registrationCode);
             return new ModelAndView("registration/welcome", model);
         } else {
             autoLoginService.autoLogin(username, request, response);
