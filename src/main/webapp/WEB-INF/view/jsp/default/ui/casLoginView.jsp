@@ -160,25 +160,28 @@
 
     ::-webkit-input-placeholder {
         font-style: italic;
+        color: #444;
     }
 
     ::-moz-placeholder {
         font-style: italic;
-        color: #ccc;
+        color: #444;
     }
 
         /* firefox 19+ */
     :-ms-input-placeholder {
         font-style: italic;
+        color: #444;
     }
 
         /* ie */
     input:-moz-placeholder {
         font-style: italic;
+        color: #444;
     }
 
     ::-webkit-input-placeholder {
-        color: #ccc;
+        color: #444;
         font-style: italic;
     }
 
@@ -187,7 +190,7 @@
     }
 
     ::-moz-placeholder {
-        color: #ccc;
+        color: #444;
         font-style: italic;
     }
 
