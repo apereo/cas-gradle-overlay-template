@@ -252,7 +252,7 @@
 
     <error-page>
         <error-code>500</error-code>
-        <location>/WEB-INF/view/jsp/errors.jsp</location>
+        <location>/app/error/serverError</location>
     </error-page>
 
     <error-page>

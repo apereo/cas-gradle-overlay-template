@@ -53,7 +53,7 @@ public class SamlHelper {
 
             DocumentBuilder builder = dbf.newDocumentBuilder();
             Document document = builder.parse(new InputSource(new StringReader(samlResponse)));
-            Node assertion = document.getElementsByTagName("Assertion").item(0);
+            Node assertion = document.getElementsByTagName("saml:Assertion").item(0);
             String id = assertion.getAttributes().getNamedItem("ID").getNodeValue();
 
             log.debug("signing assertion with URI " + id);
@@ -84,7 +84,7 @@ public class SamlHelper {
             transforms.add(signatureFactory.newTransform("http://www.w3.org/2001/10/xml-exc-c14n#",(TransformParameterSpec) null));
 
             Reference ref = signatureFactory.newReference("#" + id, signatureFactory.newDigestMethod(DigestMethod.SHA1, null), transforms, null, null);
-            SignedInfo si = signatureFactory.newSignedInfo(signatureFactory.newCanonicalizationMethod(CanonicalizationMethod.INCLUSIVE_WITH_COMMENTS, (C14NMethodParameterSpec) null), signatureFactory.newSignatureMethod(SignatureMethod.RSA_SHA1, null), Collections.singletonList(ref));
+            SignedInfo si = signatureFactory.newSignedInfo(signatureFactory.newCanonicalizationMethod(CanonicalizationMethod.EXCLUSIVE, (C14NMethodParameterSpec) null), signatureFactory.newSignatureMethod(SignatureMethod.RSA_SHA1, null), Collections.singletonList(ref));
             KeyInfoFactory kif = signatureFactory.getKeyInfoFactory();
             KeyValue kv = kif.newKeyValue(publicKey);
             KeyInfo ki = kif.newKeyInfo(Collections.singletonList(kv));

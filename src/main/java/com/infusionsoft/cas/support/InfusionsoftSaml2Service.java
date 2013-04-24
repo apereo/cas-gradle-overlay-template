@@ -16,6 +16,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.util.*;
@@ -49,34 +50,34 @@ public class InfusionsoftSaml2Service extends AbstractWebApplicationService {
     private static final String CONST_RELAY_STATE = "RelayState";
 
     // TODO - we lifted this from the CAS Google Accounts implementation, but it is a very stupid way to make XML
-    private static final String TEMPLATE_SAML_RESPONSE = "<?xml version=\"1.0\"?>" +
-            "<samlp:Response ID=\"<RESPONSE_ID>\" IssueInstant=\"<ISSUE_INSTANT>\" Version=\"2.0\" xmlns=\"urn:oasis:names:tc:SAML:2.0:assertion\" xmlns:samlp=\"urn:oasis:names:tc:SAML:2.0:protocol\" xmlns:xenc=\"http://www.w3.org/2001/04/xmlenc#\">" +
-            "  <Issuer><ISSUER_STRING></Issuer>" +
+    private static final String TEMPLATE_SAML_RESPONSE = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>" +
+            "<samlp:Response xmlns:samlp=\"urn:oasis:names:tc:SAML:2.0:protocol\" IssueInstant=\"<ISSUE_INSTANT>\" ID=\"<RESPONSE_ID>\" Version=\"2.0\">" +
+            "  <saml:Issuer xmlns:saml=\"urn:oasis:names:tc:SAML:2.0:assertion\"><ISSUER_STRING></saml:Issuer>" +
             "  <samlp:Status>" +
             "    <samlp:StatusCode Value=\"urn:oasis:names:tc:SAML:2.0:status:Success\" />" +
             "  </samlp:Status>" +
-            "  <Assertion ID=\"<ASSERTION_ID>\" IssueInstant=\"2003-04-17T00:46:02Z\" Version=\"2.0\" xmlns=\"urn:oasis:names:tc:SAML:2.0:assertion\">" +
-            "    <Issuer><ISSUER_STRING></Issuer>" +
-            "    <Subject>" +
-            "      <NameID Format=\"urn:oasis:names:tc:SAML:2.0:nameid-format:emailAddress\"><USERNAME_STRING></NameID>" +
-            "      <SubjectConfirmation Method=\"urn:oasis:names:tc:SAML:2.0:cm:bearer\">" +
-            "        <SubjectConfirmationData Recipient=\"<ACS_URL>\" NotOnOrAfter=\"<NOT_ON_OR_AFTER>\" InResponseTo=\"<REQUEST_ID>\" />" +
-            "      </SubjectConfirmation>" +
-            "    </Subject>" +
-            "    <Conditions NotBefore=\"2003-04-17T00:46:02Z\" NotOnOrAfter=\"<NOT_ON_OR_AFTER>\">" +
-            "      <AudienceRestriction>" +
-            "        <Audience><ACS_URL></Audience>" +
-            "      </AudienceRestriction>" +
-            "    </Conditions>" +
-            "    <AuthnStatement AuthnInstant=\"<AUTHN_INSTANT>\" SessionIndex=\"<SESSION_INDEX>\">" +
-            "      <AuthnContext>" +
-            "        <AuthnContextClassRef>urn:oasis:names:tc:SAML:2.0:ac:classes:Password</AuthnContextClassRef>" +
-            "      </AuthnContext>" +
-            "    </AuthnStatement>" +
-            "    <AttributeStatement>" +
+            "  <saml:Assertion xmlns:saml=\"urn:oasis:names:tc:SAML:2.0:assertion\" Version=\"2.0\" IssueInstant=\"2003-04-17T00:46:02Z\" ID=\"<ASSERTION_ID>\">" +
+            "    <saml:Issuer><ISSUER_STRING></saml:Issuer>" +
+            "    <saml:Subject>" +
+            "      <saml:NameID Format=\"urn:oasis:names:tc:2.0:nameid-format:emailAddress\"><USERNAME_STRING></saml:NameID>" +
+            "      <saml:SubjectConfirmation Method=\"urn:oasis:names:tc:SAML:2.0:cm:bearer\">" +
+            "        <saml:SubjectConfirmationData Recipient=\"<ACS_URL>\" NotOnOrAfter=\"<NOT_ON_OR_AFTER>\" />" +
+            "      </saml:SubjectConfirmation>" +
+            "    </saml:Subject>" +
+            "    <saml:Conditions NotOnOrAfter=\"<NOT_ON_OR_AFTER>\" NotBefore=\"2003-04-17T00:46:02Z\">" +
+            "      <saml:AudienceRestriction>" +
+            "        <saml:Audience><ACS_URL></saml:Audience>" +
+            "      </saml:AudienceRestriction>" +
+            "    </saml:Conditions>" +
+            "    <saml:AuthnStatement AuthnInstant=\"<AUTHN_INSTANT>\" SessionIndex=\"<SESSION_INDEX>\">" +
+            "      <saml:AuthnContext>" +
+            "        <saml:AuthnContextClassRef>urn:oasis:names:tc:SAML:2.0:ac:classes:unspecified</saml:AuthnContextClassRef>" +
+            "      </saml:AuthnContext>" +
+            "    </saml:AuthnStatement>" +
+            "    <saml:AttributeStatement xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">" +
             "      <ATTRIBUTES>" +
-            "    </AttributeStatement>" +
-            "  </Assertion>" +
+            "    </saml:AttributeStatement>" +
+            "  </saml:Assertion>" +
             "</samlp:Response>";
 
     private final String relayState;
@@ -236,7 +237,9 @@ public class InfusionsoftSaml2Service extends AbstractWebApplicationService {
         StringBuffer attributesXml = new StringBuffer();
 
         for (String attributeName : attributes.keySet()) {
-            attributesXml.append(constructSamlAttribute(attributeName.toLowerCase(), attributes.get(attributeName).toString()));
+            if (!attributeName.equals("accounts")) {
+                attributesXml.append(constructSamlAttribute(attributeName.toLowerCase(), attributes.get(attributeName).toString()));
+            }
         }
 
         samlResponse = samlResponse.replace("<ATTRIBUTES>", attributesXml.toString());
@@ -252,11 +255,11 @@ public class InfusionsoftSaml2Service extends AbstractWebApplicationService {
         try {
             StringBuffer saml = new StringBuffer();
 
-            saml.append("<Attribute NameFormat=\"urn:oasis:names:tc:SAML:2.0:attrname-format:basic\" Name=\"" + StringEscapeUtils.escapeXml(name) + "\">");
-            saml.append("<AttributeValue xsi:type=\"xs:string\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">");
+            saml.append("<saml:Attribute NameFormat=\"urn:oasis:names:tc:SAML:2.0:attrname-format:basic\" Name=\"" + StringEscapeUtils.escapeXml(name) + "\">");
+            saml.append("<saml:AttributeValue xsi:type=\"xs:string\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">");
             saml.append(StringEscapeUtils.escapeXml(value));
-            saml.append("</AttributeValue>");
-            saml.append("</Attribute>");
+            saml.append("</saml:AttributeValue>");
+            saml.append("</saml:Attribute>");
 
             return saml.toString();
         } catch (Exception e) {

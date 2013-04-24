@@ -13,7 +13,7 @@
     </appender>
 
     <appender name="cas" class="org.apache.log4j.RollingFileAppender">
-        <param name="File" value="cas.log" />
+        <param name="File" value="logs/cas.log" />
         <param name="MaxFileSize" value="512KB" />
         <param name="MaxBackupIndex" value="3" />
         <layout class="org.apache.log4j.PatternLayout">
@@ -109,6 +109,21 @@
 
     <logger name="com.infusionsoft">
         <level value="INFO" />
+        <appender-ref ref="cas" />
+    </logger>
+
+    <logger name="com.infusionsoft.cas.support.InfusionsoftSaml2ArgumentExtractor">
+        <level value="DEBUG" />
+        <appender-ref ref="cas" />
+    </logger>
+
+    <logger name="com.infusionsoft.cas.support.InfusionsoftSaml2Service">
+        <level value="DEBUG" />
+        <appender-ref ref="cas" />
+    </logger>
+
+    <logger name="com.infusionsoft.cas.support.SamlHelper">
+        <level value="DEBUG" />
         <appender-ref ref="cas" />
     </logger>
 
