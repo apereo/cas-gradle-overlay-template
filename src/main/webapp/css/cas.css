@@ -635,5 +635,8 @@ body {
     margin: 10px auto 12px auto;
 }
 
+form {
+    margin-bottom: 0px;
+}
 
 

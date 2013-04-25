@@ -39,7 +39,6 @@
         width: 120px;
         float: left;
         margin: 16px 0 0 20px;
-        height: 150px;
     }
 
     .greetings-right .days-remaining {
@@ -62,6 +61,7 @@
         margin: 10px 0 15px 0;
         font-size: 13px;
         line-height: 20px;
+        color: #fff;
     }
 
     .greetings .button-bar {
@@ -104,6 +104,26 @@
         color: #fff;
     }
 
+    .help-bar {
+        background: #ddd;
+        height: 40px;
+    }
+
+    .help-bar-content {
+        margin: 0px auto;
+        width: 900px;
+        padding-top: 9px;
+        text-align: center;
+        font-size: 13px;
+        padding-right: 27px;
+    }
+
+    .help-bar-content span {
+        font-size: 15px;
+        font-weight: bold;
+    }
+
+
 </style>
 
 <c:if test="${!appMigrated}">
@@ -120,8 +140,6 @@
                     information for each account. Create your Infusionsoft ID today! All customers will need to create
                     their Infusionsoft ID by <strong><fmt:formatDate value="${migrationDate}" pattern="MMMMMMMMMM d, yyyy"/></strong>.
                 </p>
-
-                <p>Have questions about Infusionsoft ID? Read our <a class="learnmore" target="learnmore" href="http://ug.infusionsoft.com/article/AA-01207/0/Infusionsoft-ID-Transition.html">help article </a> or call 1-800-408-2240.</p>
 
                 <c:if test="${not empty appUrl && daysRemaining > 0 && hittingCasDirectly}">
                     <p>
@@ -181,6 +199,11 @@
                 <div class="days-remaining">Days left<br/> to create your ID</div>
             </div>
             <div style="clear: both"></div>
+        </div>
+        <div class="help-bar">
+            <div class="help-bar-content">
+                For Infusionsoft ID related issues please read our <a class="learnmore" target="learnmore" href="http://ug.infusionsoft.com/article/AA-01207/0/Infusionsoft-ID-Transition.html">help article </a> or call: <span>1-800-408-2240</span>
+            </div>
         </div>
     </div>
 </c:if>
