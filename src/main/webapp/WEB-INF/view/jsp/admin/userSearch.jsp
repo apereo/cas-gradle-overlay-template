@@ -1,4 +1,5 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <html>
@@ -26,25 +27,27 @@
         </tr>
         </thead>
         <tbody>
-        <c:forEach var="user" items="${users.content}">
-            <tr>
-                <td>
-                        ${user.username}
-                </td>
-                <td>
-                        ${user.firstName} ${user.lastName}
-                </td>
-                <td>
-                    <a href="/app/admin/resetPassword?id=${user.id}">Reset Password</a>
-                </td>
-                <td>
-                    <a href="/app/admin/unlockUser?id=${user.id}">Unlock</a>
-                </td>
-            </tr>
-        </c:forEach>
+        <c:if test="${fn:length(users.content) > 0}">
+            <c:forEach var="user" items="${users.content}">
+                <tr>
+                    <td>
+                            ${user.username}
+                    </td>
+                    <td>
+                            ${user.firstName} ${user.lastName}
+                    </td>
+                    <td>
+                        <a href="/app/admin/resetPassword?id=${user.id}">Reset Password</a>
+                    </td>
+                    <td>
+                        <a href="/app/admin/unlockUser?id=${user.id}">Unlock</a>
+                    </td>
+                </tr>
+            </c:forEach>
+        </c:if>
         </tbody>
     </table>
-    <c:if test="${users.totalPages != 1}">
+    <c:if test="${users.totalPages > 1}">
         <div class="pagination pagination-centered">
                 <%--Pages are 0 based--%>
             <c:url var="searchUrl" value="/app/admin/userSearch?"/>

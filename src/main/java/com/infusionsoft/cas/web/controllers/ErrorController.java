@@ -10,4 +10,9 @@ public class ErrorController {
     public String notAuthorized() {
         return "error/notAuthorized";
     }
+
+    @RequestMapping
+    public String serverError() {
+        return "error/serverError";
+    }
 }
