@@ -63,10 +63,13 @@ public class InfusionsoftAttributeRepository extends AbstractFlatteningPersonAtt
             resultsMap.put("lastName", Arrays.asList(new Object[]{user.getLastName()}));
             resultsMap.put("email", Arrays.asList(new Object[]{user.getUsername()}));
 
+            // We use a query instead of user.getAccounts() so that we only include enabled accounts
             List<UserAccount> accounts = userService.findByUserAndDisabled(user, false);
             JSONArray accountsArray = jsonHelper.buildUserAccountsJSON(accounts);
             // Get rid of the JSON-optional escaped slashes because Ruby's Psych parser chokes on them
             resultsMap.put("accounts", Arrays.asList(new Object[]{accountsArray.toJSONString().replaceAll("\\\\/", "/")}));
+
+            resultsMap.put("authorities", new ArrayList<Object>(user.getAuthorities()));
         } else {
             logger.error("could not find a user record for: " + uid);
         }

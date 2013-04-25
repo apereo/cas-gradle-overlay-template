@@ -11,6 +11,7 @@ import com.infusionsoft.cas.support.JsonHelper;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.validator.EmailValidator;
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +22,7 @@ import org.springframework.http.server.ServletServerHttpResponse;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
@@ -370,6 +372,52 @@ public class RestController {
             response.sendError(500);
         }
 
+        return null;
+    }
+
+    /**
+     * Removes an application account linkage from an Infusionsoft ID. This can be called from trusted systems when one
+     * of their local users is deleted, to also remove the mapping on the CAS side. It can also be called
+     * when an app instance is deleted; in this case, if the appUsername is not passed then it will unlink ALL
+     * accounts for that app instance.
+     */
+    // TODO - consider making this return JSON responses similar to the other API calls
+    @RequestMapping
+    public ModelAndView unlinkUserFromApp(HttpServletResponse response, String apiKey, String appName, String appType, @RequestParam(required = false) String appUsername, long casGlobalId) throws IOException {
+        // Validate the API key
+        if (!requiredApiKey.equals(apiKey)) {
+            return reportError(response, 401, Level.WARN, "Invalid API access: apiKey = " + apiKey);
+        }
+
+        try {
+            // Find any matching accounts by casGlobalId and unlink them
+            List<UserAccount> accounts;
+            if (casGlobalId > 0) {
+                accounts = userService.findUserAccounts(appName, appType, casGlobalId);
+                log.info("Found " + accounts.size() + " user accounts mapped to local user with casGlobalId = " + casGlobalId + " on " + appName + "/" + appType);
+                for (UserAccount account : accounts) {
+                    userService.deleteAccount(account);
+                }
+            }
+
+            // Find any remaining matching accounts and unlink them
+            accounts = userService.findUserAccounts(appName, appType, appUsername);
+            log.info("Found " + accounts.size() + " user accounts mapped to local user " + appUsername + " on " + appName + "/" + appType);
+            for (UserAccount account : accounts) {
+                userService.deleteAccount(account);
+            }
+
+            response.getWriter().append("OK");
+        } catch (Exception e) {
+            return reportError(response, 500, Level.ERROR, "Failed to delete user accounts mapped to local user " + appUsername + " on " + appName + "/" + appType);
+        }
+
+        return null;
+    }
+
+    private ModelAndView reportError(HttpServletResponse response, int statusCode, Level level, String errorMessage) throws IOException {
+        log.log(level, errorMessage);
+        response.sendError(statusCode);
         return null;
     }
 

@@ -36,9 +36,15 @@ public interface UserService {
 
     List<UserAccount> findEnabledUserAccounts(String appName, String appType, long casGlobalId);
 
+    List<UserAccount> findUserAccounts(String appName, String appType, String appUsername);
+
+    List<UserAccount> findUserAccounts(String appName, String appType, long casGlobalId);
+
     List<UserAccount> findDisabledUserAccounts(String appName, String appType, String appUsername);
 
     List<UserAccount> findDisabledUserAccounts(String appName, String appType, long casGlobalId);
+
+    void deleteAccount(UserAccount account);
 
     void disableAccount(UserAccount account);
 

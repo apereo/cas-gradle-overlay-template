@@ -291,6 +291,27 @@ public class UserServiceImpl implements UserService {
     }
 
     /**
+     * Finds any linked user accounts to a given app and local username.
+     * If a null or blank appUsername is passed, it will return all linked user accounts for that app name and type.
+     */
+    @Override
+    public List<UserAccount> findUserAccounts(String appName, String appType, String appUsername) {
+        if (StringUtils.isEmpty(appUsername)) {
+            return userAccountDAO.findByAppNameAndAppType(appName, appType);
+        } else {
+            return userAccountDAO.findByAppNameAndAppTypeAndAppUsername(appName, appType, appUsername);
+        }
+    }
+
+    /**
+     * Finds any linked user accounts to a given app and CAS global ID.
+     */
+    @Override
+    public List<UserAccount> findUserAccounts(String appName, String appType, long casGlobalId) {
+        return userAccountDAO.findByAppNameAndAppTypeAndUserId(appName, appType, casGlobalId);
+    }
+
+    /**
      * Finds any linked user accounts to a given app and local username that have been disabled.
      */
     @Override
@@ -308,6 +329,20 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<UserAccount> findDisabledUserAccounts(String appName, String appType, long casGlobalId) {
         return userAccountDAO.findByAppNameAndAppTypeAndUserIdAndDisabled(appName, appType, casGlobalId, true);
+    }
+
+    /**
+     * Deletes a linked user account.
+     */
+    @Override
+    public void deleteAccount(UserAccount account) {
+        log.info("Deleting user account " + account.getId());
+
+        User accountUser = account.getUser();
+        if (!accountUser.getAccounts().remove(account))
+            log.debug("Account not found on user to remove: " + account.getId());
+        userDAO.save(accountUser);
+        userAccountDAO.delete(account);
     }
 
     /**

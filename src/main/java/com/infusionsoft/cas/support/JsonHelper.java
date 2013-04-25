@@ -1,5 +1,6 @@
 package com.infusionsoft.cas.support;
 
+import com.infusionsoft.cas.domain.Authority;
 import com.infusionsoft.cas.domain.User;
 import com.infusionsoft.cas.domain.UserAccount;
 import org.apache.commons.lang.StringUtils;
@@ -33,6 +34,7 @@ public class JsonHelper {
         json.put("firstName", user.getFirstName());
         json.put("lastName", user.getLastName());
         json.put("linkedApps", buildUserAccountsJSON(user.getAccounts()));
+        json.put("authorities", buildAuthoritiesJSON(user.getAuthorities()));
 
         // Get rid of the JSON-optional escaped slashes because Ruby's Psych parser chokes on them
         return json.toJSONString().replaceAll("\\\\/", "/");
@@ -61,6 +63,14 @@ public class JsonHelper {
             }
         }
         return accountsArray;
+    }
+
+    public JSONArray buildAuthoritiesJSON(Collection<Authority> userAuthorities) {
+        JSONArray authoritiesArray = new JSONArray();
+        for (Authority authority : userAuthorities) {
+            authoritiesArray.add(authority.getAuthority());
+        }
+        return authoritiesArray;
     }
 
     public String buildErrorJson(String code) {
