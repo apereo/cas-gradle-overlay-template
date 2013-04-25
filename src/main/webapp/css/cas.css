@@ -47,7 +47,7 @@ h2 {
 }
 
 h2.apps {
-    background: url(https://signin.infusiontest.com/images/apps-icon.png) left center no-repeat;
+    background: url(/images/apps-icon.png) left center no-repeat;
     padding: 0 0 0 40px;
     font-size: 25px;
     line-height: 40px;
@@ -76,7 +76,7 @@ h2.apps {
 }
 
 #headerbg {
-    background: url(https://signin.infusiontest.com/images/header-gradient.png);
+    background: url(/images/header-gradient.png);
 }
 
 #header {
@@ -95,7 +95,7 @@ h2.apps {
     display: block;
     width: 150px;
     height: 48px;
-    background: url(https://signin.infusiontest.com/images/header-logo.png) no-repeat;
+    background: url(/images/header-logo.png) no-repeat;
 }
 
 #header #title {
@@ -113,18 +113,18 @@ h2.apps {
 }
 
 #modalheaderbg {
-    background: url(https://signin.infusiontest.com/images/modal-gradient.png) repeat-x;
+    background: url(/images/modal-gradient.png) repeat-x;
 }
 
 #modalheader {
     height: 49px;
     width: 962px;
     margin: 0 auto;
-    background: url(https://signin.infusiontest.com/images/modal-logo.png) 0 0 no-repeat;
+    background: url(/images/modal-logo.png) 0 0 no-repeat;
 }
 
 #navbg {
-    background: url(https://signin.infusiontest.com/images/nav-gradient.png) repeat-x;
+    background: url(/images/nav-gradient.png) repeat-x;
 }
 
 #nav {
@@ -279,7 +279,7 @@ h2.apps {
     float: left;
     width: 59px;
     height: 68px;
-    background: url(https://signin.infusiontest.com/images/incognito.png);
+    background: url(/images/incognito.png);
 }
 
 .usercard .name {
