@@ -49,7 +49,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User addUser(User user) throws InfusionsoftValidationException {
-        user.getAuthorities().add(authorityDAO.findByAuthority("ROLE_USER"));
+        user.getAuthorities().add(authorityDAO.findByAuthority("ROLE_CAS_USER"));
         userDAO.save(user);
 
         passwordService.setPasswordForUser(user);

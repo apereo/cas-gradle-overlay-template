@@ -49,7 +49,7 @@
             <c:url var="editProfileLink" value="/app/profile/editProfile"/>
             <li><a href="${homeLink}" class="${homeLinkSelected}">YOUR ACCOUNTS</a></li>
             <li><a href="${editProfileLink}" class="${editProfileLinkSelected}">EDIT YOUR PROFILE</a></li>
-            <sec:authorize access="hasRole('ROLE_ADMIN')">
+            <sec:authorize access="hasRole('ROLE_CAS_ADMIN')">
                 <form id="userSearch" class="navbar-search pull-right" action="/app/admin/userSearch">
                     <input type="text" class="search-query" name="searchUsername" placeholder="Search Infusionsoft ID" value="${searchUsername}"/>
                 </form>
