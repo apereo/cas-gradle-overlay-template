@@ -51,7 +51,7 @@
         <sec:intercept-url pattern="/app/profile/updatePassword" access="isAnonymous() or isAuthenticated()"/>
         <sec:intercept-url pattern="/app/profile/ajaxUpdatePassword" access="isAnonymous() or isAuthenticated()"/>
         <sec:intercept-url pattern="/app/**" access="isAuthenticated()"/>
-        <sec:intercept-url pattern="/services/**" access="denyAll()"/>
+        <sec:intercept-url pattern="/services/**" access="hasRole('ROLE_CAS_ADMIN')"/>
     </sec:http>
 
     <sec:authentication-manager alias="casAuthenticationManager">

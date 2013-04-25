@@ -236,8 +236,13 @@ public class InfusionsoftSaml2Service extends AbstractWebApplicationService {
         Map<String, Object> attributes = getPrincipal().getAttributes();
         StringBuffer attributesXml = new StringBuffer();
 
+        Set<String> allowedAttributes = new HashSet<String>();
+        allowedAttributes.add("email");
+        allowedAttributes.add("lastname");
+        allowedAttributes.add("firstname");
+
         for (String attributeName : attributes.keySet()) {
-            if (!attributeName.equals("accounts")) {
+            if (allowedAttributes.contains(attributeName.toLowerCase())) {
                 attributesXml.append(constructSamlAttribute(attributeName.toLowerCase(), attributes.get(attributeName).toString()));
             }
         }
