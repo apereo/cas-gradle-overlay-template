@@ -240,18 +240,7 @@ public class InfusionsoftSaml2Service extends AbstractWebApplicationService {
             attributesXml.append(constructSamlAttribute(entry.getKey().toLowerCase(), attributes.get(entry.getValue()).toString()));
         }
 
-
-        for (String attributeName : attributes.keySet()) {
-            if (allowedAttributes.containsValue(attributeName.toLowerCase())) {
-                attributesXml.append(constructSamlAttribute(attributeName.toLowerCase(), attributes.get(attributeName).toString()));
-            }
-        }
-
         samlResponse = samlResponse.replace("<ATTRIBUTES>", attributesXml.toString());
-
-//        log.debug("about to sign SAMLv2 response: " + samlResponse);
-//        samlResponse = SamlHelper.signAssertion(samlResponse, publicKey, privateKey);
-//        log.debug("returning signed SAMLv2 response: " + samlResponse);
 
         return samlResponse;
     }
