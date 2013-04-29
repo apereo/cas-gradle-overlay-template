@@ -11,17 +11,13 @@ import org.jdom.Document;
 import org.springframework.util.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.util.*;
 import java.util.zip.DataFormatException;
-import java.util.zip.GZIPOutputStream;
 import java.util.zip.Inflater;
 import java.util.zip.InflaterInputStream;
 
@@ -92,10 +88,6 @@ public class InfusionsoftSaml2Service extends AbstractWebApplicationService {
 
     private String issuer;
 
-    private boolean gzipEnabled = false;
-
-    private boolean signAssertionOnly = true;
-
     protected InfusionsoftSaml2Service(final String id, final String relayState, final String requestId, final PrivateKey privateKey, final PublicKey publicKey, final String alternateUserName) {
         this(id, id, null, relayState, requestId, privateKey, publicKey, alternateUserName);
     }
@@ -152,32 +144,34 @@ public class InfusionsoftSaml2Service extends AbstractWebApplicationService {
             String signedResponse;
             String base64Response;
 
-            if (signAssertionOnly) {
+//            boolean signAssertionOnly = true;
+//            if (signAssertionOnly) {
                 log.debug("signing SAML assertion");
 
                 signedResponse = SamlHelper.signAssertion(samlResponse, this.privateKey, this.publicKey);
-            } else {
-                log.debug("signing SAML response");
+//            } else {
+//                log.debug("signing SAML response");
+//
+//                signedResponse = SamlUtils.signSamlResponse(samlResponse, this.privateKey, this.publicKey);
+//            }
 
-                signedResponse = SamlUtils.signSamlResponse(samlResponse, this.privateKey, this.publicKey);
-            }
-
-            if (gzipEnabled) {
-                log.debug("Base64 encoding gzipped SAML response");
-
-                ByteArrayOutputStream output = new ByteArrayOutputStream();
-                GZIPOutputStream gzip = new GZIPOutputStream(output);
-
-                gzip.write(signedResponse.getBytes("UTF-8"));
-                gzip.close();
-                output.close();
-
-                base64Response = Base64.encodeBase64String(output.toByteArray());
-            } else {
+//            boolean gzipEnabled = false;
+//            if (gzipEnabled) {
+//                log.debug("Base64 encoding gzipped SAML response");
+//
+//                ByteArrayOutputStream output = new ByteArrayOutputStream();
+//                GZIPOutputStream gzip = new GZIPOutputStream(output);
+//
+//                gzip.write(signedResponse.getBytes("UTF-8"));
+//                gzip.close();
+//                output.close();
+//
+//                base64Response = Base64.encodeBase64String(output.toByteArray());
+//            } else {
                 log.debug("Base64 encoding SAML response");
 
                 base64Response = Base64.encodeBase64String(signedResponse.getBytes("UTF-8"));
-            }
+//            }
 
             log.debug("SAMLResponse (raw): " + signedResponse);
             log.debug("SAMLResponse (Base64): " + base64Response);
@@ -234,15 +228,21 @@ public class InfusionsoftSaml2Service extends AbstractWebApplicationService {
         samlResponse = samlResponse.replaceAll("<SESSION_INDEX>", RandomStringUtils.randomNumeric(12));
 
         Map<String, Object> attributes = getPrincipal().getAttributes();
-        StringBuffer attributesXml = new StringBuffer();
+        StringBuilder attributesXml = new StringBuilder();
 
-        Set<String> allowedAttributes = new HashSet<String>();
-        allowedAttributes.add("email");
-        allowedAttributes.add("lastname");
-        allowedAttributes.add("firstname");
+        Map<String, String> allowedAttributes = new HashMap<String, String>();
+        allowedAttributes.put("username", "email");
+        allowedAttributes.put("email", "email");
+        allowedAttributes.put("last_name", "lastName");
+        allowedAttributes.put("first_name", "firstName");
+
+        for(Map.Entry<String, String> entry: allowedAttributes.entrySet()) {
+            attributesXml.append(constructSamlAttribute(entry.getKey().toLowerCase(), attributes.get(entry.getValue()).toString()));
+        }
+
 
         for (String attributeName : attributes.keySet()) {
-            if (allowedAttributes.contains(attributeName.toLowerCase())) {
+            if (allowedAttributes.containsValue(attributeName.toLowerCase())) {
                 attributesXml.append(constructSamlAttribute(attributeName.toLowerCase(), attributes.get(attributeName).toString()));
             }
         }
@@ -258,9 +258,9 @@ public class InfusionsoftSaml2Service extends AbstractWebApplicationService {
 
     private String constructSamlAttribute(String name, String value) {
         try {
-            StringBuffer saml = new StringBuffer();
+            StringBuilder saml = new StringBuilder();
 
-            saml.append("<saml:Attribute NameFormat=\"urn:oasis:names:tc:SAML:2.0:attrname-format:basic\" Name=\"" + StringEscapeUtils.escapeXml(name) + "\">");
+            saml.append("<saml:Attribute NameFormat=\"urn:oasis:names:tc:SAML:2.0:attrname-format:basic\" Name=\"").append(StringEscapeUtils.escapeXml(name)).append("\">");
             saml.append("<saml:AttributeValue xsi:type=\"xs:string\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">");
             saml.append(StringEscapeUtils.escapeXml(value));
             saml.append("</saml:AttributeValue>");
