@@ -159,7 +159,7 @@ public class CentralController {
      * Creates a brand new community account and associates it to the CAS account.
      */
     @RequestMapping()
-    public ModelAndView createCommunityAccount(Boolean agreeToRules, String displayName, Integer infusionsoftExperience, String timeZone, String notificationEmailAddress, String twitterHandle) {
+    public ModelAndView createCommunityAccount(Boolean agreeToRules, String displayName, Integer infusionsoftExperience, String timeZone, String notificationEmailAddress, String twitterHandle, HttpServletRequest request, HttpServletResponse response) {
         Map<String, Object> model = new HashMap<String, Object>();
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         CommunityAccountDetails details = new CommunityAccountDetails();
@@ -188,6 +188,7 @@ public class CentralController {
 
             try {
                 communityService.registerCommunityUserAccount(user, details);
+                autoLoginService.autoLogin(user.getUsername(), request, response);
 
                 return new ModelAndView("redirect:home");
             } catch (UsernameTakenException e) {
@@ -228,6 +229,7 @@ public class CentralController {
 
                 if (StringUtils.isNotEmpty(communityUserId)) {
                     userService.associateAccountToUser(user, appType, sanitizedAppName, communityUserId);
+                    autoLoginService.autoLogin(user.getUsername(), request, response);
                 } else {
                     model.put("connectError", "registration.error.invalidLegacyCredentials");
                 }
