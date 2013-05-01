@@ -28,7 +28,7 @@ public class InfusionsoftAttributeRepository extends AbstractFlatteningPersonAtt
 
     private IPersonAttributes backingPerson = null;
 
-    public final static String[] POSSIBLE_VALUES = {"accounts", "displayName", "firstName", "lastName", "email"};
+    public final static String[] POSSIBLE_VALUES = {"id", "accounts", "authorities", "displayName", "firstName", "lastName", "email"};
     public final static Set<String> ATTRIBUTE_NAMES = new HashSet<String>(Arrays.asList(POSSIBLE_VALUES));
 
     public InfusionsoftAttributeRepository() {

@@ -47,8 +47,12 @@
         <ul>
             <c:url var="homeLink" value="/app/central/home"/>
             <c:url var="editProfileLink" value="/app/profile/editProfile"/>
+            <c:url var="serviceLink" value="/services/manage.html"/>
             <li><a href="${homeLink}" class="${homeLinkSelected}">YOUR ACCOUNTS</a></li>
             <li><a href="${editProfileLink}" class="${editProfileLinkSelected}">EDIT YOUR PROFILE</a></li>
+            <sec:authorize access="hasRole('ROLE_CAS_ADMIN')">
+                <li><a href="${serviceLink}" class="${serviceLinkSelected}">SERVICES</a></li>
+            </sec:authorize>
             <sec:authorize access="hasRole('ROLE_CAS_ADMIN')">
                 <form id="userSearch" class="navbar-search pull-right" action="/app/admin/userSearch">
                     <input type="text" class="search-query" name="searchUsername" placeholder="Search Infusionsoft ID" value="${searchUsername}"/>
@@ -67,7 +71,7 @@
                 <div class="alert alert-success"><spring:message code="${success}" text="${success}"/></div>
             </c:if>
             <c:if test="${not empty info}">
-                <div class="alert alert-info"><spring:message code="${info}"  text="${info}"/></div>
+                <div class="alert alert-info"><spring:message code="${info}" text="${info}"/></div>
             </c:if>
             <decorator:body/>
         </div>
