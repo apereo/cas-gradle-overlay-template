@@ -100,7 +100,7 @@ public class CrmService {
 
             throw new AppCredentialsInvalidException("unable to verify crm credentials for " + appUsername + " on " + appName, e);
         } catch (XmlRpcException e) {
-            log.info("app credentials are invalid", e);
+            log.debug("app credentials are invalid", e);
 
             if (e.getMessage().contains("FailedLoginAttemptPasswordExpired")) {
                 throw new AppCredentialsExpiredException("password is expired for " + appUsername + " on " + appName, e);
