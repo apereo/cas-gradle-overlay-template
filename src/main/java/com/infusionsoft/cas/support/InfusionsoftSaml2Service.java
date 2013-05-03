@@ -144,34 +144,12 @@ public class InfusionsoftSaml2Service extends AbstractWebApplicationService {
             String signedResponse;
             String base64Response;
 
-//            boolean signAssertionOnly = true;
-//            if (signAssertionOnly) {
-                log.debug("signing SAML assertion");
+            log.debug("signing SAML assertion");
 
-                signedResponse = SamlHelper.signAssertion(samlResponse, this.privateKey, this.publicKey);
-//            } else {
-//                log.debug("signing SAML response");
-//
-//                signedResponse = SamlUtils.signSamlResponse(samlResponse, this.privateKey, this.publicKey);
-//            }
+            signedResponse = SamlHelper.signAssertion(samlResponse, this.privateKey, this.publicKey);
+            log.debug("Base64 encoding SAML response");
 
-//            boolean gzipEnabled = false;
-//            if (gzipEnabled) {
-//                log.debug("Base64 encoding gzipped SAML response");
-//
-//                ByteArrayOutputStream output = new ByteArrayOutputStream();
-//                GZIPOutputStream gzip = new GZIPOutputStream(output);
-//
-//                gzip.write(signedResponse.getBytes("UTF-8"));
-//                gzip.close();
-//                output.close();
-//
-//                base64Response = Base64.encodeBase64String(output.toByteArray());
-//            } else {
-                log.debug("Base64 encoding SAML response");
-
-                base64Response = Base64.encodeBase64String(signedResponse.getBytes("UTF-8"));
-//            }
+            base64Response = new String(Base64.encodeBase64(signedResponse.getBytes("UTF-8"), false));
 
             log.debug("SAMLResponse (raw): " + signedResponse);
             log.debug("SAMLResponse (Base64): " + base64Response);
@@ -236,7 +214,7 @@ public class InfusionsoftSaml2Service extends AbstractWebApplicationService {
         allowedAttributes.put("last_name", "lastName");
         allowedAttributes.put("first_name", "firstName");
 
-        for(Map.Entry<String, String> entry: allowedAttributes.entrySet()) {
+        for (Map.Entry<String, String> entry : allowedAttributes.entrySet()) {
             attributesXml.append(constructSamlAttribute(entry.getKey().toLowerCase(), attributes.get(entry.getValue()).toString()));
         }
 
