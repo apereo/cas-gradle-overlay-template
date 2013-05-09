@@ -14,32 +14,13 @@
 
 <script type="text/javascript">
     $(document).ready(function () {
-        try {
-            /*
-
-             $("#username").blur(function() {
-             $("#username").attr("placeholder", $("#username").attr("hiddenplaceholder"));
-             });
-
-             $("#password").focus(function() {
-             $("#password").attr("hiddenplaceholder", $("#password").attr("placeholder"));
-             $("#password").attr("placeholder", "");
-             });
-             $("#password").blur(function() {
-             $("#password").attr("placeholder", $("#password").attr("hiddenplaceholder"));
-             });
-             */
-
-            $("#username").attr("placeholder", "email address");
-            $("#password").attr("placeholder", "password");
-            $("#username").blur();
-            $("#password").blur();
-            $("#username").placeholder();
-            $("#password").placeholder();
-            $("#username").focus();
-        } catch (e) {
-            alert("error: " + e);
-        }
+        $("#username").attr("placeholder", "email@example.com");
+        $("#password").attr("placeholder", "password");
+        $("#username").blur();
+        $("#password").blur();
+        $("#username").placeholder();
+        $("#password").placeholder();
+        $("#username").focus();
 
         <c:if test="${!empty appName}">
         $.ajax({
@@ -106,7 +87,7 @@
     }
 
     #username {
-        background: url(/images/username-bg.png) 8px center no-repeat;
+        background: url(/images/email-bg.png) 8px center no-repeat;
         text-indent: 32px;
         padding: 9px 3px;
         border-radius: 4px;
