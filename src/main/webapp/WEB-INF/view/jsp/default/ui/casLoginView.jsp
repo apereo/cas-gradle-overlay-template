@@ -219,13 +219,13 @@
 
         <div class="control-group">
             <div class="controls">
-                <form:input title="Email Address" cssClass="" cssErrorClass="error" id="username" size="25" tabindex="1" accesskey="${userNameAccessKey}" path="username" autocomplete="off" htmlEscape="true"/>
+                <form:input title="Email Address" cssClass="" cssErrorClass="error" id="username" size="25" tabindex="1" accesskey="${userNameAccessKey}" path="username" htmlEscape="true" />
             </div>
         </div>
 
         <div class="control-group">
             <div class="controls">
-                <form:password title="Password" cssClass="" cssErrorClass="error" id="password" size="25" tabindex="2" path="password" accesskey="${passwordAccessKey}" htmlEscape="true" autocomplete="off"/>
+                <form:password title="Password" cssClass="" cssErrorClass="error" id="password" size="25" tabindex="2" path="password" accesskey="${passwordAccessKey}" htmlEscape="true" />
             </div>
         </div>
 

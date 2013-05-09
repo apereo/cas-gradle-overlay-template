@@ -72,14 +72,14 @@
             <label for="appUsername" class="control-label">Username</label>
 
             <div class="controls">
-                <input id="appUsername" name="appUsername" type="text" value="${fn:escapeXml(appUsername)}" style="width: 300px"/>
+                <input id="appUsername" name="appUsername" type="text" value="${fn:escapeXml(appUsername)}" style="width: 300px" autocomplete="off" />
             </div>
         </div>
         <div class="control-group">
             <label for="appPassword" class="control-label">Password</label>
 
             <div class="controls">
-                <input id="appPassword" name="appPassword" type="password" value="" style="width: 300px"/>
+                <input id="appPassword" name="appPassword" type="password" value="" style="width: 300px" autocomplete="off" />
             </div>
         </div>
     </fieldset>

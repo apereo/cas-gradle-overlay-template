@@ -71,14 +71,14 @@
         <div class="control-group">
             <label for="appUsername" class="control-label">Username</label>
             <div class="controls">
-                <input type="text" name="appUsername" id="appUsername" autocomplete="false" style="width: 266px" />
+                <input type="text" name="appUsername" id="appUsername" autocomplete="off" style="width: 266px" />
             </div>
         </div>
 
         <div class="control-group">
             <label for="appPassword" class="control-label">Password</label>
             <div class="controls">
-                <input type="password" name="appPassword" id="appPassword" autocomplete="false" style="width: 266px" />
+                <input type="password" name="appPassword" id="appPassword" autocomplete="off" style="width: 266px" />
             </div>
         </div>
 
