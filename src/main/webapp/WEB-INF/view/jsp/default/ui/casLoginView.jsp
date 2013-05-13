@@ -73,17 +73,16 @@
     }
 
     #forgot-password {
+        display: block;
         text-align: center;
+        position: relative;
+        top: 12px;
         margin: 5px auto;
     }
 
     #affiliate-login {
         text-align: center;
         margin: 28px 0 0 0;
-    }
-
-    #affiliate-login a {
-        color: #aaa;
     }
 
     #username {
@@ -218,15 +217,15 @@
             <input class="btn btn-primary sign-in-button" name="submit" accesskey="l" value="Sign In" tabindex="4" type="submit"/>
         </div>
     </form:form>
+    <div id="forgot-password">
+        <a href="${forgotPasswordUrl}">Forgot your password?</a>
+    </div>
 </div>
 
-<div id="forgot-password">
-    <a href="${forgotPasswordUrl}">Forgot your password?</a>
-</div>
 
 <c:if test="${not empty appUrl}">
     <div id="affiliate-login">
-        <a href="${appUrl}/Client/">Referral Partners &amp; Customers</a>
+        <a href="${appUrl}/Client/">Referral Partner &amp; Customer Sign-In</a>
     </div>
 </c:if>
 

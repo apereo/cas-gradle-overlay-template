@@ -59,7 +59,7 @@
 
     .greetings p {
         margin: 10px 0 15px 0;
-        font-size: 13px;
+        font-size: 14px;
         line-height: 20px;
         color: #fff;
     }
@@ -76,7 +76,7 @@
         -webkit-border-radius: 4px;
         border-radius: 4px;
         color: #fff;
-        font: 600 13px 'Open Sans';
+        font: 600 14px 'Open Sans';
         font-family: 'Open Sans', Arial, Verdana, Sans-Serif;
         border: 1px solid #106596;
         border-bottom: 2px solid #106596;
@@ -104,6 +104,8 @@
         color: #fff;
     }
 
+    .highlight { text-decoration: underline; }
+
     .help-bar {
         background: #ddd;
         height: 40px;
@@ -115,7 +117,6 @@
         padding-top: 9px;
         text-align: center;
         font-size: 13px;
-        padding-right: 27px;
     }
 
     .help-bar-content span {
@@ -133,12 +134,14 @@
 
             <div class="greetings-left">
 
-
                 <p>
                     Your Infusionsoft ID allows you to sign in to Infusionsoft, CustomerHub, Marketplace and Community
-                    using the same email address and password. Eliminate the hassle of having to remember separate sign-in
-                    information for each account. Create your Infusionsoft ID today! All customers will need to create
-                    their Infusionsoft ID by <strong><fmt:formatDate value="${migrationDate}" pattern="MMMMMMMMMM d, yyyy"/></strong>.
+                    using just <span class="highlight">one</span> email address and password. Eliminate the hassle of
+                    having to remember separate sign-in information for each account.
+                </p>
+
+                <p>
+                    <strong>All customers now have until <span class="highlight"><fmt:formatDate value="${migrationDate}" pattern="MMMMMMMMMM d, yyyy"/></span>, to create their Infusionsoft ID.</strong>
                 </p>
 
                 <c:if test="${not empty appUrl && daysRemaining > 0 && hittingCasDirectly}">
@@ -202,7 +205,7 @@
         </div>
         <div class="help-bar">
             <div class="help-bar-content">
-                For Infusionsoft ID related issues please read our <a class="learnmore" target="learnmore" href="http://ug.infusionsoft.com/article/AA-01207/0/Infusionsoft-ID-Transition.html">help article </a> or call: <span>1-800-408-2240</span>
+                For Infusionsoft ID related issues please read our <a class="learnmore" target="learnmore" href="http://ug.infusionsoft.com/article/AA-01207/0/Infusionsoft-ID-Transition.html">help article </a>, watch our <a class="learnmore" target="learnmore" href="http://helpcenter.infusionsoft.com/api/popUpVideo.php?id=2312711342001">video tutorial</a> or call: <span>1-800-408-2240</span>
             </div>
         </div>
     </div>
