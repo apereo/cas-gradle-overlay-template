@@ -45,9 +45,11 @@
     <sec:http entry-point-ref="casProcessingFilterEntryPoint" auto-config="true" use-expressions="true">
         <sec:logout success-handler-ref="infusionsoftLogoutSuccessHandler"/>
         <sec:custom-filter ref="casProcessingFilter" after="CAS_FILTER"/>
+        <sec:custom-filter ref="singleLogoutFilter" before="CAS_FILTER"/>
         <sec:intercept-url pattern="/app/registration/linkToExisting*" access="isAuthenticated()"/>
         <sec:intercept-url pattern="/app/registration/**" access="permitAll()"/>
         <sec:intercept-url pattern="/app/admin/**" access="hasRole('ROLE_CAS_ADMIN')"/>
+        <sec:intercept-url pattern="/app/support/**" access="hasRole('ROLE_CAS_ADMIN') or hasRole('ROLE_CAS_SUPPORT_TIER_1')"/>
         <sec:intercept-url pattern="/app/profile/updatePassword" access="isAnonymous() or isAuthenticated()"/>
         <sec:intercept-url pattern="/app/profile/ajaxUpdatePassword" access="isAnonymous() or isAuthenticated()"/>
         <sec:intercept-url pattern="/app/**" access="isAuthenticated()"/>
@@ -61,6 +63,8 @@
     <bean id="serviceProperties" class="org.springframework.security.cas.ServiceProperties"
           p:service="${cas.securityContext.serviceProperties.service}"
           p:sendRenew="false"/>
+
+    <bean id="singleLogoutFilter" class="org.jasig.cas.client.session.SingleSignOutFilter"/>
 
     <bean id="casProcessingFilter" class="org.springframework.security.cas.web.CasAuthenticationFilter"
           p:authenticationManager-ref="casAuthenticationManager"

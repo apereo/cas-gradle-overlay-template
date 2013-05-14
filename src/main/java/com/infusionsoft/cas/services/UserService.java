@@ -1,5 +1,6 @@
 package com.infusionsoft.cas.services;
 
+import com.infusionsoft.cas.domain.Authority;
 import com.infusionsoft.cas.domain.PendingUserAccount;
 import com.infusionsoft.cas.domain.User;
 import com.infusionsoft.cas.domain.UserAccount;
@@ -70,4 +71,7 @@ public interface UserService {
 
     void changeAssociatedAppUsername(User user, String appName, String appType, String newAppUsername) throws AccountException;
 
+    List<Authority> findAllAuthorities();
+
+    Authority findAuthorityByName(String authorityName);
 }

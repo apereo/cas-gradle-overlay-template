@@ -53,9 +53,14 @@
             <sec:authorize access="hasRole('ROLE_CAS_ADMIN')">
                 <li><a href="${serviceLink}" class="${serviceLinkSelected}">SERVICES</a></li>
             </sec:authorize>
-            <sec:authorize access="hasRole('ROLE_CAS_ADMIN')">
-                <form id="userSearch" class="navbar-search pull-right" action="/app/admin/userSearch">
-                    <input type="text" class="search-query" name="searchUsername" placeholder="Search Infusionsoft ID" value="${searchUsername}"/>
+
+            <sec:authorize access="hasRole('ROLE_CAS_ADMIN') or hasRole('ROLE_CAS_SUPPORT_TIER_1')">
+                <c:url var="userSearchUrl" value="/app/support/userSearch"/>
+                <form id="userSearch" class="navbar-search pull-right" action="${userSearchUrl}">
+                    <c:set var="searchLabel">
+                        <spring:message code="search.infusionsoft.id.label"/>
+                    </c:set>
+                    <input type="text" class="search-query" name="searchUsername" placeholder="${searchLabel}" value="${searchUsername}"/>
                 </form>
             </sec:authorize>
         </ul>

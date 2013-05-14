@@ -3,6 +3,7 @@ package com.infusionsoft.cas.services;
 import com.infusionsoft.cas.dao.*;
 import com.infusionsoft.cas.domain.*;
 import com.infusionsoft.cas.exceptions.AccountException;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
@@ -13,9 +14,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Service
 @Transactional
@@ -48,8 +47,28 @@ public class UserServiceImpl implements UserService {
     UserPasswordDAO userPasswordDAO;
 
     @Override
+    public List<Authority> findAllAuthorities() {
+        List<Authority> authorities = new LinkedList<Authority>();
+        CollectionUtils.addAll(authorities, authorityDAO.findAll().iterator());
+
+        Collections.sort(authorities, new Comparator<Authority>() {
+            @Override
+            public int compare(Authority o, Authority o2) {
+                return o.getAuthority().compareTo(o2.getAuthority());
+            }
+        });
+
+        return authorities;
+    }
+
+    @Override
+    public Authority findAuthorityByName(String authorityName) {
+        return authorityDAO.findByAuthority(authorityName);
+    }
+
+    @Override
     public User addUser(User user) throws InfusionsoftValidationException {
-        user.getAuthorities().add(authorityDAO.findByAuthority("ROLE_CAS_USER"));
+        user.getAuthorities().add(findAuthorityByName("ROLE_CAS_USER"));
         userDAO.save(user);
 
         passwordService.setPasswordForUser(user);

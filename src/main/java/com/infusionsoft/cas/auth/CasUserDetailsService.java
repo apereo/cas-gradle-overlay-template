@@ -1,5 +1,6 @@
 package com.infusionsoft.cas.auth;
 
+import com.infusionsoft.cas.domain.Authority;
 import com.infusionsoft.cas.domain.User;
 import com.infusionsoft.cas.domain.UserPassword;
 import com.infusionsoft.cas.services.PasswordService;
@@ -10,6 +11,8 @@ import org.springframework.security.core.userdetails.AuthenticationUserDetailsSe
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 @Component
 public class CasUserDetailsService implements AuthenticationUserDetailsService<CasAssertionAuthenticationToken> {

@@ -1,10 +1,12 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
+<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <html>
 <head>
-    <title>Infusionsoft ID Search</title>
+    <title><spring:message code="search.infusionsoft.id.label"/></title>
     <meta name="decorator" content="central"/>
 </head>
 <body>
@@ -13,16 +15,16 @@
         <thead>
         <tr>
             <th>
-                Infusionsoft ID
+                <spring:message code="infusionsoft.id.label"/>
             </th>
             <th>
-                Name
+                <spring:message code="full.name.label"/>
             </th>
             <th>
-                Reset Password
+                <spring:message code="reset.password.label"/>
             </th>
             <th>
-                Unlock
+                <spring:message code="unlock.label"/>
             </th>
         </tr>
         </thead>
@@ -31,16 +33,22 @@
             <c:forEach var="user" items="${users.content}">
                 <tr>
                     <td>
-                            ${user.username}
+                        <sec:authorize access="hasRole('ROLE_CAS_ADMIN')">
+                        <a href="/app/admin/editUser/${user.id}">
+                            </sec:authorize>
+                                ${user.username}
+                            <sec:authorize access="hasRole('ROLE_CAS_ADMIN')">
+                        </a>
+                        </sec:authorize>
                     </td>
                     <td>
-                            ${user.firstName} ${user.lastName}
+                        <span>${user.firstName} ${user.lastName}</span>
                     </td>
                     <td>
-                        <a href="/app/admin/resetPassword?id=${user.id}">Reset Password</a>
+                        <a href="/app/support/resetPassword?id=${user.id}"><spring:message code="reset.password.label"/></a>
                     </td>
                     <td>
-                        <a href="/app/admin/unlockUser?id=${user.id}">Unlock</a>
+                        <a href="/app/support/unlockUser?id=${user.id}"><spring:message code="unlock.label"/></a>
                     </td>
                 </tr>
             </c:forEach>
@@ -50,7 +58,7 @@
     <c:if test="${users.totalPages > 1}">
         <div class="pagination pagination-centered">
                 <%--Pages are 0 based--%>
-            <c:url var="searchUrl" value="/app/admin/userSearch?"/>
+            <c:url var="searchUrl" value="/app/support/userSearch?"/>
             <c:set var="pagesHalfRange" value="${4}"/>
             <ul>
                     <%--Previous--%>
