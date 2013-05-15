@@ -14,7 +14,7 @@
 
 <script type="text/javascript">
     $(document).ready(function () {
-        $("#username").attr("placeholder", "email@example.com");
+        $("#username").attr("placeholder", "email@company.com");
         $("#password").attr("placeholder", "password");
         $("#username").blur();
         $("#password").blur();
@@ -55,9 +55,13 @@
         color: #000;
         background: #fff;
         width: 251px;
-        margin: 15px auto 7px auto;
-        border: 1px solid #DDDDDD;
-        border-radius: 4px;
+        margin: 0px auto 7px auto;
+        border-left: 1px solid #DDDDDD;
+        border-right: 1px solid #DDDDDD;
+        border-bottom: 1px solid #DDDDDD;
+        border-top: 0px;
+        border-bottom-left-radius: 4px;
+        border-bottom-right-radius: 4px;
         padding: 20px 25px 25px 25px;
     }
 
@@ -72,7 +76,27 @@
         color: #444;
     }
 
-    #forgot-password {
+    #login-header {
+        background: #b5b5b5;
+        width: 251px;
+        margin: 15px auto 0px auto;
+        border-top-right-radius: 4px;
+        border-top-left-radius: 4px;
+        padding: 3px 25px 3px 25px;
+        border: 1px solid #b5b5b5;
+    }
+
+    #login-header h3 {
+        font-family: 'Open Sans', Arial, Verdana, sans-serif;
+        font-weight: 300;
+        text-align: center;
+        padding: 0;
+        font-size: 16px;
+        line-height: 16px;
+        color: #fff;
+    }
+
+    .forgot-password {
         display: block;
         text-align: center;
         position: relative;
@@ -191,21 +215,24 @@
 
 <div id="biglogo"></div>
 
+<div id="login-header">
+    <h3>Sign In With Your Infusionsoft ID</h3>
+</div>
+
+
 <div id="login">
     <form:form method="post" id="fm1" cssClass="form-vertical" commandName="${commandName}" htmlEscape="true">
         <form:errors path="*" id="msg" cssClass="alert alert-error" element="div"/>
 
-        <h3>Sign In With Your Infusionsoft ID</h3>
-
         <div class="control-group">
             <div class="controls">
-                <form:input title="Email Address" cssClass="" cssErrorClass="error" id="username" size="25" tabindex="1" accesskey="${userNameAccessKey}" path="username" htmlEscape="true" />
+                <form:input title="Email Address" cssClass="" cssErrorClass="error" id="username" size="25" tabindex="1" accesskey="${userNameAccessKey}" path="username" htmlEscape="true"/>
             </div>
         </div>
 
         <div class="control-group">
             <div class="controls">
-                <form:password title="Password" cssClass="" cssErrorClass="error" id="password" size="25" tabindex="2" path="password" accesskey="${passwordAccessKey}" htmlEscape="true" />
+                <form:password title="Password" cssClass="" cssErrorClass="error" id="password" size="25" tabindex="2" path="password" accesskey="${passwordAccessKey}" htmlEscape="true"/>
             </div>
         </div>
 
@@ -215,11 +242,9 @@
 
         <div class="control-group">
             <input class="btn btn-primary sign-in-button" name="submit" accesskey="l" value="Sign In" tabindex="4" type="submit"/>
+            <a class="forgot-password" href="${forgotPasswordUrl}">Forgot your password?</a>
         </div>
     </form:form>
-    <div id="forgot-password">
-        <a href="${forgotPasswordUrl}">Forgot your password?</a>
-    </div>
 </div>
 
 
