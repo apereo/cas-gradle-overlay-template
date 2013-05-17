@@ -338,7 +338,7 @@ public class RegistrationController {
             if (StringUtils.isNotEmpty(appType) && StringUtils.isNotEmpty(appName)) {
                 if (appType.equals(AppType.CRM)) {
                     url = appHelper.buildAppUrl(appType, appName) + "/Logo?logo=weblogo";
-                } else {
+                } else if(appType.equals(AppType.CUSTOMERHUB)) {
                     url = customerHubService.getLogoUrl(appName);
                 }
             }
