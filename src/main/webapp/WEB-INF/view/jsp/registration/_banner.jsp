@@ -177,8 +177,10 @@
                 <div class="button-bar">
                     <c:url var="registrationUrl" value="/app/registration/welcome"/>
                     <a target="_top" href="${registrationUrl}" class="btn skip">Create Your New Infusionsoft ID!</a>
-                    <span>OR</span>
-                    <a target="_top" href="${appUrl}/app/authentication/login" class="btn">Sign In The Old Way For Now</a>
+                    <c:if test="${not empty appUrl && hittingCasDirectly}">
+                        <span>OR</span>
+                        <a target="_top" href="${appUrl}/app/authentication/login" class="btn">Sign In The Old Way For Now</a>
+                    </c:if>
                 </div>
             </div>
 
