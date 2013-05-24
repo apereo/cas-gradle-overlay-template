@@ -102,6 +102,12 @@
 
 </script>
 
+<c:if test="${!empty connectError}">
+    <div class="alert alert-error" style="margin-top: 10px">
+        <spring:message code="${connectError}"/>
+    </div>
+</c:if>
+
 <div class="titlebar">
     <h2 class="apps" style="float: left">
         <spring:message code="central.home.your.accounts"/>

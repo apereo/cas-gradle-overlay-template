@@ -6,6 +6,8 @@
     <title>Server Error</title>
 </head>
 <body>
-    There was a server error processing your request
+    <h2 class="text-center">
+        There was a server error processing your request
+    </h2>
 </body>
 </html>

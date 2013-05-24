@@ -65,9 +65,6 @@ public class RegistrationController {
     @Autowired
     AutoLoginService autoLoginService;
 
-    @Value(value = "${infusionsoft.cas.registration.promptToAssociate}")
-    boolean promptToAssociate = false;
-
     @Value("${server.prefix}")
     String serverPrefix;
 

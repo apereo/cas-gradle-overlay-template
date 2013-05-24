@@ -25,4 +25,15 @@ public class ValidationUtils {
             return appAlias.replaceAll("[^\\w\\-'\"\\s]", "");
         }
     }
+
+    /**
+     * Make sure the message code only has alphanumeric characters and periods.
+     */
+    public static String sanitizeMessageCode(String messageCode) {
+        if (messageCode == null) {
+            return null;
+        } else {
+            return messageCode.replaceAll("[^\\w\\.]", "");
+        }
+    }
 }

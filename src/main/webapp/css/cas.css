@@ -602,14 +602,6 @@ body {
     margin-bottom: 20px;
 }
 
-#verification p, #linkReferer p {
-    margin-bottom: 12px;
-}
-
-#verification form, #linkReferer form {
-    margin-top: 20px;
-}
-
 #forgot-password {
     text-align: center;
 }

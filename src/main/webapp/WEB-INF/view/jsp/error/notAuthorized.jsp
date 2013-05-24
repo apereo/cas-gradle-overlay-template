@@ -6,6 +6,8 @@
     <title>Not Authorized</title>
 </head>
 <body>
-    Your are not authorized!
+    <h2 class="text-center">
+        You are not authorized to view this page
+    </h2>
 </body>
 </html>

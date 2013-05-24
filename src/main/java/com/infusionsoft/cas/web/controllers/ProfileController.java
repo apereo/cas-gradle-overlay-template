@@ -158,7 +158,7 @@ public class ProfileController {
             autoLoginService.autoLogin(username, request, response);
 
             if (!(SecurityContextHolder.getContext().getAuthentication() instanceof AnonymousAuthenticationToken)) {
-                return centralController.home(model);
+                return centralController.home(model, null);
             } else {
                 return "redirect:" + redirectView;
             }

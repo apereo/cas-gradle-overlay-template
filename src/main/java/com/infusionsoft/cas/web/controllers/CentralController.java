@@ -57,9 +57,6 @@ public class CentralController {
     @Autowired
     AutoLoginService autoLoginService;
 
-    @Value("${infusionsoft.cas.central.promptToAssociate}")
-    boolean promptToAssociate = false;
-
     @Value("${infusionsoft.cas.connect.account.crm.enabled}")
     boolean connectAccountCrmEnabled = false;
 
@@ -97,9 +94,10 @@ public class CentralController {
      * Renders the Infusionsoft Central home page.
      */
     @RequestMapping
-    public String home(Model model) {
+    public String home(Model model, String connectError) {
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
+        model.addAttribute("connectError", ValidationUtils.sanitizeMessageCode(connectError));
         model.addAttribute("user", user);
         model.addAttribute("homeLinkSelected", "selected");
         model.addAttribute("hasCommunityAccount", infusionsoftAuthenticationService.hasCommunityAccount(user));
@@ -209,70 +207,69 @@ public class CentralController {
      * Associates the current user to a legacy account, after first validating the legacy username and password.
      */
     @RequestMapping
-    public ModelAndView associate(String appType, String appName, String appUsername, String appPassword, String cancel, String destination, HttpServletRequest request, HttpServletResponse response) throws Exception {
+    public ModelAndView associate(String appType, String appName, String appUsername, String appPassword, HttpServletRequest request, HttpServletResponse response) throws Exception {
         Map<String, Object> model = new HashMap<String, Object>();
         String sanitizedAppName = ValidationUtils.sanitizeAppName(appName);
 
         try {
-            User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-
-            if (cancel != null) {
-                return new ModelAndView("redirect:home");
-            } else if (StringUtils.isEmpty(appUsername)) {
+            if (StringUtils.isEmpty(appUsername)) {
                 model.put("connectError", "registration.error.invalidAppUsername");
             } else if (StringUtils.isEmpty(appPassword)) {
                 model.put("connectError", "registration.error.invalidPassword");
-            } else if (appType.equals(AppType.COMMUNITY)) {
-                String communityUserId = communityService.authenticateUser(appUsername, appPassword);
-
-                sanitizedAppName = "community";
-
-                if (StringUtils.isNotEmpty(communityUserId)) {
-                    userService.associateAccountToUser(user, appType, sanitizedAppName, communityUserId);
-                    autoLoginService.autoLogin(user.getUsername(), request, response);
-                } else {
-                    model.put("connectError", "registration.error.invalidLegacyCredentials");
-                }
-            } else if (appType.equals(AppType.CRM) && !crmService.isCasEnabled(sanitizedAppName)) {
-                model.put("connectError", "registration.error.ssoIsNotEnabled");
+            } else if (StringUtils.isBlank(appType)) {
+                model.put("connectError", "registration.error.couldNotAssociate");
             } else {
-                try {
-                    try {
-                        infusionsoftAuthenticationService.verifyAppCredentials(appType, sanitizedAppName, appUsername, appPassword);
-                    } catch (AppCredentialsExpiredException e) {
-                        log.info("accepting expired credentials for " + appUsername + " at " + sanitizedAppName + "/" + appType);
-                    }
+                User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+                if (AppType.COMMUNITY.equals(appType)) {
+                    String communityUserId = communityService.authenticateUser(appUsername, appPassword);
 
-                    userService.associateAccountToUser(user, appType, sanitizedAppName, appUsername);
-                    autoLoginService.autoLogin(user.getUsername(), request, response);
-                } catch (AppCredentialsInvalidException e) {
-                    model.put("connectError", "registration.error.invalidLegacyCredentials");
+                    sanitizedAppName = "community";
+
+                    if (StringUtils.isNotEmpty(communityUserId)) {
+                        userService.associateAccountToUser(user, appType, sanitizedAppName, communityUserId);
+                        autoLoginService.autoLogin(user.getUsername(), request, response);
+                    } else {
+                        model.put("connectError", "registration.error.invalidLegacyCredentials");
+                    }
+                } else if (AppType.CRM.equals(appType) && !crmService.isCasEnabled(sanitizedAppName)) {
+                    model.put("connectError", "registration.error.ssoIsNotEnabled");
+                } else if (AppType.CRM.equals(appType) || AppType.CUSTOMERHUB.equals(appType)) {
+                    try {
+                        try {
+                            infusionsoftAuthenticationService.verifyAppCredentials(appType, sanitizedAppName, appUsername, appPassword);
+                        } catch (AppCredentialsExpiredException e) {
+                            log.info("accepting expired credentials for " + appUsername + " at " + sanitizedAppName + "/" + appType);
+                        }
+
+                        userService.associateAccountToUser(user, appType, sanitizedAppName, appUsername);
+                        autoLoginService.autoLogin(user.getUsername(), request, response);
+                    } catch (AppCredentialsInvalidException e) {
+                        model.put("connectError", "registration.error.invalidLegacyCredentials");
+                    }
+                } else {
+                    model.put("connectError", "registration.error.couldNotAssociate");
                 }
             }
-            model.put("appDomain", new URL(appHelper.buildAppUrl(appType, sanitizedAppName)).getHost());
-            model.put("appUrl", appHelper.buildAppUrl(appType, sanitizedAppName));
         } catch (Exception e) {
-            log.error("failed to associate account", e);
-
+            log.error("failed to associate account for appType " + appType, e);
             model.put("connectError", "registration.error.couldNotAssociate");
         }
 
         if (model.containsKey("connectError")) {
-            if (appType.equals(AppType.CRM)) {
+            if (AppType.CRM.equals(appType)) {
+                String appUrl = appHelper.buildAppUrl(appType, sanitizedAppName);
                 model.put("crmDomain", crmDomain);
-
+                model.put("appDomain", new URL(appUrl).getHost());
+                model.put("appUrl", appUrl);
                 return new ModelAndView("central/linkInfusionsoftAppAccount", model);
-            } else if (appType.equals(AppType.CUSTOMERHUB)) {
+            } else if (AppType.CUSTOMERHUB.equals(appType)) {
                 model.put("customerHubDomain", customerHubDomain);
-
                 return new ModelAndView("central/linkCustomerHubAccount", model);
-            } else if (appType.equals(AppType.COMMUNITY)) {
+            } else if (AppType.COMMUNITY.equals(appType)) {
                 return new ModelAndView("central/linkCommunityAccount", model);
             } else {
-                throw new Exception("Failed to associate");
+                return new ModelAndView("redirect:home", model);
             }
-        } else if (StringUtils.equals("app", destination)) {
-            return new ModelAndView("redirect:" + model.get("appUrl"));
         } else {
             return new ModelAndView("redirect:home");
         }

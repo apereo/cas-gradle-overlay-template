@@ -41,7 +41,7 @@
     <c:when test="${connectError == 'registration.error.invalidLegacyCredentials'}">
         <div class="alert alert-error" style="margin-top: 10px">
             You've entered an incorrect username and/or password.
-            <a target="oldapp" href="https://${appDomain}/app/forgotPassword/enterEmail">Forgot your password on ${appDomain}?</a>
+            <a target="oldapp" href="${appUrl}/app/forgotPassword/enterEmail">Forgot your password on ${appDomain}?</a>
         </div>
     </c:when>
     <c:when test="${connectError != null}">
