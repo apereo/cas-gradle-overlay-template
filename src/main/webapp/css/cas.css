@@ -263,14 +263,15 @@ h2.apps {
 }
 
 #biglogo {
-    height: 150px;
+    margin-top: 0px;
+    height: 75px;
     background: url(../images/big-logo.png) center bottom no-repeat;
 }
 
 .usercard {
     border: 1px solid #dddddd;
     border-radius: 4px;
-    box-shadow: 1px 2px 2px rgba(0,0,0,0.1);
+    box-shadow: 1px 2px 2px rgba(0, 0, 0, 0.1);
     background: #f5f5f5;
     padding: 10px;
 }
@@ -466,7 +467,7 @@ body {
     color: #444444;
     cursor: pointer;
     display: inline-block;
-    font: 700 12px 'Open Sans',Arial,Verdana,Sans-Serif;
+    font: 700 12px 'Open Sans', Arial, Verdana, Sans-Serif;
     margin-left: 2px;
     margin-right: 2px;
     padding: 4px 12px;
@@ -504,7 +505,7 @@ body {
     color: #FFFFFF;
     cursor: pointer;
     display: inline-block;
-    font: 700 12px 'Open Sans',Arial,Verdana,Sans-Serif;
+    font: 700 12px 'Open Sans', Arial, Verdana, Sans-Serif;
     padding: 4px 12px;
     position: relative;
     text-shadow: 0 1px 0 rgb(87, 155, 60);
@@ -528,7 +529,6 @@ body {
     font-size: 12px;
 }
 
-
 .dropdown-menu > li > a:hover,
 .dropdown-menu > li > a:focus,
 .dropdown-submenu:hover > a,
@@ -537,11 +537,11 @@ body {
     text-decoration: none;
     background: #808080;
     background: -moz-linear-gradient(top, #808080 0%, #676767 100%);
-    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#808080), color-stop(100%,#676767));
-    background: -webkit-linear-gradient(top, #808080 0%,#676767 100%);
-    background: -o-linear-gradient(top, #808080 0%,#676767 100%);
-    background: -ms-linear-gradient(top, #808080 0%,#676767 100%);
-    background: linear-gradient(top, #808080 0%,#676767 100%);
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #808080), color-stop(100%, #676767));
+    background: -webkit-linear-gradient(top, #808080 0%, #676767 100%);
+    background: -o-linear-gradient(top, #808080 0%, #676767 100%);
+    background: -ms-linear-gradient(top, #808080 0%, #676767 100%);
+    background: linear-gradient(top, #808080 0%, #676767 100%);
 }
 
 .control-group .sign-in-button {
@@ -551,7 +551,7 @@ body {
     border-radius: 4px;
     color: #fff;
     font: 600 13px 'Open Sans';
-    font-family: 'Open Sans',Arial,Verdana,Sans-Serif;
+    font-family: 'Open Sans', Arial, Verdana, Sans-Serif;
     border: 1px solid #4e972a;
     border-bottom: 2px solid #4e972a;
     text-shadow: 0 1px 0 rgb(87, 155, 60);
@@ -615,9 +615,16 @@ body {
     color: #aaa;
 }
 
-.form-horizontal .control-label{float:left;width:120px;padding-top:5px;text-align:right;}
+.form-horizontal .control-label {
+    float: left;
+    width: 120px;
+    padding-top: 5px;
+    text-align: right;
+}
 
-.form-horizontal .controls { margin-left: 140px; }
+.form-horizontal .controls {
+    margin-left: 140px;
+}
 
 .instructions {
     font-size: 11px;

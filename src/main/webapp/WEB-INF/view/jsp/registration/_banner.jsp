@@ -10,6 +10,7 @@
         overflow: hidden;
         margin: 0;
         background: #fffd9c;
+        height: 274px;
     }
 
     .greetings {
@@ -22,10 +23,10 @@
     }
 
     .greetings-left {
-        width: 740px;
         float: left;
         padding: 0 0 5px 0;
         line-height: 1.4;
+        width: 880px;
     }
 
     .greetings-right {
@@ -59,7 +60,7 @@
     }
 
     .greetings .button-bar {
-        margin: 25px 0 0 0;
+        margin: 31px 0 10px 0;
         text-align: center;
         width: 900px;
     }
@@ -120,75 +121,67 @@
         font-weight: bold;
     }
 
+    .greetings .skip {
+        background-color: #70BD49;
+        -moz-border-radius: 4px;
+        -webkit-border-radius: 4px;
+        border-radius: 4px;
+        color: #fff;
+        font: 600 14px 'Open Sans';
+        font-family: 'Open Sans', Arial, Verdana, Sans-Serif;
+        border: 1px solid #4E972A;
+        border-bottom: 2px solid #4E972A;
+        text-shadow: 0 1px 0 rgb(87, 155, 60);
+        cursor: pointer;
+        display: inline-block;
+        line-height: normal;
+        position: relative;
+        text-decoration: none;
+        box-shadow: none;
+        -webkit-box-shadow: none;
+        -moz-box-shadow: none;
+        padding: 8px 0px;
+        width: 250px;
+    }
+
+    .greetings .skip:hover {
+        background-color: #77C94E;
+        color: #fff;
+    }
+
+    .greetings .skip:active {
+        top: 1px;
+        border-bottom: 1px solid #4E972A;
+        color: #fff;
+    }
+
+    .button-bar span {
+        color: #666;
+        display: inline-block;
+        padding: 0px 15px;
+    }
+
 
 </style>
 
 <c:if test="${!appMigrated}">
+
     <div class="greetings-bg">
         <div class="greetings">
-            <h1>We've Changed How You Sign In</h1>
+            <h1>We Have Changed How You Sign In</h1>
 
             <div class="greetings-left">
 
-                <p>Introducing the <strong>Infusionsoft ID!</strong> Your Infusionsoft ID makes it easy to seamlessly access Infusionsoft, CustomerHub, Marketplace and Community using your <span class="highlight">email address</span> instead of your username. </p>
-
-                <p><strong>To access all aspects of Infusionsoft, you will need to create your Infusionsoft ID by <span class="highlight"><fmt:formatDate value="${migrationDate}" pattern="MMMMMMMMMM d, yyyy"/></span>.</strong></p>
-
-                <c:if test="${not empty appUrl && daysRemaining > 0 && hittingCasDirectly}">
-                    <p>Not ready to create your Infusionsoft ID? <a target="_top" href="${appUrl}/app/authentication/login">Sign in with your old username and password</a></p>
-                </c:if>
+                <p>Introducing <strong>Infusionsoft ID!</strong> We have eliminated the hassle of having a separate username and password for each of your accounts. With Infusionsoft ID you can use the same <span class="highlight">email address</span> and password to access Infusionsoft, CustomerHub, Marketplace, Community and more.</p>
 
                 <div class="button-bar">
                     <c:url var="registrationUrl" value="/app/registration/welcome"/>
-                    <a target="_top" href="${registrationUrl}" class="btn">Create Your New Infusionsoft ID!</a>
+                    <a target="_top" href="${registrationUrl}" class="btn skip">Create Your New Infusionsoft ID!</a>
+                    <span>OR</span>
+                    <a target="_top" href="${appUrl}/app/authentication/login" class="btn">Sign In The Old Way For Now</a>
                 </div>
             </div>
-            <c:set var="daysRemaining" value="${daysRemaining > 0 ? daysRemaining : 0}"/>
-            <div class="greetings-right">
-                <c:url var="flipCounterImage" value="/images/flip-counter-sprite.png"/>
-                <div id="counter"></div>
-                <script type="text/javascript">
 
-                    $("#counter").flipCounter({
-                        number:${daysRemaining + 3}, // the initial number the counter should display, overrides the hidden field
-                        numIntegralDigits: 2, // number of places left of the decimal point to maintain
-                        numFractionalDigits: 0, // number of places right of the decimal point to maintain
-                        digitClass: "counter-digit", // class of the counter digits
-                        counterFieldName: "counter-value", // name of the hidden field
-                        digitHeight: 73, // the height of each digit in the flipCounter-medium.png sprite image
-                        digitWidth: 59, // the width of each digit in the flipCounter-medium.png sprite image
-                        imagePath: "${flipCounterImage}", // the path to the sprite image relative to your html document
-                        easing: false, // the easing function to apply to animations, you can override this with a jQuery.easing method
-                        duration: 10000, // duration of animations
-                        onAnimationStarted: false, // call back for animation upon starting
-                        onAnimationStopped: false, // call back for animation upon stopping
-                        onAnimationPaused: false, // call back for animation upon pausing
-                        onAnimationResumed: false // call back for animation upon resuming from pause
-                    });
-
-                    $(document).ready(function () {
-                        $("#counter").flipCounter(
-                                "startAnimation",
-                                {
-                                    number: ${daysRemaining + 3}, // the number we want to scroll from
-                                    end_number: ${daysRemaining}, // the number we want the counter to scroll to
-                                    easing: jQuery.easing.easeOutCubic, // this easing function to apply to the scroll.
-                                    duration: 750, // number of ms animation should take to complete
-                                    onAnimationStarted: function () {
-                                    }, // the function to call when animation starts
-                                    onAnimationStopped: function () {
-                                    }, // the function to call when animation stops
-                                    onAnimationPaused: function () {
-                                    }, // the function to call when animation pauses
-                                    onAnimationResumed: function () {
-                                    } // the function to call when animation resumes from pause
-                                }
-                        );
-                    });
-
-                </script>
-                <div class="days-remaining">Days left<br/> to create your ID</div>
-            </div>
             <div style="clear: both"></div>
         </div>
         <div class="help-bar">
@@ -197,4 +190,5 @@
             </div>
         </div>
     </div>
+
 </c:if>

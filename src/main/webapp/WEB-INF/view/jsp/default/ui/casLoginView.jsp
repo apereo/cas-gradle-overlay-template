@@ -14,7 +14,7 @@
 
 <script type="text/javascript">
     $(document).ready(function () {
-        $("#username").attr("placeholder", "email@company.com");
+        $("#username").attr("placeholder", "email@example.com");
         $("#password").attr("placeholder", "password");
         $("#username").blur();
         $("#password").blur();
