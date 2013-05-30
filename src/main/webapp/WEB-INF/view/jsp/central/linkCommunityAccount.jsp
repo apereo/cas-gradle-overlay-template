@@ -38,13 +38,13 @@
         <tr>
             <th style="width: 100px">Username</th>
             <td>
-                <input name="appUsername" type="text" value="${fn:escapeXml(appUsername)}" style="width: 300px"/>
+                <input name="appUsername" type="text" value="${fn:escapeXml(appUsername)}" style="width: 300px" autocomplete="off"/>
             </td>
         </tr>
         <tr>
             <th>Password</th>
             <td>
-                <input name="appPassword" type="password" value="" style="width: 300px"/>
+                <input name="appPassword" type="password" value="" style="width: 300px" autocomplete="off"/>
             </td>
         </tr>
 

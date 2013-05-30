@@ -193,13 +193,13 @@
             <div id="usernameDiv" class="control-group">
                 <label class="control-label" for="username"><spring:message code='registration.form.email1'/> <span style="font-weight: normal"> (<spring:message code='registration.form.email1Hint'/>)</span></label>
                 <div class="controls">
-                    <input id="username" name="username" tabindex="3" value="${fn:escapeXml(user != null ? user.username : '')}" type="text"/>
+                    <input id="username" name="username" tabindex="3" value="${fn:escapeXml(user != null ? user.username : '')}" type="text" autocomplete="off"/>
                 </div>
             </div>
             <div id="username2Div" class="control-group">
                 <label class="control-label" for="username2"><spring:message code='registration.form.email2'/></label>
                 <div class="controls">
-                    <input id="username2" name="username2" tabindex="4" type="text"/>
+                    <input id="username2" name="username2" tabindex="4" type="text" autocomplete="off"/>
                 </div>
             </div>
             <div id="password1Div" class="control-group">
@@ -208,13 +208,13 @@
                 </label>
                 <label class="control-label" for="password1"><spring:message code='registration.form.password1'/></label>
                 <div class="controls">
-                    <input id="password1" name="password1" value="" type="password" tabindex="5"/>
+                    <input id="password1" name="password1" value="" type="password" tabindex="5" autocomplete="off"/>
                 </div>
             </div>
             <div id="password2Div" class="control-group">
                 <label class="control-label" for="password2"><spring:message code='registration.form.password2'/></label>
                 <div class="controls">
-                    <input id="password2" name="password2" value="" type="password" tabindex="6"/>
+                    <input id="password2" name="password2" value="" type="password" tabindex="6" autocomplete="off"/>
                 </div>
             </div>
             <div class="control-group">
@@ -235,5 +235,5 @@
         <div style="text-align: right; margin-top: 15px">
             <input id="submitButton" type="submit" value="Create ID" class="btn btn-primary" tabindex="8"/>
         </div>
-    </form
+    </form>
 </div>
