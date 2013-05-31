@@ -188,7 +188,7 @@
         </div>
         <div class="help-bar">
             <div class="help-bar-content">
-                For Infusionsoft ID related issues please read our <a class="learnmore" target="learnmore" href="http://ug.infusionsoft.com/article/AA-01207/0/Infusionsoft-ID-Transition.html">help article </a>, watch our <a class="learnmore" target="learnmore" href="http://helpcenter.infusionsoft.com/api/popUpVideo.php?id=2312711342001">video tutorial</a> or call: <span>1-800-408-2240</span>
+                For Infusionsoft ID related issues please read our <a class="learnmore" target="learnmore" href="http://ug.infusionsoft.com/article/AA-01207/0/Infusionsoft-ID-Transition.html">help article </a>, watch our <a class="learnmore" target="learnmore" href="http://helpcenter.infusionsoft.com/api/popUpVideo.php?id=2312711342001">video tutorial</a> or call: <span>${supportPhoneNumber}</span>
             </div>
         </div>
     </div>

@@ -130,6 +130,7 @@
             <evaluate result="viewScope.appMigrated" expression="migrationService.isAppMigrated(viewScope.appName, viewScope.appType)"/>
             <evaluate result="viewScope.migrationDate" expression="migrationService.getMigrationDate()"/>
             <evaluate result="viewScope.daysToMigrate" expression="migrationService.getDaysToMigrate()"/>
+            <evaluate result="viewScope.supportPhoneNumber" expression="infusionsoftAuthenticationService.getSupportPhoneNumber()"/>
             <set name="viewScope.commandName" value="'credentials'"/>
         </on-entry>
         <transition on="submit" bind="true" validate="true" to="realSubmit">

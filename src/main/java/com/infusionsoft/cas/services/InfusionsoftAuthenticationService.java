@@ -56,4 +56,6 @@ public interface InfusionsoftAuthenticationService {
     void unlockUser(String username);
 
     void autoLogin(String ticketGrantingTicketId, String username, String password) throws AuthenticationException;
+
+    String getSupportPhoneNumber();
 }

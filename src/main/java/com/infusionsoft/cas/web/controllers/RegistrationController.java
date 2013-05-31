@@ -137,6 +137,7 @@ public class RegistrationController {
 
         model.put("migrationDate", migrationService.getMigrationDate());
         model.put("daysToMigrate", migrationService.getDaysToMigrate());
+        model.put("supportPhoneNumber", infusionsoftAuthenticationService.getSupportPhoneNumber());
 
         return new ModelAndView("registration/banner", model);
     }

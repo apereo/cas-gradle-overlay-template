@@ -112,6 +112,9 @@ public class InfusionsoftAuthenticationServiceImpl implements InfusionsoftAuthen
     @Value("${infusionsoft.marketplace.loginurl}")
     String marketplaceLoginUrl;
 
+    @Value("${infusionsoft.cas.support.phone}")
+    private String supportPhoneNumber;
+
     /**
      * Guesses an app name from a URL, or null if there isn't one to be found.
      */
@@ -508,5 +511,10 @@ public class InfusionsoftAuthenticationServiceImpl implements InfusionsoftAuthen
 
         this.ticketRegistry.addTicket(ticketGrantingTicket);
 
+    }
+
+    @Override
+    public String getSupportPhoneNumber() {
+        return supportPhoneNumber;
     }
 }
