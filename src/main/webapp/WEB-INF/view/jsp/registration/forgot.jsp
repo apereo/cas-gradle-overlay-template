@@ -29,6 +29,40 @@
 
 </style>
 
+<script type="text/javascript">
+
+    $(document).ready(function() {
+
+        //Validate the form
+        $('#fm1').validate(
+                {
+                    rules: {
+                        username: {
+                            required: true,
+                            email: true
+                        }
+                    },
+                    messages: {
+                        username: {
+                            required: "<spring:message code='forgotpassword.noUsername'/>",
+                            email: "<spring:message code='registration.error.invalidEmail'/>"
+                        }
+
+                    },
+                    highlight: function(element) {
+                        $(element).closest('.control-group').removeClass('success').addClass('error');
+                    },
+                    success: function(element) {
+                        element.closest('.control-group').removeClass('error');
+                        element.closest('label.error').hide().removeClass('error').addClass('error');
+                    }
+
+                });
+
+    });
+
+</script>
+
 <div id="forgot">
     <c:if test="${not empty error}">
         <div class="alert alert-error" style="margin: -20px -20px 20px -20px">
@@ -38,9 +72,9 @@
 
     <form action="recover" method="post" id="fm1" class="form-vertical">
         <div class="control-group">
-            <label for="username" class="control-label">Please enter your email address</label>
+            <label for="username" class="control-label">Please <c:if test="${empty username}">enter</c:if><c:if test="${!empty username}">verify</c:if> your email address</label>
             <div class="controls">
-                <input type="text" class="required" id="username" name="username" size="25" tabindex="1" style="width: 266px" />
+                <input type="text" class="required" id="username" name="username" size="25" tabindex="1" style="width: 266px" value="${username}" />
             </div>
         </div>
 

@@ -18,6 +18,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -245,8 +246,9 @@ public class RegistrationController {
      * Shows the "forgot password" dialog.
      */
     @RequestMapping
-    public ModelAndView forgot() {
-        return new ModelAndView("registration/forgot");
+    public String forgot(Model model, @RequestParam(required = false) String username) {
+        model.addAttribute("username", username);
+        return "registration/forgot";
     }
 
     /**
@@ -254,8 +256,9 @@ public class RegistrationController {
      * password. If not, make them try again.
      */
     @RequestMapping
-    public ModelAndView recover(String username, String recoveryCode) {
+    public String recover(Model model, String username, String recoveryCode) {
         log.info("password recovery request for email " + username);
+        model.addAttribute("username", username);
 
         if (StringUtils.isNotEmpty(recoveryCode)) {
             //Checking provided recovery code
@@ -263,12 +266,12 @@ public class RegistrationController {
 
             if (user == null) {
                 log.warn("invalid password recovery code was entered: " + recoveryCode);
-
-                return new ModelAndView("registration/recover", "error", "forgotpassword.noSuchCode");
+                model.addAttribute("error", "forgotpassword.noSuchCode");
+                return "registration/recover";
             } else {
                 log.info("correct password recovery code was entered for user " + user.getId());
-
-                return new ModelAndView("registration/reset", "recoveryCode", recoveryCode);
+                model.addAttribute("recoveryCode", recoveryCode);
+                return "registration/reset";
             }
         } else if (StringUtils.isNotEmpty(username)) {
             //Recovery Code Requested
@@ -279,12 +282,14 @@ public class RegistrationController {
                 log.info("password recovery code created for user " + user.getId());
             } else {
                 log.warn("password recovery attempted for non-existent user: " + username);
+                model.addAttribute("error", "forgotpassword.noSuchUser");
+                return "registration/forgot";
             }
 
-            return new ModelAndView("registration/recover");
+            return "registration/recover";
         } else {
             //Not requesting new code nor provided existing code
-            return new ModelAndView("registration/forgot");
+            return "registration/forgot";
         }
     }
 

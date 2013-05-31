@@ -43,6 +43,18 @@
         });
         </c:if>
     });
+
+    function submitForgotPasswordForm() {
+        var forgotPasswordForm = $("#forgotPasswordForm");
+        var username = $("#username").val();
+        if (username) {
+            $(forgotPasswordForm[0]['username']).val(username);
+            forgotPasswordForm.submit();
+            return false;
+        } else {
+            return true;
+        }
+    }
 </script>
 
 <style type="text/css">
@@ -242,9 +254,11 @@
 
         <div class="control-group">
             <input class="btn btn-primary sign-in-button" name="submit" accesskey="l" value="Sign In" tabindex="4" type="submit"/>
-            <a class="forgot-password" href="${forgotPasswordUrl}">Forgot your password?</a>
+            <a class="forgot-password" href="${forgotPasswordUrl}" onclick="return submitForgotPasswordForm();">Forgot your password?</a>
+
         </div>
     </form:form>
+    <form:form action="${forgotPasswordUrl}" method="GET" id="forgotPasswordForm"><input name="username" type="hidden"/></form:form>
 </div>
 
 

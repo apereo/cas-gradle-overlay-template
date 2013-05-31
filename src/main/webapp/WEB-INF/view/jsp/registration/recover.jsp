@@ -28,6 +28,36 @@
 
 </style>
 
+<script type="text/javascript">
+
+    $(document).ready(function() {
+
+        //Validate the form
+        $('#fm1').validate(
+                {
+                    rules: {
+                        recoveryCode: {
+                            required: true
+                        }
+                    },
+                    messages: {
+                        recoveryCode: "<spring:message code='forgotpassword.noRecoveryCode'/>"
+
+                    },
+                    highlight: function(element) {
+                        $(element).closest('.control-group').removeClass('success').addClass('error');
+                    },
+                    success: function(element) {
+                        element.closest('.control-group').removeClass('error');
+                        element.closest('label.error').hide().removeClass('error').addClass('error');
+                    }
+
+                });
+
+    });
+
+</script>
+
 <div id="recover">
     <c:if test="${not empty error}">
         <div class="alert alert-error" style="margin: -20px -20px 20px -20px">
@@ -37,7 +67,7 @@
 
     <c:if test="${empty error}">
         <div class="alert alert-info" style="margin: -20px -20px 20px -20px">
-            We have emailed you a recovery code. Copy and paste the recovery code into the field below and
+            We have emailed a recovery code to ${username}. Copy and paste the recovery code into the field below and
             click "Next".
         </div>
     </c:if>
