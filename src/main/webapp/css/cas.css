@@ -638,4 +638,24 @@ form {
     margin-bottom: 0px;
 }
 
+/* Bootstrap overrides */
 
+.control-group.error .control-label, .control-group.error .help-block, .controls input {
+    color: #444;
+}
+
+.control-group.error .checkbox, .control-group.error .radio, .control-group.error input, .control-group.error select, .control-group.error textarea {
+    color: #444;
+}
+
+label.valid {
+    height: 0;
+    display: none;
+    padding: 0;
+    margin: 0;
+}
+
+label.error {
+    color: #b94a48;
+    padding: 1px 8px;
+}

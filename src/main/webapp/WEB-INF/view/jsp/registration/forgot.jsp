@@ -54,7 +54,7 @@
                     },
                     success: function(element) {
                         element.closest('.control-group').removeClass('error');
-                        element.closest('label.error').hide().removeClass('error').addClass('error');
+                        element.closest('label.error').hide().removeClass('error').addClass('valid').addClass('error');
                     }
 
                 });

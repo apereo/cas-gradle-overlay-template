@@ -259,6 +259,7 @@ public class RegistrationController {
     public String recover(Model model, String username, String recoveryCode) {
         log.info("password recovery request for email " + username);
         model.addAttribute("username", username);
+        recoveryCode = StringUtils.trim(recoveryCode);
 
         if (StringUtils.isNotEmpty(recoveryCode)) {
             //Checking provided recovery code

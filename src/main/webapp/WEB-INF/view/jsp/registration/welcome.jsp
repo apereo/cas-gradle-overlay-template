@@ -26,29 +26,10 @@
         margin: -20px -20px 20px -20px;
     }
 
-    .control-group.error .control-label, .control-group.error .help-block, .controls input {
-        color: #444;
-    }
-
-    .control-group.error .checkbox, .control-group.error .radio, .control-group.error input, .control-group.error select, .control-group.error textarea {
-        color: #444;
-    }
-
     .help-inline {
         position: relative;
         bottom: 10px;
         right: 5px;
-    }
-
-    label.valid {
-        height: 0;
-        display: none;
-        padding: 0;
-        margin: 0;
-    }
-    label.error {
-        color: #b94a48;
-        padding: 1px 8px;
     }
 
 </style>
@@ -109,6 +90,7 @@
                 },
                 password2: {
                     required: true,
+                    password: false,
                     equalTo: "#password1"
                 },
                 eula: {
@@ -141,7 +123,7 @@
                 $(element).closest('.control-group').removeClass('success').addClass('error');
             },
             success: function(element) {
-                element.closest('.control-group').removeClass('error').addClass('success');
+                element.closest('.control-group').removeClass('error');
                 element.closest('label.error').hide().removeClass('error').addClass('valid').addClass('error');
             }
 

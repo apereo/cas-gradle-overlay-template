@@ -28,6 +28,52 @@
 
 </style>
 
+<script type="text/javascript">
+
+    $(document).ready(function() {
+        jQuery.validator.addMethod("password", function( value, element ) {
+            var result = this.optional(element) || value.length >= 7 && /\d/.test(value) && /[a-z]/.test(value) && /[A-Z]/.test(value);
+            return result;
+        }, "<spring:message code='registration.error.invalidPassword'/>");
+
+        //Check to ensure that password matches
+        //Validate the form
+        $('#fm1').validate(
+                {
+                    rules: {
+                        password1: {
+                            required: true,
+                            password: true
+                        },
+                        password2: {
+                            required: true,
+                            password: false,
+                            equalTo: "#password1"
+                        }
+                    },
+                    messages: {
+                        password1: {
+                            required:  "<spring:message code='registration.error.passwordsRequired'/>",
+                            password: "<spring:message code='registration.error.invalidPassword'/>"
+                        },
+                        password2: {
+                            required:  "<spring:message code='registration.error.passwordsRequired'/>",
+                            equalTo: "<spring:message code='registration.error.passwordsNoMatch'/>"
+                        }
+                    },
+                    highlight: function(element) {
+                        $(element).closest('.control-group').removeClass('success').addClass('error');
+                    },
+                    success: function(element) {
+                        element.closest('.control-group').removeClass('error');
+                        element.closest('label.error').hide().removeClass('error').addClass('valid').addClass('error');
+                    }
+
+                });
+    });
+
+</script>
+
 <div id="recover">
     <c:if test="${not empty error}">
         <div class="alert alert-error" style="margin: -20px -20px 20px -20px">
@@ -46,7 +92,7 @@
                 </div>
             </div>
             <div class="control-group">
-                <label class="control-label" for="password2">Confirm Password</label>
+                <label class="control-label" for="password2">Retype Password</label>
                 <div class="controls">
                     <input id="password2" name="password2" value="" type="password" style="width: 266px"/>
                 </div>
