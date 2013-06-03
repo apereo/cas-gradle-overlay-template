@@ -57,6 +57,38 @@
         });
         </c:if>
         */
+
+        //Validate the form
+        $('#fm1').validate(
+                {
+                    rules: {
+                        username: {
+                            required: true,
+                            email: true
+                        },
+                        password: {
+                            required: true,
+                            password: false
+                        }
+                    },
+                    messages: {
+                        username: {
+                            required: "<spring:message code='login.noUsername'/>",
+                            email: "<spring:message code='error.invalidEmail'/>"
+                        },
+                        password: {
+                            required:  "<spring:message code='login.noPassword'/>"
+                        }
+                    },
+                    highlight: function(element) {
+                        $(element).closest('.control-group').removeClass('success').addClass('error');
+                    },
+                    success: function(element) {
+                        element.closest('.control-group').removeClass('error');
+                        element.closest('label.error').hide().removeClass('error').addClass('valid').addClass('error');
+                    }
+
+                });
     });
 
     function submitForgotPasswordForm() {
@@ -96,7 +128,7 @@
         margin: 0px auto 7px auto;
         border-bottom-left-radius: 4px;
         border-bottom-right-radius: 4px;
-        padding: 20px 25px 25px 25px;
+        padding: 15px 25px 25px 25px;
     }
 
     #login-form h3 {
@@ -151,7 +183,7 @@
 
     #email-help-floater {
         position: absolute;
-        top: 108px;
+        top: 22px;
         left: -155px;
         padding-right: 50px;
         text-align: center;
@@ -250,7 +282,7 @@
         -webkit-border-radius: 4px;
         -moz-border-radius: 4px;
         width: 243px;
-        margin-bottom: 15px;
+        margin: 10px 0 10px 0;
     }
 
     #password {
@@ -261,7 +293,7 @@
         -webkit-border-radius: 4px;
         -moz-border-radius: 4px;
         width: 243px;
-        margin-bottom: 15px;
+        margin: 5px 0 10px 0;
     }
 
     .greetings p {
