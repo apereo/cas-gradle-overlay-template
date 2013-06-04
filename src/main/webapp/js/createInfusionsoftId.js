@@ -1,25 +1,15 @@
 function fadeSidesIn() {
-    $('#lanyard_background').fadeIn("slow", function () {
-        $('#floaterLeft').fadeIn("slow", function () {
-            $('#floaterRight').fadeIn("slow");
-        });
+    $('#lanyard_background').fadeIn(1000, function () {
+        if ($('#floaterLeft').length == 0) {
+            $('#floaterRight').fadeIn(750);
+        } else {
+            $('#floaterLeft').fadeIn(750, function () {
+                $('#floaterRight').fadeIn(750);
+            });
+        }
     });
-
 }
 $(document).ready(function () {
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     $('#floaterLeft').hide();
     $('#floaterRight').hide();

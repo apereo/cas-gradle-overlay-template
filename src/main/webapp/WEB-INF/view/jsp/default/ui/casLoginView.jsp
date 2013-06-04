@@ -412,13 +412,13 @@ input:-moz-placeholder {
 
                 <div class="control-group">
                     <div class="controls">
-                        <form:input title="Email Address" cssClass="" cssErrorClass="error" id="username" size="25" tabindex="1" accesskey="${userNameAccessKey}" path="username" htmlEscape="true"/>
+                        <form:input title="Email Address" cssClass="" cssErrorClass="error" id="username" size="25" tabindex="1" accesskey="${userNameAccessKey}" path="username" htmlEscape="true" placeholder="email@example.com"/>
                     </div>
                 </div>
 
                 <div class="control-group">
                     <div class="controls">
-                        <form:password title="Password" cssClass="" cssErrorClass="error" id="password" size="25" tabindex="2" path="password" accesskey="${passwordAccessKey}" htmlEscape="true"/>
+                        <form:password title="Password" cssClass="" cssErrorClass="error" id="password" size="25" tabindex="2" path="password" accesskey="${passwordAccessKey}" htmlEscape="true" placeholder="password"/>
                     </div>
                 </div>
 

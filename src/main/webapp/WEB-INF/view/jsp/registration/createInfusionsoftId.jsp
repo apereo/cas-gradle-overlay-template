@@ -91,13 +91,16 @@
     </script>
 </head>
 <body>
+<div class="container-fullscreen">
 <div class="container-narrow">
-    <div id="floaterLeft">
-        Your Infusionsoft ID<br/>
-        will replace your<br/>
-        current username<br/>
-        and password.<br/>
-    </div>
+    <c:if test="${!empty userToken}">
+        <div id="floaterLeft">
+            Your Infusionsoft ID<br/>
+            will replace your<br/>
+            current username<br/>
+            and password.<br/>
+        </div>
+    </c:if>
     <div id="floaterRight">
         You will use this email<br/>
         address and password<br/>
@@ -152,8 +155,8 @@
                         <fieldset>
                             <div class="control-group">
                                 <label class="formLabel">Name</label>
-                                <form:input path="firstName" id="firstName" name="firstName" style="width:158px;float:left" tabindex="1"/>
-                                <form:input path="lastName" id="lastName" name="lastName" style="width:158px;float:right" tabindex="2"/>
+                                <form:input path="firstName" id="firstName" name="firstName" style="width:158px;float:left" tabindex="1" placeholder="first name"/>
+                                <form:input path="lastName" id="lastName" name="lastName" style="width:158px;float:right" tabindex="2" placeholder="last name"/>
                                 <div style="clear:both"></div>
                             </div>
 
@@ -208,7 +211,7 @@
                                 </div>
                             </div>
                             <div class="text-center">
-                                <button type="submit" class="btn btn-primary">Create Your ID</button>
+                                <button type="submit" class="btn btn-primary">Create Your Infusionsoft ID</button>
                             </div>
                             <c:if test="${!empty skipUrl}">
                                 <div class="text-center skipLink">
@@ -227,5 +230,6 @@
     <!--lanyard-->
 </div>
 <!--container-narrow-->
+</div>
 </body>
 </html>
