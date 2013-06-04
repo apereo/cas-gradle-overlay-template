@@ -127,8 +127,6 @@
             <evaluate result="viewScope.appName" expression="infusionsoftAuthenticationService.guessAppName(viewScope.service)"/>
             <evaluate result="viewScope.appType" expression="infusionsoftAuthenticationService.guessAppType(viewScope.service)"/>
             <evaluate result="viewScope.appUrl" expression="appHelper.buildAppUrl(viewScope.appType, viewScope.appName)"/>
-            <evaluate result="viewScope.migrationDate" expression="migrationService.getMigrationDate()"/>
-            <evaluate result="viewScope.daysToMigrate" expression="migrationService.getDaysToMigrate()"/>
             <evaluate result="viewScope.supportPhoneNumber" expression="infusionsoftAuthenticationService.getSupportPhoneNumber()"/>
             <set name="viewScope.commandName" value="'credentials'"/>
         </on-entry>

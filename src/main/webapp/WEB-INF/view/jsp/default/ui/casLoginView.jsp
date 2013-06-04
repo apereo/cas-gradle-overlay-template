@@ -375,16 +375,8 @@
 </head>
 
 <body>
-<c:if test="${!appMigrated}">
-    <c:set var="hittingCasDirectly" value="${true}"/>
-    <%--<%@include file="../../registration/_banner.jsp" %>--%>
-    <%--<div style="height: 20px"></div>--%>
-</c:if>
-<%--<c:if test="${appMigrated}">--%>
-    <div style="height: 120px"></div>
-<%--</c:if>--%>
 
-<%--<div id="biglogo"></div>--%>
+<div style="height: 120px"></div>
 
 <div id="full-login-content">
     <div id="email-help-floater">
