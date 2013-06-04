@@ -79,7 +79,7 @@
                         },
                         highlight: function (element) {
                             $(element).closest('.control-group').removeClass('success').addClass('error');
-                            $(element).next('label.error').appendTo($(element).closest('.control-group'));
+                            /*$(element).next('label.error').appendTo($(element).closest('.control-group'));*/
                         },
                         success: function (element) {
                             element.closest('.control-group').removeClass('error');
@@ -153,11 +153,21 @@
                         </c:if>
 
                         <fieldset>
-                            <div class="control-group">
-                                <label class="formLabel">Name</label>
-                                <form:input path="firstName" id="firstName" name="firstName" style="width:158px;float:left" tabindex="1" placeholder="first name"/>
-                                <form:input path="lastName" id="lastName" name="lastName" style="width:158px;float:right" tabindex="2" placeholder="last name"/>
-                            </div>
+                            <label class="formLabel">Name</label>
+                            <table>
+                                <tr>
+                                    <td>
+                                        <div style="height: 56px;" class="control-group">
+                                            <form:input path="firstName" id="firstName" name="firstName" style="width:158px;" tabindex="1" placeholder="first name"/>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div style="height: 56px;padding-left: 22px;" class="control-group">
+                                            <form:input path="lastName" id="lastName" name="lastName" style="width:158px;" tabindex="2" placeholder="last name"/>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
 
                             <div class="form-spacer" style="clear:both;"></div>
 
