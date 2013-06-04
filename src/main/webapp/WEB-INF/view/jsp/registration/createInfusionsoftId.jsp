@@ -79,6 +79,7 @@
                         },
                         highlight: function (element) {
                             $(element).closest('.control-group').removeClass('success').addClass('error');
+                            $(element).next('label.error').appendTo($(element).closest('.control-group'));
                         },
                         success: function (element) {
                             element.closest('.control-group').removeClass('error');
@@ -135,26 +136,40 @@
                         </c:if>
 
                         <fieldset>
-                            <label class="formLabel">Name</label>
-                            <form:input path="firstName" id="firstName" name="firstName" style="width:158px;float:left" tabindex="1"/>
-                            <form:input path="lastName" id="lastName" name="lastName" style="width:158px;float:right" tabindex="2"/>
+                            <div class="control-group">
+                                <label class="formLabel">Name</label>
+                                <form:input path="firstName" id="firstName" name="firstName" style="width:158px;float:left" tabindex="1"/>
+                                <form:input path="lastName" id="lastName" name="lastName" style="width:158px;float:right" tabindex="2"/>
+                                <div style="clear:both"></div>
+                            </div>
 
                             <div class="form-spacer" style="clear:both;"></div>
-                            <label class="formLabel">Email Address <span class="emailHelp">(you will use this to sign in)</span></label>
-                            <form:input path="username" style="width:356px;" id="username" name="username"/>
+
+                            <div class="control-group">
+                                <label class="formLabel">Email Address <span class="emailHelp">(you will use this to sign in)</span></label>
+                                <form:input path="username" style="width:356px;" id="username" name="username" tabindex="3"/>
+                            </div>
 
                             <div class="form-spacer"></div>
-                            <label class="formLabel">Retype Email Address</label>
-                            <form:input path="" style="width:356px;" id="username2" name="username2" value="${fn:escapeXml(user != null ? user.username : '')}"/>
+
+                            <div class="control-group">
+                                <label class="formLabel">Retype Email Address</label>
+                                <form:input path="" style="width:356px;" id="username2" name="username2" value="${fn:escapeXml(user != null ? user.username : '')}" tabindex="4"/>
+                            </div>
 
                             <div class="form-spacer"></div>
+
                             <div class="password-fields">
-                                <label class="formLabel">Create Password</label>
-                                <form:password path="" style="width:166px;" id="password1" name="password1" autocomplete="off"/>
+                                <div class="control-group">
+                                    <label class="formLabel">Create Password</label>
+                                    <form:password path="" style="width:166px;" id="password1" name="password1" autocomplete="off" tabindex="5"/>
+                                </div>
 
                                 <div class="form-spacer"></div>
-                                <label class="formLabel">Retype Password</label>
-                                <form:password path="" style="width:166px;" id="password2" name="password2" autocomplete="off"/>
+                                <div class="control-group">
+                                    <label class="formLabel">Retype Password</label>
+                                    <form:password path="" style="width:166px;" id="password2" name="password2" autocomplete="off" tabindex="6"/>
+                                </div>
                             </div>
                             <div class="password-info">
                                 Must have at least:<br/>
