@@ -21,7 +21,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJacksonHttpMessageConverter;
 import org.springframework.http.server.ServletServerHttpResponse;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -69,7 +68,7 @@ public class RestController {
      */
     @RequestMapping
     @ResponseBody
-    public String linkAccount(String apiKey, Long casId, String appUsername, String appName, AppType appType, HttpServletRequest request, HttpServletResponse response) throws Exception {
+    public String linkAccount(String apiKey, Long casGlobalId, String appUsername, String appName, AppType appType, HttpServletRequest request, HttpServletResponse response) throws Exception {
         // Validate the API key
         if (!requiredApiKey.equals(apiKey)) {
             log.warn("Invalid API access: apiKey = " + apiKey);
@@ -81,11 +80,11 @@ public class RestController {
         // Attempt the registration
         User user;
         try {
-            user = userService.loadUser(casId);
+            user = userService.loadUser(casGlobalId);
             userService.associateAccountToUser(user, appType, appName, appUsername);
         } catch (Exception e) {
             log.error("failed to create user account", e);
-            throw new Exception(messageSource.getMessage("registration.error.linkAccount", new Object[]{casId}, request.getLocale()));
+            throw new Exception(messageSource.getMessage("registration.error.linkAccount", new Object[]{casGlobalId}, request.getLocale()));
         }
 
         return jsonHelper.buildUserInfoJSON(user);
