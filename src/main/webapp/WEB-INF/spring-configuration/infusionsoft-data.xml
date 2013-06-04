@@ -32,7 +32,7 @@
         <beans:property name="jpaVendorAdapter">
             <beans:bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter">
                 <beans:property name="generateDdl" value="true"/>
-                <!--<property name="showSql" value="true"/>-->
+                <!--<beans:property name="showSql" value="true"/>-->
                 <beans:property name="databasePlatform" value="org.hibernate.dialect.MySQL5Dialect"/>
             </beans:bean>
         </beans:property>

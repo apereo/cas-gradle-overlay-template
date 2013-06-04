@@ -62,8 +62,8 @@
     }
 
 </style>
-<div id="modalheaderbg">
-    <div id="modalheader">&nbsp;</div>
+<div id="greenheaderbg">
+    <div id="greenheader">&nbsp;</div>
 </div>
 <div class="wrapper">
     <div>

@@ -1,5 +1,6 @@
 package com.infusionsoft.cas.dao;
 
+import com.infusionsoft.cas.domain.AppType;
 import com.infusionsoft.cas.domain.User;
 import com.infusionsoft.cas.domain.UserAccount;
 import org.springframework.data.repository.PagingAndSortingRepository;
@@ -11,21 +12,21 @@ public interface UserAccountDAO extends PagingAndSortingRepository<UserAccount, 
 
     UserAccount findByUserAndId(User user, Long id);
 
-    UserAccount findByUserAndAppNameAndAppType(User user, String appName, String appType);
+    UserAccount findByUserAndAppNameAndAppType(User user, String appName, AppType appType);
 
-    List<UserAccount> findByAppNameAndAppTypeAndAppUsernameAndUserNot(String appName, String appType, String appUsername, User user);
+    List<UserAccount> findByAppNameAndAppTypeAndAppUsernameAndUserNot(String appName, AppType appType, String appUsername, User user);
 
-    List<UserAccount> findByUserAndAppTypeAndDisabled(User user, String appType, Boolean disabled);
+    List<UserAccount> findByUserAndAppTypeAndDisabled(User user, AppType appType, Boolean disabled);
 
-    List<UserAccount> findByAppNameAndAppType(String appName, String appType);
+    List<UserAccount> findByAppNameAndAppType(String appName, AppType appType);
 
-    List<UserAccount> findByAppNameAndAppTypeAndDisabled(String appName, String appType, Boolean disabled);
+    List<UserAccount> findByAppNameAndAppTypeAndDisabled(String appName, AppType appType, Boolean disabled);
 
-    List<UserAccount> findByAppNameAndAppTypeAndAppUsername(String appName, String appType, String appUsername);
+    List<UserAccount> findByAppNameAndAppTypeAndAppUsername(String appName, AppType appType, String appUsername);
 
-    List<UserAccount> findByAppNameAndAppTypeAndAppUsernameAndDisabled(String appName, String appType, String appUsername, Boolean disabled);
+    List<UserAccount> findByAppNameAndAppTypeAndAppUsernameAndDisabled(String appName, AppType appType, String appUsername, Boolean disabled);
 
-    List<UserAccount> findByAppNameAndAppTypeAndUserId(String appName, String appType, long userId);
+    List<UserAccount> findByAppNameAndAppTypeAndUserId(String appName, AppType appType, long userId);
 
-    List<UserAccount> findByAppNameAndAppTypeAndUserIdAndDisabled(String appName, String appType, long userId, boolean disabled);
+    List<UserAccount> findByAppNameAndAppTypeAndUserIdAndDisabled(String appName, AppType appType, long userId, boolean disabled);
 }

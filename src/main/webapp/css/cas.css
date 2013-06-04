@@ -75,7 +75,7 @@ h2.apps {
     text-align: left;
 }
 
-#headerbg {
+#greenheaderbg {
     background: url(/images/header-gradient.png);
 }
 
@@ -112,11 +112,11 @@ h2.apps {
     color: #808384;
 }
 
-#modalheaderbg {
+#greenheaderbg {
     background: url(/images/modal-gradient.png) repeat-x;
 }
 
-#modalheader {
+#greenheader {
     height: 49px;
     width: 962px;
     margin: 0 auto;

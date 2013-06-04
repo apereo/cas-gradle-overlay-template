@@ -115,7 +115,7 @@ public class User implements Serializable, UserDetails {
     }
 
     @Override
-    @ManyToMany(targetEntity = Authority.class, fetch = FetchType.EAGER)
+    @ManyToMany(targetEntity = Authority.class, cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinTable(name = "user_authority", joinColumns = {@JoinColumn(name = "user_id", referencedColumnName = "id")}, inverseJoinColumns = {@JoinColumn(name = "authority_id", referencedColumnName = "id")})
     public Set<Authority> getAuthorities() {
         return authorities;

@@ -129,7 +129,7 @@ public class UserServiceImpl implements UserService {
         User retVal = null;
         User user = userDAO.findByPasswordRecoveryCode(recoveryCode);
 
-        if(user != null && user.getPasswordRecoveryCodeCreatedTime().plusMinutes(30).isAfter(new DateTime())) {
+        if (user != null && user.getPasswordRecoveryCodeCreatedTime().plusMinutes(30).isAfter(new DateTime())) {
             retVal = user;
         }
 
@@ -167,7 +167,7 @@ public class UserServiceImpl implements UserService {
      * Finds a user account by for a user.
      */
     @Override
-    public UserAccount findUserAccount(User user, String appName, String appType) {
+    public UserAccount findUserAccount(User user, String appName, AppType appType) {
         return userAccountDAO.findByUserAndAppNameAndAppType(user, appName, appType);
     }
 
@@ -190,7 +190,7 @@ public class UserServiceImpl implements UserService {
      * If one is already pending, regurgitate the same code.
      */
     @Override
-    public PendingUserAccount createPendingUserAccount(String appType, String appName, String appUsername, String
+    public PendingUserAccount createPendingUserAccount(AppType appType, String appName, String appUsername, String
             firstName, String lastName, String email, boolean passwordVerificationRequired) {
         PendingUserAccount pendingUserAccount = pendingUserAccountDAO.findByAppTypeAndAppNameAndAppUsername(appType, appName, appUsername);
 
@@ -223,25 +223,28 @@ public class UserServiceImpl implements UserService {
      * Associates an external account to a CAS user.
      */
     @Override
-    public UserAccount associateAccountToUser(User user, String appType, String appName, String appUsername) throws AccountException {
-        ensureAccountIsNotLinkedToDifferentUser(appName, appType, appUsername, user);
+    public UserAccount associateAccountToUser(User user, AppType appType, String appName, String appUsername) throws AccountException {
         UserAccount account = findUserAccount(user, appName, appType);
 
-        try {
-            if (account == null) {
-                account = new UserAccount();
-                account.setUser(user);
-                account.setAppType(appType);
-                account.setAppName(appName);
-                account.setAppUsername(appUsername);
-            } else {
-                account.setAppUsername(appUsername);
-                account.setDisabled(false);
-            }
+        if (appType.isLinkageAllowed()) {
+            ensureAccountIsNotLinkedToDifferentUser(appName, appType, appUsername, user);
 
-            userAccountDAO.save(account);
-        } catch (Exception e) {
-            throw new AccountException("failed to associate user to app account", e);
+            try {
+                if (account == null) {
+                    account = new UserAccount();
+                    account.setUser(user);
+                    account.setAppType(appType);
+                    account.setAppName(appName);
+                    account.setAppUsername(appUsername);
+                } else {
+                    account.setAppUsername(appUsername);
+                    account.setDisabled(false);
+                }
+
+                userAccountDAO.save(account);
+            } catch (Exception e) {
+                throw new AccountException("failed to associate user to app account", e);
+            }
         }
 
         return account;
@@ -293,7 +296,7 @@ public class UserServiceImpl implements UserService {
      * If a null or blank appUsername is passed, it will return all linked user accounts for that app name and type.
      */
     @Override
-    public List<UserAccount> findEnabledUserAccounts(String appName, String appType, String appUsername) {
+    public List<UserAccount> findEnabledUserAccounts(String appName, AppType appType, String appUsername) {
         if (StringUtils.isEmpty(appUsername)) {
             return userAccountDAO.findByAppNameAndAppTypeAndDisabled(appName, appType, false);
         } else {
@@ -305,7 +308,7 @@ public class UserServiceImpl implements UserService {
      * Finds any linked user accounts to a given app and CAS global ID.
      */
     @Override
-    public List<UserAccount> findEnabledUserAccounts(String appName, String appType, long casGlobalId) {
+    public List<UserAccount> findEnabledUserAccounts(String appName, AppType appType, long casGlobalId) {
         return userAccountDAO.findByAppNameAndAppTypeAndUserIdAndDisabled(appName, appType, casGlobalId, false);
     }
 
@@ -314,7 +317,7 @@ public class UserServiceImpl implements UserService {
      * If a null or blank appUsername is passed, it will return all linked user accounts for that app name and type.
      */
     @Override
-    public List<UserAccount> findUserAccounts(String appName, String appType, String appUsername) {
+    public List<UserAccount> findUserAccounts(String appName, AppType appType, String appUsername) {
         if (StringUtils.isEmpty(appUsername)) {
             return userAccountDAO.findByAppNameAndAppType(appName, appType);
         } else {
@@ -326,7 +329,7 @@ public class UserServiceImpl implements UserService {
      * Finds any linked user accounts to a given app and CAS global ID.
      */
     @Override
-    public List<UserAccount> findUserAccounts(String appName, String appType, long casGlobalId) {
+    public List<UserAccount> findUserAccounts(String appName, AppType appType, long casGlobalId) {
         return userAccountDAO.findByAppNameAndAppTypeAndUserId(appName, appType, casGlobalId);
     }
 
@@ -334,7 +337,7 @@ public class UserServiceImpl implements UserService {
      * Finds any linked user accounts to a given app and local username that have been disabled.
      */
     @Override
-    public List<UserAccount> findDisabledUserAccounts(String appName, String appType, String appUsername) {
+    public List<UserAccount> findDisabledUserAccounts(String appName, AppType appType, String appUsername) {
         if (StringUtils.isEmpty(appUsername)) {
             return userAccountDAO.findByAppNameAndAppTypeAndDisabled(appName, appType, true);
         } else {
@@ -346,7 +349,7 @@ public class UserServiceImpl implements UserService {
      * Finds any linked user accounts to a given app and CAS global ID that have been disabled.
      */
     @Override
-    public List<UserAccount> findDisabledUserAccounts(String appName, String appType, long casGlobalId) {
+    public List<UserAccount> findDisabledUserAccounts(String appName, AppType appType, long casGlobalId) {
         return userAccountDAO.findByAppNameAndAppTypeAndUserIdAndDisabled(appName, appType, casGlobalId, true);
     }
 
@@ -431,7 +434,7 @@ public class UserServiceImpl implements UserService {
      * Changes the application username that is associated with a user
      */
     @Override
-    public void changeAssociatedAppUsername(User user, String appName, String appType, String newAppUsername) throws AccountException {
+    public void changeAssociatedAppUsername(User user, String appName, AppType appType, String newAppUsername) throws AccountException {
         if (user != null) {
             UserAccount account = findUserAccount(user, appName, appType);
             if (account != null) {
@@ -444,10 +447,12 @@ public class UserServiceImpl implements UserService {
         }
     }
 
-    private void ensureAccountIsNotLinkedToDifferentUser(String appName, String appType, String appUsername, User user) throws AccountException {
+    private void ensureAccountIsNotLinkedToDifferentUser(String appName, AppType appType, String appUsername, User user) throws AccountException {
         List<UserAccount> accounts = userAccountDAO.findByAppNameAndAppTypeAndAppUsernameAndUserNot(appName, appType, appUsername, user);
-        if (accounts != null && !accounts.isEmpty())
+
+        if (accounts != null && !accounts.isEmpty()) {
             throw new AccountException("Account " + appUsername + " on " + appName + "/" + appType + " is already linked to a different Infusionsoft ID", null);
+        }
     }
 }
 

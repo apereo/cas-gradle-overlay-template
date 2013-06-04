@@ -207,7 +207,7 @@ public class CentralController {
      * Associates the current user to a legacy account, after first validating the legacy username and password.
      */
     @RequestMapping
-    public ModelAndView associate(String appType, String appName, String appUsername, String appPassword, HttpServletRequest request, HttpServletResponse response) throws Exception {
+    public ModelAndView associate(AppType appType, String appName, String appUsername, String appPassword, HttpServletRequest request, HttpServletResponse response) throws Exception {
         Map<String, Object> model = new HashMap<String, Object>();
         String sanitizedAppName = ValidationUtils.sanitizeAppName(appName);
 
@@ -216,7 +216,7 @@ public class CentralController {
                 model.put("connectError", "registration.error.invalidAppUsername");
             } else if (StringUtils.isEmpty(appPassword)) {
                 model.put("connectError", "registration.error.invalidPassword");
-            } else if (StringUtils.isBlank(appType)) {
+            } else if (appType == null) {
                 model.put("connectError", "registration.error.couldNotAssociate");
             } else {
                 User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();

@@ -10,17 +10,13 @@
     <decorator name="central" page="central.jsp">
         <pattern>/central/*</pattern>
     </decorator>
-    <decorator name="anonymousNoLogo" page="anonymousNoLogo.jsp">
-    </decorator>
-    <decorator name="plain" page="plain.jsp">
-    </decorator>
+    <decorator name="anonymousNoLogo" page="anonymousNoLogo.jsp"/>
+    <decorator name="plain" page="plain.jsp"/>
 
-    <!--&lt;!&ndash; TODO: better to just exclude from SiteMesh altogether &ndash;&gt;-->
-    <!--<decorator name="none" page="none.jsp">-->
-        <!--<pattern>/central/renameAccount</pattern>-->
-        <!--<pattern>/central/verifyExistingPassword</pattern>-->
-        <!--<pattern>/rest</pattern>-->
-    <!--</decorator>-->
+    <decorator name="base-no-layout" page="base-no-layout.jsp"/>
+    <decorator name="green-header-minimal" page="green-header-minimal.jsp"/>
+
+
 
     <excludes>
         <pattern>/central/renameAccount</pattern>

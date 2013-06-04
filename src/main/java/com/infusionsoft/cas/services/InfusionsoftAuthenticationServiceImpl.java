@@ -8,16 +8,10 @@ import com.infusionsoft.cas.exceptions.AppCredentialsInvalidException;
 import com.infusionsoft.cas.support.AppHelper;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
-import org.jasig.cas.CentralAuthenticationService;
-import org.jasig.cas.authentication.Authentication;
 import org.jasig.cas.authentication.AuthenticationManager;
-import org.jasig.cas.authentication.handler.AuthenticationException;
-import org.jasig.cas.authentication.principal.Credentials;
 import org.jasig.cas.authentication.principal.Principal;
-import org.jasig.cas.authentication.principal.UsernamePasswordCredentials;
 import org.jasig.cas.ticket.Ticket;
 import org.jasig.cas.ticket.TicketGrantingTicket;
-import org.jasig.cas.ticket.TicketGrantingTicketImpl;
 import org.jasig.cas.ticket.registry.TicketRegistry;
 import org.jasig.cas.ticket.support.TicketGrantingTicketExpirationPolicy;
 import org.jasig.cas.web.support.CookieRetrievingCookieGenerator;
@@ -27,7 +21,6 @@ import org.joda.time.base.BaseSingleFieldPeriod;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -159,7 +152,7 @@ public class InfusionsoftAuthenticationServiceImpl implements InfusionsoftAuthen
      * Guesses an app type from a URL, or null if there isn't one to be found.
      */
     @Override
-    public String guessAppType(String url) throws MalformedURLException {
+    public AppType guessAppType(String url) throws MalformedURLException {
         return StringUtils.isNotEmpty(url) ? guessAppType(new URL(url)) : null;
     }
 
@@ -167,8 +160,9 @@ public class InfusionsoftAuthenticationServiceImpl implements InfusionsoftAuthen
      * Guesses an app type from a URL, or null if there isn't one to be found.
      */
     @Override
-    public String guessAppType(URL url) {
-        String appType = null;
+    public AppType guessAppType(URL url) {
+        AppType appType = null;
+
         if (url != null && url.getHost() != null) {
             String host = url.getHost().toLowerCase();
 
@@ -368,48 +362,18 @@ public class InfusionsoftAuthenticationServiceImpl implements InfusionsoftAuthen
     }
 
     /**
-     * Checks whether a user is associated to an app at a particular URL. Everyone is automatically associated with
-     * the marketplace.
-     */
-    @Override
-    public boolean isAppAssociated(User user, URL url) {
-        if (guessAppType(url).equals(AppType.MARKETPLACE)) {
-            return true;
-        }
-
-        for (UserAccount account : user.getAccounts()) {
-            try {
-                String accountAppUrl = appHelper.buildAppUrl(account.getAppType(), account.getAppName());
-                URL appUrl = new URL(accountAppUrl);
-
-                log.debug("checking if host " + appUrl.getHost().toLowerCase() + " matches URL " + appUrl);
-
-                if (appUrl.getHost().toLowerCase().equals(url.getHost().toLowerCase())) {
-                    return true;
-                }
-            } catch (Exception e) {
-                log.error("unexpected exception constructing app url", e);
-            }
-        }
-
-
-        return false;
-    }
-
-
-    /**
      * Checks with an app whether a user's legacy credentials are correct. This should be done before we allow them to
      * link that account to their CAS account. Throws an exception if the credentials are invalid, expired, etc.
      */
     @Override
-    public void verifyAppCredentials(String appType, String appName, String appUsername, String appPassword) throws AppCredentialsInvalidException, AppCredentialsExpiredException {
-        if (StringUtils.equals(appType, AppType.CRM)) {
+    public void verifyAppCredentials(AppType appType, String appName, String appUsername, String appPassword) throws AppCredentialsInvalidException, AppCredentialsExpiredException {
+        if (AppType.CRM.equals(appType)) {
             crmService.authenticateUser(appName, appUsername, appPassword);
-        } else if (StringUtils.equals(appType, AppType.COMMUNITY)) {
+        } else if (AppType.COMMUNITY.equals(appType)) {
             if (communityService.authenticateUser(appUsername, appPassword) == null) {
                 throw new AppCredentialsInvalidException("community credentials are invalid or could not be verified");
             }
-        } else if (StringUtils.equals(appType, AppType.CUSTOMERHUB)) {
+        } else if (AppType.CUSTOMERHUB.equals(appType)) {
             if (!customerHubService.authenticateUser(appName, appUsername, appPassword)) {
                 throw new AppCredentialsInvalidException("customerhub credentials are invalid or could not be verified");
             }
@@ -463,20 +427,6 @@ public class InfusionsoftAuthenticationServiceImpl implements InfusionsoftAuthen
     }
 
     /**
-     * Tells if a user is currently associated to a given app.
-     */
-    @Override
-    public boolean isUserAssociated(User user, String appType, String appName) {
-        for (UserAccount account : user.getAccounts()) {
-            if (account.getAppType().equals(appType) && account.getAppName().equals(appName)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    /**
      * Tells if a user has a community account associated.
      */
     @Override
@@ -493,24 +443,6 @@ public class InfusionsoftAuthenticationServiceImpl implements InfusionsoftAuthen
     @Override
     public void unlockUser(String username) {
         recordLoginAttempt(username, true);
-    }
-
-    @Override
-    public void autoLogin(String ticketGrantingTicketId, String username, String password) throws AuthenticationException {
-        UsernamePasswordCredentials credentials = new UsernamePasswordCredentials();
-        credentials.setUsername(username);
-        credentials.setPassword(password);
-
-//        if(ticketGrantingTicketId != null) {
-//            ticketRegistry.deleteTicket()
-//        }
-
-        final Authentication authentication = this.authenticationManager.authenticate(credentials);
-
-        final TicketGrantingTicket ticketGrantingTicket = new TicketGrantingTicketImpl(ticketGrantingTicketId, authentication, ticketGrantingTicketExpirationPolicy);
-
-        this.ticketRegistry.addTicket(ticketGrantingTicket);
-
     }
 
     @Override

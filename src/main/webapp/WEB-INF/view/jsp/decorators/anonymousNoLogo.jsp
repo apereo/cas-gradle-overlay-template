@@ -17,10 +17,8 @@
         <link type="text/css" rel="stylesheet" href="<c:url value="/css/bootstrap.min.css"/>"/>
         <link type="text/css" rel="stylesheet" href="<c:url value="${customCssFile}" />" />
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-        <script type="text/javascript" src="<c:url value="/js/jquery-1.7.2.min.js"/>"></script>
+        <script type="text/javascript" src="<c:url value="/js/jquery-1.10.0.min.js"/>"></script>
         <script type="text/javascript" src="<c:url value="/js/bootstrap.min.js"/>"></script>
-        <script type="text/javascript" src="<c:url value="/js/cas.js" />"></script>
-        <script type="text/javascript" src="<c:url value="/js/jquery.flipCounter.1.2.pack.js" />"></script>
         <script type="text/javascript" src="<c:url value="/js/jquery.placeholder.js"/>"></script>
         <script type="text/javascript" src="<c:url value="/js/jquery.qtip-1.0.0-rc3.min.js"/>"></script>
         <script type="text/javascript" src="<c:url value="/js/jquery.validate.min.js"/>"></script>

@@ -34,7 +34,7 @@
     <!--Quartz -->
 	<!-- TICKET REGISTRY CLEANER -->
 	<bean id="ticketRegistryCleaner" class="org.jasig.cas.ticket.registry.support.DefaultTicketRegistryCleaner"
-		p:ticketRegistry-ref="ticketRegistry" >
+		p:ticketRegistry-ref="ticketRegistry">
         <property name="lock"> <!-- From https://wiki.jasig.org/display/CASUM/JpaTicketRegistry -->
             <bean class="org.jasig.cas.ticket.registry.support.JpaLockingStrategy"
                   p:uniqueId="${host.name}"

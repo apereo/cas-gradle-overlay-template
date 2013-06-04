@@ -140,7 +140,7 @@
 <div class="accounts">
     <c:forEach var="account" items="${accounts}">
         <c:choose>
-            <c:when test="${account.appType == 'crm'}">
+            <c:when test="${account.appType == 'CRM'}">
                 <div accountId="${account.id}" href="${crmProtocol}://${account.appName}.${crmDomain}:${crmPort}" class="account crm-account">
                     <div class="account-delete">&times;</div>
                     <div class="account-info">
@@ -152,7 +152,7 @@
                     </div>
                 </div>
             </c:when>
-            <c:when test="${account.appType == 'community'}">
+            <c:when test="${account.appType == 'COMMUNITY'}">
                 <div accountId="${account.id}" href="http://${communityDomain}/caslogin.php" class="account forum-account">
                     <div class="account-delete">&times;</div>
                     <div class="account-info">
@@ -161,7 +161,7 @@
                     </div>
                 </div>
             </c:when>
-            <c:when test="${account.appType == 'customerhub'}">
+            <c:when test="${account.appType == 'CUSTOMERHUB'}">
                 <div accountId="${account.id}" href="https://${account.appName}.${customerHubDomain}/admin" class="account customerhub-account">
                     <div class="account-delete">&times;</div>
                     <div class="account-info">

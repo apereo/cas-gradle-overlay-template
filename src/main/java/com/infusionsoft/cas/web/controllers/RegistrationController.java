@@ -70,10 +70,19 @@ public class RegistrationController {
     String serverPrefix;
 
     /**
+     * Uses the new action for now.  Once old registrations finish we can kill this action
+     */
+    //TODO: Kill after a couple weeks afetr any outstanding new user invites have processed.
+    @RequestMapping
+    public ModelAndView welcome(String registrationCode, String returnUrl, String userToken, String firstName, String lastName, String email) throws IOException {
+        return createInfusionsoftId(registrationCode, returnUrl, userToken, firstName, lastName, email);
+    }
+
+    /**
      * Shows the registration form.
      */
     @RequestMapping
-    public ModelAndView welcome(String registrationCode) throws IOException {
+    public ModelAndView createInfusionsoftId(String registrationCode, String returnUrl, String userToken, String firstName, String lastName, String email) throws IOException {
         Map<String, Object> model = new HashMap<String, Object>();
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -83,6 +92,9 @@ public class RegistrationController {
             return new ModelAndView("redirect://j_spring_security_logout?service=" + URLEncoder.encode(service, "UTF-8"));
         } else {
             User user = new User();
+            user.setFirstName(firstName);
+            user.setLastName(lastName);
+            user.setUsername(email);
 
             // If there's a registration code, pre-populate from that
             if (StringUtils.isNotEmpty(registrationCode)) {
@@ -95,10 +107,12 @@ public class RegistrationController {
                 }
             }
 
+            model.put("returnUrl", returnUrl);
+            model.put("userToken", userToken);
             model.put("user", user);
             model.put("registrationCode", registrationCode);
 
-            return new ModelAndView("registration/welcome", model);
+            return new ModelAndView("registration/createInfusionsoftId", model);
         }
     }
 
@@ -130,66 +144,50 @@ public class RegistrationController {
     }
 
     /**
-     * Shows the registration form.
-     */
-    @RequestMapping
-    public ModelAndView banner() throws ParseException {
-        Map<String, Object> model = new HashMap<String, Object>();
-
-        model.put("migrationDate", migrationService.getMigrationDate());
-        model.put("daysToMigrate", migrationService.getDaysToMigrate());
-        model.put("supportPhoneNumber", infusionsoftAuthenticationService.getSupportPhoneNumber());
-
-        return new ModelAndView("registration/banner", model);
-    }
-
-    /**
      * Registers a new user account.
      */
     @RequestMapping
-    public ModelAndView register(String firstName, String lastName, String username, String password1, String password2, String eula, String registrationCode, HttpServletRequest request, HttpServletResponse response) {
+    public String register(Model model, String firstName, String lastName, String username, String password1, String password2, String eula, String registrationCode, String returnUrl, String userToken, HttpServletRequest request, HttpServletResponse response) {
         boolean eulaChecked = StringUtils.equals(eula, "agreed");
-        Map<String, Object> model = new HashMap<String, Object>();
-        User user;
+        User user = new User();
 
         try {
-            user = new User();
             user.setFirstName(firstName);
             user.setLastName(lastName);
             user.setUsername(username);
             user.setEnabled(true);
             user.setPassword(password1);
 
-            model.put("user", user);
+            model.addAttribute("user", user);
 
             if (StringUtils.isEmpty(firstName)) {
-                model.put("error", "registration.error.invalidLastName");
+                model.addAttribute("error", "registration.error.invalidLastName");
             } else if (StringUtils.isEmpty(lastName)) {
-                model.put("error", "registration.error.invalidFirstName");
+                model.addAttribute("error", "registration.error.invalidFirstName");
             } else if (username == null || username.isEmpty() || !EmailValidator.getInstance().isValid(username)) {
-                model.put("error", "registration.error.invalidUsername");
+                model.addAttribute("error", "registration.error.invalidUsername");
             } else if (userService.loadUser(username) != null) {
-                model.put("error", "registration.error.usernameInUse");
+                model.addAttribute("error", "registration.error.usernameInUse");
             } else if (StringUtils.isEmpty(password1) || StringUtils.isEmpty(password2)) {
-                model.put("error", "registration.error.invalidPassword");
+                model.addAttribute("error", "registration.error.invalidPassword");
             } else if (!password1.equals(password2)) {
-                model.put("error", "registration.error.passwordsNoMatch");
+                model.addAttribute("error", "registration.error.passwordsNoMatch");
             } else if (!eulaChecked) {
-                model.put("error", "registration.error.eula");
+                model.addAttribute("error", "registration.error.eula");
             } else {
                 String passwordError = passwordService.validatePassword(user);
 
                 if (passwordError != null) {
-                    model.put("error", passwordError);
+                    model.addAttribute("error", passwordError);
                 }
             }
 
-            if (model.containsKey("error")) {
-                log.warn("couldn't create new user account: " + model.get("error"));
+            if (model.containsAttribute("error")) {
+                log.warn("couldn't create new user account: " + model.asMap().get("error"));
             } else {
 
                 user = userService.addUser(user);
-                model.put("user", user);
+                model.addAttribute("user", user);
 
                 if (StringUtils.isNotEmpty(registrationCode)) {
                     log.info("processing registration code " + registrationCode);
@@ -203,19 +201,27 @@ public class RegistrationController {
                 }
 
                 mailService.sendWelcomeEmail(user);
+                autoLoginService.autoLogin(user.getUsername(), request, response);
             }
         } catch (Exception e) {
             log.error("failed to create user account", e);
 
-            model.put("error", "registration.error.exception");
+            model.addAttribute("error", "registration.error.exception");
         }
 
-        if (model.containsKey("error")) {
-            model.put("registrationCode", registrationCode);
-            return new ModelAndView("registration/welcome", model);
+        if (model.containsAttribute("error")) {
+            model.addAttribute("returnUrl", returnUrl);
+            model.addAttribute("userToken", userToken);
+            model.addAttribute("registrationCode", registrationCode);
+            return "registration/createInfusionsoftId";
         } else {
             autoLoginService.autoLogin(username, request, response);
-            return new ModelAndView("registration/success", model);
+
+            if (StringUtils.isNotBlank(userToken) && StringUtils.isNotBlank(returnUrl)) {
+                return "redirect:" + returnUrl + "?userToken=" + userToken + "&casGlobalId=" + user.getId();
+            } else {
+                return "registration/success";
+            }
         }
     }
 
@@ -324,7 +330,9 @@ public class RegistrationController {
         } else {
             passwordService.setPasswordForUser(user);
 
-            autoLoginService.autoLogin(user.getUsername(), request, response);
+            if (user != null) {
+                autoLoginService.autoLogin(user.getUsername(), request, response);
+            }
 
             return new ModelAndView("redirect:/app/central/home");
         }
@@ -335,14 +343,14 @@ public class RegistrationController {
      */
     @RequestMapping
     @ResponseBody
-    public String getLogoImageUrl(String appType, String appName) throws IOException {
+    public String getLogoImageUrl(AppType appType, String appName) throws IOException {
         String url = "";
 
         try {
-            if (StringUtils.isNotEmpty(appType) && StringUtils.isNotEmpty(appName)) {
+            if (appType != null && StringUtils.isNotEmpty(appName)) {
                 if (appType.equals(AppType.CRM)) {
                     url = appHelper.buildAppUrl(appType, appName) + "/Logo?logo=weblogo";
-                } else if(appType.equals(AppType.CUSTOMERHUB)) {
+                } else if (appType.equals(AppType.CUSTOMERHUB)) {
                     url = customerHubService.getLogoUrl(appName);
                 }
             }

@@ -11,7 +11,7 @@ import java.io.Serializable;
 public class PendingUserAccount implements Serializable {
     private Long id;
     private String registrationCode;
-    private String appType;
+    private AppType appType;
     private String appName;
     private String appUsername;
     private String firstName;
@@ -51,11 +51,12 @@ public class PendingUserAccount implements Serializable {
 
     @Column(name = "app_type", length = 255)
     @NotNull
-    public String getAppType() {
+    @Enumerated(EnumType.STRING)
+    public AppType getAppType() {
         return appType;
     }
 
-    public void setAppType(String appType) {
+    public void setAppType(AppType appType) {
         this.appType = appType;
     }
 

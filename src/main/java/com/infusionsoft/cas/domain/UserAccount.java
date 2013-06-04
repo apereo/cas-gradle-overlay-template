@@ -10,7 +10,7 @@ public class UserAccount implements Serializable {
     private Long id;
     private User user;
     private String alias;
-    private String appType;
+    private AppType appType;
     private String appName;
     private String appUsername;
     private boolean disabled = false;
@@ -66,11 +66,12 @@ public class UserAccount implements Serializable {
 
     @NotNull
     @Column(name = "app_type", length = 255, nullable = false)
-    public String getAppType() {
+    @Enumerated(EnumType.STRING)
+    public AppType getAppType() {
         return appType;
     }
 
-    public void setAppType(String appType) {
+    public void setAppType(AppType appType) {
         this.appType = appType;
     }
 

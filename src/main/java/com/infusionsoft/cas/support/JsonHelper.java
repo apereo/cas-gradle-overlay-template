@@ -53,7 +53,7 @@ public class JsonHelper {
                  * the TICKETGRANTINGTICKET table needs to be completely cleared, since the old tickets stored there
                  * will still have the old format
                  ****************************************************************************************************/
-                accountToAdd.put("appType", account.getAppType());
+                accountToAdd.put("appType", account.getAppType().name().toLowerCase());
                 accountToAdd.put("appName", account.getAppName());
                 accountToAdd.put("appUsername", account.getAppUsername());
                 accountToAdd.put("appAlias", StringUtils.defaultIfEmpty(account.getAlias(), account.getAppName()));

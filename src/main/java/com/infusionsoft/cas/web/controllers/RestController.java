@@ -2,7 +2,10 @@ package com.infusionsoft.cas.web.controllers;
 
 import com.infusionsoft.cas.auth.LoginResult;
 import com.infusionsoft.cas.dao.UserAccountDAO;
-import com.infusionsoft.cas.domain.*;
+import com.infusionsoft.cas.domain.AppType;
+import com.infusionsoft.cas.domain.PendingUserAccount;
+import com.infusionsoft.cas.domain.User;
+import com.infusionsoft.cas.domain.UserAccount;
 import com.infusionsoft.cas.services.InfusionsoftAuthenticationService;
 import com.infusionsoft.cas.services.MigrationService;
 import com.infusionsoft.cas.services.PasswordService;
@@ -16,19 +19,21 @@ import org.apache.log4j.Logger;
 import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.MessageSource;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJacksonHttpMessageConverter;
 import org.springframework.http.server.ServletServerHttpResponse;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -64,97 +69,18 @@ public class RestController {
     @Autowired
     UserService userService;
 
+    @Autowired
+    MessageSource messageSource;
+
     @Value("${infusionsoft.cas.apikey}")
     private String requiredApiKey;
-
-    /**
-     * Registers a new user account and returns a simple JSON object.
-     */
-    // TODO - pretty sure nothing uses this. Should probably delete.
-    @RequestMapping
-    public ModelAndView register(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        Map<String, Object> model = new HashMap<String, Object>();
-        String apiKey = request.getParameter("apiKey");
-        String username = request.getParameter("username");
-        String password = request.getParameter("password");
-
-        // Validate the API key
-        if (!requiredApiKey.equals(apiKey)) {
-            log.warn("Invalid API access: apiKey = " + apiKey);
-            response.sendError(401);
-
-            return null;
-        }
-
-        // Attempt the registration
-        try {
-            User user = new User();
-
-            user.setUsername(username);
-            user.setEnabled(true);
-            user.setPassword(password);
-
-            if (username == null || username.isEmpty() || !EmailValidator.getInstance().isValid(username)) {
-                model.put("error", "registration.error.invalidUsername");
-            } else if (userService.loadUser(username) != null) {
-                model.put("error", "registration.error.usernameInUse");
-            } else if (password == null || password.length() < PASSWORD_LENGTH_MIN || password.length() > PASSWORD_LENGTH_MAX) {
-                model.put("error", "registration.error.invalidPassword");
-            } else {
-                String passwordError = passwordService.validatePassword(user);
-
-                if (passwordError != null) {
-                    model.put("error", passwordError);
-                }
-            }
-
-            if (model.containsKey("error")) {
-                log.warn("couldn't create new user account via REST service for API key " + apiKey + ": " + model.get("error"));
-            } else {
-                model.put("user", user);
-
-                userService.addUser(user);
-//                userDAO.save(user);
-//                passwordService.setPasswordForUser(user, password);
-            }
-        } catch (Exception e) {
-            log.error("failed to create user account", e);
-
-            model.put("error", "registration.error.exception");
-        }
-
-        // Render the response
-        try {
-            if (model.containsKey("error")) {
-                model.put("status", "error");
-            } else {
-                model.put("status", "ok");
-            }
-
-            MappingJacksonHttpMessageConverter jsonConverter = new MappingJacksonHttpMessageConverter();
-            MediaType jsonMimeType = MediaType.APPLICATION_JSON;
-
-            jsonConverter.write(model, jsonMimeType, new ServletServerHttpResponse(response));
-        } catch (Exception e) {
-            log.error("Failed to render JSON response", e);
-        }
-
-        return null;
-    }
 
     /**
      * Registers a new user account mapped to an app account,
      * and returns a simple JSON object.
      */
     @RequestMapping
-    public ModelAndView registerUserWithApp(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        Map<String, Object> model = new HashMap<String, Object>();
-        String apiKey = request.getParameter("apiKey");
-        String username = request.getParameter("username");
-        String password = request.getParameter("password");
-        String appUsername = request.getParameter("appUsername");
-        String appName = request.getParameter("appName");
-        String appType = request.getParameter("appType"); // crm, community, customerhub
+    public Model linkAccount(Model model, String apiKey, Long casId, String appUsername, String appName, AppType appType, HttpServletRequest request, HttpServletResponse response) throws IOException {
 
         // Validate the API key
         if (!requiredApiKey.equals(apiKey)) {
@@ -166,105 +92,31 @@ public class RestController {
 
         // Attempt the registration
         try {
-            User user = new User();
+            User user = userService.loadUser(casId);
 
-            user.setUsername(username);
-            user.setEnabled(true);
-            user.setPassword(password);
-
-            if (username == null || username.isEmpty() || !EmailValidator.getInstance().isValid(username)) {
-                model.put("error", "registration.error.invalidUsername");
-            } else if (userService.loadUser(username) != null) {
-                model.put("error", "registration.error.usernameInUse");
-            } else if (password == null || password.length() < PASSWORD_LENGTH_MIN || password.length() > PASSWORD_LENGTH_MAX) {
-                model.put("error", "registration.error.invalidPassword");
-            } else if (!appType.equals(AppType.CRM) || appType.equals(AppType.COMMUNITY) || appType.equals(AppType.CUSTOMERHUB)) {
-                model.put("error", "registration.error.invalidAppType");
-            } else if (StringUtils.isEmpty(appName)) {
-                model.put("error", "registration.error.invalidAppName");
-            } else {
-                String passwordError = passwordService.validatePassword(user);
-
-                if (passwordError != null) {
-                    model.put("error", passwordError);
-                }
-            }
-
-            if (model.containsKey("error")) {
-                log.warn("couldn't create new user account via REST service for API key " + apiKey + ": " + model.get("error"));
-            } else {
-                model.put("user", user);
-
-                userService.addUser(user);
+            if (user != null) {
                 userService.associateAccountToUser(user, appType, appName, appUsername);
+            } else {
+                model.addAttribute("error", messageSource.getMessage("registration.error.linkAccount.invalid.user", new Object[]{casId}, request.getLocale()));
             }
         } catch (Exception e) {
             log.error("failed to create user account", e);
 
-            model.put("error", "registration.error.exception");
+            model.addAttribute("error", messageSource.getMessage("registration.error.linkAccount", new Object[]{e.getMessage()}, request.getLocale()));
         }
 
         // Render the response
         try {
-            if (model.containsKey("error")) {
-                model.put("status", "error");
+            if (model.containsAttribute("error")) {
+                model.addAttribute("status", "error");
             } else {
-                model.put("status", "ok");
+                model.addAttribute("status", "ok");
             }
-
-            MappingJacksonHttpMessageConverter jsonConverter = new MappingJacksonHttpMessageConverter();
-            MediaType jsonMimeType = MediaType.APPLICATION_JSON;
-
-            jsonConverter.write(model, jsonMimeType, new ServletServerHttpResponse(response));
         } catch (Exception e) {
             log.error("Failed to render JSON response", e);
         }
 
-        return null;
-    }
-
-    /**
-     * Notifies CAS that a new app has been created. This is what enables it to know which apps were created post-CAS,
-     * so we don't have to worry about the migration flow for those apps.
-     */
-    @RequestMapping
-    public ModelAndView registerNewApp(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        Map<String, Object> model = new HashMap<String, Object>();
-        String apiKey = request.getParameter("apiKey");
-        String appName = request.getParameter("appName");
-        String appType = request.getParameter("appType");
-
-        // Validate the API key
-        if (!requiredApiKey.equals(apiKey)) {
-            log.warn("Invalid API access: apiKey = " + apiKey);
-            response.sendError(401);
-
-            return null;
-        }
-
-        try {
-            MigratedApp app = new MigratedApp();
-
-            app.setAppName(appName);
-            app.setAppType(appType);
-            app.setDateMigrated(new Date());
-
-            migrationService.save(app);
-
-            model.put("status", "success");
-        } catch (Exception e) {
-            log.error("unable to save migrated app " + appName + "/" + appType, e);
-
-            model.put("status", "error");
-            model.put("message", "couldn't save the migrated app! make sure appName and appType are valid and it hasn't been migrated");
-        }
-
-        MappingJacksonHttpMessageConverter jsonConverter = new MappingJacksonHttpMessageConverter();
-        MediaType jsonMimeType = MediaType.APPLICATION_JSON;
-
-        jsonConverter.write(model, jsonMimeType, new ServletServerHttpResponse(response));
-
-        return null;
+        return model;
     }
 
     /**
@@ -276,7 +128,7 @@ public class RestController {
     public ModelAndView reassociateAccounts(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String apiKey = request.getParameter("apiKey");
         String appName = request.getParameter("appName");
-        String appType = request.getParameter("appType");
+        AppType appType = AppType.valueOf(request.getParameter("appType"));
         String appUsername = request.getParameter("appUsername");
         String casGlobalIdString = request.getParameter("casGlobalId");
 
@@ -331,7 +183,7 @@ public class RestController {
     public ModelAndView disassociateAccounts(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String apiKey = request.getParameter("apiKey");
         String appName = request.getParameter("appName");
-        String appType = request.getParameter("appType");
+        AppType appType = AppType.valueOf(request.getParameter("appType"));
         String appUsername = request.getParameter("appUsername");
         String casGlobalIdString = request.getParameter("casGlobalId");
 
@@ -383,7 +235,7 @@ public class RestController {
      */
     // TODO - consider making this return JSON responses similar to the other API calls
     @RequestMapping
-    public ModelAndView unlinkUserFromApp(HttpServletResponse response, String apiKey, String appName, String appType, @RequestParam(required = false) String appUsername, long casGlobalId) throws IOException {
+    public ModelAndView unlinkUserFromApp(HttpServletResponse response, String apiKey, String appName, AppType appType, @RequestParam(required = false) String appUsername, long casGlobalId) throws IOException {
         // Validate the API key
         if (!requiredApiKey.equals(apiKey)) {
             return reportError(response, 401, Level.WARN, "Invalid API access: apiKey = " + apiKey);
@@ -430,7 +282,7 @@ public class RestController {
         String apiKey = request.getParameter("apiKey");
         String casGlobalIdString = request.getParameter("casGlobalId");
         String appName = request.getParameter("appName");
-        String appType = request.getParameter("appType");
+        AppType appType = AppType.valueOf(request.getParameter("appType"));
         String newAppUsername = request.getParameter("newAppUsername");
 
         // Parse the casGlobalId
@@ -464,7 +316,7 @@ public class RestController {
         Map<String, Object> model = new HashMap<String, Object>();
         String apiKey = request.getParameter("apiKey");
         String appName = request.getParameter("appName");
-        String appType = request.getParameter("appType");
+        AppType appType = AppType.valueOf(request.getParameter("appType"));
         String appUsername = request.getParameter("appUsername");
         String firstName = request.getParameter("firstName");
         String lastName = request.getParameter("lastName");
@@ -504,7 +356,7 @@ public class RestController {
      * Authenticates caller credentials against their CAS account.  Pass in a username and either a password or
      * an MD5 hash of the password.  Enforces account locking if there are too many wrong guesses.
      * Returns a JSON object with user info if successful.
-     *
+     * <p/>
      * NOTE: this call does *not* use an API key, because the password is the authentication
      */
     @RequestMapping(value = "/authenticateUser", method = RequestMethod.POST)
@@ -584,7 +436,7 @@ public class RestController {
         String casGlobalIdString = request.getParameter("casGlobalId");
         // OR
         String appName = request.getParameter("appName");
-        String appType = request.getParameter("appType");
+        AppType appType = AppType.valueOf(request.getParameter("appType"));
         String appUsername = request.getParameter("appUsername");
 
         // Validate the API key

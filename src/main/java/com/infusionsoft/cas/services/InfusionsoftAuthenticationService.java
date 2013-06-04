@@ -1,13 +1,11 @@
 package com.infusionsoft.cas.services;
 
-import com.infusionsoft.cas.domain.LoginAttempt;
 import com.infusionsoft.cas.auth.LoginResult;
+import com.infusionsoft.cas.domain.AppType;
+import com.infusionsoft.cas.domain.LoginAttempt;
 import com.infusionsoft.cas.domain.User;
 import com.infusionsoft.cas.exceptions.AppCredentialsExpiredException;
 import com.infusionsoft.cas.exceptions.AppCredentialsInvalidException;
-import org.jasig.cas.authentication.handler.AuthenticationException;
-import org.joda.time.Days;
-import org.joda.time.Minutes;
 import org.joda.time.base.BaseSingleFieldPeriod;
 
 import javax.servlet.http.HttpServletRequest;
@@ -20,9 +18,9 @@ public interface InfusionsoftAuthenticationService {
 
     String guessAppName(URL url);
 
-    String guessAppType(String url) throws MalformedURLException;
+    AppType guessAppType(String url) throws MalformedURLException;
 
-    String guessAppType(URL url);
+    AppType guessAppType(URL url);
 
     LoginResult attemptLoginWithMD5Password(String username, String md5password);
 
@@ -36,26 +34,13 @@ public interface InfusionsoftAuthenticationService {
 
     boolean isAccountLocked(String username);
 
-    boolean isAppAssociated(User user, URL url);
-
-    void verifyAppCredentials(String appType, String appName, String appUsername, String appPassword) throws AppCredentialsInvalidException, AppCredentialsExpiredException;
-
-    //TODO: Removed from trying to get app up
-//    void createTicketGrantingTicket(String username, HttpServletRequest request, HttpServletResponse response) throws TicketException;
-
-//    String getTicketGrantingTicketId(HttpServletRequest request);
-
-//    void destroyTicketGrantingTicket(HttpServletRequest request, HttpServletResponse response);
+    void verifyAppCredentials(AppType appType, String appName, String appUsername, String appPassword) throws AppCredentialsInvalidException, AppCredentialsExpiredException;
 
     User getCurrentUser(HttpServletRequest request);
-
-    boolean isUserAssociated(User user, String appType, String appName);
 
     boolean hasCommunityAccount(User user);
 
     void unlockUser(String username);
-
-    void autoLogin(String ticketGrantingTicketId, String username, String password) throws AuthenticationException;
 
     String getSupportPhoneNumber();
 }

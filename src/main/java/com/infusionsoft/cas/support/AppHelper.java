@@ -26,18 +26,34 @@ public class AppHelper {
     /**
      * Builds a URL for redirecting users to an app.
      */
-    public String buildAppUrl(String appType, String appName) {
-        if (StringUtils.isBlank(appType) || AppType.CAS.equals(appType)) {
-            return "";
-        } else if (AppType.CRM.equals(appType)) {
-            return crmService.buildCrmUrl(appName);
-        } else if (AppType.COMMUNITY.equals(appType)) {
-            return communityService.buildUrl();
-        } else if (AppType.CUSTOMERHUB.equals(appType)) {
-            return customerHubService.buildUrl(appName);
-        } else {
-            log.warn("app url requested for unknown app type: " + appType);
-            return "";
+    public String buildAppUrl(AppType appType, String appName) {
+        String retVal = "";
+
+        if (appType != null) {
+            switch (appType) {
+                case CAS:
+                    retVal = "";
+                    break;
+
+                case CRM:
+                    retVal = crmService.buildCrmUrl(appName);
+                    break;
+
+                case COMMUNITY:
+                    retVal = communityService.buildUrl();
+                    break;
+
+                case CUSTOMERHUB:
+                    retVal = customerHubService.buildUrl(appName);
+                    break;
+
+                default:
+                    log.warn("app url requested for unknown app type: " + appType);
+                    retVal = "";
+                    break;
+            }
         }
+
+        return retVal;
     }
 }

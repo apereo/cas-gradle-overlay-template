@@ -1,9 +1,6 @@
 package com.infusionsoft.cas.services;
 
-import com.infusionsoft.cas.domain.Authority;
-import com.infusionsoft.cas.domain.PendingUserAccount;
-import com.infusionsoft.cas.domain.User;
-import com.infusionsoft.cas.domain.UserAccount;
+import com.infusionsoft.cas.domain.*;
 import com.infusionsoft.cas.exceptions.AccountException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -23,27 +20,27 @@ public interface UserService {
 
     UserAccount findUserAccount(User user, Long accountId);
 
-    UserAccount findUserAccount(User user, String appName, String appType);
+    UserAccount findUserAccount(User user, String appName, AppType appType);
 
     List<UserAccount> findSortedUserAccounts(User user);
 
-    PendingUserAccount createPendingUserAccount(String appType, String appName, String appUsername, String firstName, String lastName, String email, boolean passwordVerificationRequired);
+    PendingUserAccount createPendingUserAccount(AppType appType, String appName, String appUsername, String firstName, String lastName, String email, boolean passwordVerificationRequired);
 
-    UserAccount associateAccountToUser(User user, String appType, String appName, String appUsername) throws AccountException;
+    UserAccount associateAccountToUser(User user, AppType appType, String appName, String appUsername) throws AccountException;
 
     UserAccount associatePendingAccountToUser(User user, String registrationCode) throws AccountException;
 
-    List<UserAccount> findEnabledUserAccounts(String appName, String appType, String appUsername);
+    List<UserAccount> findEnabledUserAccounts(String appName, AppType appType, String appUsername);
 
-    List<UserAccount> findEnabledUserAccounts(String appName, String appType, long casGlobalId);
+    List<UserAccount> findEnabledUserAccounts(String appName, AppType appType, long casGlobalId);
 
-    List<UserAccount> findUserAccounts(String appName, String appType, String appUsername);
+    List<UserAccount> findUserAccounts(String appName, AppType appType, String appUsername);
 
-    List<UserAccount> findUserAccounts(String appName, String appType, long casGlobalId);
+    List<UserAccount> findUserAccounts(String appName, AppType appType, long casGlobalId);
 
-    List<UserAccount> findDisabledUserAccounts(String appName, String appType, String appUsername);
+    List<UserAccount> findDisabledUserAccounts(String appName, AppType appType, String appUsername);
 
-    List<UserAccount> findDisabledUserAccounts(String appName, String appType, long casGlobalId);
+    List<UserAccount> findDisabledUserAccounts(String appName, AppType appType, long casGlobalId);
 
     void deleteAccount(UserAccount account);
 
@@ -69,7 +66,7 @@ public interface UserService {
 
     String resetPassword(User user);
 
-    void changeAssociatedAppUsername(User user, String appName, String appType, String newAppUsername) throws AccountException;
+    void changeAssociatedAppUsername(User user, String appName, AppType appType, String newAppUsername) throws AccountException;
 
     List<Authority> findAllAuthorities();
 

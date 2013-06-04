@@ -442,7 +442,7 @@
                 <input id="create-btn" class="btn btn-primary" name="getStarted" accesskey="l" value="Get Started" tabindex="5" type="submit"/>
             </div>
             <div id="create-lower-help">
-                Need help?  Call <em>1-877-296-7929</em>
+                Need help?  Call <em>${supportPhoneNumber}</em>
             </div>
 
         </div>
@@ -452,7 +452,7 @@
 
 <c:if test="${not empty appUrl}">
     <div id="affiliate-login">
-        <a href="${appUrl}/Client/">Referral Partner Sign-In</a>
+        <a href="${appUrl}/Affiliate/">Referral Partner Sign-In</a>
     </div>
 </c:if>
 

@@ -15,20 +15,22 @@
     <title><decorator:title/></title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
     <link type="text/css" rel="stylesheet" href="<c:url value="/css/bootstrap.min.css"/>"/>
+    <link type="text/css" rel="stylesheet" href="<c:url value="/css/bootstrap-responsive.min.css"/>"/>
+
     <spring:theme code="standard.custom.css.file" var="customCssFile"/>
     <link type="text/css" rel="stylesheet" href="<c:url value="${customCssFile}" />"/>
-    <script type="text/javascript" src="<c:url value="/js/jquery-1.7.2.min.js"/>"></script>
+    <script type="text/javascript" src="<c:url value="/js/jquery-1.10.0.min.js"/>"></script>
     <script type="text/javascript" src="<c:url value="/js/bootstrap.min.js" />"></script>
+
     <script type="text/javascript" src="<c:url value="/js/jquery.placeholder.js"/>"></script>
-    <script type="text/javascript" src="<c:url value="/js/cas.js" />"></script>
     <script type="text/javascript" src="<c:url value="/js/jquery.qtip-1.0.0-rc3.min.js"/>"></script>
     <script type="text/javascript" src="<c:url value="/js/jquery.validate.min.js"/>"></script>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700,800" type="text/css">
     <decorator:head/>
 </head>
 <body>
-<div id="modalheaderbg">
-    <div id="modalheader">&nbsp;</div>
+<div id="greenheaderbg">
+    <div id="greenheader">&nbsp;</div>
 </div>
 <div class="wrapper">
     <div id="content">
