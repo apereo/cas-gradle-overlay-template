@@ -367,6 +367,7 @@
 
 label.error {
     color: #b94a48;
+    clear: both;
     padding: 1px 8px;
     position: relative;
     bottom: 10px;

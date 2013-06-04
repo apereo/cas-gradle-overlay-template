@@ -113,7 +113,10 @@ h2.apps {
 }
 
 #greenheaderbg {
+    position: absolute;
+    width: 100%;
     background: url(/images/modal-gradient.png) repeat-x;
+    z-index: 200;
 }
 
 #greenheader {
@@ -121,6 +124,10 @@ h2.apps {
     width: 962px;
     margin: 0 auto;
     background: url(/images/modal-logo.png) 0 0 no-repeat;
+}
+
+#greenheader-main {
+    padding-top: 49px;
 }
 
 #navbg {

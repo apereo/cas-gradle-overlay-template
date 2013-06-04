@@ -157,7 +157,6 @@
                                 <label class="formLabel">Name</label>
                                 <form:input path="firstName" id="firstName" name="firstName" style="width:158px;float:left" tabindex="1" placeholder="first name"/>
                                 <form:input path="lastName" id="lastName" name="lastName" style="width:158px;float:right" tabindex="2" placeholder="last name"/>
-                                <div style="clear:both"></div>
                             </div>
 
                             <div class="form-spacer" style="clear:both;"></div>

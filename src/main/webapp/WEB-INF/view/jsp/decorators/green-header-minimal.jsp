@@ -22,7 +22,7 @@
     <div id="greenheaderbg">
         <div id="greenheader">&nbsp;</div>
     </div>
-    <div>
+    <div id="greenheader-main">
         <decorator:body/>
     </div>
     </body>
