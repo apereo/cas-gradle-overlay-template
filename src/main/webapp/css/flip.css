@@ -31,10 +31,12 @@
     left: 265px;
 }
 
+#already-have-id {
+    float: left;
+}
 #flipLink {
+    float: right;
     text-align: right;
-    width: 430px;
-    margin: 0 auto;
 }
 
 #idcard {
@@ -318,9 +320,9 @@
 
 #main_title {
     position: absolute;
+    text-align: center;
     top: 30px;
-    left: 120px;
-    width: auto;
+    width: 960px;
     z-index: 110;
 }
 

@@ -25,7 +25,16 @@
         $("#password").placeholder();
         $("#username").focus();
 
-        <c:url var="registrationUrl" value="/app/registration/welcome"/>
+        <!-- If they come from the CRM we want to redirect them to the old login -->
+        <c:choose>
+            <c:when test="${appType == 'CRM'}">
+                <c:url var="registrationUrl" value="${appUrl}/app/authentication/login"/>
+            </c:when>
+            <c:otherwise>
+                <c:url var="registrationUrl" value="/app/registration/createInfusionsoftId"/>
+            </c:otherwise>
+        </c:choose>
+
         $('#create-btn').click(function() {
             window.location = "${registrationUrl}";
         });

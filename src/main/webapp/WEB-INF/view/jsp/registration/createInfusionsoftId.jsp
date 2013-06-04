@@ -106,15 +106,29 @@
         and add-ons.
     </div>
     <div id="main_title" class="jumbotron">
-        <h1>It's Time To Create Your Official Infusionsoft ID.</h1>
+        <c:choose>
+            <c:when test="${!empty userToken}">
+                <h1>It's Time To Create Your Official Infusionsoft ID.</h1>
+            </c:when>
+            <c:otherwise>
+                <h1>Please Create Your Infusionsoft ID.</h1>
+            </c:otherwise>
+        </c:choose>
     </div>
     <div id="lanyard_background"></div>
 
     <div id="lanyard">
         <div id="main_title_div"></div>
-        <div id="flipLink">
-            <a id="learnMore" href="#">What is an Infusionsoft ID?</a>
-            <a id="backBtn" style="display:none;" href="#">&laquo; Back to creating your ID</a>
+        <div id="links-above-lanyard" >
+            <div id="already-have-id">
+                <c:url var="linkToExistingUrl" value="/app/registration/linkToExisting"/>
+                <a href="${linkToExistingUrl}?registrationCode=${registrationCode}"><spring:message code='registration.signin'/></a>
+            </div>
+            <div id="flipLink">
+                <a id="learnMore" href="#">What is an Infusionsoft ID?</a>
+                <a id="backBtn" style="display:none;" href="#">&laquo; Back to creating your ID</a>
+            </div>
+            <div style="clear:both;"></div>
         </div>
         <div class="flipbox-container">
             <div id="idcard">
@@ -196,9 +210,11 @@
                             <div class="text-center">
                                 <button type="submit" class="btn btn-primary">Create Your ID</button>
                             </div>
-                            <div class="text-center skipLink">
-                                <a href="${skipUrl}">Skip for Now </a>
-                            </div>
+                            <c:if test="${!empty skipUrl}">
+                                <div class="text-center skipLink">
+                                    <a href="${skipUrl}">Skip for Now </a>
+                                </div>
+                            </c:if>
                         </fieldset>
                     </form:form>
                 </div>
