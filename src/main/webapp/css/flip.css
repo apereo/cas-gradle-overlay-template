@@ -95,7 +95,6 @@
 #success-note-text {
     position: relative;
     background: #d5d5d5;
-    height: 146px;
     width: 100%;
     border-radius: 5px;
 }
@@ -116,6 +115,7 @@
 
 #success-note-list ul {
     margin: 0;
+    padding-bottom: 5px;
 }
 
 #success-note-list ul li {
@@ -367,7 +367,6 @@
 
 label.error {
     color: #b94a48;
-    clear: both;
     padding: 1px 8px;
     position: relative;
     bottom: 10px;
