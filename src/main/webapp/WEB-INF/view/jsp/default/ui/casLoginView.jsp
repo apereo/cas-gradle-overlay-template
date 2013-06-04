@@ -10,6 +10,17 @@
 <c:url var="getLogoImageUrl" value="/app/registration/getLogoImageUrl"/>
 <c:url var="forgotPasswordUrl" value="/app/registration/forgot"/>
 
+<!-- If they come from the CRM we want to redirect them to the old login -->
+<c:choose>
+    <c:when test="${appType == 'CRM'}">
+        <c:set var="loginMessage"><spring:message code="login.redirect.message"/></c:set>
+        <c:url var="registrationUrl" value="${appUrl}/app/authentication/login?msg=${loginMessage}"/>
+    </c:when>
+    <c:otherwise>
+        <c:url var="registrationUrl" value="/app/registration/createInfusionsoftId"/>
+    </c:otherwise>
+</c:choose>
+
 <meta name="decorator" content="anonymousNoLogo"/>
 <html>
 <head>
@@ -25,49 +36,43 @@
         $("#password").placeholder();
         $("#username").focus();
 
-        <!-- If they come from the CRM we want to redirect them to the old login -->
-        <c:choose>
-            <c:when test="${appType == 'CRM'}">
-                <c:url var="registrationUrl" value="${appUrl}/app/authentication/login"/>
-            </c:when>
-            <c:otherwise>
-                <c:url var="registrationUrl" value="/app/registration/createInfusionsoftId"/>
-            </c:otherwise>
-        </c:choose>
 
-        $('#create-btn').click(function() {
+        $('#create-btn').click(function () {
             window.location = "${registrationUrl}";
         });
 
         $('#email-help-floater').hide();
         $('#create-help-floater').hide();
 
-        $('#email-help-floater').delay(1000).fadeIn(750, function() {
+        $('#email-help-floater').delay(1000).fadeIn(750, function () {
             $('#create-help-floater').fadeIn(750);
         });
 
         /* this is for getting the custom image for an app - the new designs do not seem to use this
         <c:if test="${!empty appName}">
-        $.ajax({
-            url: "${getLogoImageUrl}",
-            data: {
-                appType: "${appType}",
-                appName: "${appName}"
-            },
-            type: "GET",
-            success: function (logoUrl) {
-                if (logoUrl && logoUrl.length > 1) {
-                    $("#biglogo").css("background-image", "url('" + logoUrl + "')");
-                } else {
-                    $("#biglogo").css("background-image", "url(/images/big-logo.png)");
-                }
-            },
-            error: function () {
-                $("#biglogo").css("background-image", "url(/images/big-logo.png)");
-            }
-        });
+         $.ajax({
+         url: "
+        ${getLogoImageUrl}",
+         data: {
+         appType: "
+        ${appType}",
+         appName: "
+        ${appName}"
+         },
+         type: "GET",
+         success: function (logoUrl) {
+         if (logoUrl && logoUrl.length > 1) {
+         $("#biglogo").css("background-image", "url('" + logoUrl + "')");
+         } else {
+         $("#biglogo").css("background-image", "url(/images/big-logo.png)");
+         }
+         },
+         error: function () {
+         $("#biglogo").css("background-image", "url(/images/big-logo.png)");
+         }
+         });
         </c:if>
-        */
+         */
 
         //Validate the form
         $('#fm1').validate(
@@ -88,13 +93,13 @@
                             email: "<spring:message code='error.invalidEmail'/>"
                         },
                         password: {
-                            required:  "<spring:message code='login.noPassword'/>"
+                            required: "<spring:message code='login.noPassword'/>"
                         }
                     },
-                    highlight: function(element) {
+                    highlight: function (element) {
                         $(element).closest('.control-group').removeClass('success').addClass('error');
                     },
-                    success: function(element) {
+                    success: function (element) {
                         element.closest('.control-group').removeClass('error');
                         element.closest('label.error').hide().removeClass('error').addClass('valid').addClass('error');
                     }
@@ -118,266 +123,266 @@
 
 <style type="text/css">
 
-    body {
-        font-family: 'Open Sans', Arial, Verdana, sans-serif;
-        background: #FFFFFF;
-    }
+body {
+    font-family: 'Open Sans', Arial, Verdana, sans-serif;
+    background: #FFFFFF;
+}
 
-    #full-login-content {
-        position: relative;
-        margin: 0 auto;
-        width: 620px;
-        height: 330px;
-        clear: both;
-    }
+#full-login-content {
+    position: relative;
+    margin: 0 auto;
+    width: 620px;
+    height: 330px;
+    clear: both;
+}
 
-    #login-form {
-        color: #000;
-        background: #e4e4e4;
-        width: 250px;
-        margin: 0px auto 7px auto;
-        border-bottom-left-radius: 5px;
-        border-bottom-right-radius: 5px;
-        padding: 15px 25px 25px 25px;
-    }
+#login-form {
+    color: #000;
+    background: #e4e4e4;
+    width: 250px;
+    margin: 0px auto 7px auto;
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
+    padding: 15px 25px 25px 25px;
+}
 
-    #login-form h3 {
-        font-family: 'Open Sans', Arial, Verdana, sans-serif;
-        font-weight: 300;
-        text-align: center;
-        margin: 0 0 18px 0;
-        padding: 0;
-        font-size: 16px;
-        line-height: 16px;
-        color: #444;
-    }
+#login-form h3 {
+    font-family: 'Open Sans', Arial, Verdana, sans-serif;
+    font-weight: 300;
+    text-align: center;
+    margin: 0 0 18px 0;
+    padding: 0;
+    font-size: 16px;
+    line-height: 16px;
+    color: #444;
+}
 
-    #login-header {
-        background: #dbe5eb url(/images/isid-logo.png) center center no-repeat;
-        height: 92px;
-        width: 300px;
-        border-top-right-radius: 5px;
-        border-top-left-radius: 5px;
-        border-bottom: 3px solid #ffffff;
-    }
+#login-header {
+    background: #dbe5eb url(/images/isid-logo.png) center center no-repeat;
+    height: 92px;
+    width: 300px;
+    border-top-right-radius: 5px;
+    border-top-left-radius: 5px;
+    border-bottom: 3px solid #ffffff;
+}
 
-    #login-header h3 {
-        font-family: 'Open Sans', Arial, Verdana, sans-serif;
-        font-weight: 300;
-        text-align: center;
-        padding: 0;
-        font-size: 16px;
-        line-height: 16px;
-        color: #fff;
-    }
+#login-header h3 {
+    font-family: 'Open Sans', Arial, Verdana, sans-serif;
+    font-weight: 300;
+    text-align: center;
+    padding: 0;
+    font-size: 16px;
+    line-height: 16px;
+    color: #fff;
+}
 
-    #login-left {
-        float: left;
-        margin-right: 20px;
-    }
+#login-left {
+    float: left;
+    margin-right: 20px;
+}
 
-    #login-right {
-        float: left;
+#login-right {
+    float: left;
 
-    }
+}
 
-    #create-header {
-        background: #cee8c1;
-        height: 92px;
-        width: 300px;
-        border-top-right-radius: 5px;
-        border-top-left-radius: 5px;
-        border-bottom: 3px solid #ffffff;
-    }
+#create-header {
+    background: #cee8c1;
+    height: 92px;
+    width: 300px;
+    border-top-right-radius: 5px;
+    border-top-left-radius: 5px;
+    border-bottom: 3px solid #ffffff;
+}
 
-    #email-help-floater, #create-help-floater {
-        position: absolute;
-        color: #888;
-        font-size: 13px;
-        text-align: center;
-        font-style: italic;
-    }
+#email-help-floater, #create-help-floater {
+    position: absolute;
+    color: #888;
+    font-size: 13px;
+    text-align: center;
+    font-style: italic;
+}
 
-    #email-help-floater {
-        top: 22px;
-        left: -163px;
-        padding-right: 50px;
-        background: url("/images/right-ball-login.png") no-repeat scroll 100% center transparent;
-    }
+#email-help-floater {
+    top: 22px;
+    left: -163px;
+    padding-right: 50px;
+    background: url("/images/right-ball-login.png") no-repeat scroll 100% center transparent;
+}
 
-    #create-help-floater {
-        top: 214px;
-        right: -141px;
-        padding-left: 55px;
-        background: url("/images/left-ball-login.png") no-repeat scroll 0 center transparent;
-    }
+#create-help-floater {
+    top: 214px;
+    right: -141px;
+    padding-left: 55px;
+    background: url("/images/left-ball-login.png") no-repeat scroll 0 center transparent;
+}
 
-    #create-header-text {
-        padding-top: 21px;
-        color: #44742d;
-        font-size: 18px;
-        text-align: center;
-        line-height: 25px;
-    }
+#create-header-text {
+    padding-top: 21px;
+    color: #44742d;
+    font-size: 18px;
+    text-align: center;
+    line-height: 25px;
+}
 
-    #create-main {
-        background: #e4e4e4;
-        width: 250px;
-        height: 174px;
-        margin: 0px auto 7px auto;
-        border-bottom-left-radius: 4px;
-        border-bottom-right-radius: 4px;
-        padding: 20px 25px 25px 25px;
-    }
+#create-main {
+    background: #e4e4e4;
+    width: 250px;
+    height: 174px;
+    margin: 0px auto 7px auto;
+    border-bottom-left-radius: 4px;
+    border-bottom-right-radius: 4px;
+    padding: 20px 25px 25px 25px;
+}
 
-    #create-main-text {
-        font-size: 13px;
-        color: #444444;
-        height: 109px;
-        line-height: 20px;
-    }
+#create-main-text {
+    font-size: 13px;
+    color: #444444;
+    height: 109px;
+    line-height: 20px;
+}
 
-    #create-lower-help {
-        padding-top: 15px;
-        text-align: center;
-    }
+#create-lower-help {
+    padding-top: 15px;
+    text-align: center;
+}
 
-    #create-lower-help em {
-        font-style: normal;
-        font-weight: bold;
-        font-size: 14px;
-    }
+#create-lower-help em {
+    font-style: normal;
+    font-weight: bold;
+    font-size: 14px;
+}
 
-    #create-btn {
-        background-color: #ffffff;
-        -moz-border-radius: 4px;
-        -webkit-border-radius: 4px;
-        border-radius: 4px;
-        color: #158ecb;
-        font: 600 13px 'Open Sans';
-        font-family: 'Open Sans', Arial, Verdana, Sans-Serif;
-        border: 1px solid #bfbfbf;
-        border-bottom: 2px solid #bbbbbb;
-        text-shadow: 0 1px 0 #d0deea;
-        cursor: pointer;
-        display: inline-block;
-        line-height: normal;
-        position: relative;
-        text-decoration: none;
-        box-shadow: none;
-        -webkit-box-shadow: none;
-        -moz-box-shadow: none;
-        padding: 8px 0px;
-        width: 250px;
-        display: block;
-        margin: 0;
-    }
+#create-btn {
+    background-color: #ffffff;
+    -moz-border-radius: 4px;
+    -webkit-border-radius: 4px;
+    border-radius: 4px;
+    color: #158ecb;
+    font: 600 13px 'Open Sans';
+    font-family: 'Open Sans', Arial, Verdana, Sans-Serif;
+    border: 1px solid #bfbfbf;
+    border-bottom: 2px solid #bbbbbb;
+    text-shadow: 0 1px 0 #d0deea;
+    cursor: pointer;
+    display: inline-block;
+    line-height: normal;
+    position: relative;
+    text-decoration: none;
+    box-shadow: none;
+    -webkit-box-shadow: none;
+    -moz-box-shadow: none;
+    padding: 8px 0px;
+    width: 250px;
+    display: block;
+    margin: 0;
+}
 
-    .forgot-password {
-        display: block;
-        text-align: center;
-        position: relative;
-        top: 12px;
-        margin: 5px auto;
-    }
+.forgot-password {
+    display: block;
+    text-align: center;
+    position: relative;
+    top: 12px;
+    margin: 5px auto;
+}
 
-    #affiliate-login {
-        text-align: center;
-        margin: 28px 0 0 0;
-    }
+#affiliate-login {
+    text-align: center;
+    margin: 28px 0 0 0;
+}
 
-    #username {
-        background: #ffffff url(/images/email-bg.png) 10px center no-repeat;
-        text-indent: 32px;
-        padding: 8px 3px;
-        border-radius: 4px;
-        -webkit-border-radius: 4px;
-        -moz-border-radius: 4px;
-        width: 242px;
-        margin: 10px 0 10px 0;
-    }
+#username {
+    background: #ffffff url(/images/email-bg.png) 10px center no-repeat;
+    text-indent: 32px;
+    padding: 8px 3px;
+    border-radius: 4px;
+    -webkit-border-radius: 4px;
+    -moz-border-radius: 4px;
+    width: 242px;
+    margin: 10px 0 10px 0;
+}
 
-    #password {
-        background: #ffffff url(/images/password-bg.png) 10px center no-repeat;
-        text-indent: 32px;
-        padding: 8px 3px;
-        border-radius: 4px;
-        -webkit-border-radius: 4px;
-        -moz-border-radius: 4px;
-        width: 242px;
-        margin: 5px 0 10px 0;
-    }
+#password {
+    background: #ffffff url(/images/password-bg.png) 10px center no-repeat;
+    text-indent: 32px;
+    padding: 8px 3px;
+    border-radius: 4px;
+    -webkit-border-radius: 4px;
+    -moz-border-radius: 4px;
+    width: 242px;
+    margin: 5px 0 10px 0;
+}
 
-    .greetings p {
-        color: #fff;
-    }
+.greetings p {
+    color: #fff;
+}
 
-    #biglogo {
-        margin-top: 0px;
-        height: 100px;
-    }
+#biglogo {
+    margin-top: 0px;
+    height: 100px;
+}
 
-    .alert {
-        margin: -10px -15px 15px -15px;
-    }
+.alert {
+    margin: -10px -15px 15px -15px;
+}
 
-    .control-group {
-        margin-bottom: 0px;
-    }
+.control-group {
+    margin-bottom: 0px;
+}
 
-    .radio, .checkbox {
-        min-height: 26px;
-        color: #444;
-        font-size: 13px;
-    }
+.radio, .checkbox {
+    min-height: 26px;
+    color: #444;
+    font-size: 13px;
+}
 
-    select, textarea, input[type="text"], input[type="password"], input[type="datetime"], input[type="datetime-local"], input[type="date"], input[type="month"], input[type="time"], input[type="week"], input[type="number"], input[type="email"], input[type="url"], input[type="search"], input[type="tel"], input[type="color"], .uneditable-input {
-        font-size: 13px;
-        color: #444;
-        box-shadow: none;
-        -webkit-box-shadow: none;
-        -moz-box-shadow: none;
-    }
+select, textarea, input[type="text"], input[type="password"], input[type="datetime"], input[type="datetime-local"], input[type="date"], input[type="month"], input[type="time"], input[type="week"], input[type="number"], input[type="email"], input[type="url"], input[type="search"], input[type="tel"], input[type="color"], .uneditable-input {
+    font-size: 13px;
+    color: #444;
+    box-shadow: none;
+    -webkit-box-shadow: none;
+    -moz-box-shadow: none;
+}
 
-    ::-webkit-input-placeholder {
-        font-style: italic;
-        color: #444;
-    }
+::-webkit-input-placeholder {
+    font-style: italic;
+    color: #444;
+}
 
-    ::-moz-placeholder {
-        font-style: italic;
-        color: #444;
-    }
+::-moz-placeholder {
+    font-style: italic;
+    color: #444;
+}
 
-        /* firefox 19+ */
-    :-ms-input-placeholder {
-        font-style: italic;
-        color: #444;
-    }
+    /* firefox 19+ */
+:-ms-input-placeholder {
+    font-style: italic;
+    color: #444;
+}
 
-        /* ie */
-    input:-moz-placeholder {
-        font-style: italic;
-        color: #444;
-    }
+    /* ie */
+input:-moz-placeholder {
+    font-style: italic;
+    color: #444;
+}
 
-    ::-webkit-input-placeholder {
-        color: #444;
-        font-style: italic;
-    }
+::-webkit-input-placeholder {
+    color: #444;
+    font-style: italic;
+}
 
-    :focus::-webkit-input-placeholder {
-        text-indent: -999px
-    }
+:focus::-webkit-input-placeholder {
+    text-indent: -999px
+}
 
-    ::-moz-placeholder {
-        color: #444;
-        font-style: italic;
-    }
+::-moz-placeholder {
+    color: #444;
+    font-style: italic;
+}
 
-    :focus::-moz-placeholder {
-        text-indent: -999px
-    }
+:focus::-moz-placeholder {
+    text-indent: -999px
+}
 
 </style>
 
@@ -399,7 +404,7 @@
         Infusionsoft ID<br/>
     </div>
     <div id="login-left">
-        <div id="login-header"> </div>
+        <div id="login-header"></div>
 
         <div id="login-form">
             <form:form method="post" id="fm1" cssClass="form-vertical" commandName="${commandName}" htmlEscape="true">
@@ -443,7 +448,7 @@
                 <input id="create-btn" class="btn btn-primary" name="getStarted" accesskey="l" value="Get Started" tabindex="5" type="submit"/>
             </div>
             <div id="create-lower-help">
-                Need help?  Call <em>${supportPhoneNumber}</em>
+                Need help? Call <em>${supportPhoneNumber}</em>
             </div>
 
         </div>
