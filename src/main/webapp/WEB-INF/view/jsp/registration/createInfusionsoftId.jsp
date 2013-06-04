@@ -123,7 +123,7 @@
                     </div>
                 </div>
                 <div id="cardBottom">
-                    <form:form id="registerForm" action="register" method="post"  class="form-vertical" modelAttribute="user">
+                    <form:form id="registerForm" action="register" method="post" class="form-vertical" modelAttribute="user">
                         <input type="hidden" name="registrationCode" value="${registrationCode}"/>
                         <input type="hidden" name="returnUrl" value="${returnUrl}"/>
                         <input type="hidden" name="userToken" value="${userToken}"/>
@@ -178,8 +178,11 @@
                                     </label>
                                 </div>
                             </div>
-                            <div class="createDiv">
-                                <button type="submit" class="btn btn-primary">Create Your Infusionsoft ID</button>
+                            <div class="text-center">
+                                <button type="submit" class="btn btn-primary">Create Your ID</button>
+                            </div>
+                            <div class="text-center skipLink">
+                                <a href="${skipUrl}">Skip for Now </a>
                             </div>
                         </fieldset>
                     </form:form>

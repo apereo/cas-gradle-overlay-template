@@ -26,7 +26,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URLEncoder;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -40,7 +39,7 @@ public class RegistrationController {
     private static final Logger log = Logger.getLogger(RegistrationController.class);
 
     @Autowired
-    AppHelper appHelper;
+    private AppHelper appHelper;
 
     @Autowired
     private CustomerHubService customerHubService;
@@ -49,40 +48,37 @@ public class RegistrationController {
     private InfusionsoftAuthenticationService infusionsoftAuthenticationService;
 
     @Autowired
-    MigrationService migrationService;
-
-    @Autowired
     private PasswordService passwordService;
 
     @Autowired
     private MailService mailService;
 
     @Autowired
-    UrlService urlService;
+    private UrlService urlService;
 
     @Autowired
-    UserService userService;
+    private UserService userService;
 
     @Autowired
-    AutoLoginService autoLoginService;
+    private AutoLoginService autoLoginService;
 
     @Value("${server.prefix}")
-    String serverPrefix;
+    private String serverPrefix;
 
     /**
      * Uses the new action for now.  Once old registrations finish we can kill this action
      */
     //TODO: Kill after a couple weeks afetr any outstanding new user invites have processed.
     @RequestMapping
-    public ModelAndView welcome(String registrationCode, String returnUrl, String userToken, String firstName, String lastName, String email) throws IOException {
-        return createInfusionsoftId(registrationCode, returnUrl, userToken, firstName, lastName, email);
+    public ModelAndView welcome(String registrationCode, String returnUrl, String skipUrl, String userToken, String firstName, String lastName, String email) throws IOException {
+        return createInfusionsoftId(registrationCode, returnUrl, skipUrl, userToken, firstName, lastName, email);
     }
 
     /**
      * Shows the registration form.
      */
     @RequestMapping
-    public ModelAndView createInfusionsoftId(String registrationCode, String returnUrl, String userToken, String firstName, String lastName, String email) throws IOException {
+    public ModelAndView createInfusionsoftId(String registrationCode, String returnUrl, String skipUrl, String userToken, String firstName, String lastName, String email) throws IOException {
         Map<String, Object> model = new HashMap<String, Object>();
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -108,6 +104,7 @@ public class RegistrationController {
             }
 
             model.put("returnUrl", returnUrl);
+            model.put("skipUrl", skipUrl);
             model.put("userToken", userToken);
             model.put("user", user);
             model.put("registrationCode", registrationCode);
@@ -147,7 +144,7 @@ public class RegistrationController {
      * Registers a new user account.
      */
     @RequestMapping
-    public String register(Model model, String firstName, String lastName, String username, String password1, String password2, String eula, String registrationCode, String returnUrl, String userToken, HttpServletRequest request, HttpServletResponse response) {
+    public String register(Model model, String firstName, String lastName, String username, String password1, String password2, String eula, String registrationCode, String returnUrl, String skipUrl, String userToken, HttpServletRequest request, HttpServletResponse response) {
         boolean eulaChecked = StringUtils.equals(eula, "agreed");
         User user = new User();
 
@@ -211,6 +208,7 @@ public class RegistrationController {
 
         if (model.containsAttribute("error")) {
             model.addAttribute("returnUrl", returnUrl);
+            model.addAttribute("skipUrl", skipUrl);
             model.addAttribute("userToken", userToken);
             model.addAttribute("registrationCode", registrationCode);
             return "registration/createInfusionsoftId";

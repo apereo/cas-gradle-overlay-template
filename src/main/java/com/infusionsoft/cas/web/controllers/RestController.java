@@ -7,13 +7,10 @@ import com.infusionsoft.cas.domain.PendingUserAccount;
 import com.infusionsoft.cas.domain.User;
 import com.infusionsoft.cas.domain.UserAccount;
 import com.infusionsoft.cas.services.InfusionsoftAuthenticationService;
-import com.infusionsoft.cas.services.MigrationService;
-import com.infusionsoft.cas.services.PasswordService;
 import com.infusionsoft.cas.services.UserService;
 import com.infusionsoft.cas.support.JsonHelper;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
-import org.apache.commons.validator.EmailValidator;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.json.simple.JSONObject;
@@ -28,7 +25,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
@@ -48,29 +44,20 @@ import java.util.Map;
 public class RestController {
     private static final Logger log = Logger.getLogger(RestController.class);
 
-    private static final int PASSWORD_LENGTH_MIN = 7;
-    private static final int PASSWORD_LENGTH_MAX = 20;
-
     @Autowired
     private InfusionsoftAuthenticationService infusionsoftAuthenticationService;
 
     @Autowired
-    JsonHelper jsonHelper;
+    private JsonHelper jsonHelper;
 
     @Autowired
-    MigrationService migrationService;
+    private UserAccountDAO userAccountDAO;
 
     @Autowired
-    private PasswordService passwordService;
+    private UserService userService;
 
     @Autowired
-    UserAccountDAO userAccountDAO;
-
-    @Autowired
-    UserService userService;
-
-    @Autowired
-    MessageSource messageSource;
+    private MessageSource messageSource;
 
     @Value("${infusionsoft.cas.apikey}")
     private String requiredApiKey;
@@ -91,8 +78,9 @@ public class RestController {
         }
 
         // Attempt the registration
+        User user = null;
         try {
-            User user = userService.loadUser(casId);
+            user = userService.loadUser(casId);
 
             if (user != null) {
                 userService.associateAccountToUser(user, appType, appName, appUsername);
@@ -107,10 +95,8 @@ public class RestController {
 
         // Render the response
         try {
-            if (model.containsAttribute("error")) {
-                model.addAttribute("status", "error");
-            } else {
-                model.addAttribute("status", "ok");
+            if (!model.containsAttribute("error")) {
+                model.addAttribute("user", jsonHelper.buildUserInfoJSON(user));
             }
         } catch (Exception e) {
             log.error("Failed to render JSON response", e);

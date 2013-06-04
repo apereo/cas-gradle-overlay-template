@@ -284,6 +284,10 @@
     margin: 7px 0 0 85px;
 }
 
+.skipLink {
+    padding-top: 10px;
+}
+
 #floaterLeft {
     color: #adb1b5;
     font-style: italic;
