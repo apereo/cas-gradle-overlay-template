@@ -84,7 +84,7 @@ public class RegistrationController {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         if (!(authentication instanceof AnonymousAuthenticationToken)) {
-            String service = serverPrefix + urlService.url("registration", "welcome") + (StringUtils.isNotEmpty(registrationCode) ? "?registrationCode=" + registrationCode : "");
+            String service = serverPrefix + urlService.url("registration", "createInfusionsoftId") + (StringUtils.isNotEmpty(registrationCode) ? "?registrationCode=" + registrationCode : "");
             return new ModelAndView("redirect://j_spring_security_logout?service=" + URLEncoder.encode(service, "UTF-8"));
         } else {
             User user = new User();
@@ -131,7 +131,7 @@ public class RegistrationController {
                 retVal = "redirect:/app/central/home";
             } else {
                 model.addAttribute("error", "Registration Code not found");
-                retVal = "registration/welcome";
+                retVal = "registration/createInfusionsoftId";
             }
         } else {
             return "redirect:/app/central/home";
@@ -232,7 +232,7 @@ public class RegistrationController {
         User user = infusionsoftAuthenticationService.getCurrentUser(request);
 
         if (user == null) {
-            return new ModelAndView("redirect:welcome");
+            return new ModelAndView("redirect:createInfusionsoftId");
         } else {
             model.put("user", user);
 
