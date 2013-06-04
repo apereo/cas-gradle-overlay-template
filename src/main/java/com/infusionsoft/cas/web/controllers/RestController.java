@@ -25,6 +25,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
@@ -67,8 +68,8 @@ public class RestController {
      * and returns a simple JSON object.
      */
     @RequestMapping
-    public Model linkAccount(Model model, String apiKey, Long casId, String appUsername, String appName, AppType appType, HttpServletRequest request, HttpServletResponse response) throws IOException {
-
+    @ResponseBody
+    public String linkAccount(String apiKey, Long casId, String appUsername, String appName, AppType appType, HttpServletRequest request, HttpServletResponse response) throws Exception {
         // Validate the API key
         if (!requiredApiKey.equals(apiKey)) {
             log.warn("Invalid API access: apiKey = " + apiKey);
@@ -78,31 +79,16 @@ public class RestController {
         }
 
         // Attempt the registration
-        User user = null;
+        User user;
         try {
             user = userService.loadUser(casId);
-
-            if (user != null) {
-                userService.associateAccountToUser(user, appType, appName, appUsername);
-            } else {
-                model.addAttribute("error", messageSource.getMessage("registration.error.linkAccount.invalid.user", new Object[]{casId}, request.getLocale()));
-            }
+            userService.associateAccountToUser(user, appType, appName, appUsername);
         } catch (Exception e) {
             log.error("failed to create user account", e);
-
-            model.addAttribute("error", messageSource.getMessage("registration.error.linkAccount", new Object[]{e.getMessage()}, request.getLocale()));
+            throw new Exception(messageSource.getMessage("registration.error.linkAccount", new Object[]{casId}, request.getLocale()));
         }
 
-        // Render the response
-        try {
-            if (!model.containsAttribute("error")) {
-                model.addAttribute("user", jsonHelper.buildUserInfoJSON(user));
-            }
-        } catch (Exception e) {
-            log.error("Failed to render JSON response", e);
-        }
-
-        return model;
+        return jsonHelper.buildUserInfoJSON(user);
     }
 
     /**
