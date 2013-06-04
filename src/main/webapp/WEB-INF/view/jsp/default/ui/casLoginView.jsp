@@ -117,7 +117,7 @@
     #full-login-content {
         position: relative;
         margin: 0 auto;
-        width: 622px;
+        width: 620px;
         height: 330px;
         clear: both;
     }
@@ -146,7 +146,7 @@
     #login-header {
         background: #dbe5eb url(/images/isid-logo.png) center center no-repeat;
         height: 92px;
-        width: 301px;
+        width: 300px;
         border-top-right-radius: 5px;
         border-top-left-radius: 5px;
         border-bottom: 3px solid #ffffff;
@@ -175,7 +175,7 @@
     #create-header {
         background: #cee8c1;
         height: 92px;
-        width: 301px;
+        width: 300px;
         border-top-right-radius: 5px;
         border-top-left-radius: 5px;
         border-bottom: 3px solid #ffffff;
