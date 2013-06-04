@@ -12,6 +12,7 @@
 
 <html>
     <head>
+        <title><decorator:title/></title>
         <spring:theme code="standard.custom.css.file" var="customCssFile" />
         <link type="text/css" rel="stylesheet" href="<c:url value="/css/bootstrap.min.css"/>"/>
         <link type="text/css" rel="stylesheet" href="<c:url value="${customCssFile}" />" />
@@ -21,6 +22,7 @@
         <script type="text/javascript" src="<c:url value="/js/cas.js" />"></script>
         <script type="text/javascript" src="<c:url value="/js/jquery.flipCounter.1.2.pack.js" />"></script>
         <script type="text/javascript" src="<c:url value="/js/jquery.placeholder.js"/>"></script>
+        <script type="text/javascript" src="<c:url value="/js/jquery.qtip-1.0.0-rc3.min.js"/>"></script>
         <script type="text/javascript" src="<c:url value="/js/jquery.validate.min.js"/>"></script>
         <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700,800" type="text/css">
         <decorator:head/>

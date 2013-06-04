@@ -11,6 +11,9 @@
 <c:url var="forgotPasswordUrl" value="/app/registration/forgot"/>
 
 <meta name="decorator" content="anonymousNoLogo"/>
+<html>
+<head>
+<title>Sign in to Infusionsoft</title>
 
 <script type="text/javascript">
     $(document).ready(function () {
@@ -27,13 +30,12 @@
             window.location = "${registrationUrl}";
         });
 
-        $('#email-help-floater ').hide();
-        $('#create-help-floater ').hide();
+        $('#email-help-floater').hide();
+        $('#create-help-floater').hide();
 
-        $('#email-help-floater ').fadeIn(1700, function() {
-            $('#create-help-floater ').fadeIn(1700);
+        $('#email-help-floater').delay(1000).fadeIn(750, function() {
+            $('#create-help-floater').fadeIn(750);
         });
-
 
         /* this is for getting the custom image for an app - the new designs do not seem to use this
         <c:if test="${!empty appName}">
@@ -115,19 +117,18 @@
     #full-login-content {
         position: relative;
         margin: 0 auto;
-        width: 618px;
+        width: 622px;
         height: 330px;
         clear: both;
-
     }
 
     #login-form {
         color: #000;
         background: #e4e4e4;
-        width: 249px;
+        width: 250px;
         margin: 0px auto 7px auto;
-        border-bottom-left-radius: 4px;
-        border-bottom-right-radius: 4px;
+        border-bottom-left-radius: 5px;
+        border-bottom-right-radius: 5px;
         padding: 15px 25px 25px 25px;
     }
 
@@ -145,9 +146,9 @@
     #login-header {
         background: #dbe5eb url(/images/isid-logo.png) center center no-repeat;
         height: 92px;
-        width: 299px;
-        border-top-right-radius: 4px;
-        border-top-left-radius: 4px;
+        width: 301px;
+        border-top-right-radius: 5px;
+        border-top-left-radius: 5px;
         border-bottom: 3px solid #ffffff;
     }
 
@@ -174,43 +175,45 @@
     #create-header {
         background: #cee8c1;
         height: 92px;
-        width: 299px;
-        border-top-right-radius: 4px;
-        border-top-left-radius: 4px;
+        width: 301px;
+        border-top-right-radius: 5px;
+        border-top-left-radius: 5px;
         border-bottom: 3px solid #ffffff;
+    }
 
+    #email-help-floater, #create-help-floater {
+        position: absolute;
+        color: #888;
+        font-size: 13px;
+        text-align: center;
+        font-style: italic;
     }
 
     #email-help-floater {
-        position: absolute;
         top: 22px;
-        left: -155px;
+        left: -163px;
         padding-right: 50px;
-        text-align: center;
-        font-style: italic;
-        background: url("/images/right-ball-login.png") 100% center no-repeat;
+        background: url("/images/right-ball-login.png") no-repeat scroll 100% center transparent;
     }
 
     #create-help-floater {
-        position: absolute;
         top: 214px;
-        right: -133px;
+        right: -141px;
         padding-left: 55px;
-        text-align: center;
-        font-style: italic;
-        background: url("/images/left-ball-login.png") 0 center no-repeat;
+        background: url("/images/left-ball-login.png") no-repeat scroll 0 center transparent;
     }
 
     #create-header-text {
-        padding-top: 20px;
+        padding-top: 21px;
         color: #44742d;
-        font-size: 17px;
+        font-size: 18px;
         text-align: center;
+        line-height: 25px;
     }
 
     #create-main {
         background: #e4e4e4;
-        width: 249px;
+        width: 250px;
         height: 174px;
         margin: 0px auto 7px auto;
         border-bottom-left-radius: 4px;
@@ -219,11 +222,11 @@
     }
 
     #create-main-text {
-        font-size: 12px;
+        font-size: 13px;
         color: #444444;
         height: 109px;
+        line-height: 20px;
     }
-
 
     #create-lower-help {
         padding-top: 15px;
@@ -233,7 +236,7 @@
     #create-lower-help em {
         font-style: normal;
         font-weight: bold;
-        font-size: larger;
+        font-size: 14px;
     }
 
     #create-btn {
@@ -256,9 +259,9 @@
         -webkit-box-shadow: none;
         -moz-box-shadow: none;
         padding: 8px 0px;
-        width: 251px;
+        width: 250px;
         display: block;
-        margin-bottom: 0;
+        margin: 0;
     }
 
     .forgot-password {
@@ -275,24 +278,24 @@
     }
 
     #username {
-        background: #ffffff url(/images/email-bg.png) 8px center no-repeat;
+        background: #ffffff url(/images/email-bg.png) 10px center no-repeat;
         text-indent: 32px;
-        padding: 9px 3px;
+        padding: 8px 3px;
         border-radius: 4px;
         -webkit-border-radius: 4px;
         -moz-border-radius: 4px;
-        width: 243px;
+        width: 242px;
         margin: 10px 0 10px 0;
     }
 
     #password {
-        background: #ffffff url(/images/password-bg.png) 8px center no-repeat;
+        background: #ffffff url(/images/password-bg.png) 10px center no-repeat;
         text-indent: 32px;
-        padding: 9px 3px;
+        padding: 8px 3px;
         border-radius: 4px;
         -webkit-border-radius: 4px;
         -moz-border-radius: 4px;
-        width: 243px;
+        width: 242px;
         margin: 5px 0 10px 0;
     }
 
@@ -369,6 +372,9 @@
 
 </style>
 
+</head>
+
+<body>
 <c:if test="${!appMigrated}">
     <c:set var="hittingCasDirectly" value="${true}"/>
     <%--<%@include file="../../registration/_banner.jsp" %>--%>
@@ -430,10 +436,7 @@
         </div>
         <div id="create-main">
             <div id="create-main-text">
-                Your Infusionsoft ID is a new way to sign<br/>
-                in that allows you to access all aspects of<br/>
-                Infusionsoft using one email address and</br/>
-                one password.
+                Your Infusionsoft ID is a new way to sign in that allows you to access all aspects of Infusionsoft using one email address and one password.
             </div>
             <div id="create-main-button" class="control-group">
                 <input id="create-btn" class="btn btn-primary" name="getStarted" accesskey="l" value="Get Started" tabindex="5" type="submit"/>
@@ -456,3 +459,5 @@
 <div style="margin: 50px auto; width: 960px; height: 960px">
     <iframe src="https://infusionmedia.s3.amazonaws.com/cas/login-include.html" width="960" height="960" style="border: none"></iframe>
 </div>
+</body>
+</html>

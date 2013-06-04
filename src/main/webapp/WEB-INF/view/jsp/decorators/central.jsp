@@ -13,6 +13,7 @@
 
 <html>
 <head>
+    <title><decorator:title/></title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
     <link type="text/css" rel="stylesheet" href="<c:url value="/css/bootstrap.min.css" />"/>
     <spring:theme code="standard.custom.css.file" var="customCssFile"/>
