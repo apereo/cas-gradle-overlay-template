@@ -57,7 +57,7 @@
 </p>
 
 <form id="associateForm" action="associate" method="post" class="form-horizontal">
-    <input name="appType" type="hidden" value="crm"/>
+    <input name="appType" type="hidden" value="${appType}"/>
     <input name="user" type="hidden" value="${user.id}"/>
 
     <fieldset>

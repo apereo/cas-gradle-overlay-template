@@ -25,7 +25,7 @@
 </c:if>
 
 <form id="associateForm" action="associate" method="post">
-    <input name="appType" type="hidden" value="community"/>
+    <input name="appType" type="hidden" value="${appType}"/>
     <input name="appName" type="hidden" value="community"/>
     <input name="user" type="hidden" value="${user.id}"/>
 

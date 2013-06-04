@@ -120,24 +120,32 @@ public class CentralController {
      * Displays the form to link up an existing Infusionsoft CRM account.
      */
     @RequestMapping
-    public ModelAndView linkInfusionsoftAppAccount() {
-        return new ModelAndView("central/linkInfusionsoftAppAccount", "crmDomain", crmDomain);
+    public String linkInfusionsoftAppAccount(Model model) {
+        model.addAttribute("crmDomain", crmDomain);
+        model.addAttribute("appType", AppType.CRM);
+
+        return "central/linkInfusionsoftAppAccount";
     }
 
     /**
      * Displays the form to link up an existing CustomerHub account.
      */
     @RequestMapping
-    public ModelAndView linkCustomerHubAccount() {
-        return new ModelAndView("central/linkCustomerHubAccount", "customerHubDomain", customerHubDomain);
+    public String linkCustomerHubAccount(Model model) {
+        model.addAttribute("customerHubDomain", customerHubDomain);
+        model.addAttribute("appType", AppType.CUSTOMERHUB);
+
+        return "central/linkCustomerHubAccount";
     }
 
     /**
      * Displays the form to link up an existing community account.
      */
     @RequestMapping
-    public ModelAndView linkCommunityAccount() {
-        return new ModelAndView("central/linkCommunityAccount");
+    public String linkCommunityAccount(Model model) {
+        model.addAttribute("appType", AppType.COMMUNITY);
+
+        return "central/linkCommunityAccount";
     }
 
     /**

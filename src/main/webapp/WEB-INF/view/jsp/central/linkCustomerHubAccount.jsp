@@ -25,7 +25,7 @@
 </c:if>
 
 <form id="associateForm" action="associate" method="post" class="form-horizontal">
-    <input name="appType" type="hidden" value="customerhub"/>
+    <input name="appType" type="hidden" value="${appType}"/>
     <input name="user" type="hidden" value="${user.id}"/>
 
     <p>
