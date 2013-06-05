@@ -14,7 +14,7 @@
     #recover {
         color: #000;
         background: #fff;
-        width: 276px;
+        width: 280px;
         margin: 10px auto;
         border: 1px solid #DDDDDD;
         border-radius: 4px;
