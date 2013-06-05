@@ -458,7 +458,7 @@ input:-moz-placeholder {
 
 <div style="clear:both;"></div>
 
-<c:if test="${not empty appUrl}">
+<c:if test="${not empty appUrl && appType == 'CRM'}">
     <div id="affiliate-login">
         <a href="${appUrl}/Affiliate/">Referral Partner Sign-In</a>
     </div>
