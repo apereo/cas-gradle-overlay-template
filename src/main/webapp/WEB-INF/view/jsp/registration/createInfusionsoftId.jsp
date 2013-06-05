@@ -169,7 +169,7 @@
                                 </tr>
                             </table>
 
-                            <div class="form-spacer" style="clear:both;"></div>
+                            <div class="form-spacer" style="height:3px;clear:both;"></div>
 
                             <div class="control-group">
                                 <label class="formLabel">Email Address <span class="emailHelp">(you will use this to sign in)</span></label>
@@ -198,9 +198,9 @@
                                 </div>
                             </div>
                             <div class="password-info">
-                                Must have at least:<br/>
+                                Password Criteria:<br/>
                                 <ul>
-                                    <li>7 characters</li>
+                                    <li>At least 7 characters</li>
                                     <li>1 number</li>
                                     <li>1 uppercase letter</li>
                                     <li>1 lowercase letter</li>
