@@ -169,9 +169,9 @@ public class RegistrationController {
             } else if (!username.equals(username2)) {
                 model.addAttribute("error", "registration.error.emailNoMatch");
             } else if (StringUtils.isEmpty(firstName)) {
-                model.addAttribute("error", "registration.error.invalidLastName");
-            } else if (StringUtils.isEmpty(lastName)) {
                 model.addAttribute("error", "registration.error.invalidFirstName");
+            } else if (StringUtils.isEmpty(lastName)) {
+                model.addAttribute("error", "registration.error.invalidLastName");
             } else if (userService.loadUser(username) != null) {
                 model.addAttribute("error", "registration.error.usernameInUse");
             } else if (!eulaChecked) {
