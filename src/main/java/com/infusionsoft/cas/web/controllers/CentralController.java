@@ -269,6 +269,7 @@ public class CentralController {
                 model.put("crmDomain", crmDomain);
                 model.put("appDomain", new URL(appUrl).getHost());
                 model.put("appUrl", appUrl);
+                model.put("appType", appType);
                 return new ModelAndView("central/linkInfusionsoftAppAccount", model);
             } else if (AppType.CUSTOMERHUB.equals(appType)) {
                 model.put("customerHubDomain", customerHubDomain);
