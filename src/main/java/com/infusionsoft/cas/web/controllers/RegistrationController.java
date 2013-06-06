@@ -68,7 +68,7 @@ public class RegistrationController {
     /**
      * Uses the new action for now.  Once old registrations finish we can kill this action
      */
-    //TODO: Kill after a couple weeks afetr any outstanding new user invites have processed.
+    //TODO: Kill after a couple weeks after any outstanding new user invites have processed.
     @RequestMapping
     public ModelAndView welcome(String registrationCode, String returnUrl, String skipUrl, String userToken, String firstName, String lastName, String email) throws IOException {
         return createInfusionsoftId(registrationCode, returnUrl, skipUrl, userToken, firstName, lastName, email);
@@ -114,17 +114,17 @@ public class RegistrationController {
     }
 
     /**
-     * Shows the registration form.
+     * Either connects a pending CAS account with a real CAS account, or redirects a user to the app to finish linking an account.
      */
     @RequestMapping
-    public String linkToExisting(Model model, String registrationCode, HttpServletRequest request, HttpServletResponse response) throws AccountException {
+    public String linkToExisting(Model model, String registrationCode, String returnUrl, String userToken, HttpServletRequest request, HttpServletResponse response) throws AccountException {
         String retVal;
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
         if (StringUtils.isNotEmpty(registrationCode)) {
             PendingUserAccount pending = userService.findPendingUserAccount(registrationCode);
 
             if (pending != null) {
-                User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
                 userService.associatePendingAccountToUser(user, registrationCode);
                 autoLoginService.autoLogin(user.getUsername(), request, response);
 
@@ -133,6 +133,9 @@ public class RegistrationController {
                 model.addAttribute("error", "Registration Code not found");
                 retVal = "registration/createInfusionsoftId";
             }
+        } else if (StringUtils.isNotBlank(returnUrl) && StringUtils.isNotBlank(userToken)) {
+            // Redirect back to the app, which will do the linkage
+            return "redirect:" + returnUrl + "?userToken=" + userToken + "&casGlobalId=" + user.getId();
         } else {
             return "redirect:/app/central/home";
         }
@@ -144,7 +147,7 @@ public class RegistrationController {
      * Registers a new user account.
      */
     @RequestMapping
-    public String register(Model model, String firstName, String lastName, String username, String password1, String password2, String eula, String registrationCode, String returnUrl, String skipUrl, String userToken, HttpServletRequest request, HttpServletResponse response) {
+    public String register(Model model, String firstName, String lastName, String username, String username2, String password1, String password2, String eula, String registrationCode, String returnUrl, String skipUrl, String userToken, HttpServletRequest request, HttpServletResponse response) {
         boolean eulaChecked = StringUtils.equals(eula, "agreed");
         User user = new User();
 
@@ -157,23 +160,24 @@ public class RegistrationController {
 
             model.addAttribute("user", user);
 
-            if (StringUtils.isEmpty(firstName)) {
-                model.addAttribute("error", "registration.error.invalidLastName");
-            } else if (StringUtils.isEmpty(lastName)) {
-                model.addAttribute("error", "registration.error.invalidFirstName");
-            } else if (username == null || username.isEmpty() || !EmailValidator.getInstance().isValid(username)) {
-                model.addAttribute("error", "registration.error.invalidUsername");
-            } else if (userService.loadUser(username) != null) {
-                model.addAttribute("error", "registration.error.usernameInUse");
-            } else if (StringUtils.isEmpty(password1) || StringUtils.isEmpty(password2)) {
+            if (StringUtils.isEmpty(password1) || StringUtils.isEmpty(password2)) {
                 model.addAttribute("error", "registration.error.invalidPassword");
             } else if (!password1.equals(password2)) {
                 model.addAttribute("error", "registration.error.passwordsNoMatch");
+            } else if (username == null || username.isEmpty() || !EmailValidator.getInstance().isValid(username)) {
+                model.addAttribute("error", "registration.error.invalidUsername");
+            } else if (!username.equals(username2)) {
+                model.addAttribute("error", "registration.error.emailNoMatch");
+            } else if (StringUtils.isEmpty(firstName)) {
+                model.addAttribute("error", "registration.error.invalidLastName");
+            } else if (StringUtils.isEmpty(lastName)) {
+                model.addAttribute("error", "registration.error.invalidFirstName");
+            } else if (userService.loadUser(username) != null) {
+                model.addAttribute("error", "registration.error.usernameInUse");
             } else if (!eulaChecked) {
                 model.addAttribute("error", "registration.error.eula");
             } else {
                 String passwordError = passwordService.validatePassword(user);
-
                 if (passwordError != null) {
                     model.addAttribute("error", passwordError);
                 }
@@ -191,7 +195,6 @@ public class RegistrationController {
 
                     try {
                         userService.associatePendingAccountToUser(user, registrationCode);
-
                     } catch (Exception e) {
                         log.error("failed to associate new user to registration code " + registrationCode, e);
                     }

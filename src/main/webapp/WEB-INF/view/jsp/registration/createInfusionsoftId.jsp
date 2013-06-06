@@ -5,6 +5,12 @@
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 
+<%-- These form elements are used for both linkExisting and register --%>
+<c:set var="commonFormElements">
+    <input type="hidden" name="registrationCode" value="${registrationCode}"/>
+    <input type="hidden" name="returnUrl" value="${returnUrl}"/>
+    <input type="hidden" name="userToken" value="${userToken}"/>
+</c:set>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -124,8 +130,10 @@
         <div id="main_title_div"></div>
         <div id="links-above-lanyard" >
             <div id="already-have-id">
-                <c:url var="linkToExistingUrl" value="/app/registration/linkToExisting"/>
-                <a href="${linkToExistingUrl}?registrationCode=${registrationCode}"><spring:message code='registration.signin'/></a>
+                <a href="#" class="linkToExisting"><spring:message code='registration.signin'/></a>
+                <form:form id="linkToExistingForm" action="linkToExisting" method="post" modelAttribute="user">
+                    ${commonFormElements}
+                </form:form>
             </div>
             <div id="flipLink">
                 <a id="learnMore" href="#">What is an Infusionsoft ID?</a>
@@ -142,9 +150,8 @@
                 </div>
                 <div id="cardBottom">
                     <form:form id="registerForm" action="register" method="post" class="form-vertical" modelAttribute="user">
-                        <input type="hidden" name="registrationCode" value="${registrationCode}"/>
-                        <input type="hidden" name="returnUrl" value="${returnUrl}"/>
-                        <input type="hidden" name="userToken" value="${userToken}"/>
+                        ${commonFormElements}
+                        <input type="hidden" name="skipUrl" value="${skipUrl}"/>
 
                         <c:if test="${error != null}">
                             <div class="alert alert-error" style="margin-top: 10px;">

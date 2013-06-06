@@ -7,7 +7,6 @@
 <p>
     <b>Important Account Information</b><br/>
     Infusionsoft ID: ${user.username}<br/>
-    Password: ********<br/>
     URL: <a href="${serverPrefix}">${serverPrefix}</a>
 </p>
 <p>

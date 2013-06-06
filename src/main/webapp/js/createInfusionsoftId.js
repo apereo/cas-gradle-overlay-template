@@ -61,4 +61,9 @@ $(document).ready(function () {
         });
     });
 
+    $('a.linkToExisting').click(function(e) {
+        $('#linkToExistingForm').submit();
+        return false;
+    });
+
 });
