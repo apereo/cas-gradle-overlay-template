@@ -99,7 +99,7 @@ public class RestController {
     public ModelAndView reassociateAccounts(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String apiKey = request.getParameter("apiKey");
         String appName = request.getParameter("appName");
-        AppType appType = AppType.valueOf(request.getParameter("appType"));
+        AppType appType = AppType.valueOf(request.getParameter("appType").toUpperCase());
         String appUsername = request.getParameter("appUsername");
         String casGlobalIdString = request.getParameter("casGlobalId");
 
@@ -154,7 +154,7 @@ public class RestController {
     public ModelAndView disassociateAccounts(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String apiKey = request.getParameter("apiKey");
         String appName = request.getParameter("appName");
-        AppType appType = AppType.valueOf(request.getParameter("appType"));
+        AppType appType = AppType.valueOf(request.getParameter("appType").toUpperCase());
         String appUsername = request.getParameter("appUsername");
         String casGlobalIdString = request.getParameter("casGlobalId");
 
@@ -253,7 +253,7 @@ public class RestController {
         String apiKey = request.getParameter("apiKey");
         String casGlobalIdString = request.getParameter("casGlobalId");
         String appName = request.getParameter("appName");
-        AppType appType = AppType.valueOf(request.getParameter("appType"));
+        AppType appType = AppType.valueOf(request.getParameter("appType").toUpperCase());
         String newAppUsername = request.getParameter("newAppUsername");
 
         // Parse the casGlobalId
@@ -287,7 +287,7 @@ public class RestController {
         Map<String, Object> model = new HashMap<String, Object>();
         String apiKey = request.getParameter("apiKey");
         String appName = request.getParameter("appName");
-        AppType appType = AppType.valueOf(request.getParameter("appType"));
+        AppType appType = AppType.valueOf(request.getParameter("appType").toUpperCase());
         String appUsername = request.getParameter("appUsername");
         String firstName = request.getParameter("firstName");
         String lastName = request.getParameter("lastName");
@@ -407,7 +407,7 @@ public class RestController {
         String casGlobalIdString = request.getParameter("casGlobalId");
         // OR
         String appName = request.getParameter("appName");
-        AppType appType = AppType.valueOf(request.getParameter("appType"));
+        AppType appType = AppType.valueOf(request.getParameter("appType").toUpperCase());
         String appUsername = request.getParameter("appUsername");
 
         // Validate the API key
