@@ -326,6 +326,11 @@ body {
     margin: -10px -15px 15px -15px;
 }
 
+.alert-error {
+    border-color: #ac4c47;
+    margin: 5px 0;
+}
+
 .control-group {
     margin-bottom: 0px;
 }

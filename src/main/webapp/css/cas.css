@@ -408,6 +408,10 @@ label {
     color: #333;
 }
 
+.alert-error {
+    border-color: #ac4c47;
+}
+
 .modal-title {
     margin: 50px auto 0 auto;
     text-align: center;
@@ -668,5 +672,5 @@ label.error {
     position: relative;
     bottom: 10px;
     right: 5px;
-    margin-bottom: -5px;
+    margin-bottom: -2px;
 }

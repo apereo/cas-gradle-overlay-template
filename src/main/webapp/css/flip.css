@@ -181,7 +181,7 @@
     width: auto;
     height: auto;
     border-top: 3px solid #ffffff;
-    padding: 25px 30px 25px 30px;
+    padding: 25px 30px 30px 30px;
     border-radius: 0 0 5px 5px;
 }
 
@@ -341,11 +341,14 @@
     left: 420px;
     height: 145px;
     width: 122px;
-    background-image: url("/img/lanyard.png");
-    background-repeat: no-repeat;
-    background-position: -87px -155px;
+    background: url("/img/lanyard.png") -87px -155px no-repeat;
     z-index: 100;
 }
+
+.disabled {
+    color: #555555;
+}
+
 
 #main_title_div {
     height: 98px;
@@ -365,13 +368,22 @@
     margin-top: 28px;
 }
 
+.error [for=eula] {
+    position: absolute;
+    bottom: -15px;
+    left: 12px;
+}
+
+.password-info ul {
+    list-style-image: url("/img/grey-bullet.png");
+}
 label.error {
     color: #b94a48;
     padding: 1px 8px;
     position: relative;
     bottom: 10px;
     right: 5px;
-    margin-bottom: -5px;
+    margin-bottom: -2px;
 }
 
 .control-group {

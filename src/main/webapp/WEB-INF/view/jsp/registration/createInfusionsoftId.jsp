@@ -22,6 +22,29 @@
     <script type="text/javascript" src="<c:url value="/js/createInfusionsoftId.js"/>"></script>
 
     <script type="text/javascript">
+        function resetCheckPassword() {
+            $("#pw_length").css({"list-style-image":''});
+            $("#pw_number").css({"list-style-image":''});
+            $("#pw_upper").css({"list-style-image":''});
+            $("#pw_under").css({"list-style-image":''});
+        }
+        function checkPasswordReq() {
+            var currPass = $('#password1').val();
+            resetCheckPassword();
+            if (currPass.length >= 7) {
+                $("#pw_length").css({"list-style-image":"url('/img/checkmark.png')"});
+            }
+            if (/\d/.test(currPass)) {
+                $("#pw_number").css({"list-style-image":"url('/img/checkmark.png')"});
+            }
+            if (/[a-z]/.test(currPass)) {
+                $("#pw_under").css({"list-style-image":"url('/img/checkmark.png')"});
+            }
+            if (/[A-Z]/.test(currPass)) {
+                $("#pw_upper").css({"list-style-image":"url('/img/checkmark.png')"});
+            }
+        }
+        setInterval(function() {checkPasswordReq();}, 100);
         $(document).ready(function () {
             jQuery.validator.addMethod("password", function (value, element) {
                 var result = this.optional(element) || value.length >= 7 && /\d/.test(value) && /[a-z]/.test(value) && /[A-Z]/.test(value);
@@ -207,15 +230,15 @@
                             <div class="password-info">
                                 Password Criteria:<br/>
                                 <ul>
-                                    <li>At least 7 characters</li>
-                                    <li>1 number</li>
-                                    <li>1 uppercase letter</li>
-                                    <li>1 lowercase letter</li>
+                                    <li id="pw_length">At least 7 characters</li>
+                                    <li id="pw_number">1 number</li>
+                                    <li id="pw_upper">1 uppercase letter</li>
+                                    <li id="pw_under">1 lowercase letter</li>
                                 </ul>
                             </div>
                             <div style="clear:both;" class="form-spacer"></div>
                             <div class="control-group">
-                                <div class="controls">
+                                <div class="controls" style="position: relative;">
                                     <label class="checkbox">
                                         <input id="eula" name="eula" type="checkbox" value="agreed" tabindex="7"/>
                                         <spring:message code='registration.form.readEULA'/>
