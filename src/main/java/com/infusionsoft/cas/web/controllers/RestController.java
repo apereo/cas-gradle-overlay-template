@@ -9,6 +9,7 @@ import com.infusionsoft.cas.domain.UserAccount;
 import com.infusionsoft.cas.services.InfusionsoftAuthenticationService;
 import com.infusionsoft.cas.services.UserService;
 import com.infusionsoft.cas.support.JsonHelper;
+import org.apache.commons.lang3.EnumUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.log4j.Level;
@@ -77,7 +78,7 @@ public class RestController {
             return null;
         }
 
-        // Attempt the registration
+        // Attempt the account linking
         User user;
         try {
             user = userService.loadUser(casGlobalId);
@@ -99,7 +100,7 @@ public class RestController {
     public ModelAndView reassociateAccounts(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String apiKey = request.getParameter("apiKey");
         String appName = request.getParameter("appName");
-        AppType appType = AppType.valueOf(StringUtils.upperCase(request.getParameter("appType")));
+        AppType appType = EnumUtils.getEnum(AppType.class, StringUtils.upperCase(request.getParameter("appType")));
         String appUsername = request.getParameter("appUsername");
         String casGlobalIdString = request.getParameter("casGlobalId");
 
@@ -154,7 +155,7 @@ public class RestController {
     public ModelAndView disassociateAccounts(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String apiKey = request.getParameter("apiKey");
         String appName = request.getParameter("appName");
-        AppType appType = AppType.valueOf(StringUtils.upperCase(request.getParameter("appType")));
+        AppType appType = EnumUtils.getEnum(AppType.class, StringUtils.upperCase(request.getParameter("appType")));
         String appUsername = request.getParameter("appUsername");
         String casGlobalIdString = request.getParameter("casGlobalId");
 
@@ -253,7 +254,7 @@ public class RestController {
         String apiKey = request.getParameter("apiKey");
         String casGlobalIdString = request.getParameter("casGlobalId");
         String appName = request.getParameter("appName");
-        AppType appType = AppType.valueOf(StringUtils.upperCase(request.getParameter("appType")));
+        AppType appType = EnumUtils.getEnum(AppType.class, StringUtils.upperCase(request.getParameter("appType")));
         String newAppUsername = request.getParameter("newAppUsername");
 
         // Parse the casGlobalId
@@ -287,7 +288,7 @@ public class RestController {
         Map<String, Object> model = new HashMap<String, Object>();
         String apiKey = request.getParameter("apiKey");
         String appName = request.getParameter("appName");
-        AppType appType = AppType.valueOf(StringUtils.upperCase(request.getParameter("appType")));
+        AppType appType = EnumUtils.getEnum(AppType.class, StringUtils.upperCase(request.getParameter("appType")));
         String appUsername = request.getParameter("appUsername");
         String firstName = request.getParameter("firstName");
         String lastName = request.getParameter("lastName");
@@ -407,7 +408,7 @@ public class RestController {
         String casGlobalIdString = request.getParameter("casGlobalId");
         // OR
         String appName = request.getParameter("appName");
-        AppType appType = AppType.valueOf(StringUtils.upperCase(request.getParameter("appType")));
+        AppType appType = EnumUtils.getEnum(AppType.class, StringUtils.upperCase(request.getParameter("appType")));
         String appUsername = request.getParameter("appUsername");
 
         // Validate the API key
