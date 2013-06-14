@@ -45,6 +45,7 @@
             }
         }
         setInterval(function() {checkPasswordReq();}, 100);
+
         $(document).ready(function () {
             jQuery.validator.addMethod("password", function (value, element) {
                 var result = this.optional(element) || value.length >= 7 && /\d/.test(value) && /[a-z]/.test(value) && /[A-Z]/.test(value);
@@ -53,8 +54,7 @@
 
             //Check to ensure that username matches
             //Validate the form
-            $('#registerForm').validate(
-                    {
+            $('#registerForm').validate({
                         rules: {
                             firstName: {
                                 required: true
@@ -115,7 +115,11 @@
                             element.closest('label.error').hide().removeClass('error').addClass('valid').addClass('error');
                         }
 
-                    });
+            });
+
+            <c:if test="${empty error}">
+            openingAnimation();
+            </c:if>
         });
     </script>
 </head>
@@ -177,7 +181,7 @@
                         <input type="hidden" name="skipUrl" value="${skipUrl}"/>
 
                         <c:if test="${error != null}">
-                            <div class="alert alert-error" style="margin-top: 10px;">
+                            <div class="alert alert-error">
                                 <spring:message code="${error}" text="${error}"/>
                             </div>
                         </c:if>

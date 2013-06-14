@@ -13,10 +13,22 @@ function fadeSidesIn() {
         }
     });
 }
-$(document).ready(function () {
 
+function openingAnimation() {
     $('#floaterLeft').hide();
     $('#floaterRight').hide();
+    $('#lanyard_background').hide();
+
+    $('#lanyard').css({'top': "-900px"}).animate({"top": "+=0px"}, 1200, function () {
+        $('#lanyard_background').fadeIn("slow", function () {
+            $('#main_title').show().css({'top': "-250px"}).animate({"top": "-=12px"}, "slow", function () {
+                fadeSidesIn();
+            });
+        });
+    });
+}
+
+$(document).ready(function () {
 
     $('#learnMore').on("click", function (e) {
         e.preventDefault();
@@ -58,15 +70,6 @@ $(document).ready(function () {
     $('#backBtn').on("click", function (e) {
         $('#idcard').flippyReverse();
         e.preventDefault();
-    });
-
-    $('#lanyard_background').hide();
-    $('#lanyard').css({'top': "-900px"}).animate({"top": "+=0px"}, 1200, function () {
-        $('#lanyard_background').fadeIn("slow", function () {
-            $('#main_title').show().css({'top': "-250px"}).animate({"top": "-=12px"}, "slow", function () {
-                fadeSidesIn();
-            });
-        });
     });
 
     $('a.linkToExisting').click(function(e) {
