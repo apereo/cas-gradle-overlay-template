@@ -28,7 +28,8 @@
         $("#fm1").submit(function () {
             $.post("/app/profile/ajaxUpdatePassword", $("#fm1").serialize(), "json")
                     .done(function () {
-                        window.location = "/app/central/home?service=${service}";
+                        //
+                        window.location = "/login?service=${service}";
                     })
                     .fail(function (data) {
                         var myData = $.parseJSON(data.responseText);

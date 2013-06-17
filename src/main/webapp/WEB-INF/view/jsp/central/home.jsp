@@ -19,16 +19,6 @@
 <script type="text/javascript">
 
     $(document).ready(function () {
-        <c:if test="${!empty param.service}">
-            <c:choose>
-                <c:when test="${fn:contains(param.service, 'j_spring_cas_security_check')}">
-                    window.location = "${fn:substringBefore(param.service, 'j_spring_cas_security_check')}";
-                </c:when>
-                <c:otherwise>
-                    window.location = "${param.service}";
-                </c:otherwise>
-            </c:choose>
-        </c:if>
         $(".account").hover(
                 function () {
                     // TODO - stop hiding this if we want to allow account deletion! -${param.service}
