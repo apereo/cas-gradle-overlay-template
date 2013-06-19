@@ -172,7 +172,7 @@
             <div id="idcard">
                 <div class="cardTop">
                     <div id="cardTopText">
-                        Your All-Access Pass To Your Infusionsoft Accounts.
+                        Your All-Access Pass To Your Infusionsoft Account(s).
                     </div>
                 </div>
                 <div id="cardBottom">
