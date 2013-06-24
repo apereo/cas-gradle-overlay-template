@@ -21,6 +21,8 @@ import org.joda.time.base.BaseSingleFieldPeriod;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,8 +42,7 @@ import java.util.List;
 public class InfusionsoftAuthenticationServiceImpl implements InfusionsoftAuthenticationService {
     private static final Logger log = Logger.getLogger(InfusionsoftAuthenticationServiceImpl.class);
 
-    private static final BaseSingleFieldPeriod lockoutTimePeriod = Minutes.minutes(30);
-    private static final int LOCK_ATTEMPTS = 5; // how many tries before locked
+    private static final Minutes lockoutTimePeriod = Minutes.minutes(30);
 
     @Autowired
     CustomerHubService customerHubService;
@@ -230,6 +231,7 @@ public class InfusionsoftAuthenticationServiceImpl implements InfusionsoftAuthen
 
     private LoginResult attemptLoginInternal(String username, String password, String md5password) {
         LoginResult retVal;
+        UserPassword userPassword = null;
 
         User user = userService.loadUser(username);
         if (user == null) {
@@ -238,7 +240,7 @@ public class InfusionsoftAuthenticationServiceImpl implements InfusionsoftAuthen
             if (!user.isEnabled()) {
                 retVal = LoginResult.DisabledUser(user);
             } else {
-                UserPassword userPassword = passwordService.getPasswordForUser(user);
+                userPassword = passwordService.getPasswordForUser(user);
 
                 if (userPassword == null) {
                     retVal = LoginResult.BadPassword(user);
@@ -262,15 +264,23 @@ public class InfusionsoftAuthenticationServiceImpl implements InfusionsoftAuthen
             }
         }
 
+        int failedLoginCount = countConsecutiveFailedLogins(username);
+        // Account is locked if there are already too many logins or if this is a failed login that pushes it past the limit
+        if (isAccountLocked(username, failedLoginCount) || (retVal.getLoginStatus() != LoginResult.LoginStatus.Success && isAccountLocked(username, failedLoginCount + 1))) {
+            retVal = LoginResult.AccountLocked(user);
+        }
+
         if (retVal.getLoginStatus() == LoginResult.LoginStatus.Success) {
-            if (passwordService.isPasswordExpired(user)) {
+            failedLoginCount = 0;
+            if (passwordService.isPasswordExpired(userPassword)) {
                 retVal = LoginResult.PasswordExpired(user);
             }
         } else {
-            if (isAccountLocked(username)) {
-                retVal = LoginResult.AccountLocked(user);
-            }
+            // Add one since the current (failed) login attempt isn't logged yet
+            failedLoginCount += 1;
         }
+
+        retVal.setFailedAttempts(failedLoginCount);
 
         return retVal;
     }
@@ -283,6 +293,7 @@ public class InfusionsoftAuthenticationServiceImpl implements InfusionsoftAuthen
         LoginAttempt attempt = new LoginAttempt();
 
         attempt.setUsername(username);
+        // TODO: use UTC date here
         attempt.setDateAttempted(new Date());
         attempt.setSuccess(success);
 
@@ -293,8 +304,8 @@ public class InfusionsoftAuthenticationServiceImpl implements InfusionsoftAuthen
      * Returns all login attempts within the X days/minutes/seconds, for a particular username.
      * Of course, these may have been cleared out by the garbage man Quartz job.
      */
-    @Override
-    public List<LoginAttempt> getRecentLoginAttempts(String username, BaseSingleFieldPeriod baseSingleFieldPeriod) {
+    private List<LoginAttempt> getRecentLoginAttempts(String username, BaseSingleFieldPeriod baseSingleFieldPeriod) {
+        // TODO: use UTC date here
         DateTime dateTime = new DateTime().minus(baseSingleFieldPeriod);
 
         return loginAttemptDAO.findByUsernameAndDateAttemptedGreaterThanOrderByDateAttemptedDesc(username, dateTime.toDate());
@@ -303,8 +314,7 @@ public class InfusionsoftAuthenticationServiceImpl implements InfusionsoftAuthen
     /**
      * Tells how many consecutive failed login attempts there are for a particular user name.
      */
-    @Override
-    public int countConsecutiveFailedLogins(String username) {
+    private int countConsecutiveFailedLogins(String username) {
         List<LoginAttempt> attempts = getRecentLoginAttempts(username, lockoutTimePeriod);
         int failures = 0;
 
@@ -324,38 +334,18 @@ public class InfusionsoftAuthenticationServiceImpl implements InfusionsoftAuthen
     }
 
     /**
-     * Returns the most recent failed login attempt.
-     */
-    @Override
-    public LoginAttempt getMostRecentFailedLogin(String username) {
-        LoginAttempt retVal = null;
-
-        List<LoginAttempt> loginAttempts = loginAttemptDAO.findByUsernameAndSuccessFalseOrderByDateAttemptedDesc(username);
-
-        if (loginAttempts != null && !loginAttempts.isEmpty()) {
-            retVal = loginAttempts.get(0);
-        }
-
-        return retVal;
-    }
-
-    /**
      * Checks if an account is locked due to too many login failures.
      */
     @Override
     public boolean isAccountLocked(String username) {
+        int failedLoginCount = countConsecutiveFailedLogins(username);
+        return isAccountLocked(username, failedLoginCount);
+    }
 
-        if (countConsecutiveFailedLogins(username) > LOCK_ATTEMPTS) {
-            LoginAttempt mostRecent = getMostRecentFailedLogin(username);
-            DateTime lockPeriodStart = new DateTime().minus(lockoutTimePeriod);
-
-            if (mostRecent.getDateAttempted().after(lockPeriodStart.toDate())) {
-                log.info("username " + username + " is locked due to more than " + LOCK_ATTEMPTS + " failures in the last " + lockoutTimePeriod.toString() + " milliseconds");
-
-                return true;
-            } else {
-                return false;
-            }
+    private boolean isAccountLocked(String username, int failedLoginCount) {
+        if (failedLoginCount > ALLOWED_LOGIN_ATTEMPTS) {
+            log.info("username " + username + " is locked due to more than " + ALLOWED_LOGIN_ATTEMPTS + " failures in the last " + lockoutTimePeriod.getMinutes() + " minutes");
+            return true;
         }
 
         return false;
@@ -443,6 +433,16 @@ public class InfusionsoftAuthenticationServiceImpl implements InfusionsoftAuthen
     @Override
     public void unlockUser(String username) {
         recordLoginAttempt(username, true);
+
+        final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = (User) (authentication == null ? null : authentication.getPrincipal());
+        if (user == null) {
+            // This happens in testing, but it's a real problem if it happens in production!
+            log.error("Unknown user unlocked username " + username);
+        } else {
+            // This is a warning because we want to make sure it gets audited in the logs
+            log.warn("User " + user.getUsername() + " unlocked username " + username);
+        }
     }
 
     @Override

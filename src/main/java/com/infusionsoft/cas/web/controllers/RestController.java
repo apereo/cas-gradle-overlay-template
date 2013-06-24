@@ -356,13 +356,17 @@ public class RestController {
 
                 switch (loginResult.getLoginStatus()) {
                     case AccountLocked:
-                        error = "login.lockedTooManyFailures";
+                        error = "login.lockedUser";
                         break;
                     case BadPassword:
-                    case DisabledUser:
+                    case DisabledUser: // TODO: why is a disabled user getting the locked message?
                     case NoSuchUser:
-                        int failedLoginAttempts = infusionsoftAuthenticationService.countConsecutiveFailedLogins(username);
-                        error = "login.failed" + failedLoginAttempts;
+                        int failedLoginAttempts = loginResult.getFailedAttempts();
+                        if (failedLoginAttempts > InfusionsoftAuthenticationService.ALLOWED_LOGIN_ATTEMPTS) {
+                            error = "login.lockedUser";
+                        } else {
+                            error = "login.failed" + failedLoginAttempts;
+                        }
                         break;
                     case PasswordExpired:
                         error = "login.passwordExpired";

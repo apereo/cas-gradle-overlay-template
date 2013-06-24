@@ -1,6 +1,5 @@
 package com.infusionsoft.cas.services;
 
-import com.infusionsoft.cas.dao.UserDAO;
 import com.infusionsoft.cas.dao.UserPasswordDAO;
 import com.infusionsoft.cas.domain.User;
 import com.infusionsoft.cas.domain.UserPassword;
@@ -47,10 +46,7 @@ public class PasswordServiceImpl implements PasswordService {
     private PasswordEncoder passwordEncoder;
 
     @Autowired
-    UserPasswordDAO userPasswordDAO;
-
-    @Autowired
-    UserDAO userDAO;
+    private UserPasswordDAO userPasswordDAO;
 
     /**
      * Checks if a user's existing password is valid. We need this for when an already logged in user wants
@@ -82,14 +78,6 @@ public class PasswordServiceImpl implements PasswordService {
     @Override
     public boolean md5PasswordsMatch(UserPassword userPassword, String passwordEncodedMD5) {
         return StringUtils.equals(userPassword.getPasswordEncodedMD5(), passwordEncodedMD5);
-    }
-
-    /**
-     * Tells if a user's password is expired.
-     */
-    @Override
-    public boolean isPasswordExpired(User user) {
-        return isPasswordExpired(getPasswordForUser(user));
     }
 
     /**
@@ -137,6 +125,7 @@ public class PasswordServiceImpl implements PasswordService {
             userPassword.setUser(user);
             userPassword.setPasswordEncoded(passwordEncoder.encode(user.getPassword()));
             userPassword.setPasswordEncodedMD5(DigestUtils.md5Hex(user.getPassword()));
+            // TODO: use UTC date here
             userPassword.setDateCreated(new Date());
             userPassword.setActive(true);
 

@@ -15,10 +15,12 @@ public class LoginResult {
 
     private final User user;
     private final LoginStatus loginStatus;
+    private int failedAttempts;
 
     private LoginResult(User user, LoginStatus loginStatus) {
         this.user = user;
         this.loginStatus = loginStatus;
+        this.failedAttempts = 0;
     }
 
     public User getUser() {
@@ -53,4 +55,11 @@ public class LoginResult {
         return new LoginResult(user, LoginStatus.Success);
     }
 
+    public int getFailedAttempts() {
+        return failedAttempts;
+    }
+
+    public void setFailedAttempts(int failedAttempts) {
+        this.failedAttempts = failedAttempts;
+    }
 }

@@ -12,7 +12,7 @@ public class LoginAttempt implements Serializable {
     private Long id;
     private String username;
     private Date dateAttempted;
-    boolean success;
+    private boolean success;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

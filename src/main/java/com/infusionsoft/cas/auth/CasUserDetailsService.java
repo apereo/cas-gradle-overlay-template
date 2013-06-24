@@ -33,7 +33,7 @@ public class CasUserDetailsService implements AuthenticationUserDetailsService<C
 
             user.setAccountNonExpired(true);
             user.setAccountNonLocked(true);
-            user.setCredentialsNonExpired(!passwordService.isPasswordExpired(user));
+            user.setCredentialsNonExpired(!passwordService.isPasswordExpired(userPassword));
             user.setPassword(userPassword.getPasswordEncoded());
         } else {
             throw new UsernameNotFoundException("Unable to find a user with the username of " + username);

@@ -10,6 +10,4 @@ public interface LoginAttemptDAO extends PagingAndSortingRepository<LoginAttempt
     List<LoginAttempt> findByUsernameAndDateAttemptedGreaterThanOrderByDateAttemptedDesc(String username, Date dateAttempted);
 
     List<LoginAttempt> findByDateAttemptedLessThan(Date dateAttempted);
-
-    List<LoginAttempt> findByUsernameAndSuccessFalseOrderByDateAttemptedDesc(String username);
 }

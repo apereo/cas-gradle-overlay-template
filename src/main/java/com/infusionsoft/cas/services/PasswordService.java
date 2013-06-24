@@ -10,8 +10,6 @@ public interface PasswordService {
 
     boolean md5PasswordsMatch(UserPassword userPassword, String passwordEncodedMD5);
 
-    boolean isPasswordExpired(User user);
-
     boolean isPasswordExpired(UserPassword password);
 
     int getNumberOfDaysToPasswordExpirationDate(String userId);

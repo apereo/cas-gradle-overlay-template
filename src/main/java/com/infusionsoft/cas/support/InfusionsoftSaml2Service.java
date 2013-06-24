@@ -177,6 +177,7 @@ public class InfusionsoftSaml2Service extends AbstractWebApplicationService {
         String samlResponse = TEMPLATE_SAML_RESPONSE;
 
         final Calendar c = Calendar.getInstance();
+        // TODO: use UTC date here
         c.setTime(new Date());
         c.add(Calendar.YEAR, 1);
 
