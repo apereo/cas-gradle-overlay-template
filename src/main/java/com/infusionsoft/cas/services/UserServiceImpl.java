@@ -23,28 +23,25 @@ public class UserServiceImpl implements UserService {
     private static final Logger log = Logger.getLogger(UserServiceImpl.class);
 
     @Autowired
-    AuthorityDAO authorityDAO;
+    private AuthorityDAO authorityDAO;
 
     @Autowired
-    LoginAttemptDAO loginAttemptDAO;
+    private LoginAttemptDAO loginAttemptDAO;
 
     @Autowired
-    MailService mailService;
+    private MailService mailService;
 
     @Autowired
-    PasswordService passwordService;
+    private PasswordService passwordService;
 
     @Autowired
-    PendingUserAccountDAO pendingUserAccountDAO;
+    private PendingUserAccountDAO pendingUserAccountDAO;
 
     @Autowired
-    UserDAO userDAO;
+    private UserDAO userDAO;
 
     @Autowired
-    UserAccountDAO userAccountDAO;
-
-    @Autowired
-    UserPasswordDAO userPasswordDAO;
+    private UserAccountDAO userAccountDAO;
 
     @Override
     public List<Authority> findAllAuthorities() {
@@ -129,6 +126,7 @@ public class UserServiceImpl implements UserService {
         User retVal = null;
         User user = userDAO.findByPasswordRecoveryCode(recoveryCode);
 
+        // TODO: use UTC date here
         if (user != null && user.getPasswordRecoveryCodeCreatedTime().plusMinutes(30).isAfter(new DateTime())) {
             retVal = user;
         }
@@ -148,6 +146,7 @@ public class UserServiceImpl implements UserService {
         }
 
         user.setPasswordRecoveryCode(recoveryCode);
+        // TODO: use UTC date here
         user.setPasswordRecoveryCodeCreatedTime(new DateTime());
 
         userDAO.save(user);
@@ -243,7 +242,7 @@ public class UserServiceImpl implements UserService {
 
                 userAccountDAO.save(account);
             } catch (Exception e) {
-                throw new AccountException("failed to associate user to app account", e);
+                throw new AccountException("Failed to associate user " + user.getUsername() + " to app account " + appUsername + " on " + appName + "/" + appType, e);
             }
         }
 
@@ -358,11 +357,11 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public void deleteAccount(UserAccount account) {
-        log.info("Deleting user account " + account.getId());
+        log.info("Deleting user account " + account.toString());
 
         User accountUser = account.getUser();
         if (!accountUser.getAccounts().remove(account))
-            log.debug("Account not found on user to remove: " + account.getId());
+            log.debug("Account not found on user to remove: " + account.toString());
         userDAO.save(accountUser);
         userAccountDAO.delete(account);
     }
@@ -372,7 +371,7 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public void disableAccount(UserAccount account) {
-        log.info("disabling user account " + account.getId());
+        log.info("Disabling user account " + account.toString());
 
         account.setDisabled(true);
 
@@ -385,7 +384,7 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public void enableUserAccount(UserAccount account) {
-        log.info("re-enabling user account " + account.getId());
+        log.info("Re-enabling user account " + account.toString());
 
         account.setDisabled(false);
 
@@ -451,7 +450,12 @@ public class UserServiceImpl implements UserService {
         List<UserAccount> accounts = userAccountDAO.findByAppNameAndAppTypeAndAppUsernameAndUserNot(appName, appType, appUsername, user);
 
         if (accounts != null && !accounts.isEmpty()) {
-            throw new AccountException("Account " + appUsername + " on " + appName + "/" + appType + " is already linked to a different Infusionsoft ID", null);
+            List<String> usernames = new ArrayList<String>();
+            for (UserAccount account : accounts) {
+                usernames.add(account.getUser().getUsername());
+            }
+            log.error("Account " + appUsername + " on " + appName + "/" + appType + " could not be linked to " + user.getUsername() + " since it is already linked to a different Infusionsoft ID (" + StringUtils.join(usernames, ", ") + ")");
+            throw new AccountException(accounts);
         }
     }
 }

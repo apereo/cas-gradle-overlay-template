@@ -84,4 +84,17 @@ public class UserAccount implements Serializable {
     public void setDisabled(boolean disabled) {
         this.disabled = disabled;
     }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("ID: ").append(id).append(", ");
+        builder.append("user: ").append(user).append(", ");
+        builder.append("alias: ").append(alias).append(", ");
+        builder.append("appType: ").append(appType).append(", ");
+        builder.append("appName: ").append(appName).append(", ");
+        builder.append("appUsername: ").append(appUsername).append(", ");
+        builder.append("disabled: ").append(disabled);
+        return builder.toString();
+    }
 }

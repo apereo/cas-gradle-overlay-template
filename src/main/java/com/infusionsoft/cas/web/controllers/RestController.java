@@ -1,38 +1,36 @@
 package com.infusionsoft.cas.web.controllers;
 
+import com.infusionsoft.cas.api.domain.APIErrorDTO;
+import com.infusionsoft.cas.api.domain.AccountDTO;
+import com.infusionsoft.cas.api.domain.UserDTO;
 import com.infusionsoft.cas.auth.LoginResult;
 import com.infusionsoft.cas.dao.UserAccountDAO;
 import com.infusionsoft.cas.domain.AppType;
 import com.infusionsoft.cas.domain.PendingUserAccount;
 import com.infusionsoft.cas.domain.User;
 import com.infusionsoft.cas.domain.UserAccount;
+import com.infusionsoft.cas.exceptions.AccountException;
 import com.infusionsoft.cas.services.InfusionsoftAuthenticationService;
 import com.infusionsoft.cas.services.UserService;
-import com.infusionsoft.cas.support.JsonHelper;
-import org.apache.commons.lang3.EnumUtils;
+import com.infusionsoft.cas.support.AppHelper;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.math.NumberUtils;
-import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.json.simple.JSONObject;
+import org.springframework.beans.TypeMismatchException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
-import org.springframework.http.MediaType;
-import org.springframework.http.converter.json.MappingJacksonHttpMessageConverter;
-import org.springframework.http.server.ServletServerHttpResponse;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.support.HandlerMethodInvocationException;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -49,7 +47,7 @@ public class RestController {
     private InfusionsoftAuthenticationService infusionsoftAuthenticationService;
 
     @Autowired
-    private JsonHelper jsonHelper;
+    private AppHelper appHelper;
 
     @Autowired
     private UserAccountDAO userAccountDAO;
@@ -64,18 +62,16 @@ public class RestController {
     private String requiredApiKey;
 
     /**
-     * Registers a new user account mapped to an app account,
-     * and returns a simple JSON object.
+     * Registers a new user account mapped to an app account.
      */
+    @SuppressWarnings("unchecked")
     @RequestMapping
     @ResponseBody
-    public String linkAccount(String apiKey, Long casGlobalId, String appUsername, String appName, AppType appType, HttpServletRequest request, HttpServletResponse response) throws Exception {
+    public ResponseEntity linkAccount(String apiKey, long casGlobalId, String appUsername, String appName, AppType appType, Locale locale) {
         // Validate the API key
-        if (!requiredApiKey.equals(apiKey)) {
-            log.warn("Invalid API access: apiKey = " + apiKey);
-            response.sendError(401);
-
-            return null;
+        ResponseEntity apiKeyResponse = validateApiKey(apiKey, locale);
+        if (apiKeyResponse != null) {
+            return apiKeyResponse;
         }
 
         // Attempt the account linking
@@ -83,41 +79,35 @@ public class RestController {
         try {
             user = userService.loadUser(casGlobalId);
             userService.associateAccountToUser(user, appType, appName, appUsername);
+            return new ResponseEntity(new UserDTO(user, appHelper), HttpStatus.OK);
         } catch (Exception e) {
-            log.error("failed to create user account", e);
-            throw new Exception(messageSource.getMessage("registration.error.linkAccount", new Object[]{casGlobalId}, request.getLocale()));
+            String errorMessage = messageSource.getMessage("cas.exception.linkAccount.failure", new Object[]{casGlobalId, appUsername, appName, appType}, locale);
+            log.error(errorMessage, e);
+            if (e instanceof AccountException) {
+                AccountDTO[] duplicateAccountDTOs = AccountDTO.convertFromCollection(((AccountException) e).getDuplicateAccounts(), appHelper);
+                return new ResponseEntity(new APIErrorDTO<AccountDTO[]>("cas.exception.conflict.user.account", messageSource, locale, duplicateAccountDTOs), HttpStatus.CONFLICT);
+            } else {
+                return new ResponseEntity(new APIErrorDTO("cas.exception.linkAccount.failure", errorMessage), HttpStatus.INTERNAL_SERVER_ERROR);
+            }
         }
-
-        return jsonHelper.buildUserInfoJSON(user);
     }
 
     /**
-     * Finds and reassociates accounts that have been disassociated previously. This is for the case where the admin
+     * Finds and re-associates accounts that have been disassociated previously. This is for the case where the admin
      * of an Infusionsoft app deactivates and later reactivates one of their users.
      */
-    // TODO - consider making this return JSON responses similar to the other API calls
+    @SuppressWarnings("unchecked")
     @RequestMapping
-    public ModelAndView reassociateAccounts(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        String apiKey = request.getParameter("apiKey");
-        String appName = request.getParameter("appName");
-        AppType appType = EnumUtils.getEnum(AppType.class, StringUtils.upperCase(request.getParameter("appType")));
-        String appUsername = request.getParameter("appUsername");
-        String casGlobalIdString = request.getParameter("casGlobalId");
-
+    @ResponseBody
+    public ResponseEntity reassociateAccounts(String apiKey, String appName, AppType appType, String appUsername, long casGlobalId, Locale locale) {
         // Validate the API key
-        if (!requiredApiKey.equals(apiKey)) {
-            log.warn("Invalid API access: apiKey = " + apiKey);
-            response.sendError(401);
-
-            return null;
+        ResponseEntity apiKeyResponse = validateApiKey(apiKey, locale);
+        if (apiKeyResponse != null) {
+            return apiKeyResponse;
         }
 
-        // Parse the casGlobalId
-        long casGlobalId = NumberUtils.toLong(casGlobalIdString);
-
         try {
-
-            // Find any matching accounts by casGlobalId and reassociate them
+            // Find any matching accounts by casGlobalId and re-associate them
             List<UserAccount> accounts;
             if (casGlobalId > 0) {
                 accounts = userService.findDisabledUserAccounts(appName, appType, casGlobalId);
@@ -134,14 +124,10 @@ public class RestController {
                 userService.enableUserAccount(account);
             }
 
-            response.getWriter().append("OK");
+            return new ResponseEntity("OK", HttpStatus.OK);
         } catch (Exception e) {
-            log.error("failed to reassociate user accounts for " + appUsername + " on " + appName + "/" + appType);
-
-            response.sendError(500);
+            return logAndReturnError(e, "cas.exception.reassociateAccounts.failure", new Object[]{casGlobalId, appUsername, appName, appType}, locale);
         }
-
-        return null;
     }
 
     /**
@@ -150,28 +136,17 @@ public class RestController {
      * when an app instance is deleted; in this case, if the appUsername is not passed then it will unlink ALL
      * accounts for that app instance.
      */
-    // TODO - consider making this return JSON responses similar to the other API calls
+    @SuppressWarnings("unchecked")
     @RequestMapping
-    public ModelAndView disassociateAccounts(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        String apiKey = request.getParameter("apiKey");
-        String appName = request.getParameter("appName");
-        AppType appType = EnumUtils.getEnum(AppType.class, StringUtils.upperCase(request.getParameter("appType")));
-        String appUsername = request.getParameter("appUsername");
-        String casGlobalIdString = request.getParameter("casGlobalId");
-
+    @ResponseBody
+    public ResponseEntity disassociateAccounts(String apiKey, String appName, AppType appType, String appUsername, @RequestParam(defaultValue = "0") long casGlobalId, Locale locale) {
         // Validate the API key
-        if (!requiredApiKey.equals(apiKey)) {
-            log.warn("Invalid API access: apiKey = " + apiKey);
-            response.sendError(401);
-
-            return null;
+        ResponseEntity apiKeyResponse = validateApiKey(apiKey, locale);
+        if (apiKeyResponse != null) {
+            return apiKeyResponse;
         }
 
-        // Parse the casGlobalId
-        long casGlobalId = NumberUtils.toLong(casGlobalIdString);
-
         try {
-
             // Find any matching accounts by casGlobalId and disassociate them
             List<UserAccount> accounts;
             if (casGlobalId > 0) {
@@ -189,14 +164,10 @@ public class RestController {
                 userService.disableAccount(account);
             }
 
-            response.getWriter().append("OK");
+            return new ResponseEntity("OK", HttpStatus.OK);
         } catch (Exception e) {
-            log.error("failed to unlink user accounts mapped to local user " + appUsername + " on " + appName + "/" + appType);
-
-            response.sendError(500);
+            return logAndReturnError(e, "cas.exception.disassociateAccounts.failure", new Object[]{casGlobalId, appUsername, appName, appType}, locale);
         }
-
-        return null;
     }
 
     /**
@@ -205,12 +176,14 @@ public class RestController {
      * when an app instance is deleted; in this case, if the appUsername is not passed then it will unlink ALL
      * accounts for that app instance.
      */
-    // TODO - consider making this return JSON responses similar to the other API calls
+    @SuppressWarnings("unchecked")
     @RequestMapping
-    public ModelAndView unlinkUserFromApp(HttpServletResponse response, String apiKey, String appName, AppType appType, @RequestParam(required = false) String appUsername, long casGlobalId) throws IOException {
+    @ResponseBody
+    public ResponseEntity unlinkUserFromApp(String apiKey, String appName, AppType appType, @RequestParam(required = false) String appUsername, long casGlobalId, Locale locale) {
         // Validate the API key
-        if (!requiredApiKey.equals(apiKey)) {
-            return reportError(response, 401, Level.WARN, "Invalid API access: apiKey = " + apiKey);
+        ResponseEntity apiKeyResponse = validateApiKey(apiKey, locale);
+        if (apiKeyResponse != null) {
+            return apiKeyResponse;
         }
 
         try {
@@ -231,50 +204,31 @@ public class RestController {
                 userService.deleteAccount(account);
             }
 
-            response.getWriter().append("OK");
+            return new ResponseEntity("OK", HttpStatus.OK);
         } catch (Exception e) {
-            return reportError(response, 500, Level.ERROR, "Failed to delete user accounts mapped to local user " + appUsername + " on " + appName + "/" + appType);
+            return logAndReturnError(e, "cas.exception.unlinkUserFromApp.failure", new Object[]{casGlobalId, appUsername, appName, appType}, locale);
         }
-
-        return null;
-    }
-
-    private ModelAndView reportError(HttpServletResponse response, int statusCode, Level level, String errorMessage) throws IOException {
-        log.log(level, errorMessage);
-        response.sendError(statusCode);
-        return null;
     }
 
     /**
      * Changes the application username that is associated with a user
      */
-    // TODO - consider making this return JSON responses similar to the other API calls
+    @SuppressWarnings("unchecked")
     @RequestMapping
-    public ModelAndView changeAssociatedAppUsername(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        String apiKey = request.getParameter("apiKey");
-        String casGlobalIdString = request.getParameter("casGlobalId");
-        String appName = request.getParameter("appName");
-        AppType appType = EnumUtils.getEnum(AppType.class, StringUtils.upperCase(request.getParameter("appType")));
-        String newAppUsername = request.getParameter("newAppUsername");
-
-        // Parse the casGlobalId
-        long casGlobalId = NumberUtils.toLong(casGlobalIdString);
-
+    @ResponseBody
+    public ResponseEntity changeAssociatedAppUsername(String apiKey, long casGlobalId, String appName, AppType appType, String newAppUsername, Locale locale) {
         // Validate the API key
-        if (!requiredApiKey.equals(apiKey)) {
-            log.warn("Invalid API access: apiKey = " + apiKey);
-            response.sendError(401);
-        } else {
-            try {
-                userService.changeAssociatedAppUsername(userService.loadUser(casGlobalId), appName, appType, newAppUsername);
-                response.getWriter().append("OK");
-            } catch (Exception e) {
-                log.error("Failed to change application username to " + newAppUsername + "on " + appName + "/" + appType + " for CAS user " + casGlobalId, e);
-                response.sendError(500);
-            }
+        ResponseEntity apiKeyResponse = validateApiKey(apiKey, locale);
+        if (apiKeyResponse != null) {
+            return apiKeyResponse;
         }
 
-        return null;
+        try {
+            userService.changeAssociatedAppUsername(userService.loadUser(casGlobalId), appName, appType, newAppUsername);
+            return new ResponseEntity("OK", HttpStatus.OK);
+        } catch (Exception e) {
+            return logAndReturnError(e, "cas.exception.changeAssociatedAppUsername.failure", new Object[]{newAppUsername, appName, appType, casGlobalId}, locale);
+        }
     }
 
     /**
@@ -283,25 +237,17 @@ public class RestController {
      * When the user follows that link and registers, their account will automatically
      * be associated.
      */
+    @SuppressWarnings("unchecked")
     @RequestMapping
-    public ModelAndView scheduleNewUserRegistration(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        Map<String, Object> model = new HashMap<String, Object>();
-        String apiKey = request.getParameter("apiKey");
-        String appName = request.getParameter("appName");
-        AppType appType = EnumUtils.getEnum(AppType.class, StringUtils.upperCase(request.getParameter("appType")));
-        String appUsername = request.getParameter("appUsername");
-        String firstName = request.getParameter("firstName");
-        String lastName = request.getParameter("lastName");
-        String email = request.getParameter("email");
-
+    @ResponseBody
+    public ResponseEntity scheduleNewUserRegistration(String apiKey, String appName, AppType appType, String appUsername, String firstName, String lastName, String email, Locale locale) {
         // Validate the API key
-        if (!requiredApiKey.equals(apiKey)) {
-            log.warn("Invalid API access: apiKey = " + apiKey);
-            response.sendError(401);
-
-            return null;
+        ResponseEntity apiKeyResponse = validateApiKey(apiKey, locale);
+        if (apiKeyResponse != null) {
+            return apiKeyResponse;
         }
 
+        Map<String, String> model = new HashMap<String, String>();
         // Create the pending registration and return the code
         try {
             PendingUserAccount account = userService.createPendingUserAccount(appType, appName, appUsername, firstName, lastName, email, false);
@@ -310,18 +256,14 @@ public class RestController {
 
             model.put("status", "ok");
             model.put("registrationCode", account.getRegistrationCode());
+            return new ResponseEntity(model, HttpStatus.OK);
         } catch (Exception e) {
             log.error("failed to schedule new user registration", e);
 
             model.put("status", "error");
+            return new ResponseEntity(model, HttpStatus.INTERNAL_SERVER_ERROR);
+            //TODO: use typed returns for this method; I didn't want to change this since CAM still uses it
         }
-
-        MappingJacksonHttpMessageConverter jsonConverter = new MappingJacksonHttpMessageConverter();
-        MediaType jsonMimeType = MediaType.APPLICATION_JSON;
-
-        jsonConverter.write(model, jsonMimeType, new ServletServerHttpResponse(response));
-
-        return null;
     }
 
     /**
@@ -331,12 +273,10 @@ public class RestController {
      * <p/>
      * NOTE: this call does *not* use an API key, because the password is the authentication
      */
-    @RequestMapping(value = "/authenticateUser", method = RequestMethod.POST)
-    public ModelAndView authenticateUser(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        String username = request.getParameter("username");
-        String password = request.getParameter("password");
-        String md5password = request.getParameter("md5password");
-
+    @SuppressWarnings("unchecked")
+    @RequestMapping(value = "authenticateUser", method = RequestMethod.POST)
+    @ResponseBody
+    public ResponseEntity authenticateUser(String username, String password, String md5password, Locale locale) throws IOException {
         String error = null;
         LoginResult loginResult = null;
 
@@ -382,78 +322,102 @@ public class RestController {
             }
 
             if (error == null) {
-                response.setStatus(200);
-                response.setContentType("application/json");
-                response.getWriter().write(jsonHelper.buildUserInfoJSON(loginResult.getUser()));
+                return new ResponseEntity(new UserDTO(loginResult.getUser(), appHelper), HttpStatus.OK);
             } else {
-                response.setStatus(401);
-                response.setContentType("application/json");
-                response.getWriter().write(jsonHelper.buildErrorJson(error));
+                return new ResponseEntity(new APIErrorDTO(error, messageSource, locale), HttpStatus.UNAUTHORIZED);
             }
         } catch (Exception e) {
-            log.error("failed to create JSON response", e);
-            response.sendError(500);
+            return logAndReturnError(e, "cas.exception.authenticateUser.failure", new Object[]{username}, locale);
         }
-
-        return null;
     }
 
     /**
      * Called from trusted clients to get info about a CAS user profile. This can be obtained either by the username
      * (the Infusionsoft ID of the user they are searching for), by the CAS global ID, or by a combination of local
      * appName, appType, and appUsername.  Only returns enabled accounts.
+     * <br/>
+     * NOTE: One of these is required:  username OR casGlobalId OR (appName/appType/appUsername)
      */
+    @SuppressWarnings("unchecked")
     @RequestMapping
-    public ModelAndView getUserInfo(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        String apiKey = request.getParameter("apiKey");
-        // One of:
-        String username = request.getParameter("username");
-        // OR
-        String casGlobalIdString = request.getParameter("casGlobalId");
-        // OR
-        String appName = request.getParameter("appName");
-        AppType appType = EnumUtils.getEnum(AppType.class, StringUtils.upperCase(request.getParameter("appType")));
-        String appUsername = request.getParameter("appUsername");
+    @ResponseBody
+    public ResponseEntity getUserInfo(String apiKey, @RequestParam(defaultValue = "") String username, @RequestParam(defaultValue = "0") long casGlobalId, @RequestParam(defaultValue = "") String appName, @RequestParam(defaultValue = "") AppType appType, @RequestParam(defaultValue = "") String appUsername, Locale locale) {
+        // Validate the API key
+        ResponseEntity apiKeyResponse = validateApiKey(apiKey, locale);
+        if (apiKeyResponse != null) {
+            return apiKeyResponse;
+        }
 
+        try {
+            // Lookup the user
+            User user = null;
+            if (casGlobalId > 0) {
+                user = userService.loadUser(casGlobalId);
+                if (user != null && !user.isEnabled())
+                    user = null;
+            } else if (StringUtils.isNotEmpty(username)) {
+                user = userService.findEnabledUser(username);
+            } else {
+                List<UserAccount> accounts = userAccountDAO.findByAppNameAndAppTypeAndAppUsernameAndDisabled(appName, appType, appUsername, false);
+
+                // Return the first match, even if multiple users are mapped to the account
+                if (accounts.size() > 0) {
+                    user = accounts.get(0).getUser();
+                } else {
+                    log.info("could not find an active user account for " + appUsername + " on " + appName + "/" + appType);
+                }
+            }
+
+            if (user != null) {
+                return new ResponseEntity(new UserDTO(user, appHelper), HttpStatus.OK);
+            } else {
+                return new ResponseEntity(new JSONObject(), HttpStatus.OK);
+            }
+        } catch (Exception e) {
+            return logAndReturnError(e, "cas.exception.getUserInfo.failure", new Object[]{username, casGlobalId, appName, appType, appUsername}, locale);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private ResponseEntity validateApiKey(String apiKey, Locale locale) {
         // Validate the API key
         if (!requiredApiKey.equals(apiKey)) {
             log.warn("Invalid API access: apiKey = " + apiKey);
-            response.sendError(401);
-
-            return null;
+            return new ResponseEntity(new APIErrorDTO("cas.exception.invalid.apikey", messageSource, locale), HttpStatus.UNAUTHORIZED);
         }
-
-        // Parse the casGlobalId
-        long casGlobalId = NumberUtils.toLong(casGlobalIdString);
-
-        // Lookup the user
-        User user = null;
-        if (casGlobalId > 0) {
-            user = userService.loadUser(casGlobalId);
-            if (user != null && !user.isEnabled())
-                user = null;
-        } else if (StringUtils.isNotEmpty(username)) {
-            user = userService.findEnabledUser(username);
-        } else {
-            List<UserAccount> accounts = userAccountDAO.findByAppNameAndAppTypeAndAppUsernameAndDisabled(appName, appType, appUsername, false);
-
-            // Return the first match, even if multiple users are mapped to the account
-            if (accounts.size() > 0) {
-                user = accounts.get(0).getUser();
-            } else {
-                log.info("could not find an active user account for " + appUsername + " on " + appName + "/" + appType);
-            }
-        }
-
-        if (user != null) {
-            response.setContentType("application/json");
-            response.getWriter().println(jsonHelper.buildUserInfoJSON(user));
-        } else {
-            response.setContentType("application/json");
-            response.getWriter().println(new JSONObject().toJSONString());
-        }
-
         return null;
+    }
+
+    @SuppressWarnings("unchecked")
+    private ResponseEntity logAndReturnError(Exception e, String code, Object[] args, Locale locale) {
+        if (args == null) {
+            args = new Object[0];
+        }
+        String errorMessage = messageSource.getMessage(code, args, locale);
+        if (e == null) {
+            log.error(errorMessage);
+        } else {
+            log.error(errorMessage, e);
+        }
+        return new ResponseEntity(new APIErrorDTO(code, errorMessage), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler(Throwable.class)
+    @ResponseBody
+    public APIErrorDTO exceptionHandler(org.springframework.security.web.firewall.FirewalledRequest request, HttpServletResponse response, Locale locale, Throwable ex) {
+        if (ex instanceof HandlerMethodInvocationException) {
+            log.warn("Exception in " + request.getPathInfo(), ex);
+            response.setStatus(HttpStatus.BAD_REQUEST.value());
+            return new APIErrorDTO("cas.exception.invalid.call", messageSource, new Object[]{ex.getCause().getMessage()}, locale);
+        } else if (ex instanceof TypeMismatchException) {
+            log.warn("Exception in " + request.getPathInfo(), ex);
+            response.setStatus(HttpStatus.BAD_REQUEST.value());
+            return new APIErrorDTO("cas.exception.invalid.call", messageSource, new Object[]{ex.getMessage()}, locale);
+        } else {
+            log.error("Exception in " + request.getPathInfo(), ex);
+            response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
+            return new APIErrorDTO("cas.exception.general", messageSource, new Object[]{ex.getMessage()}, locale);
+        }
     }
 
 }

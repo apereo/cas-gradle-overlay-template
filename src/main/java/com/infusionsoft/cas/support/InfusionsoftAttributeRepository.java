@@ -1,8 +1,10 @@
 package com.infusionsoft.cas.support;
 
+import com.infusionsoft.cas.api.domain.UserAccountDTO;
 import com.infusionsoft.cas.domain.User;
 import com.infusionsoft.cas.domain.UserAccount;
 import com.infusionsoft.cas.services.UserService;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.jasig.services.persondir.IPersonAttributes;
 import org.jasig.services.persondir.support.AbstractFlatteningPersonAttributeDao;
 import org.jasig.services.persondir.support.AttributeNamedPersonImpl;
@@ -11,6 +13,8 @@ import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.*;
 
 /**
@@ -24,7 +28,7 @@ public class InfusionsoftAttributeRepository extends AbstractFlatteningPersonAtt
     UserService userService;
 
     @Autowired
-    JsonHelper jsonHelper;
+    public AppHelper appHelper;
 
     private IPersonAttributes backingPerson = null;
 
@@ -50,12 +54,6 @@ public class InfusionsoftAttributeRepository extends AbstractFlatteningPersonAtt
         User user = userService.loadUser(uid);
         Map<String, List<Object>> resultsMap = new HashMap<String, List<Object>>();
 
-        /****************************************************************************************************
-         * * * WARNING * * *
-         * If the format/content of this map ever changes in a way that affects parsing on the receiving end,
-         * the TICKETGRANTINGTICKET table needs to be completely cleared, since the old tickets stored there
-         * will still have the old format
-         ****************************************************************************************************/
         if (user != null) {
             resultsMap.put("id", Arrays.asList(new Object[]{String.valueOf(user.getId())}));
             resultsMap.put("displayName", Arrays.asList(new Object[]{user.getFirstName() + " " + user.getLastName()}));
@@ -65,9 +63,7 @@ public class InfusionsoftAttributeRepository extends AbstractFlatteningPersonAtt
 
             // We use a query instead of user.getAccounts() so that we only include enabled accounts
             List<UserAccount> accounts = userService.findByUserAndDisabled(user, false);
-            JSONArray accountsArray = jsonHelper.buildUserAccountsJSON(accounts);
-            // Get rid of the JSON-optional escaped slashes because Ruby's Psych parser chokes on them
-            resultsMap.put("accounts", Arrays.asList(new Object[]{accountsArray.toJSONString().replaceAll("\\\\/", "/")}));
+            resultsMap.put("accounts", Arrays.asList(new Object[]{getAccountsJSON(accounts)}));
 
             resultsMap.put("authorities", new ArrayList<Object>(user.getAuthorities()));
         } else {
@@ -76,6 +72,24 @@ public class InfusionsoftAttributeRepository extends AbstractFlatteningPersonAtt
 
         this.backingPerson = new AttributeNamedPersonImpl(resultsMap);
         return this.backingPerson;
+    }
+
+    /****************************************************************************************************
+     * * * WARNING * * *
+     * If the format/content of this JSON ever changes in a way that affects parsing on the receiving end,
+     * the TICKETGRANTINGTICKET table needs to be completely cleared, since the old tickets stored there
+     * will still have the old format
+     ****************************************************************************************************/
+    private String getAccountsJSON(List<UserAccount> accounts) {
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            UserAccountDTO[] userAccounts = UserAccountDTO.convertFromCollection(accounts, appHelper);
+            objectMapper.writeValue(outputStream, userAccounts);
+        } catch (IOException e) {
+            logger.error("Error while serializing accounts to JSON", e);
+        }
+        return outputStream.toString();
     }
 
     public Set<IPersonAttributes> getPeopleWithMultivaluedAttributes(Map<String, List<Object>> query) {
