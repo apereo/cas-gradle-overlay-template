@@ -7,24 +7,25 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 
 /**
- * User: joe.koberstein
- * Date: 6/14/13 * Time: 3:05 PM
+ * Service for dealing with Service Tickets
  */
-@Service("serviceTicketService")
-public class ServiceTicketServiceImpl implements ServiceTicketService{
+@Service
+@Transactional
+public class ServiceTicketServiceImpl implements ServiceTicketService {
     private static final Logger log = Logger.getLogger(ServiceTicketServiceImpl.class);
 
     @PersistenceContext
     private javax.persistence.EntityManager entityManager;
 
-    @Transactional
-    public void deleteOrphanedServiceTicketRecords(){
+    public int deleteOrphanedServiceTicketRecords(){
+        int deletedCount = 0;
         try{
             Query query = entityManager.createNativeQuery("delete from SERVICETICKET where ticketGrantingTicket_ID NOT IN (select ID from TICKETGRANTINGTICKET)");
-            int numberDeleted = query.executeUpdate();
-            log.info("ServiceTicketService deleted " + numberDeleted + " orphaned service tickets");
+            deletedCount = query.executeUpdate();
+            log.info("ServiceTicketService deleted " + deletedCount + " orphaned service tickets");
         } catch(Exception e) {
             log.error("Error cleaning orphaned service tickets: " + e.getMessage(), e);
         }
+        return deletedCount;
     }
 }
