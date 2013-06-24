@@ -7,6 +7,9 @@ import com.infusionsoft.cas.domain.UserAccount;
 import com.infusionsoft.cas.exceptions.AccountException;
 import com.infusionsoft.cas.services.*;
 import com.infusionsoft.cas.support.AppHelper;
+import com.infusionsoft.cas.web.ValidationUtils;
+import org.apache.commons.lang3.CharEncoding;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.validator.EmailValidator;
 import org.apache.log4j.Logger;
@@ -25,6 +28,7 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -88,18 +92,18 @@ public class RegistrationController {
             return new ModelAndView("redirect://j_spring_security_logout?service=" + URLEncoder.encode(service, "UTF-8"));
         } else {
             User user = new User();
-            user.setFirstName(firstName);
-            user.setLastName(lastName);
-            user.setUsername(email);
+            user.setFirstName(StringEscapeUtils.escapeHtml4(firstName));
+            user.setLastName(StringEscapeUtils.escapeHtml4(lastName));
+            user.setUsername(StringEscapeUtils.escapeHtml4(email));
 
             // If there's a registration code, pre-populate from that
             if (StringUtils.isNotEmpty(registrationCode)) {
                 PendingUserAccount pending = userService.findPendingUserAccount(registrationCode);
 
                 if (pending != null) {
-                    user.setFirstName(pending.getFirstName());
-                    user.setLastName(pending.getLastName());
-                    user.setUsername(pending.getEmail());
+                    user.setFirstName(StringEscapeUtils.escapeHtml4(pending.getFirstName()));
+                    user.setLastName(StringEscapeUtils.escapeHtml4(pending.getLastName()));
+                    user.setUsername(StringEscapeUtils.escapeHtml4(pending.getEmail()));
                 }
             }
 
@@ -117,7 +121,7 @@ public class RegistrationController {
      * Either connects a pending CAS account with a real CAS account, or redirects a user to the app to finish linking an account.
      */
     @RequestMapping
-    public String linkToExisting(Model model, String registrationCode, String returnUrl, String userToken, HttpServletRequest request, HttpServletResponse response) throws AccountException {
+    public String linkToExisting(Model model, String registrationCode, String returnUrl, String userToken, HttpServletRequest request, HttpServletResponse response) throws AccountException, UnsupportedEncodingException {
         String retVal;
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
@@ -135,7 +139,9 @@ public class RegistrationController {
             }
         } else if (StringUtils.isNotBlank(returnUrl) && StringUtils.isNotBlank(userToken)) {
             // Redirect back to the app, which will do the linkage
-            return "redirect:" + returnUrl + "?userToken=" + userToken + "&casGlobalId=" + user.getId();
+            // TODO: we need to sanitize / validate the returnUrl!
+            // TODO: is this suffficient for userToken?
+            return "redirect:" + returnUrl + "?userToken=" + URLEncoder.encode(userToken, CharEncoding.UTF_8) + "&casGlobalId=" + user.getId();
         } else {
             return "redirect:/app/central/home";
         }
@@ -152,8 +158,8 @@ public class RegistrationController {
         User user = new User();
 
         try {
-            user.setFirstName(firstName);
-            user.setLastName(lastName);
+            user.setFirstName(ValidationUtils.sanitizePersonName(firstName));
+            user.setLastName(ValidationUtils.sanitizePersonName(lastName));
             user.setUsername(username);
             user.setEnabled(true);
             user.setPassword(password1);

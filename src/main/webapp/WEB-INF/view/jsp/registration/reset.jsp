@@ -99,7 +99,7 @@
             </div>
         </fieldset>
 
-        <input name="recoveryCode" type="hidden" value="${recoveryCode}"/>
+        <input name="recoveryCode" type="hidden" value="${fn:escapeXml(recoveryCode)}"/>
 
         <div class="control-group" style="text-align: right">
             <input class="btn btn-primary" name="submit" accesskey="l" value="Change Password" tabindex="4" type="submit" />

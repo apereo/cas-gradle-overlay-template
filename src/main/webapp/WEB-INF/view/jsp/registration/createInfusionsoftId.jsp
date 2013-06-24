@@ -7,9 +7,9 @@
 
 <%-- These form elements are used for both linkExisting and register --%>
 <c:set var="commonFormElements">
-    <input type="hidden" name="registrationCode" value="${registrationCode}"/>
-    <input type="hidden" name="returnUrl" value="${returnUrl}"/>
-    <input type="hidden" name="userToken" value="${userToken}"/>
+    <input type="hidden" name="registrationCode" value="${fn:escapeXml(registrationCode)}"/>
+    <input type="hidden" name="returnUrl" value="${fn:escapeXml(returnUrl)}"/>
+    <input type="hidden" name="userToken" value="${fn:escapeXml(userToken)}"/>
 </c:set>
 <!DOCTYPE html>
 <html lang="en">
@@ -158,7 +158,7 @@
         <div id="links-above-lanyard" >
             <div id="already-have-id">
                 <a href="#" class="linkToExisting"><spring:message code='registration.signin'/></a>
-                <form:form id="linkToExistingForm" action="linkToExisting" method="post" modelAttribute="user">
+                <form:form id="linkToExistingForm" action="linkToExisting" method="post">
                     ${commonFormElements}
                 </form:form>
             </div>
@@ -178,7 +178,7 @@
                 <div id="cardBottom">
                     <form:form id="registerForm" action="register" method="post" class="form-vertical" modelAttribute="user">
                         ${commonFormElements}
-                        <input type="hidden" name="skipUrl" value="${skipUrl}"/>
+                        <input type="hidden" name="skipUrl" value="${fn:escapeXml(skipUrl)}"/>
 
                         <c:if test="${error != null}">
                             <div class="alert alert-error">
@@ -258,7 +258,7 @@
                             </div>
                             <c:if test="${!empty skipUrl}">
                                 <div class="text-center skipLink">
-                                    <a href="${skipUrl}">Skip for Now </a>
+                                    <a href="${fn:escapeXml(skipUrl)}">Skip for Now </a>
                                 </div>
                             </c:if>
                         </fieldset>

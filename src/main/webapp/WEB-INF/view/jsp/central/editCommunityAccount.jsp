@@ -20,7 +20,7 @@
 
 </style>
 
-<c:url var="centralUrl" value="/central/home"/>
+<c:url var="centralUrl" value="/app/central/home"/>
 
 <h2 class="apps">
     Edit Your Community Profile
@@ -33,7 +33,7 @@
 </c:if>
 
 <form id="editForm" action="updateCommunityAccount" method="post" class="form-horizontal">
-    <input name="id" type="hidden" value="${account.getId()}"/>
+    <input name="id" type="hidden" value="${account.id}"/>
 
     <h2>Required Information</h2>
     <fieldset>

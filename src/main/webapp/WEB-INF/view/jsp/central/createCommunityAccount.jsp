@@ -8,9 +8,9 @@
 
 <meta name="decorator" content="modal"/>
 
-<c:url var="centralUrl" value="/central/home"/>
-<c:url var="associateUrl" value="/central/associate"/>
-<c:url var="linkCommunityAccountUrl" value="/central/linkCommunityAccount"/>
+<c:url var="centralUrl" value="/app/central/home"/>
+<c:url var="associateUrl" value="/app/central/associate"/>
+<c:url var="linkCommunityAccountUrl" value="/app/central/linkCommunityAccount"/>
 
 <style type="text/css">
 
@@ -139,8 +139,7 @@
                 <p>
                     Registration to this forum is free! We do insist that you abide by the rules and policies detailed
                     below. If you agree to the terms, please check the 'I agree' checkbox and press the 'Complete Registration' button below.
-                    If you would like to cancel the registration, click <a href="forum.php">here</a>
-                    to return to the forums index.
+                    If you would like to cancel the registration, please <a href="${centralUrl}">return to Account Central</a>.
                 </p>
 
                 <p>
@@ -187,7 +186,7 @@
 
         <div class="buttonbar" style="text-align: right">
             <input type="submit" value="Create Profile" class="btn btn-primary"/>
-            <a href="${centralUrl}" class="btn">Back</a>
+            <a href="${centralUrl}" class="btn">Cancel</a>
         </div>
     </form>
 </div>

@@ -67,7 +67,7 @@
 
     <c:if test="${empty error}">
         <div class="alert alert-info" style="margin: -20px -20px 20px -20px">
-            We have emailed a recovery code to ${username}. Copy and paste the recovery code into the field below and
+            We have emailed a recovery code to ${fn:escapeXml(username)}. Copy and paste the recovery code into the field below and
             click "Next".
         </div>
     </c:if>

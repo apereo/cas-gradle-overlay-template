@@ -4,7 +4,6 @@ import com.infusionsoft.cas.domain.AppType;
 import com.infusionsoft.cas.services.CommunityService;
 import com.infusionsoft.cas.services.CrmService;
 import com.infusionsoft.cas.services.CustomerHubService;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

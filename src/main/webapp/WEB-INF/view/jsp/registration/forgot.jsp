@@ -74,7 +74,7 @@
         <div class="control-group">
             <label for="username" class="control-label">Please <c:if test="${empty username}">enter</c:if><c:if test="${!empty username}">verify</c:if> your email address</label>
             <div class="controls">
-                <input type="text" class="required" id="username" name="username" size="25" tabindex="1" style="width: 266px" value="${username}" />
+                <input type="text" class="required" id="username" name="username" size="25" tabindex="1" style="width: 266px" value="${fn:escapeXml(username)}" />
             </div>
         </div>
 

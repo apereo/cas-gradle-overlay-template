@@ -18,9 +18,9 @@
     Connect a Community Profile
 </h2>
 
-<c:if test="${error != null}">
+<c:if test="${connectError != null}">
     <div class="alert alert-error" style="margin-top: 10px">
-        <spring:message code="${error}"/>
+        <spring:message code="${connectError}"/>
     </div>
 </c:if>
 

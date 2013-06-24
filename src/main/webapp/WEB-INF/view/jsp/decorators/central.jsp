@@ -61,7 +61,7 @@
                     <c:set var="searchLabel">
                         <spring:message code="search.infusionsoft.id.label"/>
                     </c:set>
-                    <input type="text" class="search-query" name="searchUsername" placeholder="${searchLabel}" value="${searchUsername}"/>
+                    <input type="text" class="search-query" name="searchUsername" placeholder="${searchLabel}" value="${fn:escapeXml(searchUsername)}"/>
                 </form>
             </sec:authorize>
         </ul>
@@ -71,13 +71,13 @@
     <div id="content">
         <div id="main">
             <c:if test="${not empty error}">
-                <div class="alert alert-error"><spring:message code="${error}" text="${error}"/></div>
+                <div class="alert alert-error"><spring:message code="${error}" text="${error}" htmlEscape="true" javaScriptEscape="true"/></div>
             </c:if>
             <c:if test="${not empty success}">
-                <div class="alert alert-success"><spring:message code="${success}" text="${success}"/></div>
+                <div class="alert alert-success"><spring:message code="${success}" text="${success}" htmlEscape="true" javaScriptEscape="true"/></div>
             </c:if>
             <c:if test="${not empty info}">
-                <div class="alert alert-info"><spring:message code="${info}" text="${info}"/></div>
+                <div class="alert alert-info"><spring:message code="${info}" text="${info}" htmlEscape="true" javaScriptEscape="true"/></div>
             </c:if>
             <decorator:body/>
         </div>

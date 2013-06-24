@@ -45,7 +45,6 @@
         <div class="name">${user.firstName} ${user.lastName}</div>
         <div class="info">
             ${user.username}<br/>
-            password: ***********
         </div>
         <div style="clear: both"></div>
     </div>

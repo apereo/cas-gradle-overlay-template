@@ -175,36 +175,39 @@ public class CentralController {
         model.put("infusionsoftExperienceLevels", new int[]{1, 2, 3, 4, 5});
         model.put("details", details);
 
-        details.setDisplayName(displayName);
-        details.setInfusionsoftExperience(infusionsoftExperience);
-        details.setTimeZone(timeZone);
-        details.setNotificationEmailAddress(notificationEmailAddress);
-        details.setTwitterHandle(twitterHandle);
+        // Only process this section if at least one thing is filled out
+        if (agreeToRules != null || displayName != null || infusionsoftExperience != null || timeZone != null || notificationEmailAddress != null || twitterHandle != null) {
+            details.setDisplayName(displayName);
+            details.setInfusionsoftExperience(infusionsoftExperience);
+            details.setTimeZone(timeZone);
+            details.setNotificationEmailAddress(notificationEmailAddress);
+            details.setTwitterHandle(twitterHandle);
 
-        if (StringUtils.isEmpty(details.getDisplayName()) || details.getDisplayName().length() < 4 || details.getDisplayName().length() > 30) {
-            model.put("error", "community.error.displayNameInvalid");
-        } else if (StringUtils.isEmpty(details.getNotificationEmailAddress()) || !EmailValidator.getInstance().isValid(details.getNotificationEmailAddress())) {
-            model.put("error", "community.error.notificationEmailAddressInvalid");
-        } else if (!agreeToRules) {
-            model.put("error", "community.error.agreeToRules");
-        }
+            if (StringUtils.isEmpty(details.getDisplayName()) || details.getDisplayName().length() < 4 || details.getDisplayName().length() > 30) {
+                model.put("error", "community.error.displayNameInvalid");
+            } else if (StringUtils.isEmpty(details.getNotificationEmailAddress()) || !EmailValidator.getInstance().isValid(details.getNotificationEmailAddress())) {
+                model.put("error", "community.error.notificationEmailAddressInvalid");
+            } else if (!agreeToRules) {
+                model.put("error", "community.error.agreeToRules");
+            }
 
-        if (!model.containsKey("error")) {
-            log.info("attempting to register a forum account for user " + user.getId());
+            if (!model.containsKey("error")) {
+                log.info("attempting to register a forum account for user " + user.getId());
 
-            try {
-                communityService.registerCommunityUserAccount(user, details);
-                autoLoginService.autoLogin(user.getUsername(), request, response);
+                try {
+                    communityService.registerCommunityUserAccount(user, details);
+                    autoLoginService.autoLogin(user.getUsername(), request, response);
 
-                return new ModelAndView("redirect:home");
-            } catch (UsernameTakenException e) {
-                log.error("failed to register community account for user " + user.getId(), e);
+                    return new ModelAndView("redirect:home");
+                } catch (UsernameTakenException e) {
+                    log.error("failed to register community account for user " + user.getId(), e);
 
-                model.put("error", "community.error.displayNameTaken");
-            } catch (Exception e) {
-                log.error("unexpected error while registering community account for user " + user.getId(), e);
+                    model.put("error", "community.error.displayNameTaken");
+                } catch (Exception e) {
+                    log.error("unexpected error while registering community account for user " + user.getId(), e);
 
-                model.put("error", "community.error.unknown");
+                    model.put("error", "community.error.unknown");
+                }
             }
         }
 
@@ -239,8 +242,6 @@ public class CentralController {
                     } else {
                         model.put("connectError", "registration.error.invalidLegacyCredentials");
                     }
-                } else if (AppType.CRM.equals(appType) && !crmService.isCasEnabled(sanitizedAppName)) {
-                    model.put("connectError", "registration.error.ssoIsNotEnabled");
                 } else if (AppType.CRM.equals(appType) || AppType.CUSTOMERHUB.equals(appType)) {
                     try {
                         try {
@@ -264,12 +265,14 @@ public class CentralController {
         }
 
         if (model.containsKey("connectError")) {
+            model.put("appType", appType);
+            model.put("appName", sanitizedAppName);
+            model.put("appUsername", appUsername);
             if (AppType.CRM.equals(appType)) {
                 String appUrl = appHelper.buildAppUrl(appType, sanitizedAppName);
                 model.put("crmDomain", crmDomain);
                 model.put("appDomain", new URL(appUrl).getHost());
                 model.put("appUrl", appUrl);
-                model.put("appType", appType);
                 return new ModelAndView("central/linkInfusionsoftAppAccount", model);
             } else if (AppType.CUSTOMERHUB.equals(appType)) {
                 model.put("customerHubDomain", customerHubDomain);

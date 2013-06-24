@@ -4,6 +4,7 @@ import com.infusionsoft.cas.domain.User;
 import com.infusionsoft.cas.services.AutoLoginService;
 import com.infusionsoft.cas.services.PasswordService;
 import com.infusionsoft.cas.services.UserService;
+import com.infusionsoft.cas.web.ValidationUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +15,6 @@ import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -79,8 +79,8 @@ public class ProfileController {
             if (model.containsKey("error")) {
                 log.info("couldn't update user account for user " + user.getId() + ": " + model.get("error"));
             } else {
-                user.setFirstName(firstName);
-                user.setLastName(lastName);
+                user.setFirstName(ValidationUtils.sanitizePersonName(firstName));
+                user.setLastName(ValidationUtils.sanitizePersonName(lastName));
                 userService.updateUser(user);
             }
         } catch (Exception e) {
@@ -110,7 +110,7 @@ public class ProfileController {
             model.addAttribute("user", user);
             model.addAttribute("changeProfileLinkSelected", "selected");
 
-            model.addAttribute("error", error);
+            model.addAttribute("error", ValidationUtils.sanitizeMessageCode(error));
 
             return "profile/changePassword";
         } catch (Exception e) {

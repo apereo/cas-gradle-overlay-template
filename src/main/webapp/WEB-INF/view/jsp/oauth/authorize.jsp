@@ -79,10 +79,10 @@
                 </p>
 
                 <form style="text-align:center; margin:30px 0 ;" action="processAuthorization" method="post">
-                    <input type="hidden" name="client_id" value="${client_id}">
-                    <input type="hidden" name="redirect_uri" value="${redirect_uri}">
-                    <input type="hidden" name="response_type" value="${response_type}">
-                    <input type="hidden" name="requestedScope" value="${requestedScope}">
+                    <input type="hidden" name="client_id" value="${fn:escapeXml(client_id)}">
+                    <input type="hidden" name="redirect_uri" value="${fn:escapeXml(redirect_uri)}">
+                    <input type="hidden" name="response_type" value="${fn:escapeXml(response_type)}">
+                    <input type="hidden" name="requestedScope" value="${fn:escapeXml(requestedScope)}">
                     <c:choose>
                         <c:when test="${fn:length(apps) > 1}">
                             <p>

@@ -36,4 +36,16 @@ public class ValidationUtils {
             return messageCode.replaceAll("[^\\w\\.]", "");
         }
     }
+
+    /**
+     * Make sure the user's name consists only of allowed characters.
+     */
+    public static String sanitizePersonName(String appName) {
+        if (appName == null) {
+            return null;
+        } else {
+            return appName.replaceAll("[^\\w\\s\\d \\-]", "");
+        }
+    }
+
 }
