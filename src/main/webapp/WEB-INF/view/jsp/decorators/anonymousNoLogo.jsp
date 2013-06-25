@@ -24,6 +24,15 @@
         <script type="text/javascript" src="<c:url value="/js/jquery.validate.min.js"/>"></script>
         <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700,800" type="text/css">
         <decorator:head/>
+        <style type="text/css">
+            html, body {
+                margin: 0;
+                padding: 0;
+                border: 0;
+                background: #FFFFFF;
+                color: #444;
+            }
+        </style>
     </head>
     <body>
         <div class="wrapper">

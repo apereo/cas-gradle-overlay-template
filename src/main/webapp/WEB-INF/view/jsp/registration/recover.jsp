@@ -7,23 +7,21 @@
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 
-<meta name="decorator" content="anonymous"/>
+<meta name="decorator" content="green-header-minimal"/>
 
 <style type="text/css">
 
     #recover {
-        color: #000;
-        background: #fff;
-        width: 280px;
+        width: 299px;
         margin: 10px auto;
-        border: 1px solid #DDDDDD;
-        border-radius: 4px;
-        padding: 30px;
     }
 
     #back-to-signin {
-        width: 336px;
+        text-align: center;
         margin: 5px auto;
+    }
+    input[type="text"], input[type="password"] {
+        padding: 6px 6px;
     }
 
 </style>
@@ -58,32 +56,38 @@
 
 </script>
 
+<div id="top-spacer" style="height: 101px;"></div>
 <div id="recover">
-    <c:if test="${not empty error}">
-        <div class="alert alert-error" style="margin: -20px -20px 20px -20px">
-            <spring:message code="${error}"/>
-        </div>
-    </c:if>
-
-    <c:if test="${empty error}">
-        <div class="alert alert-info" style="margin: -20px -20px 20px -20px">
-            We have emailed a recovery code to ${fn:escapeXml(username)}. Copy and paste the recovery code into the field below and
-            click "Next".
-        </div>
-    </c:if>
-
-    <form action="recover" method="post" id="fm1" class="form-vertical">
-        <div class="control-group">
-            <label for="recoveryCode" class="control-label">Recovery Code</label>
-            <div class="controls">
-                <input type="text" class="required" id="recoveryCode" name="recoveryCode" size="25" tabindex="1" style="width: 266px" />
+    <div class="top-blue">
+        Enter Recovery Code
+    </div>
+    <div class="bottom-brown">
+        <c:if test="${not empty error}">
+            <div class="alert alert-error">
+                <spring:message code="${error}"/>
             </div>
-        </div>
+        </c:if>
 
-        <div class="control-group" style="text-align: right">
-            <input class="btn btn-primary" name="submit" accesskey="l" value="Next" tabindex="4" type="submit" />
-        </div>
-    </form>
+        <c:if test="${empty error}">
+            <div class="alert alert-info">
+                We have emailed a recovery code to ${fn:escapeXml(username)}. Copy and paste the recovery code into the field below and
+                click "Next".
+            </div>
+        </c:if>
+
+        <form action="recover" method="post" id="fm1" class="form-vertical">
+            <div class="control-group">
+                <label for="recoveryCode" class="control-label">Recovery Code</label>
+                <div class="controls">
+                    <input type="text" class="required" id="recoveryCode" name="recoveryCode" size="25" tabindex="1" style="width: 233px" />
+                </div>
+            </div>
+
+            <div class="control-group" style="text-align: right">
+                <input class="btn btn-primary" name="submit" accesskey="l" value="Next" tabindex="4" type="submit" />
+            </div>
+        </form>
+    </div>
 </div>
 
 <div id="back-to-signin">

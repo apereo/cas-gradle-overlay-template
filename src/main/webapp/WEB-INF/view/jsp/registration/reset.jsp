@@ -7,25 +7,21 @@
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 
-<meta name="decorator" content="anonymous"/>
+<meta name="decorator" content="green-header-minimal"/>
 
 <style type="text/css">
-
     #recover {
-        color: #000;
-        background: #fff;
-        width: 280px;
+        width: 299px;
         margin: 10px auto;
-        border: 1px solid #DDDDDD;
-        border-radius: 4px;
-        padding: 30px;
     }
 
     #back-to-signin {
-        width: 336px;
+        text-align: center;
         margin: 5px auto;
     }
-
+    input[type="text"] {
+        padding: 6px 6px;
+    }
 </style>
 
 <script type="text/javascript">
@@ -74,37 +70,41 @@
 
 </script>
 
+<div id="top-spacer" style="height: 101px;"></div>
 <div id="recover">
-    <c:if test="${not empty error}">
-        <div class="alert alert-error" style="margin: -20px -20px 20px -20px">
-            <spring:message code="${error}"/>
-        </div>
-    </c:if>
-
-    <form action="reset" method="post" id="fm1" class="form-vertical">
-        <h2>Please Create A New Password</h2>
-
-        <fieldset>
-            <div class="control-group">
-                <label class="control-label" for="password1">Password</label>
-                <div class="controls">
-                    <input id="password1" name="password1" value="" type="password" style="width: 266px"/>
-                </div>
+    <div class="top-blue">
+        Create New Password
+    </div>
+    <div class="bottom-brown">
+        <c:if test="${not empty error}">
+            <div class="alert alert-error">
+                <spring:message code="${error}"/>
             </div>
-            <div class="control-group">
-                <label class="control-label" for="password2">Retype Password</label>
-                <div class="controls">
-                    <input id="password2" name="password2" value="" type="password" style="width: 266px"/>
+        </c:if>
+
+        <form action="reset" method="post" id="fm1" class="form-vertical">
+            <fieldset>
+                <div class="control-group">
+                    <label class="control-label" for="password1">New Password</label>
+                    <div class="controls">
+                        <input id="password1" name="password1" value="" type="password" style="width: 233px"/>
+                    </div>
                 </div>
+                <div class="control-group">
+                    <label class="control-label" for="password2">Retype Password</label>
+                    <div class="controls">
+                        <input id="password2" name="password2" value="" type="password" style="width: 233px"/>
+                    </div>
+                </div>
+            </fieldset>
+
+            <input name="recoveryCode" type="hidden" value="${fn:escapeXml(recoveryCode)}"/>
+
+            <div class="control-group" style="text-align: right">
+                <input class="btn btn-primary" name="submit" accesskey="l" value="Change Password" tabindex="4" type="submit" />
             </div>
-        </fieldset>
-
-        <input name="recoveryCode" type="hidden" value="${fn:escapeXml(recoveryCode)}"/>
-
-        <div class="control-group" style="text-align: right">
-            <input class="btn btn-primary" name="submit" accesskey="l" value="Change Password" tabindex="4" type="submit" />
-        </div>
-    </form>
+        </form>
+    </div>
 </div>
 
 <div id="back-to-signin">

@@ -7,24 +7,22 @@
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 
-<meta name="decorator" content="anonymous"/>
+<meta name="decorator" content="green-header-minimal"/>
 
 <style type="text/css">
 
     #forgot {
-        color: #444;
-        background: #fff;
-        width: 280px;
+        width: 299px;
         margin: 10px auto;
-        border: 1px solid #DDDDDD;
-        border-radius: 4px;
-        padding: 30px;
     }
 
     #back-to-signin {
-        width: 336px;
         margin: 5px auto;
         text-align: center;
+    }
+
+    input[type="text"] {
+        padding: 6px 6px;
     }
 
 </style>
@@ -63,25 +61,32 @@
 
 </script>
 
+<div id="top-spacer" style="height: 101px;"></div>
 <div id="forgot">
-    <c:if test="${not empty error}">
-        <div class="alert alert-error" style="margin: -20px -20px 20px -20px">
-            <spring:message code="${error}"/>
-        </div>
-    </c:if>
+    <div class="top-blue">
+        Password Reset
+    </div>
+    <div class="bottom-brown">
 
-    <form action="recover" method="post" id="fm1" class="form-vertical">
-        <div class="control-group">
-            <label for="username" class="control-label">Please <c:if test="${empty username}">enter</c:if><c:if test="${!empty username}">verify</c:if> your email address</label>
-            <div class="controls">
-                <input type="text" class="required" id="username" name="username" size="25" tabindex="1" style="width: 266px" value="${fn:escapeXml(username)}" />
+        <c:if test="${not empty error}">
+            <div class="alert alert-error">
+                <spring:message code="${error}"/>
             </div>
-        </div>
+        </c:if>
 
-        <div class="control-group" style="text-align: right">
-            <input class="btn btn-primary" name="submit" accesskey="l" value="Next" tabindex="4" type="submit" />
-        </div>
-    </form>
+        <form action="recover" method="post" id="fm1" class="form-vertical">
+            <div class="control-group">
+                <label for="username" class="control-label">Please <c:if test="${empty username}">enter</c:if><c:if test="${!empty username}">verify</c:if> your email address</label>
+                <div class="controls">
+                    <input type="text" class="required" id="username" name="username" size="25" tabindex="1" style="width: 231px" value="${fn:escapeXml(username)}" />
+                </div>
+            </div>
+
+            <div class="control-group" style="text-align: right">
+                <input class="btn btn-primary" name="submit" accesskey="l" value="Next" tabindex="4" type="submit" />
+            </div>
+        </form>
+    </div>
 </div>
 
 <div id="back-to-signin">

@@ -2,7 +2,7 @@ html, body {
     margin: 0;
     padding: 0;
     border: 0;
-    background: #F5F5F5;
+    background: #FFFFFF;
     color: #444;
 }
 
@@ -673,4 +673,22 @@ label.error {
     bottom: 10px;
     right: 5px;
     margin-bottom: -2px;
+}
+
+.top-blue {
+    background: #dbe5eb;
+    color: #629dc8;
+    text-align: center;
+    font-size: 19px;
+    font-weight: 300;
+    padding-top: 35px;
+    height: 57px;
+    border-radius: 4px 4px 0 0;
+    border-bottom: 3px solid #FFFFFF;
+}
+
+.bottom-brown {
+    background: #e4e4e4;
+    border-radius: 0 0 4px 4px;
+    padding: 30px 26px 15px;
 }
