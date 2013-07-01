@@ -11,7 +11,7 @@
 
 <style type="text/css">
     #recover {
-        width: 299px;
+        width: 420px;
         margin: 10px auto;
     }
 
@@ -23,8 +23,34 @@
         padding: 6px 6px;
     }
 </style>
+<link href="<c:url value="/css/flip.css"/>" rel="stylesheet">
 
 <script type="text/javascript">
+
+    //Password check stuff
+    function resetCheckPassword() {
+        $("#pw_length").css({"list-style-image":''});
+        $("#pw_number").css({"list-style-image":''});
+        $("#pw_upper").css({"list-style-image":''});
+        $("#pw_under").css({"list-style-image":''});
+    }
+    function checkPasswordReq() {
+        var currPass = $('#password1').val();
+        resetCheckPassword();
+        if (currPass.length >= 7) {
+            $("#pw_length").css({"list-style-image":"url('/img/checkmark.png')"});
+        }
+        if (/\d/.test(currPass)) {
+            $("#pw_number").css({"list-style-image":"url('/img/checkmark.png')"});
+        }
+        if (/[a-z]/.test(currPass)) {
+            $("#pw_under").css({"list-style-image":"url('/img/checkmark.png')"});
+        }
+        if (/[A-Z]/.test(currPass)) {
+            $("#pw_upper").css({"list-style-image":"url('/img/checkmark.png')"});
+        }
+    }
+    setInterval(function() {checkPasswordReq();}, 100);
 
     $(document).ready(function() {
         jQuery.validator.addMethod("password", function( value, element ) {
@@ -73,7 +99,7 @@
 <div id="top-spacer" style="height: 101px;"></div>
 <div id="recover">
     <div class="top-blue">
-        Create New Password
+        Create A New Password
     </div>
     <div class="bottom-brown">
         <c:if test="${not empty error}">
@@ -83,22 +109,37 @@
         </c:if>
 
         <form action="reset" method="post" id="fm1" class="form-vertical">
+
+            <div style="float:left;">
             <fieldset>
                 <div class="control-group">
-                    <label class="control-label" for="password1">New Password</label>
+                    <label class="formLabel" for="password1">New Password</label>
                     <div class="controls">
-                        <input id="password1" name="password1" value="" type="password" style="width: 233px"/>
+                        <input id="password1" name="password1" value="" type="password" style="width: 164px"/>
                     </div>
                 </div>
+                <div style="height: 15px"></div>
                 <div class="control-group">
-                    <label class="control-label" for="password2">Retype Password</label>
+                    <label class="formLabel" for="password2">Retype Password</label>
                     <div class="controls">
-                        <input id="password2" name="password2" value="" type="password" style="width: 233px"/>
+                        <input id="password2" name="password2" value="" type="password" style="width: 164px"/>
                     </div>
                 </div>
             </fieldset>
-
             <input name="recoveryCode" type="hidden" value="${fn:escapeXml(recoveryCode)}"/>
+            </div>
+            <div style="float:left;">
+                <div class="password-info">
+                    Password Criteria:<br/>
+                    <ul>
+                        <li id="pw_length">At least 7 characters</li>
+                        <li id="pw_number">1 number</li>
+                        <li id="pw_upper">1 uppercase letter</li>
+                        <li id="pw_under">1 lowercase letter</li>
+                    </ul>
+                </div>
+            </div>
+            <div style="clear:both;height: 20px;"></div>
 
             <div class="control-group" style="text-align: right">
                 <input class="btn btn-primary" name="submit" accesskey="l" value="Change Password" tabindex="4" type="submit" />
