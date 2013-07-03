@@ -66,7 +66,7 @@
                     <li class="disabled"><span>&laquo;</span></li>
                 </c:if>
                 <c:if test="${!users.firstPage}">
-                    <li><a href="${searchUrl}page=${users.number - 1}">&laquo;</a></li>
+                    <li><a href="${searchUrl}page=${users.number - 1}&searchUsername=${searchUsername}">&laquo;</a></li>
                 </c:if>
 
                     <%--Pages--%>
@@ -95,7 +95,7 @@
 
                 <c:forEach var="page" begin="${begin}" end="${end}">
                     <c:set var="pageClass" value="${users.number == page ? 'active' : ''}"/>
-                    <li class="${pageClass}"><a href="${searchUrl}page=${page}">${page + 1}</a></li>
+                    <li class="${pageClass}"><a href="${searchUrl}page=${page}&searchUsername=${searchUsername}">${page + 1}</a></li>
                 </c:forEach>
 
                     <%--Next--%>
@@ -103,7 +103,7 @@
                     <li class="disabled"><span>&raquo;</span></li>
                 </c:if>
                 <c:if test="${!users.lastPage}">
-                    <li><a href="${searchUrl}page=${users.number + 1}">&raquo;</a></li>
+                    <li><a href="${searchUrl}page=${users.number + 1}&searchUsername=${searchUsername}">&raquo;</a></li>
                 </c:if>
             </ul>
         </div>
