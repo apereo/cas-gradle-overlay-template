@@ -4,6 +4,7 @@ import org.hibernate.annotations.Type;
 import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.NotBlank;
+import org.hibernate.validator.constraints.SafeHtml;
 import org.joda.time.DateTime;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -19,17 +20,9 @@ import java.util.Set;
 @Table(name = "user")
 public class User implements Serializable, UserDetails {
     private Long id;
-
-    @NotBlank
     private String firstName;
-
-    @NotBlank
     private String lastName;
-
-    @Email
-    @NotBlank
     private String username;
-
     private String passwordRecoveryCode;
     private DateTime passwordRecoveryCodeCreatedTime;
     private boolean enabled;
@@ -54,7 +47,9 @@ public class User implements Serializable, UserDetails {
     }
 
     @Column(name = "first_name", length = 60)
-    @Length(min = 1, max = 60)
+    @Length(min = 1, max = 60, message = "{user.error.firstName.length}")
+    @NotBlank(message = "{user.error.firstName.blank}")
+    @SafeHtml(whitelistType = SafeHtml.WhiteListType.NONE)
     public String getFirstName() {
         return firstName;
     }
@@ -64,7 +59,9 @@ public class User implements Serializable, UserDetails {
     }
 
     @Column(name = "last_name", length = 60)
-    @Length(min = 1, max = 60)
+    @Length(min = 1, max = 60, message = "{user.error.lastName.length}")
+    @NotBlank(message = "{user.error.lastName.blank}")
+    @SafeHtml(whitelistType = SafeHtml.WhiteListType.NONE)
     public String getLastName() {
         return lastName;
     }
@@ -75,8 +72,9 @@ public class User implements Serializable, UserDetails {
 
     @NotNull
     @Column(name = "username", unique = true, length = 120, nullable = false)
-    @Email
-    @Length(min = 8, max = 120)
+    @Email(message = "{user.error.email.invalid}")
+    @Length(min = 8, max = 120, message = "{user.error.email.length}")
+    @NotBlank(message = "{user.error.email.blank}")
     public String getUsername() {
         return username;
     }
@@ -95,7 +93,7 @@ public class User implements Serializable, UserDetails {
     }
 
     @Column(name = "password_recovery_code_created_time", nullable = true)
-    @Type(type="org.jadira.usertype.dateandtime.joda.PersistentDateTime")
+    @Type(type = "org.jadira.usertype.dateandtime.joda.PersistentDateTime")
     public DateTime getPasswordRecoveryCodeCreatedTime() {
         return passwordRecoveryCodeCreatedTime;
     }
@@ -149,7 +147,11 @@ public class User implements Serializable, UserDetails {
         return password;
     }
 
+    /**
+     * @deprecated This is only to be used in the CasUserDetailsService to populate the encoded password.  Do not use for anything else.
+     */
     @Transient
+    @Deprecated
     public void setPassword(String password) {
         this.password = password;
     }

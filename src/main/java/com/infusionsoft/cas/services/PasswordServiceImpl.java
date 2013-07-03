@@ -3,6 +3,7 @@ package com.infusionsoft.cas.services;
 import com.infusionsoft.cas.dao.UserPasswordDAO;
 import com.infusionsoft.cas.domain.User;
 import com.infusionsoft.cas.domain.UserPassword;
+import com.infusionsoft.cas.exceptions.InfusionsoftValidationException;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
@@ -35,12 +36,12 @@ public class PasswordServiceImpl implements PasswordService {
     private static final int DEFAULT_PASSWORD_EXPIRE_DAYS = 90;
     private static final long DEFAULT_PASSWORD_EXPIRE_MS = DEFAULT_PASSWORD_EXPIRE_DAYS * 86400000L;
 
-    private static final String PASSWORD_TOOSHORT_CODE = "password.tooshort";
-    private static final String PASSWORD_WEIRDCHARS_CODE = "password.weirdcharacters";
-    private static final String PASSWORD_NUMBERANDLETTER_CODE = "password.numberandletter";
-    private static final String PASSWORD_UPPERCASE_CODE = "password.uppercase";
-    private static final String PASSWORD_CONTAINUSERNAME_CODE = "password.nousername";
-    private static final String PASSWORD_CANTMATCH_CODE = "password.cantmatch";
+    private static final String PASSWORD_TOOSHORT_CODE = "password.error.tooshort";
+    private static final String PASSWORD_WEIRDCHARS_CODE = "password.error.weirdcharacters";
+    private static final String PASSWORD_NUMBERANDLETTER_CODE = "password.error.numberandletter";
+    private static final String PASSWORD_UPPERCASE_CODE = "password.error.uppercase";
+    private static final String PASSWORD_CONTAINUSERNAME_CODE = "password.error.nousername";
+    private static final String PASSWORD_CANTMATCH_CODE = "password.error.cantmatch";
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -49,11 +50,11 @@ public class PasswordServiceImpl implements PasswordService {
     private UserPasswordDAO userPasswordDAO;
 
     /**
-     * Checks if a user's existing password is valid. We need this for when an already logged in user wants
+     * Checks if a user's existing password is correct. We need this for when an already logged in user wants
      * to update his user profile.
      */
     @Override
-    public boolean isPasswordValid(String username, String password) {
+    public boolean isPasswordCorrect(String username, String password) {
         String encodedPassword = passwordEncoder.encode(password);
 
         UserPassword userPassword = userPasswordDAO.findByUser_UsernameAndPasswordEncodedAndActiveTrue(username, encodedPassword);
@@ -118,13 +119,14 @@ public class PasswordServiceImpl implements PasswordService {
      * Sets a new password and invalidates the previous ones.
      */
     @Override
-    public void setPasswordForUser(User user) {
-        if (validatePassword(user) == null) {
+    public void setPasswordForUser(User user, String plainTextPassword) throws InfusionsoftValidationException {
+        String passwordError = validatePassword(user, plainTextPassword);
+        if (passwordError == null) {
             UserPassword userPassword = new UserPassword();
 
             userPassword.setUser(user);
-            userPassword.setPasswordEncoded(passwordEncoder.encode(user.getPassword()));
-            userPassword.setPasswordEncodedMD5(DigestUtils.md5Hex(user.getPassword()));
+            userPassword.setPasswordEncoded(passwordEncoder.encode(plainTextPassword));
+            userPassword.setPasswordEncodedMD5(DigestUtils.md5Hex(plainTextPassword));
             // TODO: use UTC date here
             userPassword.setDateCreated(new Date());
             userPassword.setActive(true);
@@ -137,6 +139,8 @@ public class PasswordServiceImpl implements PasswordService {
             userPasswordDAO.save(userPassword);
 
             log.debug("Set password for user " + user.getId());
+        } else {
+            throw new InfusionsoftValidationException(passwordError);
         }
     }
 
@@ -144,36 +148,35 @@ public class PasswordServiceImpl implements PasswordService {
      * Validates a password and returns a validation error, if any.
      */
     @Override
-    public String validatePassword(User user) {
-        String password = user.getPassword();
+    public String validatePassword(User user, String plainTextPassword) {
         String username = user.getUsername();
 
-        if (StringUtils.isEmpty(password) || password.length() < 7) {
+        if (StringUtils.isEmpty(plainTextPassword) || plainTextPassword.length() < 7) {
             return PASSWORD_TOOSHORT_CODE;
         }
 
-        if (containsNonAsciiChars(password)) {
+        if (containsNonAsciiChars(plainTextPassword)) {
             return PASSWORD_WEIRDCHARS_CODE;
         }
 
-        if (!StringUtils.containsAny(password, LETTERS) || !StringUtils.containsAny(password, DIGITS)) {
+        if (!StringUtils.containsAny(plainTextPassword, LETTERS) || !StringUtils.containsAny(plainTextPassword, DIGITS)) {
             return PASSWORD_NUMBERANDLETTER_CODE;
         }
 
-        if (!StringUtils.containsAny(password, "ABCDEFGHIJKLMNOPQRSTUVWXYZ")) {
+        if (!StringUtils.containsAny(plainTextPassword, UPPERCASE_LETTERS)) {
             return PASSWORD_UPPERCASE_CODE;
         }
 
-        if (StringUtils.isNotEmpty(username) && StringUtils.isNotEmpty(password)) {
+        if (StringUtils.isNotEmpty(username) && StringUtils.isNotEmpty(plainTextPassword)) {
             String usernameLower = username.toLowerCase();
-            String passwordLower = password.toLowerCase();
+            String passwordLower = plainTextPassword.toLowerCase();
 
             if (passwordLower.equals(usernameLower) || passwordLower.contains(usernameLower)) {
                 return PASSWORD_CONTAINUSERNAME_CODE;
             }
         }
 
-        if (user.getId() != null && lastFourPasswordsContains(user, password)) {
+        if (user.getId() != null && lastFourPasswordsContains(user, plainTextPassword)) {
             return PASSWORD_CANTMATCH_CODE;
         }
 

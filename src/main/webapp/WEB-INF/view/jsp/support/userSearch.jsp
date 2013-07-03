@@ -18,7 +18,7 @@
                 <spring:message code="infusionsoft.id.label"/>
             </th>
             <th>
-                <spring:message code="full.name.label"/>
+                <spring:message code="user.full.name.label"/>
             </th>
             <th>
                 <spring:message code="reset.password.label"/>

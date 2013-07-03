@@ -1,15 +1,9 @@
 package com.infusionsoft.cas.domain;
 
-import com.infusionsoft.cas.domain.User;
-import com.infusionsoft.cas.validation.Password;
-import org.hibernate.validator.constraints.Length;
-import org.hibernate.validator.constraints.NotBlank;
-
-import java.io.Serializable;
-import java.util.Date;
-
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.io.Serializable;
+import java.util.Date;
 
 @Entity
 @Table(name = "user_password")

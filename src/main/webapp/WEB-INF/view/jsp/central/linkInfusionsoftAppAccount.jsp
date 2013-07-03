@@ -31,13 +31,6 @@
 </h2>
 
 <c:choose>
-    <c:when test="${connectError == 'registration.error.expiredLegacyCredentials'}">
-        <div class="alert alert-error" style="margin-top: 10px">
-            Your old password is expired! Please
-            <a target="oldapp" href="${appUrl}/app/authentication/login">sign in the old way</a>
-            to reset it, then try again.
-        </div>
-    </c:when>
     <c:when test="${connectError == 'registration.error.invalidLegacyCredentials'}">
         <div class="alert alert-error" style="margin-top: 10px">
             You've entered an incorrect username and/or password.

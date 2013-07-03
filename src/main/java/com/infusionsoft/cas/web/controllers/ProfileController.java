@@ -1,6 +1,7 @@
 package com.infusionsoft.cas.web.controllers;
 
 import com.infusionsoft.cas.domain.User;
+import com.infusionsoft.cas.exceptions.InfusionsoftValidationException;
 import com.infusionsoft.cas.services.AutoLoginService;
 import com.infusionsoft.cas.services.PasswordService;
 import com.infusionsoft.cas.services.UserService;
@@ -79,13 +80,15 @@ public class ProfileController {
             if (model.containsKey("error")) {
                 log.info("couldn't update user account for user " + user.getId() + ": " + model.get("error"));
             } else {
-                user.setFirstName(ValidationUtils.sanitizePersonName(firstName));
-                user.setLastName(ValidationUtils.sanitizePersonName(lastName));
-                userService.updateUser(user);
+                user.setFirstName(firstName);
+                user.setLastName(lastName);
+                userService.saveUser(user);
             }
+        } catch (InfusionsoftValidationException e) {
+            log.error("Failed to create user account", e);
+            model.put("error", e.getErrorMessageCode());
         } catch (Exception e) {
-            log.error("failed to update user account", e);
-
+            log.error("Failed to update user account", e);
             model.put("error", "editprofile.error.exception");
         }
 
@@ -130,25 +133,19 @@ public class ProfileController {
             redirectView = "/app/profile/changePassword";
         }
 
-        if (StringUtils.isEmpty(password1) || StringUtils.isEmpty(password2)) {
-            model.addAttribute("error", "registration.error.invalidPassword");
+        if (StringUtils.isEmpty(password1)) {
+            model.addAttribute("error", "password.error.blank");
         } else if (!password1.equals(password2)) {
-            model.addAttribute("error", "registration.error.passwordsNoMatch");
+            model.addAttribute("error", "password.error.passwords.dont.match");
+        } else if (!passwordService.isPasswordCorrect(username, currentPassword)) {
+            model.addAttribute("error", "editprofile.error.incorrectCurrentPassword");
         } else {
-            if (!passwordService.isPasswordValid(username, currentPassword)) {
-                model.addAttribute("error", "editprofile.error.incorrectCurrentPassword");
-            } else if (StringUtils.isNotEmpty(password1) || StringUtils.isNotEmpty(password2)) {
-                User user = userService.loadUser(username);
-                user.setPassword(password1);
-
-                String passwordError = passwordService.validatePassword(user);
-
-                if (passwordError != null) {
-                    model.addAttribute("error", passwordError);
-                } else {
-                    passwordService.setPasswordForUser(user);
-                    model.addAttribute("success", "editprofile.success.changePassword");
-                }
+            User user = userService.loadUser(username);
+            try {
+                passwordService.setPasswordForUser(user, password1);
+                model.addAttribute("success", "editprofile.success.changePassword");
+            } catch (InfusionsoftValidationException e) {
+                model.addAttribute("error", e.getErrorMessageCode());
             }
         }
 
@@ -170,29 +167,22 @@ public class ProfileController {
 
         String error = null;
 
-        if (StringUtils.isEmpty(password1) || StringUtils.isEmpty(password2)) {
-            error = "registration.error.invalidPassword";
+        if (StringUtils.isEmpty(password1)) {
+            error = "password.error.blank";
         } else if (!password1.equals(password2)) {
-            error = "registration.error.passwordsNoMatch";
+            error = "password.error.passwords.dont.match";
+        } else if (!passwordService.isPasswordCorrect(username, currentPassword)) { // TODO: why are we passing the current password in here? This is only called from AJAX so it's not even being entered by the user-- and by using it here it has to be emitted as a hidden form input!
+            error = "editprofile.error.incorrectCurrentPassword";
         } else {
-            if (!passwordService.isPasswordValid(username, currentPassword)) {
-                error = "editprofile.error.incorrectCurrentPassword";
-            } else if (StringUtils.isNotEmpty(password1) || StringUtils.isNotEmpty(password2)) {
-                User user = userService.loadUser(username);
-                user.setPassword(password1);
-
-                String passwordError = passwordService.validatePassword(user);
-
-                if (passwordError != null) {
-                    error = passwordError;
-                } else {
-                    passwordService.setPasswordForUser(user);
-                }
+            User user = userService.loadUser(username);
+            try {
+                passwordService.setPasswordForUser(user, password1);
+            } catch (InfusionsoftValidationException e) {
+                error = e.getErrorMessageCode();
             }
         }
 
         if (StringUtils.isNotEmpty(error)) {
-
             return new ResponseEntity<String>("{\"errorMessage\": \"" + messageSource.getMessage(error, null, request.getLocale()) + "\"}", HttpStatus.UNAUTHORIZED);
         } else {
             autoLoginService.autoLogin(username, request, response);

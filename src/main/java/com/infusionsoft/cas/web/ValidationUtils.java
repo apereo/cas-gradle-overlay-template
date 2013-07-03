@@ -1,5 +1,10 @@
 package com.infusionsoft.cas.web;
 
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.safety.Cleaner;
+import org.jsoup.safety.Whitelist;
+
 /**
  * Simple utility for validating and sanitizing some of our common input strings.
  */
@@ -38,13 +43,17 @@ public class ValidationUtils {
     }
 
     /**
-     * Make sure the user's name consists only of allowed characters.
+     * Remove all HTML tags from the given string
      */
-    public static String sanitizePersonName(String appName) {
-        if (appName == null) {
+    public static String removeAllHtmlTags(String unsafe) {
+        if (unsafe == null) {
             return null;
         } else {
-            return appName.replaceAll("[^\\w\\s\\d \\-]", "");
+            // Based on Jsoup.clean; the only difference is text() instead of html()
+            Document dirty = Jsoup.parseBodyFragment(unsafe);
+            Cleaner cleaner = new Cleaner(Whitelist.none());
+            Document clean = cleaner.clean(dirty);
+            return clean.body().text();
         }
     }
 

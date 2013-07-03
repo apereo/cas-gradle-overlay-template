@@ -84,14 +84,14 @@
 
     <fieldset>
         <div class="control-group">
-            <label class="control-label" for="password1">Password</label>
+            <label class="control-label" for="password1"><spring:message code="password.password1.label"/></label>
 
             <div class="controls">
                 <input id="password1" name="password1" value="" type="password" autocomplete="off"/>
             </div>
         </div>
         <div class="control-group">
-            <label class="control-label" for="password2">Confirm Password</label>
+            <label class="control-label" for="password2"><spring:message code="password.password2.label"/></label>
 
             <div class="controls">
                 <input id="password2" name="password2" value="" type="password" autocomplete="off"/>

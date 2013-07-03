@@ -2,13 +2,16 @@ package com.infusionsoft.cas.services;
 
 import com.infusionsoft.cas.domain.*;
 import com.infusionsoft.cas.exceptions.AccountException;
+import com.infusionsoft.cas.exceptions.InfusionsoftValidationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
 public interface UserService {
-    User addUser(User user) throws InfusionsoftValidationException;
+    User saveUser(User user) throws InfusionsoftValidationException;
+
+    User saveUser(User user, String plainTextPassword) throws InfusionsoftValidationException;
 
     User loadUser(String username);
 
@@ -16,7 +19,7 @@ public interface UserService {
 
     User findUserByRecoveryCode(String recoveryCode);
 
-    String createPasswordRecoveryCode(User user);
+    User updatePasswordRecoveryCode(User user);
 
     UserAccount findUserAccount(User user, Long accountId);
 
@@ -56,13 +59,11 @@ public interface UserService {
 
     List<UserAccount> findByUserAndDisabled(User user, boolean disabled);
 
-    void updateUser(User user);
-
-    void updateUserAccount(UserAccount userAccount);
+    UserAccount saveUserAccount(UserAccount userAccount);
 
     Page<User> findByUsernameLike(String usernameWildcard, Pageable pageable);
 
-    boolean isDuplicateUsername(String username, Long id);
+    boolean isDuplicateUsername(User user);
 
     String resetPassword(User user);
 

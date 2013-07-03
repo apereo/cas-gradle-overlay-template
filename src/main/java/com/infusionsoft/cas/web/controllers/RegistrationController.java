@@ -5,9 +5,9 @@ import com.infusionsoft.cas.domain.PendingUserAccount;
 import com.infusionsoft.cas.domain.User;
 import com.infusionsoft.cas.domain.UserAccount;
 import com.infusionsoft.cas.exceptions.AccountException;
+import com.infusionsoft.cas.exceptions.InfusionsoftValidationException;
 import com.infusionsoft.cas.services.*;
 import com.infusionsoft.cas.support.AppHelper;
-import com.infusionsoft.cas.web.ValidationUtils;
 import org.apache.commons.lang3.CharEncoding;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -158,32 +158,31 @@ public class RegistrationController {
         User user = new User();
 
         try {
-            user.setFirstName(ValidationUtils.sanitizePersonName(firstName));
-            user.setLastName(ValidationUtils.sanitizePersonName(lastName));
+            user.setFirstName(firstName);
+            user.setLastName(lastName);
             user.setUsername(username);
             user.setEnabled(true);
-            user.setPassword(password1);
 
             model.addAttribute("user", user);
 
-            if (StringUtils.isEmpty(password1) || StringUtils.isEmpty(password2)) {
-                model.addAttribute("error", "registration.error.invalidPassword");
+            if (StringUtils.isEmpty(password1)) {
+                model.addAttribute("error", "password.error.blank");
             } else if (!password1.equals(password2)) {
-                model.addAttribute("error", "registration.error.passwordsNoMatch");
+                model.addAttribute("error", "password.error.passwords.dont.match");
             } else if (username == null || username.isEmpty() || !EmailValidator.getInstance().isValid(username)) {
-                model.addAttribute("error", "registration.error.invalidUsername");
+                model.addAttribute("error", "user.error.email.invalid");
             } else if (!username.equals(username2)) {
-                model.addAttribute("error", "registration.error.emailNoMatch");
+                model.addAttribute("error", "user.error.emails.dont.match");
             } else if (StringUtils.isEmpty(firstName)) {
-                model.addAttribute("error", "registration.error.invalidFirstName");
+                model.addAttribute("error", "user.error.firstName.blank");
             } else if (StringUtils.isEmpty(lastName)) {
-                model.addAttribute("error", "registration.error.invalidLastName");
-            } else if (userService.loadUser(username) != null) {
-                model.addAttribute("error", "registration.error.usernameInUse");
+                model.addAttribute("error", "user.error.lastName.blank");
+            } else if (userService.isDuplicateUsername(user)) {
+                model.addAttribute("error", "user.error.email.inUse.with.link");
             } else if (!eulaChecked) {
                 model.addAttribute("error", "registration.error.eula");
             } else {
-                String passwordError = passwordService.validatePassword(user);
+                String passwordError = passwordService.validatePassword(user, password1);
                 if (passwordError != null) {
                     model.addAttribute("error", passwordError);
                 }
@@ -193,7 +192,7 @@ public class RegistrationController {
                 log.warn("couldn't create new user account: " + model.asMap().get("error"));
             } else {
 
-                user = userService.addUser(user);
+                user = userService.saveUser(user, password1);
                 model.addAttribute("user", user);
 
                 if (StringUtils.isNotEmpty(registrationCode)) {
@@ -209,9 +208,11 @@ public class RegistrationController {
                 mailService.sendWelcomeEmail(user);
                 autoLoginService.autoLogin(user.getUsername(), request, response);
             }
+        } catch (InfusionsoftValidationException e) {
+            log.error("failed to create user account", e);
+            model.addAttribute("error", e.getErrorMessageCode());
         } catch (Exception e) {
             log.error("failed to create user account", e);
-
             model.addAttribute("error", "registration.error.exception");
         }
 
@@ -222,8 +223,6 @@ public class RegistrationController {
             model.addAttribute("registrationCode", registrationCode);
             return "registration/createInfusionsoftId";
         } else {
-            autoLoginService.autoLogin(username, request, response);
-
             if (StringUtils.isNotBlank(userToken) && StringUtils.isNotBlank(returnUrl)) {
                 return "redirect:" + returnUrl + "?userToken=" + userToken + "&casGlobalId=" + user.getId();
             } else {
@@ -317,16 +316,15 @@ public class RegistrationController {
 
         if (user == null) {
             model.put("error", "forgotpassword.noSuchCode");
-        } else if (StringUtils.isEmpty(password1) || StringUtils.isEmpty(password2)) {
-            model.put("error", "registration.error.invalidPassword");
+        } else if (StringUtils.isEmpty(password1)) {
+            model.put("error", "password.error.blank");
         } else if (!password1.equals(password2)) {
-            model.put("error", "registration.error.passwordsNoMatch");
+            model.put("error", "password.error.passwords.dont.match");
         } else {
-            user.setPassword(password1);
-            String passwordError = passwordService.validatePassword(user);
-
-            if (passwordError != null) {
-                model.put("error", passwordError);
+            try {
+                passwordService.setPasswordForUser(user, password1);
+            } catch (InfusionsoftValidationException e) {
+                model.put("error", e.getErrorMessageCode());
             }
         }
 
@@ -335,8 +333,6 @@ public class RegistrationController {
 
             return new ModelAndView("registration/reset", model);
         } else {
-            passwordService.setPasswordForUser(user);
-
             if (user != null) {
                 autoLoginService.autoLogin(user.getUsername(), request, response);
             }

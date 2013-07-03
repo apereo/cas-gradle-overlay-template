@@ -6,7 +6,7 @@ import com.infusionsoft.cas.domain.User;
 import com.infusionsoft.cas.domain.UserAccount;
 import com.infusionsoft.cas.exceptions.AppCredentialsExpiredException;
 import com.infusionsoft.cas.exceptions.AppCredentialsInvalidException;
-import com.infusionsoft.cas.exceptions.UsernameTakenException;
+import com.infusionsoft.cas.exceptions.CommunityUsernameTakenException;
 import com.infusionsoft.cas.services.*;
 import com.infusionsoft.cas.support.AppHelper;
 import com.infusionsoft.cas.web.ValidationUtils;
@@ -172,6 +172,7 @@ public class CentralController {
 
         details.setNotificationEmailAddress(user.getUsername());
 
+        model.put("communityUrl", communityService.getBaseUrl());
         model.put("infusionsoftExperienceLevels", new int[]{1, 2, 3, 4, 5});
         model.put("details", details);
 
@@ -199,7 +200,7 @@ public class CentralController {
                     autoLoginService.autoLogin(user.getUsername(), request, response);
 
                     return new ModelAndView("redirect:home");
-                } catch (UsernameTakenException e) {
+                } catch (CommunityUsernameTakenException e) {
                     log.error("failed to register community account for user " + user.getId(), e);
 
                     model.put("error", "community.error.displayNameTaken");
@@ -226,7 +227,7 @@ public class CentralController {
             if (StringUtils.isEmpty(appUsername)) {
                 model.put("connectError", "registration.error.invalidAppUsername");
             } else if (StringUtils.isEmpty(appPassword)) {
-                model.put("connectError", "registration.error.invalidPassword");
+                model.put("connectError", "password.error.blank");
             } else if (appType == null) {
                 model.put("connectError", "registration.error.couldNotAssociate");
             } else {
@@ -242,6 +243,8 @@ public class CentralController {
                     } else {
                         model.put("connectError", "registration.error.invalidLegacyCredentials");
                     }
+                } else if (AppType.CRM.equals(appType) && !crmService.isCasEnabled(sanitizedAppName)) {
+                    model.put("connectError", "registration.error.ssoIsNotEnabled");
                 } else if (AppType.CRM.equals(appType) || AppType.CUSTOMERHUB.equals(appType)) {
                     try {
                         try {
@@ -299,7 +302,7 @@ public class CentralController {
 
         try {
             account.setAlias(alias);
-            userService.updateUserAccount(account);
+            userService.saveUserAccount(account);
 
             response.setContentType("text/plain");
             response.getWriter().write(StringEscapeUtils.escapeHtml4(account.getAlias()));
@@ -319,7 +322,7 @@ public class CentralController {
     public ModelAndView verifyExistingPassword(String currentPassword, HttpServletResponse response) throws IOException {
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-        if (passwordService.isPasswordValid(user.getUsername(), currentPassword)) {
+        if (passwordService.isPasswordCorrect(user.getUsername(), currentPassword)) {
             response.setContentType("text/plain");
             response.getWriter().write("OK");
         } else {

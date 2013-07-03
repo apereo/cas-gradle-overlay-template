@@ -6,7 +6,7 @@ import com.infusionsoft.cas.domain.CommunityAccountDetails;
 import com.infusionsoft.cas.domain.User;
 import com.infusionsoft.cas.domain.UserAccount;
 import com.infusionsoft.cas.exceptions.AccountException;
-import com.infusionsoft.cas.exceptions.UsernameTakenException;
+import com.infusionsoft.cas.exceptions.CommunityUsernameTakenException;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
@@ -40,11 +40,19 @@ public class CommunityServiceImpl implements CommunityService {
     String communityApiKey;
 
     /**
-     * Builds a base URL to the Community for purposes of redirecting.
+     * Builds a URL to the Community for purposes of redirecting.
      */
     @Override
     public String buildUrl() {
         return communityBaseUrl + "/caslogin.php";
+    }
+
+    /**
+     * Returns the base URL to the Community.
+     */
+    @Override
+    public String getBaseUrl() {
+        return communityBaseUrl;
     }
 
     /**
@@ -83,7 +91,7 @@ public class CommunityServiceImpl implements CommunityService {
      * profile through CAS.
      */
     @Override
-    public UserAccount registerCommunityUserAccount(User user, CommunityAccountDetails details) throws RestClientException, UsernameTakenException, AccountException {
+    public UserAccount registerCommunityUserAccount(User user, CommunityAccountDetails details) throws RestClientException, CommunityUsernameTakenException, AccountException {
         RestTemplate restTemplate = new RestTemplate();
 
         log.info("preparing REST call to " + communityBaseUrl);
@@ -97,7 +105,7 @@ public class CommunityServiceImpl implements CommunityService {
         String userId = String.valueOf(responseJson.get("userId"));
 
         if (hasError) {
-            throw new UsernameTakenException("the display name " + details.getDisplayName() + " is already taken");
+            throw new CommunityUsernameTakenException("the display name " + details.getDisplayName() + " is already taken");
         }
 
         UserAccount account = userService.associateAccountToUser(user, AppType.COMMUNITY, "Infusionsoft Community", userId);

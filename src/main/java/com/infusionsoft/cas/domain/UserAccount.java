@@ -1,5 +1,8 @@
 package com.infusionsoft.cas.domain;
 
+import org.apache.commons.lang3.StringUtils;
+import org.hibernate.validator.constraints.SafeHtml;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
@@ -36,6 +39,7 @@ public class UserAccount implements Serializable {
     }
 
     @Column(name = "alias", length = 60)
+    @SafeHtml(whitelistType = SafeHtml.WhiteListType.NONE)
     public String getAlias() {
         return alias;
     }
@@ -87,14 +91,14 @@ public class UserAccount implements Serializable {
 
     @Override
     public String toString() {
-        StringBuilder builder = new StringBuilder();
-        builder.append("ID: ").append(id).append(", ");
-        builder.append("user: ").append(user).append(", ");
-        builder.append("alias: ").append(alias).append(", ");
-        builder.append("appType: ").append(appType).append(", ");
-        builder.append("appName: ").append(appName).append(", ");
-        builder.append("appUsername: ").append(appUsername).append(", ");
-        builder.append("disabled: ").append(disabled);
-        return builder.toString();
+        return StringUtils.join(
+                "ID: ", id, ", ",
+                "user: ", user, ", ",
+                "alias: ", alias, ", ",
+                "appType: ", appType, ", ",
+                "appName: ", appName, ", ",
+                "appUsername: ", appUsername, ", ",
+                "disabled: ", disabled
+        );
     }
 }

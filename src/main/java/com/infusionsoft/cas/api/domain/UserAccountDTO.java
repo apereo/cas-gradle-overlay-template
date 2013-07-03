@@ -1,12 +1,14 @@
 package com.infusionsoft.cas.api.domain;
 
-import com.infusionsoft.cas.domain.AppType;
 import com.infusionsoft.cas.domain.UserAccount;
 import com.infusionsoft.cas.support.AppHelper;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.annotate.JsonTypeName;
 
 import java.util.Collection;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 /**
  * Represents an account record.  Used when the account is nested within a {@link UserDTO} object, so the user
@@ -14,17 +16,16 @@ import java.util.Collection;
  */
 @JsonTypeName("UserAccount")
 public class UserAccountDTO {
-    private AppType appType;
+    private String appType; //TODO: change back to AppType enum when case sensitivity in authenticateUser doesn't matter
     private String appName;
     private String appUsername;
     private String appAlias;
     private String appUrl;
 
-    public static UserAccountDTO[] convertFromCollection(final Collection<UserAccount> accountCollection, AppHelper appHelper) {
-        UserAccountDTO[] accounts = new UserAccountDTO[accountCollection.size()];
-        int i = 0;
+    public static Set<UserAccountDTO> convertFromCollection(final Collection<UserAccount> accountCollection, AppHelper appHelper) {
+        Set<UserAccountDTO> accounts = new LinkedHashSet<UserAccountDTO>(accountCollection.size());
         for (UserAccount userAccount : accountCollection) {
-            accounts[i++] = new UserAccountDTO(userAccount, appHelper);
+            accounts.add(new UserAccountDTO(userAccount, appHelper));
         }
         return accounts;
     }
@@ -34,18 +35,18 @@ public class UserAccountDTO {
     }
 
     public UserAccountDTO(UserAccount userAccount, AppHelper appHelper) {
-        this.appType = userAccount.getAppType();
+        this.appType = ObjectUtils.toString(userAccount.getAppType());
         this.appName = userAccount.getAppName();
         this.appUsername = userAccount.getAppUsername();
         this.appAlias = StringUtils.defaultIfEmpty(userAccount.getAlias(), userAccount.getAppName());
         this.appUrl = appHelper.buildAppUrl(userAccount.getAppType(), userAccount.getAppName());
     }
 
-    public AppType getAppType() {
+    public String getAppType() {
         return appType;
     }
 
-    public void setAppType(AppType appType) {
+    public void setAppType(String appType) {
         this.appType = appType;
     }
 

@@ -84,7 +84,7 @@ public class InfusionsoftAttributeRepository extends AbstractFlatteningPersonAtt
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         try {
             ObjectMapper objectMapper = new ObjectMapper();
-            UserAccountDTO[] userAccounts = UserAccountDTO.convertFromCollection(accounts, appHelper);
+            Set<UserAccountDTO> userAccounts = UserAccountDTO.convertFromCollection(accounts, appHelper);
             objectMapper.writeValue(outputStream, userAccounts);
         } catch (IOException e) {
             logger.error("Error while serializing accounts to JSON", e);

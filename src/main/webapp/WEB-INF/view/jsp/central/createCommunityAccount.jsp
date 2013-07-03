@@ -11,6 +11,7 @@
 <c:url var="centralUrl" value="/app/central/home"/>
 <c:url var="associateUrl" value="/app/central/associate"/>
 <c:url var="linkCommunityAccountUrl" value="/app/central/linkCommunityAccount"/>
+<%--@elvariable id="communityUrl" type="java.lang.String"--%>
 
 <style type="text/css">
 
@@ -139,7 +140,7 @@
                 <p>
                     Registration to this forum is free! We do insist that you abide by the rules and policies detailed
                     below. If you agree to the terms, please check the 'I agree' checkbox and press the 'Complete Registration' button below.
-                    If you would like to cancel the registration, please <a href="${centralUrl}">return to Account Central</a>.
+                    If you would like to cancel the registration, please return to <a href="${communityUrl}">the Community forums</a> or <a href="${centralUrl}">Account Central</a>.
                 </p>
 
                 <p>

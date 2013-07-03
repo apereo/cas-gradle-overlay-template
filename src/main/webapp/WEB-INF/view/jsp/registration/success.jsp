@@ -38,7 +38,7 @@
 </div>
 
 <div id="register">
-    <c:url var="centralUrl" value="/login"/>
+    <c:url var="centralUrl" value="/app/central/home"/>
 
     <div class="usercard">
         <img class="photo"/>

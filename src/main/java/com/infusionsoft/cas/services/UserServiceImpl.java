@@ -3,6 +3,9 @@ package com.infusionsoft.cas.services;
 import com.infusionsoft.cas.dao.*;
 import com.infusionsoft.cas.domain.*;
 import com.infusionsoft.cas.exceptions.AccountException;
+import com.infusionsoft.cas.exceptions.DuplicateAccountException;
+import com.infusionsoft.cas.exceptions.InfusionsoftValidationException;
+import com.infusionsoft.cas.web.ValidationUtils;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -64,16 +67,6 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User addUser(User user) throws InfusionsoftValidationException {
-        user.getAuthorities().add(findAuthorityByName("ROLE_CAS_USER"));
-        userDAO.save(user);
-
-        passwordService.setPasswordForUser(user);
-
-        return user;
-    }
-
-    @Override
     public Page<User> findByUsernameLike(String username, Pageable pageable) {
         if (StringUtils.isEmpty(username)) {
             username = "%";
@@ -87,14 +80,41 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void updateUser(User user) {
+    public User saveUser(User user) throws InfusionsoftValidationException {
+        boolean beingAdded = (user.getId() == null);
+        if (beingAdded) {
+            user.getAuthorities().add(findAuthorityByName("ROLE_CAS_USER"));
+        }
+
+        // Check if there is already a different user with the new username
+        // NOTE: the Hibernate constraints will already force this, but I couldn't find a way to customize the exception message
+        if (isDuplicateUsername(user)) {
+            throw new InfusionsoftValidationException("user.error.email.inUse");
+        }
+
+        // NOTE: these are enforced by the annotation "@SafeHtml(whitelistType = SafeHtml.WhiteListType.NONE)" but this way the tags are just removed instead of throwing an error
+        user.setFirstName(ValidationUtils.removeAllHtmlTags(user.getFirstName()));
+        user.setLastName(ValidationUtils.removeAllHtmlTags(user.getLastName()));
+
+        User savedUser = userDAO.save(user);
+
         //TODO: if this user is currently logged in then change the object in the security context
-        userDAO.save(user);
+
+        return savedUser;
     }
 
     @Override
-    public void updateUserAccount(UserAccount userAccount) {
-        userAccountDAO.save(userAccount);
+    public User saveUser(User user, String plainTextPassword) throws InfusionsoftValidationException {
+        User savedUser = saveUser(user);
+        passwordService.setPasswordForUser(savedUser, plainTextPassword);
+        return savedUser;
+    }
+
+    @Override
+    public UserAccount saveUserAccount(UserAccount userAccount) {
+        // NOTE: this is enforced by the annotation "@SafeHtml(whitelistType = SafeHtml.WhiteListType.NONE)" but this way the tags are just removed instead of throwing an error
+        userAccount.setAlias(ValidationUtils.removeAllHtmlTags(userAccount.getAlias()));
+        return userAccountDAO.save(userAccount);
     }
 
     @Override
@@ -109,7 +129,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public String resetPassword(User user) {
-        String recoveryCode = createPasswordRecoveryCode(user);
+        user = updatePasswordRecoveryCode(user);
+        String recoveryCode = user.getPasswordRecoveryCode();
 
         log.info("password recovery code " + recoveryCode + " created for user " + user.getId());
 
@@ -135,23 +156,30 @@ public class UserServiceImpl implements UserService {
     }
 
     /**
-     * Creates a unique, random password recovery code for a user.
+     * Updates the password recovery code for a user.
      */
     @Override
-    public synchronized String createPasswordRecoveryCode(User user) {
-        String recoveryCode = RandomStringUtils.randomAlphabetic(12).toUpperCase();
+    public synchronized User updatePasswordRecoveryCode(User user) {
+        String recoveryCode = generateRecoveryCode();
 
         while (findUserByRecoveryCode(recoveryCode) != null) {
-            recoveryCode = RandomStringUtils.randomAlphabetic(12).toUpperCase();
+            recoveryCode = generateRecoveryCode();
         }
 
+        // Load the user again, to avoid opening the door to updates on more than just the password recovery code
+        user = loadUser(user.getId());
         user.setPasswordRecoveryCode(recoveryCode);
         // TODO: use UTC date here
         user.setPasswordRecoveryCodeCreatedTime(new DateTime());
 
-        userDAO.save(user);
+        return userDAO.save(user);
+    }
 
-        return user.getPasswordRecoveryCode();
+    /**
+     * Creates a unique, random password recovery code.
+     */
+    private String generateRecoveryCode() {
+        return RandomStringUtils.randomAlphabetic(12).toUpperCase();
     }
 
     /**
@@ -425,8 +453,14 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public boolean isDuplicateUsername(String username, Long id) {
-        return userDAO.findByUsernameAndIdNot(username, id) != null;
+    public boolean isDuplicateUsername(User user) {
+        if (user == null) {
+            return false;
+        } else if (user.getId() == null) {
+            return userDAO.findByUsername(user.getUsername()) != null;
+        } else {
+            return userDAO.findByUsernameAndIdNot(user.getUsername(), user.getId()) != null;
+        }
     }
 
     /**
@@ -446,7 +480,7 @@ public class UserServiceImpl implements UserService {
         }
     }
 
-    private void ensureAccountIsNotLinkedToDifferentUser(String appName, AppType appType, String appUsername, User user) throws AccountException {
+    private void ensureAccountIsNotLinkedToDifferentUser(String appName, AppType appType, String appUsername, User user) throws DuplicateAccountException {
         List<UserAccount> accounts = userAccountDAO.findByAppNameAndAppTypeAndAppUsernameAndUserNot(appName, appType, appUsername, user);
 
         if (accounts != null && !accounts.isEmpty()) {
@@ -455,7 +489,7 @@ public class UserServiceImpl implements UserService {
                 usernames.add(account.getUser().getUsername());
             }
             log.error("Account " + appUsername + " on " + appName + "/" + appType + " could not be linked to " + user.getUsername() + " since it is already linked to a different Infusionsoft ID (" + StringUtils.join(usernames, ", ") + ")");
-            throw new AccountException(accounts);
+            throw new DuplicateAccountException(accounts);
         }
     }
 }

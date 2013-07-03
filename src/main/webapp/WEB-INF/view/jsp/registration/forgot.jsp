@@ -42,8 +42,8 @@
                     },
                     messages: {
                         username: {
-                            required: "<spring:message code='forgotpassword.noUsername'/>",
-                            email: "<spring:message code='registration.error.invalidEmail'/>"
+                            required: "<spring:message code='user.error.email.blank'/>",
+                            email: "<spring:message code='user.error.email.invalid'/>"
                         }
 
                     },

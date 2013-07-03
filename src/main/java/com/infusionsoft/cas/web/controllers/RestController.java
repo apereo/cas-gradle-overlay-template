@@ -2,6 +2,7 @@ package com.infusionsoft.cas.web.controllers;
 
 import com.infusionsoft.cas.api.domain.APIErrorDTO;
 import com.infusionsoft.cas.api.domain.AccountDTO;
+import com.infusionsoft.cas.api.domain.UserAccountDTO;
 import com.infusionsoft.cas.api.domain.UserDTO;
 import com.infusionsoft.cas.auth.LoginResult;
 import com.infusionsoft.cas.dao.UserAccountDAO;
@@ -10,6 +11,7 @@ import com.infusionsoft.cas.domain.PendingUserAccount;
 import com.infusionsoft.cas.domain.User;
 import com.infusionsoft.cas.domain.UserAccount;
 import com.infusionsoft.cas.exceptions.AccountException;
+import com.infusionsoft.cas.exceptions.DuplicateAccountException;
 import com.infusionsoft.cas.services.InfusionsoftAuthenticationService;
 import com.infusionsoft.cas.services.UserService;
 import com.infusionsoft.cas.support.AppHelper;
@@ -28,10 +30,7 @@ import org.springframework.web.bind.annotation.support.HandlerMethodInvocationEx
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Really simple controller that provides HTTP JSON services for registering users.
@@ -64,7 +63,6 @@ public class RestController {
     /**
      * Registers a new user account mapped to an app account.
      */
-    @SuppressWarnings("unchecked")
     @RequestMapping
     @ResponseBody
     public ResponseEntity linkAccount(String apiKey, long casGlobalId, String appUsername, String appName, AppType appType, Locale locale) {
@@ -79,16 +77,15 @@ public class RestController {
         try {
             user = userService.loadUser(casGlobalId);
             userService.associateAccountToUser(user, appType, appName, appUsername);
-            return new ResponseEntity(new UserDTO(user, appHelper), HttpStatus.OK);
+            return new ResponseEntity<UserDTO>(new UserDTO(user, appHelper), HttpStatus.OK);
+        } catch (DuplicateAccountException e) {
+            log.error(messageSource.getMessage("cas.exception.linkAccount.failure", new Object[]{casGlobalId, appUsername, appName, appType}, locale), e);
+            Set<AccountDTO> duplicateAccountDTOs = AccountDTO.convertFromCollection(e.getDuplicateAccounts(), appHelper);
+            return new ResponseEntity<APIErrorDTO>(new APIErrorDTO<Set<AccountDTO>>("cas.exception.conflict.user.account", messageSource, locale, duplicateAccountDTOs), HttpStatus.CONFLICT);
         } catch (Exception e) {
             String errorMessage = messageSource.getMessage("cas.exception.linkAccount.failure", new Object[]{casGlobalId, appUsername, appName, appType}, locale);
             log.error(errorMessage, e);
-            if (e instanceof AccountException) {
-                AccountDTO[] duplicateAccountDTOs = AccountDTO.convertFromCollection(((AccountException) e).getDuplicateAccounts(), appHelper);
-                return new ResponseEntity(new APIErrorDTO<AccountDTO[]>("cas.exception.conflict.user.account", messageSource, locale, duplicateAccountDTOs), HttpStatus.CONFLICT);
-            } else {
-                return new ResponseEntity(new APIErrorDTO("cas.exception.linkAccount.failure", errorMessage), HttpStatus.INTERNAL_SERVER_ERROR);
-            }
+            return new ResponseEntity<APIErrorDTO>(new APIErrorDTO("cas.exception.linkAccount.failure", errorMessage), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -96,7 +93,6 @@ public class RestController {
      * Finds and re-associates accounts that have been disassociated previously. This is for the case where the admin
      * of an Infusionsoft app deactivates and later reactivates one of their users.
      */
-    @SuppressWarnings("unchecked")
     @RequestMapping
     @ResponseBody
     public ResponseEntity reassociateAccounts(String apiKey, String appName, AppType appType, String appUsername, long casGlobalId, Locale locale) {
@@ -124,7 +120,7 @@ public class RestController {
                 userService.enableUserAccount(account);
             }
 
-            return new ResponseEntity("OK", HttpStatus.OK);
+            return new ResponseEntity<String>("OK", HttpStatus.OK);
         } catch (Exception e) {
             return logAndReturnError(e, "cas.exception.reassociateAccounts.failure", new Object[]{casGlobalId, appUsername, appName, appType}, locale);
         }
@@ -136,7 +132,6 @@ public class RestController {
      * when an app instance is deleted; in this case, if the appUsername is not passed then it will unlink ALL
      * accounts for that app instance.
      */
-    @SuppressWarnings("unchecked")
     @RequestMapping
     @ResponseBody
     public ResponseEntity disassociateAccounts(String apiKey, String appName, AppType appType, String appUsername, @RequestParam(defaultValue = "0") long casGlobalId, Locale locale) {
@@ -164,7 +159,7 @@ public class RestController {
                 userService.disableAccount(account);
             }
 
-            return new ResponseEntity("OK", HttpStatus.OK);
+            return new ResponseEntity<String>("OK", HttpStatus.OK);
         } catch (Exception e) {
             return logAndReturnError(e, "cas.exception.disassociateAccounts.failure", new Object[]{casGlobalId, appUsername, appName, appType}, locale);
         }
@@ -176,7 +171,6 @@ public class RestController {
      * when an app instance is deleted; in this case, if the appUsername is not passed then it will unlink ALL
      * accounts for that app instance.
      */
-    @SuppressWarnings("unchecked")
     @RequestMapping
     @ResponseBody
     public ResponseEntity unlinkUserFromApp(String apiKey, String appName, AppType appType, @RequestParam(required = false) String appUsername, long casGlobalId, Locale locale) {
@@ -204,7 +198,7 @@ public class RestController {
                 userService.deleteAccount(account);
             }
 
-            return new ResponseEntity("OK", HttpStatus.OK);
+            return new ResponseEntity<String>("OK", HttpStatus.OK);
         } catch (Exception e) {
             return logAndReturnError(e, "cas.exception.unlinkUserFromApp.failure", new Object[]{casGlobalId, appUsername, appName, appType}, locale);
         }
@@ -213,7 +207,6 @@ public class RestController {
     /**
      * Changes the application username that is associated with a user
      */
-    @SuppressWarnings("unchecked")
     @RequestMapping
     @ResponseBody
     public ResponseEntity changeAssociatedAppUsername(String apiKey, long casGlobalId, String appName, AppType appType, String newAppUsername, Locale locale) {
@@ -225,7 +218,7 @@ public class RestController {
 
         try {
             userService.changeAssociatedAppUsername(userService.loadUser(casGlobalId), appName, appType, newAppUsername);
-            return new ResponseEntity("OK", HttpStatus.OK);
+            return new ResponseEntity<String>("OK", HttpStatus.OK);
         } catch (Exception e) {
             return logAndReturnError(e, "cas.exception.changeAssociatedAppUsername.failure", new Object[]{newAppUsername, appName, appType, casGlobalId}, locale);
         }
@@ -237,7 +230,6 @@ public class RestController {
      * When the user follows that link and registers, their account will automatically
      * be associated.
      */
-    @SuppressWarnings("unchecked")
     @RequestMapping
     @ResponseBody
     public ResponseEntity scheduleNewUserRegistration(String apiKey, String appName, AppType appType, String appUsername, String firstName, String lastName, String email, Locale locale) {
@@ -256,12 +248,12 @@ public class RestController {
 
             model.put("status", "ok");
             model.put("registrationCode", account.getRegistrationCode());
-            return new ResponseEntity(model, HttpStatus.OK);
+            return new ResponseEntity<Map>(model, HttpStatus.OK);
         } catch (Exception e) {
             log.error("failed to schedule new user registration", e);
 
             model.put("status", "error");
-            return new ResponseEntity(model, HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<Map>(model, HttpStatus.INTERNAL_SERVER_ERROR);
             //TODO: use typed returns for this method; I didn't want to change this since CAM still uses it
         }
     }
@@ -273,7 +265,6 @@ public class RestController {
      * <p/>
      * NOTE: this call does *not* use an API key, because the password is the authentication
      */
-    @SuppressWarnings("unchecked")
     @RequestMapping(value = "authenticateUser", method = RequestMethod.POST)
     @ResponseBody
     public ResponseEntity authenticateUser(String username, String password, String md5password, Locale locale) throws IOException {
@@ -296,14 +287,14 @@ public class RestController {
 
                 switch (loginResult.getLoginStatus()) {
                     case AccountLocked:
-                        error = "login.lockedUser";
+                        error = "login.lockedTooManyFailures";
                         break;
                     case BadPassword:
                     case DisabledUser: // TODO: why is a disabled user getting the locked message?
                     case NoSuchUser:
                         int failedLoginAttempts = loginResult.getFailedAttempts();
                         if (failedLoginAttempts > InfusionsoftAuthenticationService.ALLOWED_LOGIN_ATTEMPTS) {
-                            error = "login.lockedUser";
+                            error = "login.lockedTooManyFailures";
                         } else {
                             error = "login.failed" + failedLoginAttempts;
                         }
@@ -315,16 +306,19 @@ public class RestController {
                         error = null;
                         break;
                     default:
-                        log.error("Unknown value for loginResult: " + loginResult);
-                        error = "Unknown value for loginResult: " + loginResult;
-                        break;
+                        throw new IllegalStateException("Unknown value for loginResult: " + loginResult);
                 }
             }
 
             if (error == null) {
-                return new ResponseEntity(new UserDTO(loginResult.getUser(), appHelper), HttpStatus.OK);
+                UserDTO userDTO = new UserDTO(loginResult.getUser(), appHelper);
+                // TODO: This is a hack to make it lowercase.  Remove when mobile app does case-insensitive comparisons
+                for (UserAccountDTO userAccountDTO : userDTO.getLinkedApps()) {
+                    userAccountDTO.setAppType(StringUtils.lowerCase(userAccountDTO.getAppType()));
+                }
+                return new ResponseEntity<UserDTO>(userDTO, HttpStatus.OK);
             } else {
-                return new ResponseEntity(new APIErrorDTO(error, messageSource, locale), HttpStatus.UNAUTHORIZED);
+                return new ResponseEntity<APIErrorDTO>(new APIErrorDTO(error, messageSource, locale), HttpStatus.UNAUTHORIZED);
             }
         } catch (Exception e) {
             return logAndReturnError(e, "cas.exception.authenticateUser.failure", new Object[]{username}, locale);
@@ -338,7 +332,6 @@ public class RestController {
      * <br/>
      * NOTE: One of these is required:  username OR casGlobalId OR (appName/appType/appUsername)
      */
-    @SuppressWarnings("unchecked")
     @RequestMapping
     @ResponseBody
     public ResponseEntity getUserInfo(String apiKey, @RequestParam(defaultValue = "") String username, @RequestParam(defaultValue = "0") long casGlobalId, @RequestParam(defaultValue = "") String appName, @RequestParam(defaultValue = "") AppType appType, @RequestParam(defaultValue = "") String appUsername, Locale locale) {
@@ -369,37 +362,29 @@ public class RestController {
             }
 
             if (user != null) {
-                return new ResponseEntity(new UserDTO(user, appHelper), HttpStatus.OK);
+                return new ResponseEntity<UserDTO>(new UserDTO(user, appHelper), HttpStatus.OK);
             } else {
-                return new ResponseEntity(new JSONObject(), HttpStatus.OK);
+                return new ResponseEntity<JSONObject>(new JSONObject(), HttpStatus.OK);
             }
         } catch (Exception e) {
             return logAndReturnError(e, "cas.exception.getUserInfo.failure", new Object[]{username, casGlobalId, appName, appType, appUsername}, locale);
         }
     }
 
-    @SuppressWarnings("unchecked")
-    private ResponseEntity validateApiKey(String apiKey, Locale locale) {
+    private ResponseEntity<APIErrorDTO> validateApiKey(String apiKey, Locale locale) {
         // Validate the API key
+        // TODO: replace this with a separate Spring security authentication entry point so the logic doesn't have to be embedded here
         if (!requiredApiKey.equals(apiKey)) {
             log.warn("Invalid API access: apiKey = " + apiKey);
-            return new ResponseEntity(new APIErrorDTO("cas.exception.invalid.apikey", messageSource, locale), HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity<APIErrorDTO>(new APIErrorDTO("cas.exception.invalid.apikey", messageSource, locale), HttpStatus.UNAUTHORIZED);
         }
         return null;
     }
 
-    @SuppressWarnings("unchecked")
-    private ResponseEntity logAndReturnError(Exception e, String code, Object[] args, Locale locale) {
-        if (args == null) {
-            args = new Object[0];
-        }
+    private ResponseEntity<APIErrorDTO> logAndReturnError(Exception e, String code, Object[] args, Locale locale) {
         String errorMessage = messageSource.getMessage(code, args, locale);
-        if (e == null) {
-            log.error(errorMessage);
-        } else {
-            log.error(errorMessage, e);
-        }
-        return new ResponseEntity(new APIErrorDTO(code, errorMessage), HttpStatus.INTERNAL_SERVER_ERROR);
+        log.error(errorMessage, e);
+        return new ResponseEntity<APIErrorDTO>(new APIErrorDTO(code, errorMessage), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @ExceptionHandler(Throwable.class)

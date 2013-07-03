@@ -56,7 +56,7 @@
         jQuery.validator.addMethod("password", function( value, element ) {
             var result = this.optional(element) || value.length >= 7 && /\d/.test(value) && /[a-z]/.test(value) && /[A-Z]/.test(value);
             return result;
-        }, "<spring:message code='registration.error.invalidPassword'/>");
+        }, "<spring:message code='password.error.invalid'/>");
 
         //Check to ensure that password matches
         //Validate the form
@@ -75,12 +75,12 @@
                     },
                     messages: {
                         password1: {
-                            required:  "<spring:message code='registration.error.passwordsRequired'/>",
-                            password: "<spring:message code='registration.error.invalidPassword'/>"
+                            required:  "<spring:message code='password.error.blank'/>",
+                            password: "<spring:message code='password.error.invalid'/>"
                         },
                         password2: {
-                            required:  "<spring:message code='registration.error.passwordsRequired'/>",
-                            equalTo: "<spring:message code='registration.error.passwordsNoMatch'/>"
+                            required:  "<spring:message code='password.error.blank'/>",
+                            equalTo: "<spring:message code='password.error.passwords.dont.match'/>"
                         }
                     },
                     highlight: function(element) {
@@ -113,14 +113,14 @@
             <div style="float:left;">
             <fieldset>
                 <div class="control-group">
-                    <label class="formLabel" for="password1">New Password</label>
+                    <label class="formLabel" for="password1"><spring:message code="password.password1.label"/></label>
                     <div class="controls">
                         <input id="password1" name="password1" value="" type="password" style="width: 164px"/>
                     </div>
                 </div>
                 <div style="height: 15px"></div>
                 <div class="control-group">
-                    <label class="formLabel" for="password2">Retype Password</label>
+                    <label class="formLabel" for="password2"><spring:message code="password.password2.label"/></label>
                     <div class="controls">
                         <input id="password2" name="password2" value="" type="password" style="width: 164px"/>
                     </div>
@@ -130,12 +130,12 @@
             </div>
             <div style="float:left;">
                 <div class="password-info">
-                    Password Criteria:<br/>
+                    <spring:message code="password.criteria.label"/><br/>
                     <ul>
-                        <li id="pw_length">At least 7 characters</li>
-                        <li id="pw_number">1 number</li>
-                        <li id="pw_upper">1 uppercase letter</li>
-                        <li id="pw_under">1 lowercase letter</li>
+                        <li id="pw_length"><spring:message code="password.criteria.length"/></li>
+                        <li id="pw_number"><spring:message code="password.criteria.number"/></li>
+                        <li id="pw_upper"><spring:message code="password.criteria.uppercase"/></li>
+                        <li id="pw_under"><spring:message code="password.criteria.lowercase"/></li>
                     </ul>
                 </div>
             </div>

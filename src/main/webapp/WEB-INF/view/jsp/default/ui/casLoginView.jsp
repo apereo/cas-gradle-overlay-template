@@ -90,7 +90,7 @@
                     messages: {
                         username: {
                             required: "<spring:message code='login.noUsername'/>",
-                            email: "<spring:message code='error.invalidEmail'/>"
+                            email: "<spring:message code='user.error.email.invalid'/>"
                         },
                         password: {
                             required: "<spring:message code='login.noPassword'/>"

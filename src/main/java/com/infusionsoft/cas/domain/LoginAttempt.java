@@ -25,7 +25,7 @@ public class LoginAttempt implements Serializable {
     }
 
     @Column(name = "username", length = 120)
-    @Length(min = 1, max = 120)
+    @Length(min = 1, max = 120, message = "{user.error.email.length}")
     public String getUsername() {
         return username;
     }
