@@ -10,7 +10,6 @@ import com.infusionsoft.cas.domain.AppType;
 import com.infusionsoft.cas.domain.PendingUserAccount;
 import com.infusionsoft.cas.domain.User;
 import com.infusionsoft.cas.domain.UserAccount;
-import com.infusionsoft.cas.exceptions.AccountException;
 import com.infusionsoft.cas.exceptions.DuplicateAccountException;
 import com.infusionsoft.cas.services.InfusionsoftAuthenticationService;
 import com.infusionsoft.cas.services.UserService;
@@ -95,7 +94,7 @@ public class RestController {
      */
     @RequestMapping
     @ResponseBody
-    public ResponseEntity reassociateAccounts(String apiKey, String appName, AppType appType, String appUsername, long casGlobalId, Locale locale) {
+    public ResponseEntity reassociateAccounts(String apiKey, String appName, AppType appType, @RequestParam(required = false) String appUsername, @RequestParam(defaultValue = "0") long casGlobalId, Locale locale) {
         // Validate the API key
         ResponseEntity apiKeyResponse = validateApiKey(apiKey, locale);
         if (apiKeyResponse != null) {
@@ -103,19 +102,16 @@ public class RestController {
         }
 
         try {
-            // Find any matching accounts by casGlobalId and re-associate them
             List<UserAccount> accounts;
             if (casGlobalId > 0) {
+                // Find any matching accounts by casGlobalId and re-associate them
                 accounts = userService.findDisabledUserAccounts(appName, appType, casGlobalId);
                 log.info("found " + accounts.size() + " disabled user accounts mapped to local user with casGlobalId = " + casGlobalId + " on " + appName + "/" + appType);
-                for (UserAccount account : accounts) {
-                    userService.enableUserAccount(account);
-                }
+            } else {
+                // Find any matching accounts by appUsername and re-associate them
+                accounts = userService.findDisabledUserAccounts(appName, appType, appUsername);
+                log.info("found " + accounts.size() + " disabled user accounts mapped to local user " + appUsername + " on " + appName + "/" + appType);
             }
-
-            // Find any remaining matching accounts and reassociate them
-            accounts = userService.findDisabledUserAccounts(appName, appType, appUsername);
-            log.info("found " + accounts.size() + " disabled user accounts mapped to local user " + appUsername + " on " + appName + "/" + appType);
             for (UserAccount account : accounts) {
                 userService.enableUserAccount(account);
             }
@@ -134,7 +130,7 @@ public class RestController {
      */
     @RequestMapping
     @ResponseBody
-    public ResponseEntity disassociateAccounts(String apiKey, String appName, AppType appType, String appUsername, @RequestParam(defaultValue = "0") long casGlobalId, Locale locale) {
+    public ResponseEntity disassociateAccounts(String apiKey, String appName, AppType appType, @RequestParam(required = false) String appUsername, @RequestParam(defaultValue = "0") long casGlobalId, Locale locale) {
         // Validate the API key
         ResponseEntity apiKeyResponse = validateApiKey(apiKey, locale);
         if (apiKeyResponse != null) {
@@ -142,19 +138,16 @@ public class RestController {
         }
 
         try {
-            // Find any matching accounts by casGlobalId and disassociate them
             List<UserAccount> accounts;
             if (casGlobalId > 0) {
+                // Find any matching accounts by casGlobalId and disassociate them
                 accounts = userService.findEnabledUserAccounts(appName, appType, casGlobalId);
                 log.info("found " + accounts.size() + " user accounts mapped to local user with casGlobalId = " + casGlobalId + " on " + appName + "/" + appType);
-                for (UserAccount account : accounts) {
-                    userService.disableAccount(account);
-                }
+            } else {
+                // Find any matching accounts by appUsername and disassociate them
+                accounts = userService.findEnabledUserAccounts(appName, appType, appUsername);
+                log.info("found " + accounts.size() + " user accounts mapped to local user " + appUsername + " on " + appName + "/" + appType);
             }
-
-            // Find any remaining matching accounts and disassociate them
-            accounts = userService.findEnabledUserAccounts(appName, appType, appUsername);
-            log.info("found " + accounts.size() + " user accounts mapped to local user " + appUsername + " on " + appName + "/" + appType);
             for (UserAccount account : accounts) {
                 userService.disableAccount(account);
             }
@@ -173,7 +166,7 @@ public class RestController {
      */
     @RequestMapping
     @ResponseBody
-    public ResponseEntity unlinkUserFromApp(String apiKey, String appName, AppType appType, @RequestParam(required = false) String appUsername, long casGlobalId, Locale locale) {
+    public ResponseEntity unlinkUserFromApp(String apiKey, String appName, AppType appType, @RequestParam(required = false) String appUsername, @RequestParam(defaultValue = "0") long casGlobalId, Locale locale) {
         // Validate the API key
         ResponseEntity apiKeyResponse = validateApiKey(apiKey, locale);
         if (apiKeyResponse != null) {
@@ -181,19 +174,16 @@ public class RestController {
         }
 
         try {
-            // Find any matching accounts by casGlobalId and unlink them
             List<UserAccount> accounts;
             if (casGlobalId > 0) {
+                // Find any matching accounts by casGlobalId and unlink them
                 accounts = userService.findUserAccounts(appName, appType, casGlobalId);
                 log.info("Found " + accounts.size() + " user accounts mapped to local user with casGlobalId = " + casGlobalId + " on " + appName + "/" + appType);
-                for (UserAccount account : accounts) {
-                    userService.deleteAccount(account);
-                }
+            } else {
+                // Find any matching accounts by appUsername and unlink them
+                accounts = userService.findUserAccounts(appName, appType, appUsername);
+                log.info("Found " + accounts.size() + " user accounts mapped to local user " + appUsername + " on " + appName + "/" + appType);
             }
-
-            // Find any remaining matching accounts and unlink them
-            accounts = userService.findUserAccounts(appName, appType, appUsername);
-            log.info("Found " + accounts.size() + " user accounts mapped to local user " + appUsername + " on " + appName + "/" + appType);
             for (UserAccount account : accounts) {
                 userService.deleteAccount(account);
             }

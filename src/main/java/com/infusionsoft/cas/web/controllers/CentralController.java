@@ -7,6 +7,7 @@ import com.infusionsoft.cas.domain.UserAccount;
 import com.infusionsoft.cas.exceptions.AppCredentialsExpiredException;
 import com.infusionsoft.cas.exceptions.AppCredentialsInvalidException;
 import com.infusionsoft.cas.exceptions.CommunityUsernameTakenException;
+import com.infusionsoft.cas.exceptions.DuplicateAccountException;
 import com.infusionsoft.cas.services.*;
 import com.infusionsoft.cas.support.AppHelper;
 import com.infusionsoft.cas.web.ValidationUtils;
@@ -262,6 +263,8 @@ public class CentralController {
                     model.put("connectError", "registration.error.couldNotAssociate");
                 }
             }
+        } catch (DuplicateAccountException e) {
+            model.put("connectError", "registration.error.alreadyLinked");
         } catch (Exception e) {
             log.error("failed to associate account for appType " + appType, e);
             model.put("connectError", "registration.error.couldNotAssociate");
