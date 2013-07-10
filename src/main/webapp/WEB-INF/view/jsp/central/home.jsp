@@ -15,7 +15,11 @@
 <c:url var="createCommunityAccount" value="/app/central/createCommunityAccount"/>
 <c:url var="editCommunityAccount" value="/app/central/editCommunityAccount"/>
 <c:url var="renameAccount" value="/app/central/renameAccount"/>
-
+<style type="text/css">
+    html, body {
+        background: #F5F5F5;
+    }
+</style>
 <script type="text/javascript">
 
     $(document).ready(function () {
