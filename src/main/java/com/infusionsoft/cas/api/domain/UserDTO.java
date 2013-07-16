@@ -17,7 +17,7 @@ public class UserDTO {
     private String displayName;
     private String firstName;
     private String lastName;
-    private Set<UserAccountDTO> linkedApps;
+    private UserAccountDTO[] linkedApps;
     private String[] authorities;
 
     public UserDTO() {
@@ -80,11 +80,11 @@ public class UserDTO {
         this.lastName = lastName;
     }
 
-    public Set<UserAccountDTO> getLinkedApps() {
+    public UserAccountDTO[] getLinkedApps() {
         return linkedApps;
     }
 
-    public void setLinkedApps(Set<UserAccountDTO> linkedApps) {
+    public void setLinkedApps(UserAccountDTO[] linkedApps) {
         this.linkedApps = linkedApps;
     }
 

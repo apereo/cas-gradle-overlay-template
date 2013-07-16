@@ -7,8 +7,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.annotate.JsonTypeName;
 
 import java.util.Collection;
-import java.util.LinkedHashSet;
-import java.util.Set;
 
 /**
  * Represents an account record.  Used when the account is nested within a {@link UserDTO} object, so the user
@@ -22,10 +20,11 @@ public class UserAccountDTO {
     private String appAlias;
     private String appUrl;
 
-    public static Set<UserAccountDTO> convertFromCollection(final Collection<UserAccount> accountCollection, AppHelper appHelper) {
-        Set<UserAccountDTO> accounts = new LinkedHashSet<UserAccountDTO>(accountCollection.size());
+    public static UserAccountDTO[] convertFromCollection(final Collection<UserAccount> accountCollection, AppHelper appHelper) {
+        UserAccountDTO[] accounts = new UserAccountDTO[accountCollection.size()];
+        int i = 0;
         for (UserAccount userAccount : accountCollection) {
-            accounts.add(new UserAccountDTO(userAccount, appHelper));
+            accounts[i++] = new UserAccountDTO(userAccount, appHelper);
         }
         return accounts;
     }

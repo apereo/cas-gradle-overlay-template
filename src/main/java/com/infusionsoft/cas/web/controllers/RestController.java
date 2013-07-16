@@ -78,13 +78,12 @@ public class RestController {
             userService.associateAccountToUser(user, appType, appName, appUsername);
             return new ResponseEntity<UserDTO>(new UserDTO(user, appHelper), HttpStatus.OK);
         } catch (DuplicateAccountException e) {
-            log.error(messageSource.getMessage("cas.exception.linkAccount.failure", new Object[]{casGlobalId, appUsername, appName, appType}, locale), e);
-            Set<AccountDTO> duplicateAccountDTOs = AccountDTO.convertFromCollection(e.getDuplicateAccounts(), appHelper);
-            return new ResponseEntity<APIErrorDTO>(new APIErrorDTO<Set<AccountDTO>>("cas.exception.conflict.user.account", messageSource, locale, duplicateAccountDTOs), HttpStatus.CONFLICT);
+            log.error(messageSource.getMessage("cas.exception.linkAccount.failure", new Object[]{casGlobalId, appUsername, appName, appType}, Locale.US), e);
+            AccountDTO[] duplicateAccountDTOs = AccountDTO.convertFromCollection(e.getDuplicateAccounts(), appHelper);
+            return new ResponseEntity<APIErrorDTO>(new APIErrorDTO<AccountDTO[]>("cas.exception.conflict.user.account", messageSource, locale, duplicateAccountDTOs), HttpStatus.CONFLICT);
         } catch (Exception e) {
-            String errorMessage = messageSource.getMessage("cas.exception.linkAccount.failure", new Object[]{casGlobalId, appUsername, appName, appType}, locale);
-            log.error(errorMessage, e);
-            return new ResponseEntity<APIErrorDTO>(new APIErrorDTO("cas.exception.linkAccount.failure", errorMessage), HttpStatus.INTERNAL_SERVER_ERROR);
+            log.error(messageSource.getMessage("cas.exception.linkAccount.failure", new Object[]{casGlobalId, appUsername, appName, appType}, Locale.US), e);
+            return new ResponseEntity<APIErrorDTO>(new APIErrorDTO("cas.exception.linkAccount.failure", messageSource, new Object[]{casGlobalId, appUsername, appName, appType}, locale), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

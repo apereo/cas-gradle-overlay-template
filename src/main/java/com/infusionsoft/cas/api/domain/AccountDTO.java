@@ -8,8 +8,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.annotate.JsonTypeName;
 
 import java.util.Collection;
-import java.util.LinkedHashSet;
-import java.util.Set;
 
 /**
  * Represents an account record.  Used when the account is not nested within a {@link UserDTO} object, so the user
@@ -26,10 +24,11 @@ public class AccountDTO {
     private String infusionsoftId;
     private Long casGlobalId;
 
-    public static Set<AccountDTO> convertFromCollection(final Collection<UserAccount> accountCollection, AppHelper appHelper) {
-        Set<AccountDTO> accounts = new LinkedHashSet<AccountDTO>(accountCollection.size());
+    public static AccountDTO[] convertFromCollection(final Collection<UserAccount> accountCollection, AppHelper appHelper) {
+        AccountDTO[] accounts = new AccountDTO[accountCollection.size()];
+        int i = 0;
         for (UserAccount userAccount : accountCollection) {
-            accounts.add(new AccountDTO(userAccount, appHelper));
+            accounts[i++] = new AccountDTO(userAccount, appHelper);
         }
         return accounts;
     }

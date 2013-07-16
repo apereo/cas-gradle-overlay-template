@@ -52,7 +52,7 @@ public class APIErrorDTO<T> {
         return message;
     }
 
-    @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "relatedObjectType")
+    @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_ARRAY)
     @JsonSubTypes({
             @Type(value = UserDTO[].class, name = "User[]"),
             @Type(value = UserDTO.class, name = "User"),
