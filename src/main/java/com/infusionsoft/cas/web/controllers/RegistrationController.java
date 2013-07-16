@@ -66,6 +66,9 @@ public class RegistrationController {
     @Autowired
     private AutoLoginService autoLoginService;
 
+    @Autowired
+    private CasAuthenticationHelper casAuthenticationHelper;
+
     @Value("${server.prefix}")
     private String serverPrefix;
 
@@ -74,17 +77,19 @@ public class RegistrationController {
      */
     //TODO: Kill after a couple weeks after any outstanding new user invites have processed.
     @RequestMapping
-    public ModelAndView welcome(String registrationCode, String returnUrl, String skipUrl, String userToken, String firstName, String lastName, String email) throws IOException {
-        return createInfusionsoftId(registrationCode, returnUrl, skipUrl, userToken, firstName, lastName, email);
+    public ModelAndView welcome(String registrationCode, String returnUrl, String skipUrl, String userToken, String firstName, String lastName, String email, HttpServletRequest request) throws IOException {
+        return createInfusionsoftId(registrationCode, returnUrl, skipUrl, userToken, firstName, lastName, email, request);
     }
 
     /**
      * Shows the registration form.
      */
     @RequestMapping
-    public ModelAndView createInfusionsoftId(String registrationCode, String returnUrl, String skipUrl, String userToken, String firstName, String lastName, String email) throws IOException {
-        Map<String, Object> model = new HashMap<String, Object>();
+    public ModelAndView createInfusionsoftId(String registrationCode, String returnUrl, String skipUrl, String userToken, String firstName, String lastName, String email, HttpServletRequest request) throws IOException {
+        //If you get here, you should not have a ticket granting cookie in the request. If we don't clear it, we may be linking the wrong user account if user chooses "Already have ID" from the registration page
+        casAuthenticationHelper.killTicketGrantingCookieAndSecurityContext(request);
 
+        Map<String, Object> model = new HashMap<String, Object>();
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         if (!(authentication instanceof AnonymousAuthenticationToken)) {

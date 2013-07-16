@@ -146,7 +146,7 @@
         <div id="links-above-lanyard" >
             <div id="already-have-id">
                 <a href="#" class="linkToExisting"><spring:message code='registration.signin'/></a>
-                <form:form id="linkToExistingForm" action="linkToExisting" method="post">
+                <form:form id="linkToExistingForm" action="linkToExisting" method="get">
                     ${commonFormElements}
                 </form:form>
             </div>

@@ -41,20 +41,14 @@ public class AutoLoginService {
     @Qualifier("grantingTicketExpirationPolicy")
     ExpirationPolicy ticketGrantingTicketExpirationPolicy;
 
+    @Autowired
+    private CasAuthenticationHelper casAuthenticationHelper;
+
     public boolean autoLogin(String username, HttpServletRequest request, HttpServletResponse response) {
         boolean retVal;
 
         try {
-            String oldTicketGrantingTicketId = ticketGrantingTicketCookieGenerator.retrieveCookieValue(request);
-
-            if (oldTicketGrantingTicketId != null) {
-                TicketGrantingTicket ticket = (TicketGrantingTicket) ticketRegistry.getTicket(oldTicketGrantingTicketId, TicketGrantingTicket.class);
-
-                if (ticket != null) {
-                    centralAuthenticationService.destroyTicketGrantingTicket(oldTicketGrantingTicketId);
-                }
-            }
-
+            casAuthenticationHelper.killTicketGrantingCookieAndSecurityContext(request);
             LetMeInCredentials letMeInCredentials = new LetMeInCredentials();
             letMeInCredentials.setUsername(username);
             String ticketGrantingTicketId = centralAuthenticationService.createTicketGrantingTicket(letMeInCredentials);
