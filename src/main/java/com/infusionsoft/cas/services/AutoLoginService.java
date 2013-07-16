@@ -41,14 +41,11 @@ public class AutoLoginService {
     @Qualifier("grantingTicketExpirationPolicy")
     ExpirationPolicy ticketGrantingTicketExpirationPolicy;
 
-    @Autowired
-    private CasAuthenticationHelper casAuthenticationHelper;
 
     public boolean autoLogin(String username, HttpServletRequest request, HttpServletResponse response) {
         boolean retVal;
-
         try {
-            casAuthenticationHelper.killTicketGrantingCookieAndSecurityContext(request);
+            killTGT(request);
             LetMeInCredentials letMeInCredentials = new LetMeInCredentials();
             letMeInCredentials.setUsername(username);
             String ticketGrantingTicketId = centralAuthenticationService.createTicketGrantingTicket(letMeInCredentials);
@@ -60,7 +57,18 @@ public class AutoLoginService {
             log.error(e);
             retVal = false;
         }
-
         return retVal;
+    }
+
+    public void killTGT(HttpServletRequest request) {
+        //killing the TGT will force CAS to kill the security session for the service the TGT was established for
+        String oldTicketGrantingTicketId = ticketGrantingTicketCookieGenerator.retrieveCookieValue(request);
+        if (oldTicketGrantingTicketId != null) {
+            TicketGrantingTicket ticket = (TicketGrantingTicket) ticketRegistry.getTicket(oldTicketGrantingTicketId, TicketGrantingTicket.class);
+
+            if (ticket != null) {
+                centralAuthenticationService.destroyTicketGrantingTicket(oldTicketGrantingTicketId);
+            }
+        }
     }
 }
