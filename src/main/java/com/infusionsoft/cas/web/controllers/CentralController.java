@@ -28,6 +28,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -109,12 +110,32 @@ public class CentralController {
         model.addAttribute("customerHubDomain", customerHubDomain);
         model.addAttribute("marketplaceDomain", marketplaceDomain);
         model.addAttribute("marketplaceUrl", marketplaceLoginUrl);
-        model.addAttribute("accounts", userService.findSortedUserAccounts(user));
+
+        List<UserAccount> userAccountList = userService.findSortedUserAccounts(user);
+
+        model.addAttribute("accounts", userAccountList);
         model.addAttribute("connectAccountCrmEnabled", connectAccountCrmEnabled);
         model.addAttribute("connectAccountCommunityEnabled", connectAccountCommunityEnabled);
         model.addAttribute("connectAccountCustomerHubEnabled", connectAccountCustomerHubEnabled);
 
+        logUserAccountInfoToSplunk(userAccountList, user);
+
         return "central/home";
+    }
+
+    private void logUserAccountInfoToSplunk(List<UserAccount> userAccountList, User user){
+        int payingAccounts = 0;
+        for (UserAccount account : userAccountList) {
+            if (account.getAppType().equals(AppType.CRM) || account.getAppType().equals(AppType.CUSTOMERHUB)) {
+                payingAccounts++;
+            }
+        }
+        //add user id so we can search by unique and eliminate dups
+        if (payingAccounts == 1) {
+            log.error("User has 1 paying account. User=" + user.getId());
+        } else if (payingAccounts > 1) {
+            log.error("User has > 1 paying accounts. User=" + user.getId());
+        }
     }
 
     /**
