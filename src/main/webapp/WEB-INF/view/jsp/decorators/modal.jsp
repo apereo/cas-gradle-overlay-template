@@ -32,7 +32,7 @@
 <div id="greenheaderbg">
     <div id="greenheader">&nbsp;</div>
 </div>
-<div class="wrapper">
+<div id="greenheader-main">
     <div id="content">
         <decorator:body/>
     </div>

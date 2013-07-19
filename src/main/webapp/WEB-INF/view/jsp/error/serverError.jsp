@@ -6,7 +6,7 @@
     <title>Server Error</title>
 </head>
 <body>
-    <h2 class="text-center">
+    <h2 class="text-center modal-title">
         There was a server error processing your request
     </h2>
 </body>

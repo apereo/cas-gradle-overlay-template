@@ -412,12 +412,6 @@ label {
     border-color: #ac4c47;
 }
 
-.modal-title {
-    margin: 50px auto 0 auto;
-    text-align: center;
-    font-size: 20px;
-}
-
 .modal-header h3 {
     font-weight: normal;
 }
@@ -454,6 +448,11 @@ label {
     line-height: 27px;
     font-weight: 300;
     color: #444;
+}
+
+.modal-subtitle {
+    font-size: 13px;
+    margin-top: 12px;
 }
 
 .control-label {
