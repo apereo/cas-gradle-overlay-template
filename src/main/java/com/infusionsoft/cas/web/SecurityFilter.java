@@ -21,10 +21,8 @@ public class SecurityFilter implements Filter {
         HttpServletResponse response = (HttpServletResponse) servletResponse;
         String path = request.getServletPath();
 
-        // The banner gets framed by CRM apps so it needs to allow framing; all others forbid it
-        if (!request.getRequestURI().contains("registration/banner")) {
-            response.setHeader("X-Frame-Options", "SAMEORIGIN");
-        }
+        // Prevent framing
+        response.setHeader("X-Frame-Options", "SAMEORIGIN");
 
         // Prevent content-type sniffing by certain browsers
         response.setHeader("X-Content-Type-Options", "nosniff");

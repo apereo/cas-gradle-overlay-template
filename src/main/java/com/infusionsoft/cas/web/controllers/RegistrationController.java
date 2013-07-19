@@ -13,6 +13,9 @@ import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.validator.EmailValidator;
 import org.apache.log4j.Logger;
+import org.jasig.cas.authentication.principal.SimpleWebApplicationServiceImpl;
+import org.jasig.cas.services.RegisteredService;
+import org.jasig.cas.services.ServicesManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
@@ -66,6 +69,8 @@ public class RegistrationController {
     @Autowired
     private AutoLoginService autoLoginService;
 
+    @Autowired
+    private ServicesManager servicesManager;
 
     @Value("${server.prefix}")
     private String serverPrefix;
@@ -75,24 +80,23 @@ public class RegistrationController {
      */
     //TODO: Kill after a couple weeks after any outstanding new user invites have processed.
     @RequestMapping
-    public ModelAndView welcome(String registrationCode, String returnUrl, String skipUrl, String userToken, String firstName, String lastName, String email, HttpServletRequest request) throws IOException {
-        return createInfusionsoftId(registrationCode, returnUrl, skipUrl, userToken, firstName, lastName, email, request);
+    public String welcome(Model model, String registrationCode, String returnUrl, String skipUrl, String userToken, String firstName, String lastName, String email, HttpServletRequest request) throws IOException {
+        return createInfusionsoftId(model, registrationCode, returnUrl, skipUrl, userToken, firstName, lastName, email, request);
     }
 
     /**
      * Shows the registration form.
      */
     @RequestMapping
-    public ModelAndView createInfusionsoftId(String registrationCode, String returnUrl, String skipUrl, String userToken, String firstName, String lastName, String email, HttpServletRequest request) throws IOException {
+    public String createInfusionsoftId(Model model, String registrationCode, String returnUrl, String skipUrl, String userToken, String firstName, String lastName, String email, HttpServletRequest request) throws IOException {
         //If you get here, you should not have a ticket granting cookie in the request. If we don't clear it, we may be linking the wrong user account if user chooses "Already have ID" from the registration page
         autoLoginService.killTGT(request);
 
-        Map<String, Object> model = new HashMap<String, Object>();
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         if (!(authentication instanceof AnonymousAuthenticationToken)) {
             String service = serverPrefix + urlService.url("registration", "createInfusionsoftId") + (StringUtils.isNotEmpty(registrationCode) ? "?registrationCode=" + registrationCode : "");
-            return new ModelAndView("redirect://j_spring_security_logout?service=" + URLEncoder.encode(service, "UTF-8"));
+            return "redirect:/j_spring_security_logout?service=" + URLEncoder.encode(service, "UTF-8");
         } else {
             User user = new User();
             user.setFirstName(StringEscapeUtils.escapeHtml4(firstName));
@@ -110,14 +114,43 @@ public class RegistrationController {
                 }
             }
 
-            model.put("returnUrl", returnUrl);
-            model.put("skipUrl", skipUrl);
-            model.put("userToken", userToken);
-            model.put("user", user);
-            model.put("registrationCode", registrationCode);
-
-            return new ModelAndView("registration/createInfusionsoftId", model);
+            buildModelForCreateInfusionsoftId(model, returnUrl, skipUrl, userToken, user, registrationCode);
+            return "registration/createInfusionsoftId";
         }
+    }
+
+    /**
+     * Builds the model with attributes that are required for displaying the createInfusionsoftId page.
+     */
+    private void buildModelForCreateInfusionsoftId(Model model, String returnUrl, String skipUrl, String userToken, User user, String registrationCode) {
+        if (isValidUrl(returnUrl, "returnUrl")) {
+            model.addAttribute("returnUrl", returnUrl);
+        }
+        if (isValidUrl(skipUrl, "skipUrl")) {
+            model.addAttribute("skipUrl", skipUrl);
+        }
+        model.addAttribute("userToken", userToken);
+        model.addAttribute("user", user);
+        model.addAttribute("registrationCode", registrationCode);
+    }
+
+    /**
+     * Determines if the given URL is allowed.  This ensures that we don't have unvalidated redirects.
+     */
+    private boolean isValidUrl(String url, String parameterName) {
+        // Validate the return URL against the service whitelist
+        /** Modeled after {@link org.jasig.cas.web.LogoutController#handleRequestInternal(HttpServletRequest, HttpServletResponse)} }*/
+        boolean retVal = false;
+        if (StringUtils.isNotBlank(url)) {
+            final RegisteredService registeredService = this.servicesManager.findServiceBy(new SimpleWebApplicationServiceImpl(url));
+            if (registeredService != null && registeredService.isEnabled()) {
+                retVal = true;
+                log.info("URL " + parameterName + " matched registered service " + registeredService.getName() + ": " + url);
+            } else {
+                log.warn("URL " + parameterName + " did not match any active registered service (it will be ignored): " + url);
+            }
+        }
+        return retVal;
     }
 
     /**
@@ -140,16 +173,26 @@ public class RegistrationController {
                 model.addAttribute("error", "Registration Code not found");
                 retVal = "registration/createInfusionsoftId";
             }
-        } else if (StringUtils.isNotBlank(returnUrl) && StringUtils.isNotBlank(userToken)) {
-            // Redirect back to the app, which will do the linkage
-            // TODO: we need to sanitize / validate the returnUrl!
-            // TODO: is this suffficient for userToken?
-            return "redirect:" + returnUrl + "?userToken=" + URLEncoder.encode(userToken, CharEncoding.UTF_8) + "&casGlobalId=" + user.getId();
+        } else if (isValidUrl(returnUrl, "returnUrl") && StringUtils.isNotBlank(userToken)) {
+            return generateRedirectForReturnUrl(returnUrl, userToken, user, false);
         } else {
             return "redirect:/app/central/home";
         }
 
         return retVal;
+    }
+
+    /**
+     * Creates the redirect from the return URL, user token, and user.  The page at this URL is responsible for completing the linkage of the CAS ID to an application user and displaying a success page if desired.
+     */
+    private String generateRedirectForReturnUrl(String returnUrl, String userToken, User user, boolean isNewInfusionsoftId) {
+        // Redirect back to the app, which will do the linkage
+        try {
+            return "redirect:" + returnUrl + "?userToken=" + URLEncoder.encode(userToken, CharEncoding.UTF_8) + "&casGlobalId=" + user.getId() + "&isNewInfusionsoftId=" + isNewInfusionsoftId;
+        } catch (UnsupportedEncodingException e) {
+            // This should never happen
+            throw new RuntimeException(e);
+        }
     }
 
     /**
@@ -220,17 +263,12 @@ public class RegistrationController {
         }
 
         if (model.containsAttribute("error")) {
-            model.addAttribute("returnUrl", returnUrl);
-            model.addAttribute("skipUrl", skipUrl);
-            model.addAttribute("userToken", userToken);
-            model.addAttribute("registrationCode", registrationCode);
+            buildModelForCreateInfusionsoftId(model, returnUrl, skipUrl, userToken, user, registrationCode);
             return "registration/createInfusionsoftId";
+        } else if (isValidUrl(returnUrl, "returnUrl") && StringUtils.isNotBlank(userToken)) {
+            return generateRedirectForReturnUrl(returnUrl, userToken, user, true);
         } else {
-            if (StringUtils.isNotBlank(userToken) && StringUtils.isNotBlank(returnUrl)) {
-                return "redirect:" + returnUrl + "?userToken=" + userToken + "&casGlobalId=" + user.getId();
-            } else {
-                return "registration/success";
-            }
+            return "registration/success";
         }
     }
 
