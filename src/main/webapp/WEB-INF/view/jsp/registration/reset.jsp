@@ -115,14 +115,14 @@
                 <div class="control-group">
                     <label class="formLabel" for="password1"><spring:message code="password.password1.label"/></label>
                     <div class="controls">
-                        <input id="password1" name="password1" value="" type="password" style="width: 164px"/>
+                        <input id="password1" name="password1" value="" type="password" style="width: 164px" autocomplete="off"/>
                     </div>
                 </div>
                 <div style="height: 15px"></div>
                 <div class="control-group">
                     <label class="formLabel" for="password2"><spring:message code="password.password2.label"/></label>
                     <div class="controls">
-                        <input id="password2" name="password2" value="" type="password" style="width: 164px"/>
+                        <input id="password2" name="password2" value="" type="password" style="width: 164px" autocomplete="off"/>
                     </div>
                 </div>
             </fieldset>
