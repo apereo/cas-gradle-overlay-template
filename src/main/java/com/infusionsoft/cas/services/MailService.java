@@ -49,7 +49,6 @@ public class MailService {
             Context context = new VelocityContext();
 
             context.put("user", user);
-            context.put("serverPrefix", serverPrefix);
 
             velocityEngine.mergeTemplate("/velocity/welcomeEmail.vm", "UTF-8", context, body);
             message.setContent(body.toString(), "text/html");
