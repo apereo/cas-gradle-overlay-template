@@ -25,6 +25,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -207,19 +209,19 @@ public class InfusionsoftAuthenticationServiceImpl implements InfusionsoftAuthen
         switch (loginResult.getLoginStatus()) {
             case Success:
                 log.info("Authenticated CAS user " + username);
-                recordLoginAttempt(username, true);
+                recordLoginAttempt(loginResult, username, true);
                 break;
 
             case PasswordExpired:
                 log.info("Authenticated CAS user " + username + " with expired password");
-                recordLoginAttempt(username, true);
+                recordLoginAttempt(loginResult, username, true);
                 break;
 
             case AccountLocked:
             case BadPassword:
             case DisabledUser:
             case NoSuchUser:
-                recordLoginAttempt(username, false);
+                recordLoginAttempt(loginResult, username, false);
                 break;
 
             default:
@@ -289,7 +291,7 @@ public class InfusionsoftAuthenticationServiceImpl implements InfusionsoftAuthen
      * Records a login attempt, and whether it was successful or not. This is used for account locking
      * in the case of too many failures.
      */
-    private void recordLoginAttempt(String username, boolean success) {
+    private void recordLoginAttempt(LoginResult loginResult, String username, boolean success) {
         LoginAttempt attempt = new LoginAttempt();
 
         attempt.setUsername(username);
@@ -298,6 +300,27 @@ public class InfusionsoftAuthenticationServiceImpl implements InfusionsoftAuthen
         attempt.setSuccess(success);
 
         loginAttemptDAO.save(attempt);
+
+        if (!success) {
+            // Write anything to the logs that would help us see where bad logins are coming from
+            try {
+                ServletRequestAttributes requestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+                HttpServletRequest httpServletRequest = requestAttributes.getRequest();
+                String userAgent = httpServletRequest.getHeader("user-agent");
+                String referrer = httpServletRequest.getHeader("referer");
+                String remoteAddress = httpServletRequest.getRemoteAddr();
+                String requestURI = httpServletRequest.getRequestURI();
+                String errorMessage = StringUtils.join("Bad login attempt.\n  username: ", username, "\n  user-agent: ", userAgent, "\n  remoteAddress: ", remoteAddress, "\n  requestURI: ", requestURI, "\n  referrer: ", referrer);
+                // Log with an error if it's the one that caused a lockout or already locked out; otherwise info level
+                if (loginResult == null || loginResult.getFailedAttempts() >= InfusionsoftAuthenticationService.ALLOWED_LOGIN_ATTEMPTS) {
+                    log.error(errorMessage);
+                } else {
+                    log.info(errorMessage);
+                }
+            } catch (Exception e) {
+                log.error("Error getting request information when trying to log bad login attempt for user " + username, e);
+            }
+        }
     }
 
     /**
@@ -432,7 +455,7 @@ public class InfusionsoftAuthenticationServiceImpl implements InfusionsoftAuthen
 
     @Override
     public void unlockUser(String username) {
-        recordLoginAttempt(username, true);
+        recordLoginAttempt(null, username, true);
 
         final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User user = (User) (authentication == null ? null : authentication.getPrincipal());
