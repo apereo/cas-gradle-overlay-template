@@ -2,10 +2,7 @@ package com.infusionsoft.cas.services;
 
 import com.infusionsoft.cas.auth.LoginResult;
 import com.infusionsoft.cas.dao.LoginAttemptDAO;
-import com.infusionsoft.cas.domain.AppType;
-import com.infusionsoft.cas.domain.LoginAttempt;
-import com.infusionsoft.cas.domain.User;
-import com.infusionsoft.cas.domain.UserPassword;
+import com.infusionsoft.cas.domain.*;
 import com.infusionsoft.cas.support.AppHelper;
 import org.mockito.ArgumentCaptor;
 import org.testng.Assert;
@@ -73,15 +70,12 @@ public class InfusionsoftAuthenticationServiceTest {
         when(infusionsoftAuthenticationService.userService.loadUser(testUsername)).thenReturn(user);
 
         password = new UserPassword();
-        password.setActive(true);
         password.setUser(user);
         password.setPasswordEncoded(testPassword);
         password.setPasswordEncodedMD5(testPasswordMD5);
 
-        when(infusionsoftAuthenticationService.passwordService.passwordsMatch(any(UserPassword.class), anyString())).thenReturn(false);
-        when(infusionsoftAuthenticationService.passwordService.passwordsMatch(password, testPassword)).thenReturn(true);
-        when(infusionsoftAuthenticationService.passwordService.md5PasswordsMatch(any(UserPassword.class), anyString())).thenReturn(false);
-        when(infusionsoftAuthenticationService.passwordService.md5PasswordsMatch(password, testPasswordMD5)).thenReturn(true);
+        when(infusionsoftAuthenticationService.passwordService.getMatchingPasswordForUser(any(User.class), anyString())).thenReturn(null);
+        when(infusionsoftAuthenticationService.passwordService.getMatchingMD5PasswordForUser(any(User.class), anyString())).thenReturn(null);
     }
 
     @BeforeMethod
@@ -94,17 +88,34 @@ public class InfusionsoftAuthenticationServiceTest {
 
         // TODO: use UTC date here
         password.setDateCreated(new Date());
+        password.setActive(true);
 
         setupFailedLogins(0);
-        when(infusionsoftAuthenticationService.passwordService.getPasswordForUser(user)).thenReturn(password);
+        when(infusionsoftAuthenticationService.passwordService.getMatchingPasswordForUser(user, testPassword)).thenReturn(password);
+        when(infusionsoftAuthenticationService.passwordService.getMatchingMD5PasswordForUser(user, testPasswordMD5)).thenReturn(password);
         when(infusionsoftAuthenticationService.passwordService.isPasswordExpired(password)).thenReturn(false);
     }
 
     private List<LoginAttempt> setupFailedLogins(int failedCount) {
         List<LoginAttempt> loginAttemptList = new ArrayList<LoginAttempt>();
         for (int i = 0; i < failedCount; i++) {
+            // Setup failed logins of all types
             LoginAttempt loginAttempt = new LoginAttempt();
-            loginAttempt.setSuccess(false);
+            int modulusOfI = i % 4;
+            if (modulusOfI == 0) {
+                loginAttempt.setStatus(LoginAttemptStatus.AccountLocked);
+            } else if (modulusOfI == 1) {
+                loginAttempt.setStatus(LoginAttemptStatus.BadPassword);
+            } else if (modulusOfI == 2) {
+                loginAttempt.setStatus(LoginAttemptStatus.DisabledUser);
+            } else {
+                loginAttempt.setStatus(LoginAttemptStatus.NoSuchUser);
+            }
+            loginAttemptList.add(loginAttempt);
+
+            // Also add a OldPassword result to ensure they are being ignored
+            loginAttempt = new LoginAttempt();
+            loginAttempt.setStatus(LoginAttemptStatus.OldPassword);
             loginAttemptList.add(loginAttempt);
         }
         when(infusionsoftAuthenticationService.loginAttemptDAO.findByUsernameAndDateAttemptedGreaterThanOrderByDateAttemptedDesc(anyString(), any(Date.class))).thenReturn(loginAttemptList);
@@ -216,46 +227,46 @@ public class InfusionsoftAuthenticationServiceTest {
         // Account with some bad logins already, good password
         setupFailedLogins(3);
         LoginResult loginResult = infusionsoftAuthenticationService.attemptLogin(testUsername, testPassword);
-        Assert.assertEquals(loginResult.getLoginStatus(), LoginResult.LoginStatus.Success);
+        Assert.assertEquals(loginResult.getLoginStatus(), LoginAttemptStatus.Success);
         Assert.assertEquals(loginResult.getFailedAttempts(), 0);
 
         // Account with some bad logins already, bad password
         setupFailedLogins(3);
         loginResult = infusionsoftAuthenticationService.attemptLogin(testUsername, "badPassword");
-        Assert.assertEquals(loginResult.getLoginStatus(), LoginResult.LoginStatus.BadPassword);
+        Assert.assertEquals(loginResult.getLoginStatus(), LoginAttemptStatus.BadPassword);
         Assert.assertEquals(loginResult.getFailedAttempts(), 4);
 
         // Account on the verge of being locked, good password
         setupFailedLogins(5);
         loginResult = infusionsoftAuthenticationService.attemptLogin(testUsername, testPassword);
-        Assert.assertEquals(loginResult.getLoginStatus(), LoginResult.LoginStatus.Success);
+        Assert.assertEquals(loginResult.getLoginStatus(), LoginAttemptStatus.Success);
         Assert.assertEquals(loginResult.getFailedAttempts(), 0);
 
         // Account on the verge of being locked, bad password
         setupFailedLogins(5);
         loginResult = infusionsoftAuthenticationService.attemptLogin(testUsername, "badPassword");
-        Assert.assertEquals(loginResult.getLoginStatus(), LoginResult.LoginStatus.AccountLocked);
+        Assert.assertEquals(loginResult.getLoginStatus(), LoginAttemptStatus.AccountLocked);
         Assert.assertEquals(loginResult.getFailedAttempts(), 6);
 
         // Account already locked, good password
         setupFailedLogins(6);
         loginResult = infusionsoftAuthenticationService.attemptLogin(testUsername, testPassword);
-        Assert.assertEquals(loginResult.getLoginStatus(), LoginResult.LoginStatus.AccountLocked);
+        Assert.assertEquals(loginResult.getLoginStatus(), LoginAttemptStatus.AccountLocked);
         Assert.assertEquals(loginResult.getFailedAttempts(), 7);
 
         // Account already locked, bad password
         setupFailedLogins(6);
         loginResult = infusionsoftAuthenticationService.attemptLogin(testUsername, "badPassword");
-        Assert.assertEquals(loginResult.getLoginStatus(), LoginResult.LoginStatus.AccountLocked);
+        Assert.assertEquals(loginResult.getLoginStatus(), LoginAttemptStatus.AccountLocked);
         Assert.assertEquals(loginResult.getFailedAttempts(), 7);
 
         // Account already locked, forced unlocked by support
         List<LoginAttempt> loginAttemptList = setupFailedLogins(10); // Arbitrarily large number of failures
         LoginAttempt loginAttempt = new LoginAttempt();
-        loginAttempt.setSuccess(true);
+        loginAttempt.setStatus(LoginAttemptStatus.UnlockedByAdmin);
         loginAttemptList.add(0, loginAttempt);
         loginResult = infusionsoftAuthenticationService.attemptLogin(testUsername, testPassword);
-        Assert.assertEquals(loginResult.getLoginStatus(), LoginResult.LoginStatus.Success);
+        Assert.assertEquals(loginResult.getLoginStatus(), LoginAttemptStatus.Success);
         Assert.assertEquals(loginResult.getFailedAttempts(), 0);
     }
 
@@ -263,23 +274,23 @@ public class InfusionsoftAuthenticationServiceTest {
     public void testAttemptLoginBadPassword() {
         // Bad password
         LoginResult loginResult = infusionsoftAuthenticationService.attemptLogin(testUsername, "badPassword");
-        Assert.assertEquals(loginResult.getLoginStatus(), LoginResult.LoginStatus.BadPassword);
+        Assert.assertEquals(loginResult.getLoginStatus(), LoginAttemptStatus.BadPassword);
         Assert.assertEquals(loginResult.getFailedAttempts(), 1);
 
         // Empty password
         loginResult = infusionsoftAuthenticationService.attemptLogin(testUsername, "");
-        Assert.assertEquals(loginResult.getLoginStatus(), LoginResult.LoginStatus.BadPassword);
+        Assert.assertEquals(loginResult.getLoginStatus(), LoginAttemptStatus.BadPassword);
         Assert.assertEquals(loginResult.getFailedAttempts(), 1);
 
         // Null password
         loginResult = infusionsoftAuthenticationService.attemptLogin(testUsername, null);
-        Assert.assertEquals(loginResult.getLoginStatus(), LoginResult.LoginStatus.BadPassword);
+        Assert.assertEquals(loginResult.getLoginStatus(), LoginAttemptStatus.BadPassword);
         Assert.assertEquals(loginResult.getFailedAttempts(), 1);
 
         // No password for user
-        when(infusionsoftAuthenticationService.passwordService.getPasswordForUser(user)).thenReturn(null);
+        when(infusionsoftAuthenticationService.passwordService.getMatchingPasswordForUser(user, testPassword)).thenReturn(null);
         loginResult = infusionsoftAuthenticationService.attemptLogin(testUsername, testPassword);
-        Assert.assertEquals(loginResult.getLoginStatus(), LoginResult.LoginStatus.BadPassword);
+        Assert.assertEquals(loginResult.getLoginStatus(), LoginAttemptStatus.BadPassword);
         Assert.assertEquals(loginResult.getFailedAttempts(), 1);
     }
 
@@ -287,14 +298,14 @@ public class InfusionsoftAuthenticationServiceTest {
     public void testAttemptLoginDisabledUser() {
         user.setEnabled(false);
         LoginResult loginResult = infusionsoftAuthenticationService.attemptLogin(testUsername, testPassword);
-        Assert.assertEquals(loginResult.getLoginStatus(), LoginResult.LoginStatus.DisabledUser);
+        Assert.assertEquals(loginResult.getLoginStatus(), LoginAttemptStatus.DisabledUser);
         Assert.assertEquals(loginResult.getFailedAttempts(), 1);
     }
 
     @Test
     public void testAttemptLoginNoSuchUser() {
         LoginResult loginResult = infusionsoftAuthenticationService.attemptLogin("noSuchUser@ever.com", "badPassword");
-        Assert.assertEquals(loginResult.getLoginStatus(), LoginResult.LoginStatus.NoSuchUser);
+        Assert.assertEquals(loginResult.getLoginStatus(), LoginAttemptStatus.NoSuchUser);
         Assert.assertEquals(loginResult.getFailedAttempts(), 1);
     }
 
@@ -302,14 +313,22 @@ public class InfusionsoftAuthenticationServiceTest {
     public void testAttemptLoginPasswordExpired() {
         when(infusionsoftAuthenticationService.passwordService.isPasswordExpired(password)).thenReturn(true);
         LoginResult loginResult = infusionsoftAuthenticationService.attemptLogin(testUsername, testPassword);
-        Assert.assertEquals(loginResult.getLoginStatus(), LoginResult.LoginStatus.PasswordExpired);
+        Assert.assertEquals(loginResult.getLoginStatus(), LoginAttemptStatus.PasswordExpired);
         Assert.assertEquals(loginResult.getFailedAttempts(), 0);
     }
 
     @Test
     public void testAttemptLoginSuccess() {
         LoginResult loginResult = infusionsoftAuthenticationService.attemptLogin(testUsername, testPassword);
-        Assert.assertEquals(loginResult.getLoginStatus(), LoginResult.LoginStatus.Success);
+        Assert.assertEquals(loginResult.getLoginStatus(), LoginAttemptStatus.Success);
+        Assert.assertEquals(loginResult.getFailedAttempts(), 0);
+    }
+
+    @Test
+    public void testAttemptLoginOldPassword() {
+        password.setActive(false);
+        LoginResult loginResult = infusionsoftAuthenticationService.attemptLogin(testUsername, testPassword);
+        Assert.assertEquals(loginResult.getLoginStatus(), LoginAttemptStatus.OldPassword);
         Assert.assertEquals(loginResult.getFailedAttempts(), 0);
     }
 
@@ -318,46 +337,46 @@ public class InfusionsoftAuthenticationServiceTest {
         // Account with some bad logins already, good password
         setupFailedLogins(3);
         LoginResult loginResult = infusionsoftAuthenticationService.attemptLoginWithMD5Password(testUsername, testPasswordMD5);
-        Assert.assertEquals(loginResult.getLoginStatus(), LoginResult.LoginStatus.Success);
+        Assert.assertEquals(loginResult.getLoginStatus(), LoginAttemptStatus.Success);
         Assert.assertEquals(loginResult.getFailedAttempts(), 0);
 
         // Account with some bad logins already, bad password
         setupFailedLogins(3);
         loginResult = infusionsoftAuthenticationService.attemptLoginWithMD5Password(testUsername, "badPassword");
-        Assert.assertEquals(loginResult.getLoginStatus(), LoginResult.LoginStatus.BadPassword);
+        Assert.assertEquals(loginResult.getLoginStatus(), LoginAttemptStatus.BadPassword);
         Assert.assertEquals(loginResult.getFailedAttempts(), 4);
 
         // Account on the verge of being locked, good password
         setupFailedLogins(5);
         loginResult = infusionsoftAuthenticationService.attemptLoginWithMD5Password(testUsername, testPasswordMD5);
-        Assert.assertEquals(loginResult.getLoginStatus(), LoginResult.LoginStatus.Success);
+        Assert.assertEquals(loginResult.getLoginStatus(), LoginAttemptStatus.Success);
         Assert.assertEquals(loginResult.getFailedAttempts(), 0);
 
         // Account on the verge of being locked, bad password
         setupFailedLogins(5);
         loginResult = infusionsoftAuthenticationService.attemptLoginWithMD5Password(testUsername, "badPassword");
-        Assert.assertEquals(loginResult.getLoginStatus(), LoginResult.LoginStatus.AccountLocked);
+        Assert.assertEquals(loginResult.getLoginStatus(), LoginAttemptStatus.AccountLocked);
         Assert.assertEquals(loginResult.getFailedAttempts(), 6);
 
         // Account already locked, good password
         setupFailedLogins(6);
         loginResult = infusionsoftAuthenticationService.attemptLoginWithMD5Password(testUsername, testPasswordMD5);
-        Assert.assertEquals(loginResult.getLoginStatus(), LoginResult.LoginStatus.AccountLocked);
+        Assert.assertEquals(loginResult.getLoginStatus(), LoginAttemptStatus.AccountLocked);
         Assert.assertEquals(loginResult.getFailedAttempts(), 7);
 
         // Account already locked, bad password
         setupFailedLogins(6);
         loginResult = infusionsoftAuthenticationService.attemptLoginWithMD5Password(testUsername, "badPassword");
-        Assert.assertEquals(loginResult.getLoginStatus(), LoginResult.LoginStatus.AccountLocked);
+        Assert.assertEquals(loginResult.getLoginStatus(), LoginAttemptStatus.AccountLocked);
         Assert.assertEquals(loginResult.getFailedAttempts(), 7);
 
         // Account already locked, forced unlocked by support
         List<LoginAttempt> loginAttemptList = setupFailedLogins(10); // Arbitrarily large number of failures
         LoginAttempt loginAttempt = new LoginAttempt();
-        loginAttempt.setSuccess(true);
+        loginAttempt.setStatus(LoginAttemptStatus.UnlockedByAdmin);
         loginAttemptList.add(0, loginAttempt);
         loginResult = infusionsoftAuthenticationService.attemptLoginWithMD5Password(testUsername, testPasswordMD5);
-        Assert.assertEquals(loginResult.getLoginStatus(), LoginResult.LoginStatus.Success);
+        Assert.assertEquals(loginResult.getLoginStatus(), LoginAttemptStatus.Success);
         Assert.assertEquals(loginResult.getFailedAttempts(), 0);
     }
 
@@ -365,23 +384,23 @@ public class InfusionsoftAuthenticationServiceTest {
     public void testAttemptLoginWithMD5BadPassword() {
         // Bad password
         LoginResult loginResult = infusionsoftAuthenticationService.attemptLoginWithMD5Password(testUsername, "badPassword");
-        Assert.assertEquals(loginResult.getLoginStatus(), LoginResult.LoginStatus.BadPassword);
+        Assert.assertEquals(loginResult.getLoginStatus(), LoginAttemptStatus.BadPassword);
         Assert.assertEquals(loginResult.getFailedAttempts(), 1);
 
         // Empty password
         loginResult = infusionsoftAuthenticationService.attemptLoginWithMD5Password(testUsername, "");
-        Assert.assertEquals(loginResult.getLoginStatus(), LoginResult.LoginStatus.BadPassword);
+        Assert.assertEquals(loginResult.getLoginStatus(), LoginAttemptStatus.BadPassword);
         Assert.assertEquals(loginResult.getFailedAttempts(), 1);
 
         // Null password
         loginResult = infusionsoftAuthenticationService.attemptLoginWithMD5Password(testUsername, null);
-        Assert.assertEquals(loginResult.getLoginStatus(), LoginResult.LoginStatus.BadPassword);
+        Assert.assertEquals(loginResult.getLoginStatus(), LoginAttemptStatus.BadPassword);
         Assert.assertEquals(loginResult.getFailedAttempts(), 1);
 
         // No password for user
-        when(infusionsoftAuthenticationService.passwordService.getPasswordForUser(user)).thenReturn(null);
+        when(infusionsoftAuthenticationService.passwordService.getMatchingMD5PasswordForUser(user, testPasswordMD5)).thenReturn(null);
         loginResult = infusionsoftAuthenticationService.attemptLoginWithMD5Password(testUsername, testPasswordMD5);
-        Assert.assertEquals(loginResult.getLoginStatus(), LoginResult.LoginStatus.BadPassword);
+        Assert.assertEquals(loginResult.getLoginStatus(), LoginAttemptStatus.BadPassword);
         Assert.assertEquals(loginResult.getFailedAttempts(), 1);
     }
 
@@ -389,14 +408,14 @@ public class InfusionsoftAuthenticationServiceTest {
     public void testAttemptLoginWithMD5DisabledUser() {
         user.setEnabled(false);
         LoginResult loginResult = infusionsoftAuthenticationService.attemptLoginWithMD5Password(testUsername, testPasswordMD5);
-        Assert.assertEquals(loginResult.getLoginStatus(), LoginResult.LoginStatus.DisabledUser);
+        Assert.assertEquals(loginResult.getLoginStatus(), LoginAttemptStatus.DisabledUser);
         Assert.assertEquals(loginResult.getFailedAttempts(), 1);
     }
 
     @Test
     public void testAttemptLoginWithMD5NoSuchUser() {
         LoginResult loginResult = infusionsoftAuthenticationService.attemptLoginWithMD5Password("noSuchUser@ever.com", "badPassword");
-        Assert.assertEquals(loginResult.getLoginStatus(), LoginResult.LoginStatus.NoSuchUser);
+        Assert.assertEquals(loginResult.getLoginStatus(), LoginAttemptStatus.NoSuchUser);
         Assert.assertEquals(loginResult.getFailedAttempts(), 1);
     }
 
@@ -404,14 +423,22 @@ public class InfusionsoftAuthenticationServiceTest {
     public void testAttemptLoginWithMD5PasswordExpired() {
         when(infusionsoftAuthenticationService.passwordService.isPasswordExpired(password)).thenReturn(true);
         LoginResult loginResult = infusionsoftAuthenticationService.attemptLoginWithMD5Password(testUsername, testPasswordMD5);
-        Assert.assertEquals(loginResult.getLoginStatus(), LoginResult.LoginStatus.PasswordExpired);
+        Assert.assertEquals(loginResult.getLoginStatus(), LoginAttemptStatus.PasswordExpired);
         Assert.assertEquals(loginResult.getFailedAttempts(), 0);
     }
 
     @Test
     public void testAttemptLoginWithMD5Success() {
         LoginResult loginResult = infusionsoftAuthenticationService.attemptLoginWithMD5Password(testUsername, testPasswordMD5);
-        Assert.assertEquals(loginResult.getLoginStatus(), LoginResult.LoginStatus.Success);
+        Assert.assertEquals(loginResult.getLoginStatus(), LoginAttemptStatus.Success);
+        Assert.assertEquals(loginResult.getFailedAttempts(), 0);
+    }
+
+    @Test
+    public void testAttemptLoginWithMD5OldPassword() {
+        password.setActive(false);
+        LoginResult loginResult = infusionsoftAuthenticationService.attemptLoginWithMD5Password(testUsername, testPasswordMD5);
+        Assert.assertEquals(loginResult.getLoginStatus(), LoginAttemptStatus.OldPassword);
         Assert.assertEquals(loginResult.getFailedAttempts(), 0);
     }
 
@@ -451,7 +478,7 @@ public class InfusionsoftAuthenticationServiceTest {
         infusionsoftAuthenticationService.unlockUser(testUsername);
         ArgumentCaptor<LoginAttempt> argument = ArgumentCaptor.forClass(LoginAttempt.class);
         verify(infusionsoftAuthenticationService.loginAttemptDAO, times(1)).save(argument.capture());
-        Assert.assertEquals(argument.getValue().isSuccess(), true);
+        Assert.assertEquals(argument.getValue().getStatus(), LoginAttemptStatus.UnlockedByAdmin);
         Assert.assertEquals(argument.getValue().getUsername(), testUsername);
     }
 

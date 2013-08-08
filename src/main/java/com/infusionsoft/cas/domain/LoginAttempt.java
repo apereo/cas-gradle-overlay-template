@@ -3,6 +3,7 @@ package com.infusionsoft.cas.domain;
 import org.hibernate.validator.constraints.Length;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.Date;
 
@@ -12,7 +13,7 @@ public class LoginAttempt implements Serializable {
     private Long id;
     private String username;
     private Date dateAttempted;
-    private boolean success;
+    private LoginAttemptStatus status;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -43,12 +44,14 @@ public class LoginAttempt implements Serializable {
         this.dateAttempted = dateAttempted;
     }
 
-    @Column(name = "success")
-    public boolean isSuccess() {
-        return success;
+    @Column(name = "status")
+    @Enumerated(EnumType.STRING)
+    @NotNull
+    public LoginAttemptStatus getStatus() {
+        return status;
     }
 
-    public void setSuccess(boolean success) {
-        this.success = success;
+    public void setStatus(LoginAttemptStatus loginAttemptStatus) {
+        this.status = loginAttemptStatus;
     }
 }

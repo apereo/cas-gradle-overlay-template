@@ -194,114 +194,93 @@ public class InfusionsoftAuthenticationServiceImpl implements InfusionsoftAuthen
     @Override
     public LoginResult attemptLoginWithMD5Password(String username, String md5password) {
         log.debug("Trying to authenticate " + username + " with MD5 password");
-        return attemptLoginAndLogAttempts(username, null, md5password);
+        return attemptLoginInternal(username, null, md5password);
     }
 
     @Override
     public LoginResult attemptLogin(String username, String password) {
         log.debug("Trying to authenticate " + username + " with password");
-        return attemptLoginAndLogAttempts(username, password, null);
-    }
-
-    private LoginResult attemptLoginAndLogAttempts(String username, String password, String md5password) {
-        LoginResult loginResult = attemptLoginInternal(username, password, md5password);
-
-        switch (loginResult.getLoginStatus()) {
-            case Success:
-                log.info("Authenticated CAS user " + username);
-                recordLoginAttempt(loginResult, username, true);
-                break;
-
-            case PasswordExpired:
-                log.info("Authenticated CAS user " + username + " with expired password");
-                recordLoginAttempt(loginResult, username, true);
-                break;
-
-            case AccountLocked:
-            case BadPassword:
-            case DisabledUser:
-            case NoSuchUser:
-                recordLoginAttempt(loginResult, username, false);
-                break;
-
-            default:
-                throw new IllegalStateException("Unknown value for loginResult: " + loginResult);
-        }
-
-        return loginResult;
+        return attemptLoginInternal(username, password, null);
     }
 
     private LoginResult attemptLoginInternal(String username, String password, String md5password) {
-        LoginResult retVal;
+        LoginResult loginResult = null;
         UserPassword userPassword = null;
 
         User user = userService.loadUser(username);
         if (user == null) {
-            retVal = LoginResult.NoSuchUser();
+            loginResult = LoginResult.NoSuchUser();
+        } else if (!user.isEnabled()) {
+            loginResult = LoginResult.DisabledUser(user);
+        } else if (StringUtils.isNotEmpty(password)) {
+            userPassword = passwordService.getMatchingPasswordForUser(user, password);
+        } else if (StringUtils.isNotEmpty(md5password)) {
+            userPassword = passwordService.getMatchingMD5PasswordForUser(user, md5password);
         } else {
-            if (!user.isEnabled()) {
-                retVal = LoginResult.DisabledUser(user);
-            } else {
-                userPassword = passwordService.getPasswordForUser(user);
+            loginResult = LoginResult.BadPassword(user);
+        }
 
-                if (userPassword == null) {
-                    retVal = LoginResult.BadPassword(user);
-                } else {
-                    if (StringUtils.isNotEmpty(password)) {
-                        if (!passwordService.passwordsMatch(userPassword, password)) {
-                            retVal = LoginResult.BadPassword(user);
-                        } else {
-                            retVal = LoginResult.Success(user);
-                        }
-                    } else if (StringUtils.isNotEmpty(md5password)) {
-                        if (!passwordService.md5PasswordsMatch(userPassword, md5password)) {
-                            retVal = LoginResult.BadPassword(user);
-                        } else {
-                            retVal = LoginResult.Success(user);
-                        }
-                    } else {
-                        retVal = LoginResult.BadPassword(user);
-                    }
-                }
+        boolean incrementFailedLoginCount;
+        if (loginResult != null) {
+            incrementFailedLoginCount = loginResult.getLoginStatus() != LoginAttemptStatus.Success;
+        } else {
+            if (userPassword == null) {
+                loginResult = LoginResult.BadPassword(user);
+                incrementFailedLoginCount = true;
+            } else if (!userPassword.isActive()) {
+                loginResult = LoginResult.OldPassword(user);
+                incrementFailedLoginCount = false;  // Bad logins that used an old password don't increment the failure count
+            } else {
+                loginResult = LoginResult.Success(user);
+                incrementFailedLoginCount = false;
             }
         }
 
         int failedLoginCount = countConsecutiveFailedLogins(username);
         // Account is locked if there are already too many logins or if this is a failed login that pushes it past the limit
-        if (isAccountLocked(username, failedLoginCount) || (retVal.getLoginStatus() != LoginResult.LoginStatus.Success && isAccountLocked(username, failedLoginCount + 1))) {
-            retVal = LoginResult.AccountLocked(user);
+        if (isAccountLocked(username, failedLoginCount) || (incrementFailedLoginCount && isAccountLocked(username, failedLoginCount + 1))) {
+            loginResult = LoginResult.AccountLocked(user);
+            incrementFailedLoginCount = true;
         }
 
-        if (retVal.getLoginStatus() == LoginResult.LoginStatus.Success) {
+        if (loginResult.getLoginStatus() == LoginAttemptStatus.Success) {
             failedLoginCount = 0;
             if (passwordService.isPasswordExpired(userPassword)) {
-                retVal = LoginResult.PasswordExpired(user);
+                loginResult = LoginResult.PasswordExpired(user);
             }
-        } else {
+        } else if (incrementFailedLoginCount) {
             // Add one since the current (failed) login attempt isn't logged yet
             failedLoginCount += 1;
         }
 
-        retVal.setFailedAttempts(failedLoginCount);
+        loginResult.setFailedAttempts(failedLoginCount);
 
-        return retVal;
+        recordLoginAttempt(loginResult.getLoginStatus(), username);
+
+        return loginResult;
     }
 
     /**
      * Records a login attempt, and whether it was successful or not. This is used for account locking
      * in the case of too many failures.
      */
-    private void recordLoginAttempt(LoginResult loginResult, String username, boolean success) {
+    private void recordLoginAttempt(LoginAttemptStatus loginAttemptStatus, String username) {
         LoginAttempt attempt = new LoginAttempt();
 
         attempt.setUsername(username);
         // TODO: use UTC date here
         attempt.setDateAttempted(new Date());
-        attempt.setSuccess(success);
+        attempt.setStatus(loginAttemptStatus);
 
         loginAttemptDAO.save(attempt);
 
-        if (!success) {
+        if (loginAttemptStatus == LoginAttemptStatus.Success) {
+            log.info("Authenticated CAS user " + username);
+        } else if (loginAttemptStatus == LoginAttemptStatus.PasswordExpired) {
+            log.info("Authenticated CAS user " + username + " with expired password");
+        } else if (loginAttemptStatus == LoginAttemptStatus.UnlockedByAdmin) {
+            // Already logged elsewhere
+        } else {
             // Write anything to the logs that would help us see where bad logins are coming from
             try {
                 ServletRequestAttributes requestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
@@ -310,9 +289,9 @@ public class InfusionsoftAuthenticationServiceImpl implements InfusionsoftAuthen
                 String referrer = httpServletRequest.getHeader("referer");
                 String remoteAddress = httpServletRequest.getRemoteAddr();
                 String requestURI = httpServletRequest.getRequestURI();
-                String errorMessage = StringUtils.join("Bad login attempt.\n  username: ", username, "\n  user-agent: ", userAgent, "\n  remoteAddress: ", remoteAddress, "\n  requestURI: ", requestURI, "\n  referrer: ", referrer);
+                String errorMessage = StringUtils.join("Failed login attempt with status ", loginAttemptStatus, ".\n  username: ", username, "\n  user-agent: ", userAgent, "\n  remoteAddress: ", remoteAddress, "\n  requestURI: ", requestURI, "\n  referrer: ", referrer);
                 // Log with an error if it's the one that caused a lockout or already locked out; otherwise info level
-                if (loginResult == null || loginResult.getFailedAttempts() >= InfusionsoftAuthenticationService.ALLOWED_LOGIN_ATTEMPTS) {
+                if (loginAttemptStatus == null || loginAttemptStatus == LoginAttemptStatus.AccountLocked) {
                     log.error(errorMessage);
                 } else {
                     log.info(errorMessage);
@@ -344,9 +323,10 @@ public class InfusionsoftAuthenticationServiceImpl implements InfusionsoftAuthen
         log.debug("recent login attempts: " + attempts.size());
 
         for (LoginAttempt loginAttempt : attempts) {
-            if (loginAttempt.isSuccess()) {
+            LoginAttemptStatus loginAttemptStatus = loginAttempt.getStatus();
+            if (loginAttemptStatus == LoginAttemptStatus.Success || loginAttemptStatus == LoginAttemptStatus.PasswordExpired || loginAttemptStatus == LoginAttemptStatus.UnlockedByAdmin) {
                 break;
-            } else {
+            } else if (loginAttemptStatus != LoginAttemptStatus.OldPassword) {
                 failures++;
             }
         }
@@ -453,9 +433,16 @@ public class InfusionsoftAuthenticationServiceImpl implements InfusionsoftAuthen
         return false;
     }
 
+    /*
+        TODO: use CAS auditing, something like this:
+        @Audit(
+                action="UNLOCK_USER",
+                actionResolverName="UNLOCK_USER_RESOLVER",
+                resourceResolverName="UNLOCK_USER_RESOURCE_RESOLVER")
+    */
     @Override
     public void unlockUser(String username) {
-        recordLoginAttempt(null, username, true);
+        recordLoginAttempt(LoginAttemptStatus.UnlockedByAdmin, username);
 
         final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User user = (User) (authentication == null ? null : authentication.getPrincipal());

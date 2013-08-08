@@ -5,17 +5,15 @@ import com.infusionsoft.cas.domain.UserPassword;
 import com.infusionsoft.cas.exceptions.InfusionsoftValidationException;
 
 public interface PasswordService {
-    boolean isPasswordCorrect(String username, String password);
-
-    boolean passwordsMatch(UserPassword userPassword, String password);
-
-    boolean md5PasswordsMatch(UserPassword userPassword, String passwordEncodedMD5);
+    boolean isPasswordCorrect(User user, String password);
 
     boolean isPasswordExpired(UserPassword password);
 
-    int getNumberOfDaysToPasswordExpirationDate(String userId);
+    UserPassword getActivePasswordForUser(User user);
 
-    UserPassword getPasswordForUser(User user);
+    UserPassword getMatchingPasswordForUser(User user, String password);
+
+    UserPassword getMatchingMD5PasswordForUser(User user, String passwordEncodedMD5);
 
     void setPasswordForUser(User user, String plainTextPassword) throws InfusionsoftValidationException;
 

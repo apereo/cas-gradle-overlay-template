@@ -30,14 +30,17 @@ public class InfusionsoftAuthenticationHandler extends AbstractUsernamePasswordA
 
             switch (loginResult.getLoginStatus()) {
                 case AccountLocked:
-                case DisabledUser: // TODO: why is a disabled user getting the locked message?
                     throw new BlockedCredentialsAuthenticationException("login.lockedTooManyFailures");
                 case BadPassword:
+                case DisabledUser:
                 case NoSuchUser:
+                case OldPassword:
                     int failedLoginAttempts = loginResult.getFailedAttempts();
                     String error;
                     if (failedLoginAttempts > InfusionsoftAuthenticationService.ALLOWED_LOGIN_ATTEMPTS) {
                         error = "login.lockedTooManyFailures";
+                    } else if (failedLoginAttempts == 0) { // This happens if an old password is matched
+                        error = "login.failed1";
                     } else {
                         error = "login.failed" + failedLoginAttempts;
                     }

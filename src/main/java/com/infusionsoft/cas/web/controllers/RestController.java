@@ -279,11 +279,14 @@ public class RestController {
                         error = "login.lockedTooManyFailures";
                         break;
                     case BadPassword:
-                    case DisabledUser: // TODO: why is a disabled user getting the locked message?
+                    case DisabledUser:
                     case NoSuchUser:
+                    case OldPassword:
                         int failedLoginAttempts = loginResult.getFailedAttempts();
                         if (failedLoginAttempts > InfusionsoftAuthenticationService.ALLOWED_LOGIN_ATTEMPTS) {
                             error = "login.lockedTooManyFailures";
+                        } else if (failedLoginAttempts == 0) { // This happens if an old password is matched
+                            error = "login.failed1";
                         } else {
                             error = "login.failed" + failedLoginAttempts;
                         }

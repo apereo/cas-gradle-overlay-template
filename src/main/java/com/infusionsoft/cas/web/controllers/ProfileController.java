@@ -137,15 +137,17 @@ public class ProfileController {
             model.addAttribute("error", "password.error.blank");
         } else if (!password1.equals(password2)) {
             model.addAttribute("error", "password.error.passwords.dont.match");
-        } else if (!passwordService.isPasswordCorrect(username, currentPassword)) {
-            model.addAttribute("error", "editprofile.error.incorrectCurrentPassword");
         } else {
             User user = userService.loadUser(username);
-            try {
-                passwordService.setPasswordForUser(user, password1);
-                model.addAttribute("success", "editprofile.success.changePassword");
-            } catch (InfusionsoftValidationException e) {
-                model.addAttribute("error", e.getErrorMessageCode());
+            if (user == null || !passwordService.isPasswordCorrect(user, currentPassword)) {
+                model.addAttribute("error", "editprofile.error.incorrectCurrentPassword");
+            } else {
+                try {
+                    passwordService.setPasswordForUser(user, password1);
+                    model.addAttribute("success", "editprofile.success.changePassword");
+                } catch (InfusionsoftValidationException e) {
+                    model.addAttribute("error", e.getErrorMessageCode());
+                }
             }
         }
 
@@ -171,14 +173,16 @@ public class ProfileController {
             error = "password.error.blank";
         } else if (!password1.equals(password2)) {
             error = "password.error.passwords.dont.match";
-        } else if (!passwordService.isPasswordCorrect(username, currentPassword)) { // TODO: why are we passing the current password in here? This is only called from AJAX so it's not even being entered by the user-- and by using it here it has to be emitted as a hidden form input!
-            error = "editprofile.error.incorrectCurrentPassword";
         } else {
             User user = userService.loadUser(username);
-            try {
-                passwordService.setPasswordForUser(user, password1);
-            } catch (InfusionsoftValidationException e) {
-                error = e.getErrorMessageCode();
+            if (user == null || !passwordService.isPasswordCorrect(user, currentPassword)) { // TODO: why are we passing the current password in here? This is only called from AJAX so it's not even being entered by the user-- and by using it here it has to be emitted as a hidden form input!
+                error = "editprofile.error.incorrectCurrentPassword";
+            } else {
+                try {
+                    passwordService.setPasswordForUser(user, password1);
+                } catch (InfusionsoftValidationException e) {
+                    error = e.getErrorMessageCode();
+                }
             }
         }
 

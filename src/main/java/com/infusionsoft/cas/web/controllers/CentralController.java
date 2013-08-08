@@ -346,7 +346,7 @@ public class CentralController {
     public ModelAndView verifyExistingPassword(String currentPassword, HttpServletResponse response) throws IOException {
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-        if (passwordService.isPasswordCorrect(user.getUsername(), currentPassword)) {
+        if (passwordService.isPasswordCorrect(user, currentPassword)) {
             response.setContentType("text/plain");
             response.getWriter().write("OK");
         } else {

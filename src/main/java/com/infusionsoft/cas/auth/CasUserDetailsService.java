@@ -36,7 +36,7 @@ public class CasUserDetailsService implements AuthenticationUserDetailsService<C
         }
 
         if (user != null) {
-            UserPassword userPassword = passwordService.getPasswordForUser(user);
+            UserPassword userPassword = passwordService.getActivePasswordForUser(user);
 
             user.setAccountNonExpired(true);
             user.setAccountNonLocked(true);
