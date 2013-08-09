@@ -4,4 +4,5 @@ UPDATE login_attempt set status = if (success, 'Success', 'BadPassword');
 -- Change type from string to enum, and make it not null
 ALTER TABLE login_attempt CHANGE COLUMN status status ENUM ('AccountLocked', 'BadPassword', 'DisabledUser', 'NoSuchUser', 'PasswordExpired', 'Success', 'OldPassword', 'UnlockedByAdmin') NOT NULL;
 
-ALTER TABLE login_attempt DROP COLUMN success;
+-- Add the constraint that was planned for V3__Update_User_and_User_Accounts_Constraints.sql
+ALTER TABLE user_account ADD UNIQUE KEY app_type_name_username (app_type, app_name, app_username);
