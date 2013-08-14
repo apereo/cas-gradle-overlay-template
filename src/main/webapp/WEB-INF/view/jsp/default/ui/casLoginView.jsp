@@ -430,6 +430,7 @@ input:-moz-placeholder {
                 <input type="hidden" name="lt" value="${loginTicket}"/>
                 <input type="hidden" name="execution" value="${flowExecutionKey}"/>
                 <input type="hidden" name="_eventId" value="submit"/>
+                <input type="hidden" name="app_version" value="${appVersion}"/>
 
                 <div class="control-group">
                     <input class="btn btn-primary sign-in-button" name="submit" accesskey="l" value="Sign In" tabindex="4" type="submit"/>

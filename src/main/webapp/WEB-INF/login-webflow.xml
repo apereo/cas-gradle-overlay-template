@@ -124,6 +124,7 @@
         </binder>
         <on-entry>
             <set name="viewScope.service" value="requestParameters.service"/>
+            <evaluate result="viewScope.appVersion" expression="buildService.getBuildVersion()"/>
             <evaluate result="viewScope.appName" expression="infusionsoftAuthenticationService.guessAppName(viewScope.service)"/>
             <evaluate result="viewScope.appType" expression="infusionsoftAuthenticationService.guessAppType(viewScope.service)"/>
             <evaluate result="viewScope.appUrl" expression="appHelper.buildAppUrl(viewScope.appType, viewScope.appName)"/>

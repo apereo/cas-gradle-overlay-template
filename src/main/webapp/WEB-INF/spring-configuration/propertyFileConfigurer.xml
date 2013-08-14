@@ -16,6 +16,7 @@
                 /WEB-INF/cas.properties,
                 /WEB-INF/app-central.properties,
                 /WEB-INF/mashery.properties,
+                /WEB-INF/classes/build.properties,
                 file://${casPropertiesFile}"
             ignore-unresolvable="true" ignore-resource-not-found="true" system-properties-mode="FALLBACK"/>
 
