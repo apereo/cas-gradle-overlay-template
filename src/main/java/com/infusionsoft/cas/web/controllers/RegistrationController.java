@@ -251,7 +251,7 @@ public class RegistrationController {
                     }
                 }
 
-                mailService.sendWelcomeEmail(user);
+                mailService.sendWelcomeEmail(user, request.getLocale());
                 autoLoginService.autoLogin(user.getUsername(), request, response);
             }
         } catch (InfusionsoftValidationException e) {

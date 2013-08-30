@@ -7,18 +7,22 @@ import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.context.Context;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.MessageSource;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
+import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import java.io.StringWriter;
+import java.util.Locale;
 
 /**
  * Simple service for sending transactional emails, like the Forgot Password email.
  */
 @Service
 public class MailService {
+    private static final String NO_REPLY_EMAIL_ADDRESS = "noreply@infusionsoft.com";
     private static final Logger log = Logger.getLogger(MailService.class);
 
     @Value("${server.prefix}")
@@ -30,20 +34,32 @@ public class MailService {
     @Autowired
     private VelocityEngine velocityEngine;
 
+    @Autowired
+    private MessageSource messageSource;
+
+    /**
+     * Utility method for making a transactional email in a "standard" manner.
+     */
+    private MimeMessage createMessage(User user, String subject) throws MessagingException {
+        MimeMessage message = mailSender.createMimeMessage();
+        message.setHeader("X-InfApp", "cas");
+        message.setHeader("X-inf-package", "transactional");
+        message.setHeader("Package", "transactional");
+
+        MimeMessageHelper helper = new MimeMessageHelper(message);
+        helper.setTo(user.getUsername());
+        helper.setFrom(NO_REPLY_EMAIL_ADDRESS);
+        helper.setSubject(subject);
+
+        return message;
+    }
+
     /**
      * Sends a welcome to new users who just created their Infusionsoft ID.
      */
-    public void sendWelcomeEmail(User user) {
+    public void sendWelcomeEmail(User user, Locale locale) {
         try {
-            MimeMessage message = mailSender.createMimeMessage();
-            message.setHeader("X-InfApp", "cas");
-            message.setHeader("X-inf-package", "transactional");
-            message.setHeader("Package", "transactional");
-            MimeMessageHelper helper = new MimeMessageHelper(message);
-
-            helper.setTo(user.getUsername());
-            helper.setFrom("noreply@infusionsoft.com");
-            helper.setSubject("Infusionsoft ID Confirmation - Please save this email");
+            MimeMessage message = createMessage(user, messageSource.getMessage("email.welcome.subject", null, locale));
 
             StringWriter body = new StringWriter();
             Context context = new VelocityContext();
@@ -65,15 +81,8 @@ public class MailService {
      */
     public void sendPasswordResetEmail(User user) {
         try {
-            MimeMessage message = mailSender.createMimeMessage();
-            message.setHeader("X-InfApp", "cas");
-            message.setHeader("X-inf-package", "transactional");
-            message.setHeader("Package", "transactional");
-            MimeMessageHelper helper = new MimeMessageHelper(message);
-
-            helper.setTo(user.getUsername());
-            helper.setFrom("noreply@infusionsoft.com");
-            helper.setSubject("Reset your password at Infusionsoft Account Central");
+            // we should be passing in a locale here, or be able to determine the user's locale from the user object...
+            MimeMessage message = createMessage(user, messageSource.getMessage("email.reset.password.subject", null, Locale.getDefault()));
 
             StringWriter body = new StringWriter();
             Context context = new VelocityContext();
