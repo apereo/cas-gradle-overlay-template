@@ -10,4 +10,8 @@ public enum TokenStatus {
     TokenStatus(String value) {
         this.value = value;
     }
+
+    public String getValue() {
+        return value;
+    }
 }

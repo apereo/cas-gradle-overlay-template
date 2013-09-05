@@ -49,10 +49,12 @@
             <c:url var="homeLink" value="/app/central/home"/>
             <c:url var="editProfileLink" value="/app/profile/editProfile"/>
             <c:url var="serviceLink" value="/services/manage.html"/>
+            <c:url var="masheryLink" value="/app/mashery/userApplicationSearch"/>
             <li><a href="${homeLink}" class="${homeLinkSelected}">YOUR ACCOUNTS</a></li>
             <li><a href="${editProfileLink}" class="${editProfileLinkSelected}">EDIT YOUR PROFILE</a></li>
             <sec:authorize access="hasRole('ROLE_CAS_ADMIN')">
                 <li><a href="${serviceLink}" class="${serviceLinkSelected}">SERVICES</a></li>
+                <li><a href="${masheryLink}" class="${masheryLinkSelected}">MASHERY</a></li>
             </sec:authorize>
 
             <sec:authorize access="hasRole('ROLE_CAS_ADMIN') or hasRole('ROLE_CAS_SUPPORT_TIER_1')">

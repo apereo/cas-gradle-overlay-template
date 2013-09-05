@@ -1,10 +1,7 @@
 package com.infusionsoft.cas.oauth;
 
 import com.infusionsoft.cas.oauth.domain.*;
-import com.infusionsoft.cas.oauth.wrappers.WrappedMasheryApplication;
-import com.infusionsoft.cas.oauth.wrappers.WrappedMasheryAuthorizationCode;
-import com.infusionsoft.cas.oauth.wrappers.WrappedMasheryMember;
-import com.infusionsoft.cas.oauth.wrappers.WrappedMasheryOAuthApplication;
+import com.infusionsoft.cas.oauth.wrappers.*;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -22,6 +19,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Service to communicate with the Mashery API
@@ -134,6 +132,40 @@ public class MasheryService {
         WrappedMasheryMember wrappedMasheryOAuthApplication = restTemplate.postForObject(buildUrl(), request, WrappedMasheryMember.class);
 
         return wrappedMasheryOAuthApplication.getResult();
+    }
+
+    public Set<MasheryUserApplication> fetchUserApplications(String serviceKey, String userContext, TokenStatus tokenStatus) {
+        MasheryJsonRpcRequest masheryJsonRpcRequest = new MasheryJsonRpcRequest();
+        masheryJsonRpcRequest.setMethod("oauth2.fetchUserApplications");
+
+        masheryJsonRpcRequest.getParams().add(serviceKey);
+        masheryJsonRpcRequest.getParams().add(userContext);
+        masheryJsonRpcRequest.getParams().add(tokenStatus.getValue());
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<MasheryJsonRpcRequest> request = new HttpEntity<MasheryJsonRpcRequest>(masheryJsonRpcRequest, headers);
+
+        WrappedMasheryUserApplication wrappedMasheryUserApplication = restTemplate.postForObject(buildUrl(), request, WrappedMasheryUserApplication.class);
+
+        return wrappedMasheryUserApplication.getResult();
+    }
+
+    public MasheryAccessToken fetchAccessToken(String serviceKey, String accessToken) {
+        MasheryJsonRpcRequest masheryJsonRpcRequest = new MasheryJsonRpcRequest();
+        masheryJsonRpcRequest.setMethod("oauth2.fetchAccessToken");
+
+        masheryJsonRpcRequest.getParams().add(serviceKey);
+        masheryJsonRpcRequest.getParams().add(accessToken);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<MasheryJsonRpcRequest> request = new HttpEntity<MasheryJsonRpcRequest>(masheryJsonRpcRequest, headers);
+
+        WrappedMasheryAccessToken wrappedMasheryAccessToken = restTemplate.postForObject(buildUrl(), request, WrappedMasheryAccessToken.class);
+        wrappedMasheryAccessToken.getResult().setToken(accessToken);
+
+        return wrappedMasheryAccessToken.getResult();
     }
 
     public MasheryAuthorizationCode createAuthorizationCode(String clientId, String requestedScope, String application, String redirectUri, String username) {
