@@ -118,7 +118,7 @@ public class CentralController {
         model.addAttribute("connectAccountCommunityEnabled", connectAccountCommunityEnabled);
         model.addAttribute("connectAccountCustomerHubEnabled", connectAccountCustomerHubEnabled);
 
-        logUserAccountInfoToSplunk(userAccountList, user);
+        //logUserAccountInfoToSplunk(userAccountList, user);
 
         return "central/home";
     }

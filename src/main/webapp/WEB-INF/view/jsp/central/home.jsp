@@ -6,6 +6,8 @@
 
 <%@ page contentType="text/html; charset=UTF-8" %>
 
+<meta name="decorator" content="modal"/>
+
 <meta name="decorator" content="central"/>
 
 <c:url var="linkInfusionsoftAppAccount" value="/app/central/linkInfusionsoftAppAccount"/>
@@ -15,12 +17,110 @@
 <c:url var="createCommunityAccount" value="/app/central/createCommunityAccount"/>
 <c:url var="editCommunityAccount" value="/app/central/editCommunityAccount"/>
 <c:url var="renameAccount" value="/app/central/renameAccount"/>
+<c:url var="manageAccounts" value="/app/mashery/manageAccounts"/>
+<c:url var="revokeAccess" value="/app/mashery/revokeAccess"/>
+<c:set var="userId" value="${user.id}" />
 <style type="text/css">
     html, body {
         background: #F5F5F5;
     }
+    p.borderlessTableHeader {
+        color: #444444;
+        font-family: "Open Sans" !important;
+        font-size: 24px;
+        font-style: normal;
+        font-weight: 300 !important;
+        margin-bottom: 19px !important;
+        margin-top: 0 !important;
+    }
+    table.borderlessTable {
+        margin-bottom: 25px !important;
+        width: 100%;
+    }
+    table {
+        empty-cells: show;
+        padding: 0;
+    }
+    table {
+        border-collapse: collapse;
+        border-spacing: 0;
+    }
+    td.borderlessTableTd {
+        color: #444444;
+        font-family: "Open Sans" !important;
+        font-size: 24px;
+        font-weight: 300 !important;
+        padding-top: 40px;
+    }
+    td {
+        font-family: 'Open Sans',Arial,Verdana,Sans-Serif;
+    }
+    td {
+        vertical-align: top;
+    }
 </style>
 <script type="text/javascript">
+
+    var manageAppAccess = {
+        userIdOfUserManagingAppAccess: "<c:out value="${userId}"/>",
+        accountIdBeingManaged : 0,
+        appIdOfAppBeingRevoked : 0,
+        appNameOfAppBeingRevoked : "",
+
+        getAppsGrantedAccessToAccount: function(userId, accountIdBeingManaged) {
+            this.userIdOfUserManagingAppAccess = userId;
+            this.accountIdBeingManaged = accountIdBeingManaged;
+            $.ajax("${manageAccounts}", {
+                type: "GET",
+                data: { userId: userId,
+                        infusionsoftAccountId: accountIdBeingManaged
+                },
+                success: function (response) {
+                    $("#displayManageAccountsContent-" + accountIdBeingManaged).html(response);
+                    $(".displayManageAccounts").each(function () {$(this).hide()});
+                    $("#displayManageAccountsWrapper-" + accountIdBeingManaged).show();
+                }
+            });
+            return false;
+        },
+        revokeAccess: function(){
+            $.ajax("${revokeAccess}", {
+                type: "POST",
+                data: { userId: this.userIdOfUserManagingAppAccess,
+                        infusionsoftAccountId: this.accountIdBeingManaged,
+                        masheryAppId: this.appIdOfAppBeingRevoked
+                },
+                success: function (response) {
+                    $('#myModal').modal('hide');
+                    $("#accessRevokedFailed-" + manageAppAccess.accountIdBeingManaged).hide();
+                    $("#accessRevokedSuccess-" + manageAppAccess.accountIdBeingManaged).html("<span>You have successfully revoked access for " + manageAppAccess.appNameOfAppBeingRevoked + "</span>").show();
+                },
+                error: function(response){
+                    $('#myModal').modal('hide');
+                    $("#accessRevokedSuccess-"+ manageAppAccess.accountIdBeingManaged).hide();
+                    $("#accessRevokedFailed-"+ manageAppAccess.accountIdBeingManaged).html("<span>Unable to revoke access for " + manageAppAccess.appNameOfAppBeingRevoked + "</span>").show();
+                }
+            });
+            return false;
+        },
+        populateModalBody: function(appIdOfAppBeingRevoked){
+            var appName = $("#appName-" + appIdOfAppBeingRevoked).text();
+            $("#modal-body-id p").html("Are you sure you want to revoke access for " + appName + "?");
+            this.appIdOfAppBeingRevoked = appIdOfAppBeingRevoked;
+            this.appNameOfAppBeingRevoked = appName;
+        },
+        attachOnClicks: function(){
+            $(".manageAccounts").each(function () {
+                $(this).click(function (event) {
+                    event.stopPropagation();
+                    manageAppAccess.getAppsGrantedAccessToAccount(manageAppAccess.userIdOfUserManagingAppAccess, $(this).attr("accountId"));
+                });
+            });
+        },
+        closeAppAccessDisplay : function () {
+            $("#displayManageAccountsWrapper-" + this.accountIdBeingManaged).hide();
+        }
+    }
 
     $(document).ready(function () {
         $(".account").hover(
@@ -63,6 +163,8 @@
                 editAlias($(this).attr("accountId"));
             });
         });
+
+        manageAppAccess.attachOnClicks();
     });
 
     function editAlias(userAccountId) {
@@ -153,6 +255,14 @@
                         </div>
                         <div class="account-detail"><spring:message code="central.home.crm.account"/></div>
                         <div class="account-detail">${account.appName}.${crmDomain}</div>
+                        <div class="account-detail">
+                            <span accountId="${account.id}" class="manageAccounts">Manage Accounts</span>
+                        </div>
+                    </div>
+                </div>
+                <div id="displayManageAccountsWrapper-${account.id}" class="displayManageAccounts account-detail" style="display:none;">
+                    <div style="border-top: 3px solid #4F9CC8;">
+                        <div id="displayManageAccountsContent-${account.id}"></div>
                     </div>
                 </div>
             </c:when>
@@ -206,4 +316,18 @@
             </div>
         </fieldset>
     </form>
+</div>
+<!-- Bootstrap Modal -->
+<div id="myModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <h3 id="myModalLabel">Are You Sure?</h3>
+    </div>
+    <div id="modal-body-id" class="modal-body">
+        <p></p>
+    </div>
+    <div class="modal-footer">
+        <button class="btn" data-dismiss="modal" aria-hidden="true">Cancel</button>
+        <button class="btn btn-primary" onclick="manageAppAccess.revokeAccess();">Revoke Access</button>
+    </div>
 </div>
