@@ -43,28 +43,6 @@ public class MasheryController {
     private CrmService crmService;
 
     @RequestMapping
-    public ModelAndView manageAccounts(Long userId, Long infusionsoftAccountId) throws IOException {
-        Map<String, Object> model = new HashMap<String, Object>();
-        model.put("appsGrantedAccess", getMasheryApplicationsByUserContext(infusionsoftAccountId));
-        model.put("infusionsoftAccountId", infusionsoftAccountId);
-        return new ModelAndView("central/manageAccounts", model);
-    }
-
-    @RequestMapping
-    public ModelAndView revokeAccess(Long infusionsoftAccountId, Long masheryAppId) throws IOException {
-        Set<MasheryUserApplication> masheryUserApplications = getMasheryApplicationsByUserContext(infusionsoftAccountId);
-        for (MasheryUserApplication ma : masheryUserApplications) {
-            if(masheryAppId == Long.parseLong(ma.getId())){
-                for(String accessToken: ma.getAccess_tokens()){
-                    masheryService.revokeAccessToken(serviceKey, ma.getClient_id(), accessToken);
-                }
-                break;
-            }
-        }
-        return null;
-    }
-
-    @RequestMapping
     public String userApplicationSearch(Model model, String userContext) {
         if (StringUtils.isNotBlank(userContext)) {
             Set<MasheryUserApplication> masheryUserApplications = masheryService.fetchUserApplications(serviceKey, userContext, TokenStatus.Active);
@@ -83,22 +61,5 @@ public class MasheryController {
             model.addAttribute("masheryAccessToken", masheryAccessToken);
         }
         return "mashery/viewAccessToken";
-    }
-
-    private Set<MasheryUserApplication> getMasheryApplicationsByUserContext(Long infusionsoftAccountId /* CRM account id, for now*/){
-        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        List<UserAccount> userAccountList = userService.findSortedUserAccounts(user);
-        UserAccount selectedUserAccount = null;
-        for (UserAccount ua : userAccountList) {
-            if (ua.getId() == infusionsoftAccountId) {
-                selectedUserAccount = ua;
-                break;
-            }
-        }
-        if (selectedUserAccount != null) {
-            String userContext = user.getUsername() + "|" + crmService.buildCrmHostName(selectedUserAccount.getAppName());
-            return masheryService.fetchUserApplications(serviceKey, /*"bradb@infusionsoft.com"*/ userContext, TokenStatus.Active);
-        }
-        return null;
     }
 }

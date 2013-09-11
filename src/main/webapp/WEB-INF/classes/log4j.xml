@@ -78,22 +78,22 @@
     </logger>
 
     <logger name="org.springframework.security">
-        <level value="INFO" />
+        <level value="TRACE" />
         <appender-ref ref="cas" />
     </logger>
 
     <logger name="org.springframework.web.servlet.mvc">
-        <level value="INFO" />
+        <level value="TRACE" />
         <appender-ref ref="cas" />
     </logger>
 
     <logger name="org.springframework.webflow">
-        <level value="INFO" />
+        <level value="TRACE" />
         <appender-ref ref="cas" />
     </logger>
 
     <logger name="org.jasig" additivity="true">
-        <level value="INFO" />
+        <level value="TRACE" />
         <appender-ref ref="cas" />
     </logger>
 

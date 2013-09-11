@@ -23,6 +23,8 @@
     <script type="text/javascript" src="<c:url value="/js/jquery.jeditable.js"/>"></script>
     <script type="text/javascript" src="<c:url value="/js/jquery.placeholder.js"/>"></script>
     <script type="text/javascript" src="<c:url value="/js/jquery.qtip-1.0.0-rc3.min.js"/>"></script>
+    <script type="text/javascript" src="<c:url value="/js/global.js"/>"></script>
+    <script type="text/javascript" src="<c:url value="/js/manageAppAccess.js"/>"></script>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700,800" type="text/css">
     <decorator:head/>
 </head>

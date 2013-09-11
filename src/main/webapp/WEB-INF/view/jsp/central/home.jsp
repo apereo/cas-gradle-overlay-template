@@ -17,9 +17,6 @@
 <c:url var="createCommunityAccount" value="/app/central/createCommunityAccount"/>
 <c:url var="editCommunityAccount" value="/app/central/editCommunityAccount"/>
 <c:url var="renameAccount" value="/app/central/renameAccount"/>
-<c:url var="manageAccounts" value="/app/mashery/manageAccounts"/>
-<c:url var="revokeAccess" value="/app/mashery/revokeAccess"/>
-<c:set var="userId" value="${user.id}" />
 <style type="text/css">
     html, body {
         background: #F5F5F5;
@@ -60,67 +57,6 @@
     }
 </style>
 <script type="text/javascript">
-
-    var manageAppAccess = {
-        userIdOfUserManagingAppAccess: "<c:out value="${userId}"/>",
-        accountIdBeingManaged : 0,
-        appIdOfAppBeingRevoked : 0,
-        appNameOfAppBeingRevoked : "",
-
-        getAppsGrantedAccessToAccount: function(userId, accountIdBeingManaged) {
-            this.userIdOfUserManagingAppAccess = userId;
-            this.accountIdBeingManaged = accountIdBeingManaged;
-            $.ajax("${manageAccounts}", {
-                type: "GET",
-                data: { userId: userId,
-                        infusionsoftAccountId: accountIdBeingManaged
-                },
-                success: function (response) {
-                    $("#displayManageAccountsContent-" + accountIdBeingManaged).html(response);
-                    $(".displayManageAccounts").each(function () {$(this).hide()});
-                    $("#displayManageAccountsWrapper-" + accountIdBeingManaged).show();
-                }
-            });
-            return false;
-        },
-        revokeAccess: function(){
-            $.ajax("${revokeAccess}", {
-                type: "POST",
-                data: { userId: this.userIdOfUserManagingAppAccess,
-                        infusionsoftAccountId: this.accountIdBeingManaged,
-                        masheryAppId: this.appIdOfAppBeingRevoked
-                },
-                success: function (response) {
-                    $('#myModal').modal('hide');
-                    $("#accessRevokedFailed-" + manageAppAccess.accountIdBeingManaged).hide();
-                    $("#accessRevokedSuccess-" + manageAppAccess.accountIdBeingManaged).html("<span>You have successfully revoked access for " + manageAppAccess.appNameOfAppBeingRevoked + "</span>").show();
-                },
-                error: function(response){
-                    $('#myModal').modal('hide');
-                    $("#accessRevokedSuccess-"+ manageAppAccess.accountIdBeingManaged).hide();
-                    $("#accessRevokedFailed-"+ manageAppAccess.accountIdBeingManaged).html("<span>Unable to revoke access for " + manageAppAccess.appNameOfAppBeingRevoked + "</span>").show();
-                }
-            });
-            return false;
-        },
-        populateModalBody: function(appIdOfAppBeingRevoked){
-            var appName = $("#appName-" + appIdOfAppBeingRevoked).text();
-            $("#modal-body-id p").html("Are you sure you want to revoke access for " + appName + "?");
-            this.appIdOfAppBeingRevoked = appIdOfAppBeingRevoked;
-            this.appNameOfAppBeingRevoked = appName;
-        },
-        attachOnClicks: function(){
-            $(".manageAccounts").each(function () {
-                $(this).click(function (event) {
-                    event.stopPropagation();
-                    manageAppAccess.getAppsGrantedAccessToAccount(manageAppAccess.userIdOfUserManagingAppAccess, $(this).attr("accountId"));
-                });
-            });
-        },
-        closeAppAccessDisplay : function () {
-            $("#displayManageAccountsWrapper-" + this.accountIdBeingManaged).hide();
-        }
-    }
 
     $(document).ready(function () {
         $(".account").hover(
@@ -256,7 +192,7 @@
                         <div class="account-detail"><spring:message code="central.home.crm.account"/></div>
                         <div class="account-detail">${account.appName}.${crmDomain}</div>
                         <div class="account-detail">
-                            <span accountId="${account.id}" class="manageAccounts">Manage Accounts</span>
+                            <span id="manageAccounts-${account.id}" accountId="${account.id}" userId="${user.id}" class="manageAccounts">Manage Accounts</span>
                         </div>
                     </div>
                 </div>

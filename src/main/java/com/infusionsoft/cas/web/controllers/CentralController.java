@@ -8,6 +8,9 @@ import com.infusionsoft.cas.exceptions.AppCredentialsExpiredException;
 import com.infusionsoft.cas.exceptions.AppCredentialsInvalidException;
 import com.infusionsoft.cas.exceptions.CommunityUsernameTakenException;
 import com.infusionsoft.cas.exceptions.DuplicateAccountException;
+import com.infusionsoft.cas.oauth.MasheryService;
+import com.infusionsoft.cas.oauth.TokenStatus;
+import com.infusionsoft.cas.oauth.domain.MasheryUserApplication;
 import com.infusionsoft.cas.services.*;
 import com.infusionsoft.cas.support.AppHelper;
 import com.infusionsoft.cas.web.ValidationUtils;
@@ -27,9 +30,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URL;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Controller that powers the central "hub" along with account association and profile management.
@@ -58,6 +59,9 @@ public class CentralController {
 
     @Autowired
     AutoLoginService autoLoginService;
+
+    @Autowired
+    private MasheryService masheryService;
 
     @Value("${infusionsoft.cas.connect.account.crm.enabled}")
     boolean connectAccountCrmEnabled = false;
@@ -92,6 +96,31 @@ public class CentralController {
     @Value("${infusionsoft.marketplace.loginurl}")
     String marketplaceLoginUrl;
 
+    @Value("${mashery.service.key}")
+    private String serviceKey;
+
+    @RequestMapping
+    public ModelAndView manageAccounts(Long infusionsoftAccountId) throws IOException {
+        Map<String, Object> model = new HashMap<String, Object>();
+        model.put("appsGrantedAccess", getMasheryApplicationByUserContext(infusionsoftAccountId));
+        model.put("infusionsoftAccountId", infusionsoftAccountId);
+        return new ModelAndView("central/manageAccounts", model);
+    }
+
+    @RequestMapping
+    public ModelAndView revokeAccess(Long infusionsoftAccountId, Long masheryAppId) throws IOException {
+        Set<MasheryUserApplication> masheryUserApplications = getMasheryApplicationByUserContext(infusionsoftAccountId);
+        for (MasheryUserApplication ma : masheryUserApplications) {
+            if (masheryAppId == Long.parseLong(ma.getId())) {
+                for (String accessToken : ma.getAccess_tokens()) {
+                    masheryService.revokeAccessToken(serviceKey, ma.getClient_id(), accessToken);
+                }
+                break;
+            }
+        }
+        return null;
+    }
+
     /**
      * Renders the Infusionsoft Central home page.
      */
@@ -121,21 +150,6 @@ public class CentralController {
         //logUserAccountInfoToSplunk(userAccountList, user);
 
         return "central/home";
-    }
-
-    private void logUserAccountInfoToSplunk(List<UserAccount> userAccountList, User user){
-        int payingAccounts = 0;
-        for (UserAccount account : userAccountList) {
-            if (account.getAppType().equals(AppType.CRM) || account.getAppType().equals(AppType.CUSTOMERHUB)) {
-                payingAccounts++;
-            }
-        }
-        //add user id so we can search by unique and eliminate dups
-        if (payingAccounts == 1) {
-            log.error("User has 1 paying account. User=" + user.getId());
-        } else if (payingAccounts > 1) {
-            log.error("User has > 1 paying accounts. User=" + user.getId());
-        }
     }
 
     /**
@@ -355,5 +369,31 @@ public class CentralController {
         }
 
         return null;
+    }
+
+    private Set<MasheryUserApplication> getMasheryApplicationByUserContext(Long infusionsoftAccountId /* CRM account id, for now*/) {
+        Set<MasheryUserApplication> masheryUserApplications = new HashSet<MasheryUserApplication>();
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        UserAccount userAccount = userService.findUserAccount(user, infusionsoftAccountId);
+        if (userAccount != null) {
+            String userContext = user.getUsername() + "|" + crmService.buildCrmHostName(userAccount.getAppName());
+            masheryUserApplications = masheryService.fetchUserApplications(serviceKey, /*"bradb@infusionsoft.com"*/ userContext, TokenStatus.Active);
+        }
+        return masheryUserApplications;
+    }
+
+    private void logUserAccountInfoToSplunk(List<UserAccount> userAccountList, User user) {
+        int payingAccounts = 0;
+        for (UserAccount account : userAccountList) {
+            if (account.getAppType().equals(AppType.CRM) || account.getAppType().equals(AppType.CUSTOMERHUB)) {
+                payingAccounts++;
+            }
+        }
+        //add user id so we can search by unique and eliminate dups
+        if (payingAccounts == 1) {
+            log.error("User has 1 paying account. User=" + user.getId());
+        } else if (payingAccounts > 1) {
+            log.error("User has > 1 paying accounts. User=" + user.getId());
+        }
     }
 }
