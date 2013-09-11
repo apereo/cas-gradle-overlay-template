@@ -17,7 +17,9 @@ import javax.annotation.PostConstruct;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Service to communicate with the Mashery API
@@ -165,25 +167,6 @@ public class MasheryService {
 
         return wrappedMasheryAccessToken.getResult();
     }
-
-    public Boolean revokeAccessToken(String serviceKey, String clientId, String accessToken) {
-        MasheryJsonRpcRequest masheryJsonRpcRequest = new MasheryJsonRpcRequest();
-        masheryJsonRpcRequest.setMethod("oauth2.revokeAccessToken");
-
-        masheryJsonRpcRequest.getParams().add(serviceKey);
-        Map<String, String> clientMap = new HashMap<String, String>();
-        clientMap.put("client_id", clientId);
-        masheryJsonRpcRequest.getParams().add(clientMap);
-        masheryJsonRpcRequest.getParams().add(accessToken);
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        HttpEntity<MasheryJsonRpcRequest> request = new HttpEntity<MasheryJsonRpcRequest>(masheryJsonRpcRequest, headers);
-
-        WrappedMasheryBoolean wrappedBooleanResult  = restTemplate.postForObject(buildUrl(), request, WrappedMasheryBoolean.class);
-        return wrappedBooleanResult.getResult();
-    }
-
 
     public MasheryAuthorizationCode createAuthorizationCode(String clientId, String requestedScope, String application, String redirectUri, String username) {
         String scope = requestedScope + "|" + application;
