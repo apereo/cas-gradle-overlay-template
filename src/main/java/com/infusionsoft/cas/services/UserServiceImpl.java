@@ -5,6 +5,7 @@ import com.infusionsoft.cas.domain.*;
 import com.infusionsoft.cas.exceptions.AccountException;
 import com.infusionsoft.cas.exceptions.DuplicateAccountException;
 import com.infusionsoft.cas.exceptions.InfusionsoftValidationException;
+import com.infusionsoft.cas.oauth.MasheryService;
 import com.infusionsoft.cas.web.ValidationUtils;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -45,6 +46,9 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private UserAccountDAO userAccountDAO;
+
+    @Autowired
+    private MasheryService masheryService;
 
     @Override
     public List<Authority> findAllAuthorities() {
@@ -392,6 +396,7 @@ public class UserServiceImpl implements UserService {
             log.debug("Account not found on user to remove: " + account.toString());
         userDAO.save(accountUser);
         userAccountDAO.delete(account);
+        masheryService.revokeAccessTokensByUserAccount(account);
     }
 
     /**
@@ -402,9 +407,9 @@ public class UserServiceImpl implements UserService {
         log.info("Disabling user account " + account.toString());
 
         account.setDisabled(true);
-
         userAccountDAO.save(account);
         userDAO.save(account.getUser());
+        masheryService.revokeAccessTokensByUserAccount(account);
     }
 
     /**

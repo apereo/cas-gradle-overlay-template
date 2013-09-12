@@ -9,7 +9,6 @@ import com.infusionsoft.cas.exceptions.AppCredentialsInvalidException;
 import com.infusionsoft.cas.exceptions.CommunityUsernameTakenException;
 import com.infusionsoft.cas.exceptions.DuplicateAccountException;
 import com.infusionsoft.cas.oauth.MasheryService;
-import com.infusionsoft.cas.oauth.TokenStatus;
 import com.infusionsoft.cas.oauth.domain.MasheryUserApplication;
 import com.infusionsoft.cas.services.*;
 import com.infusionsoft.cas.support.AppHelper;
@@ -99,21 +98,36 @@ public class CentralController {
     @Value("${mashery.service.key}")
     private String serviceKey;
 
+    /**
+     * Allows user to view to all apps granted access to their CRM account via oauth.
+     */
     @RequestMapping
     public ModelAndView manageAccounts(Long infusionsoftAccountId) throws IOException {
         Map<String, Object> model = new HashMap<String, Object>();
-        model.put("appsGrantedAccess", getMasheryApplicationByUserContext(infusionsoftAccountId));
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        UserAccount ua = userService.findUserAccount(user, infusionsoftAccountId);
+        model.put("appsGrantedAccess", masheryService.fetchUserApplicationsByUserAccount(ua));
         model.put("infusionsoftAccountId", infusionsoftAccountId);
         return new ModelAndView("central/manageAccounts", model);
     }
 
+    /**
+     * Allows user to revoke access to any app granted access to their CRM account via oauth.
+     */
     @RequestMapping
-    public ModelAndView revokeAccess(Long infusionsoftAccountId, Long masheryAppId) throws IOException {
-        Set<MasheryUserApplication> masheryUserApplications = getMasheryApplicationByUserContext(infusionsoftAccountId);
+    public ModelAndView revokeAccess(HttpServletResponse response, Long infusionsoftAccountId, Long masheryAppId) throws IOException {
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        UserAccount ua = userService.findUserAccount(user, infusionsoftAccountId);
+        Set<MasheryUserApplication> masheryUserApplications = masheryService.fetchUserApplicationsByUserAccount(ua);
         for (MasheryUserApplication ma : masheryUserApplications) {
             if (masheryAppId == Long.parseLong(ma.getId())) {
                 for (String accessToken : ma.getAccess_tokens()) {
-                    masheryService.revokeAccessToken(serviceKey, ma.getClient_id(), accessToken);
+                    try {
+                        masheryService.revokeAccessToken(serviceKey, ma.getClient_id(), accessToken);
+                    } catch (Exception e) {
+                        log.error("Failed to revoke app access for app= " + ma.getName(), e);
+                        response.sendError(500);
+                    }
                 }
                 break;
             }
@@ -193,7 +207,7 @@ public class CentralController {
         UserAccount userAccount = userService.findUserAccount(user, account);
 
         userService.disableAccount(userAccount);
-
+        masheryService.revokeAccessTokensByUserAccount(userAccount);
         return new ModelAndView("redirect:/central/home");
     }
 
@@ -369,17 +383,6 @@ public class CentralController {
         }
 
         return null;
-    }
-
-    private Set<MasheryUserApplication> getMasheryApplicationByUserContext(Long infusionsoftAccountId /* CRM account id, for now*/) {
-        Set<MasheryUserApplication> masheryUserApplications = new HashSet<MasheryUserApplication>();
-        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        UserAccount userAccount = userService.findUserAccount(user, infusionsoftAccountId);
-        if (userAccount != null) {
-            String userContext = user.getUsername() + "|" + crmService.buildCrmHostName(userAccount.getAppName());
-            masheryUserApplications = masheryService.fetchUserApplications(serviceKey, /*"bradb@infusionsoft.com"*/ userContext, TokenStatus.Active);
-        }
-        return masheryUserApplications;
     }
 
     private void logUserAccountInfoToSplunk(List<UserAccount> userAccountList, User user) {

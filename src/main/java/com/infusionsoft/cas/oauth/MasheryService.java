@@ -1,8 +1,13 @@
 package com.infusionsoft.cas.oauth;
 
+import com.infusionsoft.cas.domain.User;
+import com.infusionsoft.cas.domain.UserAccount;
 import com.infusionsoft.cas.oauth.domain.*;
 import com.infusionsoft.cas.oauth.wrappers.*;
+import com.infusionsoft.cas.services.CrmService;
+import com.infusionsoft.cas.services.UserService;
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -11,6 +16,7 @@ import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJacksonHttpMessageConverter;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.PostConstruct;
@@ -39,6 +45,9 @@ public class MasheryService {
 
     @Value("${mashery.site.id}")
     private String siteId;
+
+    @Autowired
+    private CrmService crmService;
 
     private static final Logger log = Logger.getLogger(MasheryService.class);
 
@@ -81,6 +90,74 @@ public class MasheryService {
         }
 
         return retVal;
+    }
+
+    public Set<MasheryUserApplication> fetchUserApplicationsByUserAccount(UserAccount userAccount) {
+        Set<MasheryUserApplication> masheryUserApplications = new HashSet<MasheryUserApplication>();
+        if (userAccount != null) {
+            User user = userAccount.getUser();
+            if (user != null) {
+                String userContext = user.getUsername() + "|" + crmService.buildCrmHostName(userAccount.getAppName());
+                masheryUserApplications = this.fetchUserApplicationsByUserContext(serviceKey, userContext, TokenStatus.Active);
+            }
+        }
+        return masheryUserApplications;
+    }
+
+    public Set<MasheryUserApplication> fetchUserApplicationsByUserContext(String serviceKey, String userContext, TokenStatus tokenStatus) {
+        MasheryJsonRpcRequest masheryJsonRpcRequest = new MasheryJsonRpcRequest();
+        masheryJsonRpcRequest.setMethod("oauth2.fetchUserApplications");
+
+        masheryJsonRpcRequest.getParams().add(serviceKey);
+        masheryJsonRpcRequest.getParams().add(userContext);
+        masheryJsonRpcRequest.getParams().add(tokenStatus.getValue());
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<MasheryJsonRpcRequest> request = new HttpEntity<MasheryJsonRpcRequest>(masheryJsonRpcRequest, headers);
+        WrappedMasheryUserApplication wrappedMasheryUserApplication = null;
+        try {
+            wrappedMasheryUserApplication = restTemplate.postForObject(buildUrl(), request, WrappedMasheryUserApplication.class);
+        } catch (RestClientException e) {
+            log.error("Unable to fetch user applications using context=" + userContext, e);
+            throw e;
+        }
+        return wrappedMasheryUserApplication.getResult();
+    }
+
+
+    public boolean revokeAccessTokensByUserAccount(UserAccount account) {
+        boolean revokeSuccessful = true;
+        Set<MasheryUserApplication> masheryUserApplications = this.fetchUserApplicationsByUserAccount(account);
+        for (MasheryUserApplication ma : masheryUserApplications) {
+            for (String token : ma.getAccess_tokens()) {
+                try {
+                    this.revokeAccessToken(serviceKey, ma.getClient_id(), token);
+                } catch (RestClientException e) {
+                    log.error("Unable to revoke access token for app=" + account.getAppName() + " service=" + serviceKey + " clientId=" + ma.getClient_id() + " token=" + token, e);
+                    revokeSuccessful = false;
+                }
+            }
+        }
+        return revokeSuccessful;
+    }
+
+    public Boolean revokeAccessToken(String serviceKey, String clientId, String accessToken) {
+        MasheryJsonRpcRequest masheryJsonRpcRequest = new MasheryJsonRpcRequest();
+        masheryJsonRpcRequest.setMethod("oauth2.revokeAccessToken");
+
+        masheryJsonRpcRequest.getParams().add(serviceKey);
+        Map<String, String> clientMap = new HashMap<String, String>();
+        clientMap.put("client_id", clientId);
+        masheryJsonRpcRequest.getParams().add(clientMap);
+        masheryJsonRpcRequest.getParams().add(accessToken);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<MasheryJsonRpcRequest> request = new HttpEntity<MasheryJsonRpcRequest>(masheryJsonRpcRequest, headers);
+
+        WrappedMasheryBoolean wrappedBooleanResult = restTemplate.postForObject(buildUrl(), request, WrappedMasheryBoolean.class);
+        return wrappedBooleanResult.getResult();
     }
 
     public MasheryOAuthApplication fetchOAuthApplication(String clientId, String redirectUri, String responseType) {
@@ -132,23 +209,6 @@ public class MasheryService {
         return wrappedMasheryOAuthApplication.getResult();
     }
 
-    public Set<MasheryUserApplication> fetchUserApplications(String serviceKey, String userContext, TokenStatus tokenStatus) {
-        MasheryJsonRpcRequest masheryJsonRpcRequest = new MasheryJsonRpcRequest();
-        masheryJsonRpcRequest.setMethod("oauth2.fetchUserApplications");
-
-        masheryJsonRpcRequest.getParams().add(serviceKey);
-        masheryJsonRpcRequest.getParams().add(userContext);
-        masheryJsonRpcRequest.getParams().add(tokenStatus.getValue());
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        HttpEntity<MasheryJsonRpcRequest> request = new HttpEntity<MasheryJsonRpcRequest>(masheryJsonRpcRequest, headers);
-
-        WrappedMasheryUserApplication wrappedMasheryUserApplication = restTemplate.postForObject(buildUrl(), request, WrappedMasheryUserApplication.class);
-
-        return wrappedMasheryUserApplication.getResult();
-    }
-
     public MasheryAccessToken fetchAccessToken(String serviceKey, String accessToken) {
         MasheryJsonRpcRequest masheryJsonRpcRequest = new MasheryJsonRpcRequest();
         masheryJsonRpcRequest.setMethod("oauth2.fetchAccessToken");
@@ -165,25 +225,6 @@ public class MasheryService {
 
         return wrappedMasheryAccessToken.getResult();
     }
-
-    public Boolean revokeAccessToken(String serviceKey, String clientId, String accessToken) {
-        MasheryJsonRpcRequest masheryJsonRpcRequest = new MasheryJsonRpcRequest();
-        masheryJsonRpcRequest.setMethod("oauth2.revokeAccessToken");
-
-        masheryJsonRpcRequest.getParams().add(serviceKey);
-        Map<String, String> clientMap = new HashMap<String, String>();
-        clientMap.put("client_id", clientId);
-        masheryJsonRpcRequest.getParams().add(clientMap);
-        masheryJsonRpcRequest.getParams().add(accessToken);
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        HttpEntity<MasheryJsonRpcRequest> request = new HttpEntity<MasheryJsonRpcRequest>(masheryJsonRpcRequest, headers);
-
-        WrappedMasheryBoolean wrappedBooleanResult  = restTemplate.postForObject(buildUrl(), request, WrappedMasheryBoolean.class);
-        return wrappedBooleanResult.getResult();
-    }
-
 
     public MasheryAuthorizationCode createAuthorizationCode(String clientId, String requestedScope, String application, String redirectUri, String username) {
         String scope = requestedScope + "|" + application;

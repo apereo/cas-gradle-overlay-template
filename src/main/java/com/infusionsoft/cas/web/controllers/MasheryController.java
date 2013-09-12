@@ -28,7 +28,7 @@ import java.util.*;
 
 @Controller
 public class MasheryController {
-    //private static final Logger log = Logger.getLogger(MasheryController.class);
+    private static final Logger log = Logger.getLogger(MasheryController.class);
 
     @Value("${mashery.service.key}")
     private String serviceKey;
@@ -45,7 +45,7 @@ public class MasheryController {
     @RequestMapping
     public String userApplicationSearch(Model model, String userContext) {
         if (StringUtils.isNotBlank(userContext)) {
-            Set<MasheryUserApplication> masheryUserApplications = masheryService.fetchUserApplications(serviceKey, userContext, TokenStatus.Active);
+            Set<MasheryUserApplication> masheryUserApplications = masheryService.fetchUserApplicationsByUserContext(serviceKey, userContext, TokenStatus.Active);
 
             model.addAttribute("masheryUserApplications", masheryUserApplications);
             model.addAttribute("userContext", userContext);
