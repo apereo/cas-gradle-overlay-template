@@ -174,8 +174,12 @@
                 <plugins>
                     <plugin>
                         <artifactId>maven-surefire-plugin</artifactId>
+                        <version>2.12.4</version>
                         <configuration>
                             <testFailureIgnore>false</testFailureIgnore>
+                            <suiteXmlFiles>
+                                <suiteXmlFile>src/test/resources/suite.xml</suiteXmlFile>
+                            </suiteXmlFiles>
                             <properties>
                                 <property>
                                     <name>listener</name>
