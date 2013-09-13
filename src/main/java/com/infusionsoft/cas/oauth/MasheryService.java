@@ -5,7 +5,6 @@ import com.infusionsoft.cas.domain.UserAccount;
 import com.infusionsoft.cas.oauth.domain.*;
 import com.infusionsoft.cas.oauth.wrappers.*;
 import com.infusionsoft.cas.services.CrmService;
-import com.infusionsoft.cas.services.UserService;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -66,7 +65,7 @@ public class MasheryService {
         restTemplate.setRequestFactory(new SimpleClientHttpRequestFactory());
     }
 
-    private String buildUrl() {
+    protected String buildUrl() {
         //Adapted from Grails App, might not work yet
         String retVal = null;
         MessageDigest messageDigest = null;
@@ -247,4 +246,7 @@ public class MasheryService {
         return wrappedMasheryAuthorizationCode != null ? wrappedMasheryAuthorizationCode.getResult() : null;
     }
 
+    public void setServiceKey(String serviceKey) {
+        this.serviceKey = serviceKey;
+    }
 }
