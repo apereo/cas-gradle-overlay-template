@@ -9,7 +9,8 @@ var manageAppAccess = {
         this.accountIdBeingManaged = accountIdBeingManaged;
         $.ajax("/app/central/manageAccounts", {
             type: "GET",
-            data: { infusionsoftAccountId: accountIdBeingManaged
+            data: { userId : manageAppAccess.userIdOfUserManagingAppAccess,
+                    infusionsoftAccountId: accountIdBeingManaged
             },
             success: function (response) {
                 $("#displayManageAccountsContent-" + accountIdBeingManaged).html(response);
@@ -49,10 +50,12 @@ var manageAppAccess = {
         this.appNameOfAppBeingRevoked = appName;
     },
     attachOnClicks: function(){
+        if($(".manageAccounts")){
+            manageAppAccess.userIdOfUserManagingAppAccess = $(".manageAccounts").first().attr("userId");
+        }
         $(".manageAccounts").each(function () {
             $(this).click(function (event) {
                 event.stopPropagation();
-                manageAppAccess.userIdOfUserManagingAppAccess = $(this).attr("userId");
                 manageAppAccess.accountIdBeingManaged =  $(this).attr("accountId");
                 manageAppAccess.closeManageAppAccessDisplay();
                 var preSpinnerReplacedContent = $("#manageAccounts-" + manageAppAccess.accountIdBeingManaged).text();

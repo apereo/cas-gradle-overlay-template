@@ -102,9 +102,9 @@ public class CentralController {
      * Allows user to view to all apps granted access to their CRM account via oauth.
      */
     @RequestMapping
-    public ModelAndView manageAccounts(Long infusionsoftAccountId) throws IOException {
+    public ModelAndView manageAccounts(Long userId, Long infusionsoftAccountId) throws IOException {
         Map<String, Object> model = new HashMap<String, Object>();
-        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        User user = userService.loadUser(userId);
         UserAccount ua = userService.findUserAccount(user, infusionsoftAccountId);
         model.put("appsGrantedAccess", masheryService.fetchUserApplicationsByUserAccount(ua));
         model.put("infusionsoftAccountId", infusionsoftAccountId);
@@ -115,8 +115,8 @@ public class CentralController {
      * Allows user to revoke access to any app granted access to their CRM account via oauth.
      */
     @RequestMapping
-    public ModelAndView revokeAccess(HttpServletResponse response, Long infusionsoftAccountId, Long masheryAppId) throws IOException {
-        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    public ModelAndView revokeAccess(HttpServletResponse response, Long userId, Long infusionsoftAccountId, Long masheryAppId) throws IOException {
+        User user = userService.loadUser(userId);
         UserAccount ua = userService.findUserAccount(user, infusionsoftAccountId);
         Set<MasheryUserApplication> masheryUserApplications = masheryService.fetchUserApplicationsByUserAccount(ua);
         for (MasheryUserApplication ma : masheryUserApplications) {
