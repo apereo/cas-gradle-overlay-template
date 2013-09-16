@@ -98,8 +98,11 @@
                     })
                     .fail(function (data) {
                         var myData = $.parseJSON(data.responseText);
-                        $("#error").html(myData.errorMessage);
-                        $("#error").removeClass("hide");
+                        // the error message is actually an embedded string that must be parsed again...
+                        if(myData) {
+                            $("#error").html((jQuery.parseJSON(myData)).errorMessage);
+                            $("#error").removeClass("hide");
+                        }
                     });
             }
 
@@ -112,7 +115,7 @@
 <div id="reset">
 
     <div class="top-blue">
-        Your Password Expired
+        <spring:message code="password.expired.page.title"/>
     </div>
     <div class="bottom-brown" style="padding-bottom: 27px;">
         <div id="error" class="alert alert-error hide"></div>
@@ -120,7 +123,7 @@
         <form id="fm1" class="form-vertical">
 
                 <div class="alert alert-info">
-                    It's been 90 days since you last changed your password.<br/> For security reasons please create a new one.
+                    <spring:message code="password.expired.page.instructions"/>
                 </div>
 
             <div style="float:left;">
@@ -159,7 +162,7 @@
             </div>
             <div style="clear:both;height: 20px;"></div>
             <div class="control-group" style="text-align: right">
-                <input class="btn btn-primary" name="submit" accesskey="l" value="Change Password" tabindex="4" type="submit"/>
+                <input class="btn btn-primary" name="submit" accesskey="l" value="<spring:message code="password.expired.page.submit.button.text"/>" tabindex="4" type="submit"/>
             </div>
         </form>
     </div>
