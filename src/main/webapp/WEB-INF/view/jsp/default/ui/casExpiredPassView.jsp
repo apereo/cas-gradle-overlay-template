@@ -100,8 +100,11 @@
                         var myData = $.parseJSON(data.responseText);
                         // the error message is actually an embedded string that must be parsed again...
                         if(myData) {
-                            $("#error").html((jQuery.parseJSON(myData)).errorMessage);
-                            $("#error").removeClass("hide");
+                            var errorMessage = $.parseJSON(myData)
+                            if(errorMessage) {
+                                $("#error").html(errorMessage.errorMessage);
+                                $("#error").removeClass("hide");
+                            }
                         }
                     });
             }
