@@ -336,11 +336,11 @@ public class UserServiceImpl implements UserService {
     }
 
     /**
-     * Finds any linked user accounts to a given app and CAS global ID.
+     * Finds any linked user accounts to a given app and Global User ID.
      */
     @Override
-    public List<UserAccount> findEnabledUserAccounts(String appName, AppType appType, long casGlobalId) {
-        return userAccountDAO.findByAppNameAndAppTypeAndUserIdAndDisabled(appName, appType, casGlobalId, false);
+    public List<UserAccount> findEnabledUserAccounts(String appName, AppType appType, long globalUserId) {
+        return userAccountDAO.findByAppNameAndAppTypeAndUserIdAndDisabled(appName, appType, globalUserId, false);
     }
 
     /**
@@ -357,11 +357,11 @@ public class UserServiceImpl implements UserService {
     }
 
     /**
-     * Finds any linked user accounts to a given app and CAS global ID.
+     * Finds any linked user accounts to a given app and Global User ID.
      */
     @Override
-    public List<UserAccount> findUserAccounts(String appName, AppType appType, long casGlobalId) {
-        return userAccountDAO.findByAppNameAndAppTypeAndUserId(appName, appType, casGlobalId);
+    public List<UserAccount> findUserAccounts(String appName, AppType appType, long globalUserId) {
+        return userAccountDAO.findByAppNameAndAppTypeAndUserId(appName, appType, globalUserId);
     }
 
     /**
@@ -377,11 +377,11 @@ public class UserServiceImpl implements UserService {
     }
 
     /**
-     * Finds any linked user accounts to a given app and CAS global ID that have been disabled.
+     * Finds any linked user accounts to a given app and Global User ID that have been disabled.
      */
     @Override
-    public List<UserAccount> findDisabledUserAccounts(String appName, AppType appType, long casGlobalId) {
-        return userAccountDAO.findByAppNameAndAppTypeAndUserIdAndDisabled(appName, appType, casGlobalId, true);
+    public List<UserAccount> findDisabledUserAccounts(String appName, AppType appType, long globalUserId) {
+        return userAccountDAO.findByAppNameAndAppTypeAndUserIdAndDisabled(appName, appType, globalUserId, true);
     }
 
     /**

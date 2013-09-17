@@ -3,7 +3,7 @@
  **/
 
 /*
-TODO: this needs run once the bad data is cleaned out on proofing and production
+-- This was finally run in V11__Add_LoginAttempt_Status.sql:
 ALTER TABLE `user_account` ADD UNIQUE KEY `app_type_name_username` (`app_type`, `app_name`, `app_username`);
 */
 

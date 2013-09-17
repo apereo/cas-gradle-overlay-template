@@ -37,6 +37,7 @@ import java.util.*;
  * We just want something easy that does the job.
  */
 // TODO - make better and more consistent use of HTTP 4xx error codes throughout
+// TODO - replace casGlobalId with globalUserId in next revision of this API
 @Controller
 public class RestController {
     private static final Logger log = Logger.getLogger(RestController.class);
@@ -319,7 +320,7 @@ public class RestController {
 
     /**
      * Called from trusted clients to get info about a CAS user profile. This can be obtained either by the username
-     * (the Infusionsoft ID of the user they are searching for), by the CAS global ID, or by a combination of local
+     * (the Infusionsoft ID of the user they are searching for), by the Global User ID, or by a combination of local
      * appName, appType, and appUsername.  Only returns enabled accounts.
      * <br/>
      * NOTE: One of these is required:  username OR casGlobalId OR (appName/appType/appUsername)

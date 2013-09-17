@@ -188,7 +188,9 @@ public class RegistrationController {
     private String generateRedirectForReturnUrl(String returnUrl, String userToken, User user, boolean isNewInfusionsoftId) {
         // Redirect back to the app, which will do the linkage
         try {
-            return "redirect:" + returnUrl + "?userToken=" + URLEncoder.encode(userToken, CharEncoding.UTF_8) + "&casGlobalId=" + user.getId() + "&isNewInfusionsoftId=" + isNewInfusionsoftId;
+            return "redirect:" + returnUrl + "?userToken=" + URLEncoder.encode(userToken, CharEncoding.UTF_8) + "&casGlobalId=" + user.getId() + "&globalUserId=" + user.getId() + "&isNewInfusionsoftId=" + isNewInfusionsoftId;
+            // TODO: change to this once all apps use globalUserId instead of casGlobalId:
+            // return "redirect:" + returnUrl + "?userToken=" + URLEncoder.encode(userToken, CharEncoding.UTF_8) + "&globalUserId=" + user.getId() + "&isNewInfusionsoftId=" + isNewInfusionsoftId;
         } catch (UnsupportedEncodingException e) {
             // This should never happen
             throw new RuntimeException(e);
