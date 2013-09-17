@@ -234,10 +234,7 @@
                                     <label class="checkbox">
                                         <input id="eula" name="eula" type="checkbox" value="agreed" tabindex="7"/>
                                         <spring:message code='registration.form.readEULA'/>
-                                        <a tabindex="-1" href="http://www.infusionsoft.com/legal-stuff/eula" target="_blank"><spring:message code='registration.link.EULA'/></a>,
-                                        <a tabindex="-1" href="http://www.infusionsoft.com/legal-stuff/aup" target="_blank"><spring:message code='registration.link.AUP'/></a>,
-                                        <a tabindex="-1" href="http://www.infusionsoft.com/legal-stuff/billing-policies" target="_blank"><spring:message code='registration.link.billingPolicy'/></a> &amp;,
-                                        <a tabindex="-1" href="http://www.infusionsoft.com/legal-stuff/privacy-policy" target="_blank"><spring:message code='registration.link.privacyPolicy'/></a>.
+                                        <a tabindex="-1" href="http://www.infusionsoft.com/legal" target="_blank"><spring:message code='registration.link.policies'/></a>.
                                     </label>
                                 </div>
                             </div>
