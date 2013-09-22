@@ -21,15 +21,6 @@
     html, body {
         background: #F5F5F5;
     }
-    p.borderlessTableHeader {
-        color: #444444;
-        font-family: "Open Sans" !important;
-        font-size: 24px;
-        font-style: normal;
-        font-weight: 300 !important;
-        margin-bottom: 19px !important;
-        margin-top: 0 !important;
-    }
     table.borderlessTable {
         margin-bottom: 25px !important;
         width: 100%;
@@ -99,8 +90,7 @@
                 editAlias($(this).attr("accountId"));
             });
         });
-
-        manageAppAccess.attachOnClicks();
+        centralHome.attachOnClicks();
     });
 
     function editAlias(userAccountId) {
@@ -133,7 +123,6 @@
                 $("#quick-editable-" + id).html(response);
             }
         });
-
         return false;
     }
 
@@ -142,6 +131,43 @@
         $("#quick-editor").hide();
     }
 
+    var centralHome = {
+        getAppsGrantedAccessToAccount : function (userId, accountId){
+            manageAppAccess.closeManageAppAccessDisplay();
+            var preSpinnerReplacedContent = $("#manageAccounts-" + accountId).text();
+            window.global.showSpinner({id: "manageAccounts-" + accountId});
+
+            var appsGrantedAccessToAccountInput = new Object();
+            appsGrantedAccessToAccountInput.afterSuccess = centralHome.appsGrantedAccessToAccountAfterSuccess;
+            appsGrantedAccessToAccountInput.afterError = centralHome.appsGrantedAccessToAccountAfterError
+            appsGrantedAccessToAccountInput.useSpinner = true;
+            appsGrantedAccessToAccountInput.preSpinnerReplacedContent = preSpinnerReplacedContent;
+            appsGrantedAccessToAccountInput.userId = userId;
+            appsGrantedAccessToAccountInput.accountId = accountId;
+            manageAppAccess.getAppsGrantedAccessToAccount(appsGrantedAccessToAccountInput);
+        },
+        appsGrantedAccessToAccountAfterSuccess : function (inputObject, response) {
+            $(".crm-account").each(function () {$(this).removeClass('expanded-apps expanded-apps-crm')});
+            $(".crm-account-" + inputObject.accountId).addClass('expanded-apps expanded-apps-crm');
+            $(".displayManageAccountsMarker").each(function () {$(this).hide()});
+            $("#displayManageAccountsContent-" + inputObject.accountId).html(response);
+            $("#displayManageAccountsWrapper-" + inputObject.accountId).show();
+            if(inputObject.preSpinnerReplacedContent){
+                $("#manageAccounts-" + inputObject.accountId).html(inputObject.preSpinnerReplacedContent);
+            }
+        },
+        appsGrantedAccessToAccountAfterError : function (inputObject, response) {
+            $("#manageAccounts-" + inputObject.accountId).html(inputObject.preSpinnerReplacedContent);
+        },
+        attachOnClicks: function(){
+            $(".manageAccounts").each(function () {
+                $(this).click(function (event) {
+                    event.stopPropagation();
+                    centralHome.getAppsGrantedAccessToAccount($(this.attr("userId")), $(this).attr("accountId"));
+                });
+            });
+        }
+    }
 </script>
 
 <c:if test="${!empty connectError}">
@@ -183,22 +209,25 @@
     <c:forEach var="account" items="${accounts}">
         <c:choose>
             <c:when test="${account.appType == 'CRM'}">
-                <div accountId="${account.id}" href="${crmProtocol}://${account.appName}.${crmDomain}:${crmPort}" class="account crm-account">
+                <div accountId="${account.id}" href="${crmProtocol}://${account.appName}.${crmDomain}:${crmPort}" class="account crm-account crm-account-${account.id}">
                     <div class="account-delete">&times;</div>
                     <div class="account-info">
                         <div id="account_${account.id}" class="account-title">
                             <span id="quick-editable-${account.id}" accountId="${account.id}" class="quick-editable">${fn:escapeXml(empty account.alias ? account.appName : account.alias)}</span>
                         </div>
-                        <div class="account-detail"><spring:message code="central.home.crm.account"/></div>
-                        <div class="account-detail">${account.appName}.${crmDomain}</div>
-                        <div class="account-detail">
-                            <span id="manageAccounts-${account.id}" accountId="${account.id}" userId="${user.id}" class="manageAccounts">Manage Accounts</span>
+                        <div class="account-detail account-url"><span>${account.appName}.${crmDomain}</span></div>
+                        <div class="account-detail app-access">
+                            <span id="manageAccounts-${account.id}" accountId="${account.id}" userId="${user.id}" onclick="centralHome.getAppsGrantedAccessToAccount('${user.id}', '${account.id}');" class="manageAccounts">Manage App Access</span>
                         </div>
                     </div>
                 </div>
-                <div id="displayManageAccountsWrapper-${account.id}" class="displayManageAccounts account-detail" style="display:none;">
-                    <div style="border-top: 3px solid #4F9CC8;">
-                        <div id="displayManageAccountsContent-${account.id}"></div>
+                <div id="displayManageAccountsWrapper-${account.id}" class="action-body-left displayManageAccountsMarker" style="display:none;">
+                    <div class="action-body-right">
+                        <div  class="account-detail" >
+                            <div>
+                                <div id="displayManageAccountsContent-${account.id}" class="displayManageAccounts account-detail"></div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </c:when>
@@ -252,18 +281,4 @@
             </div>
         </fieldset>
     </form>
-</div>
-<!-- Bootstrap Modal -->
-<div id="myModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-    <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-        <h3 id="myModalLabel">Are You Sure?</h3>
-    </div>
-    <div id="modal-body-id" class="modal-body">
-        <p></p>
-    </div>
-    <div class="modal-footer">
-        <button class="btn" data-dismiss="modal" aria-hidden="true">Cancel</button>
-        <button class="btn btn-primary" onclick="manageAppAccess.revokeAccess();">Revoke Access</button>
-    </div>
 </div>

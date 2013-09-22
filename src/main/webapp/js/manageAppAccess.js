@@ -4,19 +4,19 @@ var manageAppAccess = {
     appIdOfAppBeingRevoked : 0,
     appNameOfAppBeingRevoked : "",
 
-    getAppsGrantedAccessToAccount: function(userId, accountIdBeingManaged, preSpinnerReplacedContent) {
-        this.userIdOfUserManagingAppAccess = userId;
-        this.accountIdBeingManaged = accountIdBeingManaged;
+    getAppsGrantedAccessToAccount: function(inputObject) {
+        this.userIdOfUserManagingAppAccess = inputObject.userId;
+        this.accountIdBeingManaged = inputObject.accountId;
         $.ajax("/app/central/manageAccounts", {
             type: "GET",
             data: { userId : manageAppAccess.userIdOfUserManagingAppAccess,
-                    infusionsoftAccountId: accountIdBeingManaged
+                    infusionsoftAccountId: manageAppAccess.accountIdBeingManaged
             },
             success: function (response) {
-                $("#displayManageAccountsContent-" + accountIdBeingManaged).html(response);
-                $(".displayManageAccounts").each(function () {$(this).hide()});
-                $("#displayManageAccountsWrapper-" + accountIdBeingManaged).show();
-                $("#manageAccounts-" + manageAppAccess.accountIdBeingManaged).html(preSpinnerReplacedContent);
+;               inputObject.afterSuccess(inputObject, response);
+            },
+            error: function(response){
+                inputObject.afterError(inputObject, response);
             }
         });
         return false;
@@ -32,12 +32,14 @@ var manageAppAccess = {
                 $('#myModal').modal('hide');
                 $("#accessRevokedFailed-" + manageAppAccess.accountIdBeingManaged).hide();
                 $("#accessRevokedSuccessText-" + manageAppAccess.accountIdBeingManaged).html(manageAppAccess.appNameOfAppBeingRevoked);
+                $("#accessRevokedMessageWrapper-"+ manageAppAccess.accountIdBeingManaged).show();
                 $("#accessRevokedSuccess-" + manageAppAccess.accountIdBeingManaged).show();
             },
             error: function(response){
                 $('#myModal').modal('hide');
                 $("#accessRevokedSuccess-"+ manageAppAccess.accountIdBeingManaged).hide();
                 $("#accessRevokedFailedText-"+ manageAppAccess.accountIdBeingManaged).html(manageAppAccess.appNameOfAppBeingRevoked);
+                $("#accessRevokedMessageWrapper-"+ manageAppAccess.accountIdBeingManaged).show();
                 $("#accessRevokedFailed-"+ manageAppAccess.accountIdBeingManaged).show();
             }
         });
@@ -45,24 +47,9 @@ var manageAppAccess = {
     },
     populateModalBody: function(appIdOfAppBeingRevoked){
         var appName = $("#appName-" + appIdOfAppBeingRevoked).text();
-        $("#modal-body-id p").html("Are you sure you want to revoke access for " + appName + "?");
+        $("#modal-body-id p").html("Are you sure you want to revoke access for <span>" + appName + "</span>?");
         this.appIdOfAppBeingRevoked = appIdOfAppBeingRevoked;
         this.appNameOfAppBeingRevoked = appName;
-    },
-    attachOnClicks: function(){
-        if($(".manageAccounts")){
-            manageAppAccess.userIdOfUserManagingAppAccess = $(".manageAccounts").first().attr("userId");
-        }
-        $(".manageAccounts").each(function () {
-            $(this).click(function (event) {
-                event.stopPropagation();
-                manageAppAccess.accountIdBeingManaged =  $(this).attr("accountId");
-                manageAppAccess.closeManageAppAccessDisplay();
-                var preSpinnerReplacedContent = $("#manageAccounts-" + manageAppAccess.accountIdBeingManaged).text();
-                window.global.showSpinner({id: "manageAccounts-" + manageAppAccess.accountIdBeingManaged});
-                manageAppAccess.getAppsGrantedAccessToAccount(manageAppAccess.userIdOfUserManagingAppAccess, manageAppAccess.accountIdBeingManaged, preSpinnerReplacedContent);
-            });
-        });
     },
     closeManageAppAccessDisplay : function () {
         $("#displayManageAccountsWrapper-" + this.accountIdBeingManaged).hide();

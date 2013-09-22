@@ -87,6 +87,20 @@
         </div>
     </div>
 </div>
+<!-- Bootstrap Modal -->
+<div id="myModal" class="modal hide fade confirmation-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <h3 id="myModalLabel">Are You Sure?</h3>
+    </div>
+    <div id="modal-body-id" class="modal-body">
+        <p></p>
+    </div>
+    <div class="modal-footer">
+        <button class="btn" data-dismiss="modal" aria-hidden="true">Cancel</button>
+        <button class="btn btn-primary" onclick="manageAppAccess.revokeAccess();">Revoke Access</button>
+    </div>
+</div>
 <script type="text/javascript">(function () {
     var walkme = document.createElement('script');
     walkme.type = 'text/javascript';

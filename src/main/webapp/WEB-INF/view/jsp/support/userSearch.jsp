@@ -8,6 +8,28 @@
 <head>
     <title><spring:message code="search.infusionsoft.id.label"/></title>
     <meta name="decorator" content="central"/>
+    <script type="text/javascript">
+        var userSearch = {
+            getAppsGrantedAccessToAccount : function (userId, accountId){
+                var appsGrantedAccessToAccountInput = new Object();
+                appsGrantedAccessToAccountInput.afterSuccess = this.appsGrantedAccessToAccountAfterSuccess;
+                appsGrantedAccessToAccountInput.afterError = this.appsGrantedAccessToAccountAfterError;
+                appsGrantedAccessToAccountInput.userId = userId;
+                appsGrantedAccessToAccountInput.accountId = accountId;
+
+                manageAppAccess.getAppsGrantedAccessToAccount(appsGrantedAccessToAccountInput);
+            },
+            appsGrantedAccessToAccountAfterSuccess : function(inputObject, response) {
+                $(".displayManageAccountsMarker").each(function () {$(this).hide()});
+                $("#displayManageAccountsContent-" + inputObject.accountId).html(response);
+                $("#displayManageAccountsWrapper-" + inputObject.accountId).show();
+            },
+            appsGrantedAccessToAccountAfterError : function(inputObject, response) {
+                $("#manageAccounts-" + inputObject.accountId).html(inputObject.preSpinnerReplacedContent);
+            }
+        }
+    </script>
+
 </head>
 <body>
 <div class="text-center">
@@ -25,6 +47,9 @@
             </th>
             <th>
                 <spring:message code="unlock.label"/>
+            </th>
+            <th>
+                Accounts
             </th>
         </tr>
         </thead>
@@ -49,6 +74,20 @@
                     </td>
                     <td>
                         <a href="/app/support/unlockUser?id=${user.id}"><spring:message code="unlock.label"/></a>
+                    </td>
+                    <td>
+                        <table class="table table-bordered table-striped dataTable">
+                            <c:forEach var="account" items="${user.accounts}">
+                                <tr>
+                                    <td>
+                                        <span><a onclick="userSearch.getAppsGrantedAccessToAccount('${user.id}', '${account.id}'); return false;">${account.appName}.${crmDomain}</a></span>
+                                    </td>
+                                </tr>
+                                <tr id="displayManageAccountsWrapper-${account.id}" class="displayManageAccountsMarker" style="display: none">
+                                    <td id="displayManageAccountsContent-${account.id}"></td>
+                                </tr>
+                            </c:forEach>
+                        </table>
                     </td>
                 </tr>
             </c:forEach>

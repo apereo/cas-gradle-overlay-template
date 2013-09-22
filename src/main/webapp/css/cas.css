@@ -323,12 +323,10 @@ label {
     font-size: 12px;
 }
 
-.accounts {
-    border: 1px solid #DDD;
-}
-
 .accounts .account {
     border-top: 1px solid #DDD;
+    border-right: 1px solid #ddd;
+    border-left: 1px solid #ddd;
     height: 115px;
     display: block;
     color: #333;
@@ -337,8 +335,8 @@ label {
     position: relative;
 }
 
-.accounts .account:first-child {
-    border-top: none;
+.accounts .account:last-child {
+    border-bottom: 1px solid #ddd;
 }
 
 .accounts .account.crm-account {
@@ -414,10 +412,17 @@ label {
 
 .modal-header h3 {
     font-weight: normal;
+    margin: 0;
+    line-height: 30px;
+    font-family: open sans, arial;
+    font-weight: 300;
+    color: #DC733A;
+    font-size: 20px;
 }
 
 .modal-body {
-    padding: 10px 30px;
+    padding: 25px;
+    color: #444;
 }
 
 .quick-editable {
@@ -690,4 +695,145 @@ label.error {
     background: #e4e4e4;
     border-radius: 0 0 4px 4px;
     padding: 30px 26px 15px;
+}
+
+
+.expanded-apps {
+    border-bottom: 3px solid #4F9CC8;
+}
+
+.expanded-apps-crm {
+    background: #f5f5f5 url(/images/app-central-infusionsoft.png) 15px 15px no-repeat !important;
+}
+
+.expanded-apps-chub {
+    background: #f5f5f5 url(/images/app-central-customerhub.png) 15px 15px no-repeat !important;
+}
+
+.displayManageAccounts {
+    margin: 0px 5px;
+    background: url(../images/chunk-action-bg.png) repeat-x;
+    border-right: 1px solid #ddd;
+    border-left: 1px solid #ddd;
+    padding:  0px 30px 30px 30px;
+}
+
+.no-content {
+    background-color: #f4f4f4;
+    border: none;
+    font-style: italic;
+    color: #999;
+    padding: 14px;
+    border-radius: 4px;
+    margin-bottom: 15px;
+}
+
+.borderlessTableHeader {
+    margin: 5px 0px !important;
+}
+
+.close-link {
+    text-align: right;
+    font-size: 12px;
+    position: relative;
+    top: 5px;
+}
+
+.account-url {
+    background: url(../images/url-icon.png) no-repeat 0px 2px;
+}
+
+.app-access {
+    background: url(../images/access-icon.png) no-repeat 0px;
+    margin-top: 2px;
+    color: #006aaa;
+}
+
+.account-detail span {
+    margin-left: 20px;
+}
+
+.action-body-left {
+    background: url(../images/selected-chunk-left-wing.png) no-repeat scroll left top transparent;
+}
+
+.action-body-right {
+    background: url(../images/selected-chunk-right-wing.png) no-repeat scroll right top transparent;
+}
+
+.app-name {
+    font-size: 14px;
+    color: #444;
+    position: relative;
+    top: 5px;
+}
+
+modal-backdrop, .modal-backdrop.fade.in {
+    opacity: .3;
+    filter: alpha(opacity=30);
+}
+
+.modal-header {
+    background: #f6f6f6;
+    border-radius: 6px 6px 0px 0px;
+}
+
+.modal {
+    border: 1px solid #aaa;
+    left: 39% !important;
+    margin: 0 !important;
+}
+
+.modal-body p {
+    margin-bottom: 0px !important;
+}
+
+.modal-body span {
+    font-weight: bold;
+}
+
+modal.fade.in {
+    top: 20% !important;
+}
+
+.confirmation-modal {
+    width: 300px;
+}
+
+p.borderlessTableHeader {
+    color: #444444;
+    font-family: "Open Sans" !important;
+    font-size: 24px;
+    font-style: normal;
+    font-weight: 300 !important;
+    margin-top: 0 !important;
+}
+
+.borderlessTable-zebra-striped {
+    border: medium none !important;
+    width: 100%;
+}
+
+.borderlessTable-zebra-striped tr:nth-child(odd) {
+    background-color: #F5F5F5;
+    border-bottom: 1px solid #EBEBEB;
+    border-top: 1px solid #EBEBEB;
+}
+
+table.borderlessTable-tabular td {
+    line-height: 18px;
+    padding: 10px 10px 10px 15px;
+    text-align: left;
+}
+
+table.borderlessTable {
+    margin-bottom: 5px !important;
+    width: 100%;
+}
+td.borderlessTableTd {
+    color: #444444;
+    font-family: "Open Sans" !important;
+    font-size: 24px;
+    font-weight: 300 !important;
+    padding-top: 5px;
 }
