@@ -27,6 +27,7 @@
     <tbody>
         <tr>
             <div id="close-${infusionsoftAccountId}" class="close-link"><a href="" onclick="manageAppAccess.closeAppAccessDisplay()">close</a><img src="/images/close-arrow.png" /></div>
+            <%--<div id="close-${infusionsoftAccountId}" class="close-link" onclick="manageAppAccess.closeAppAccessDisplay();"><span style="color: #006aaa;">close</span><img src="/images/close-arrow.png" /></div>--%>
         </tr>
         <tr id="accessRevokedMessageWrapper-${infusionsoftAccountId}" style="display: none">
             <td>

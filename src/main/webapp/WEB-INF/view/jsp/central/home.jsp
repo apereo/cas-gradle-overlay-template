@@ -6,14 +6,18 @@
 
 <%@ page contentType="text/html; charset=UTF-8" %>
 
-<meta name="decorator" content="modal"/>
+<html>
+<head>
+    <meta name="decorator" content="modal"/>
+    <meta name="decorator" content="central"/>
+    <script type="text/javascript" src="<c:url value="/js/home.js"/>"></script>
+</head>
+<body>
 
-<meta name="decorator" content="central"/>
 
 <c:url var="linkInfusionsoftAppAccount" value="/app/central/linkInfusionsoftAppAccount"/>
 <c:url var="linkCustomerHubAccount" value="/app/central/linkCustomerHubAccount"/>
 <c:url var="linkCommunityAccount" value="/app/central/linkCommunityAccount"/>
-<c:url var="unlinkAccount" value="/app/central/unlinkAccount"/>
 <c:url var="createCommunityAccount" value="/app/central/createCommunityAccount"/>
 <c:url var="editCommunityAccount" value="/app/central/editCommunityAccount"/>
 <c:url var="renameAccount" value="/app/central/renameAccount"/>
@@ -47,128 +51,6 @@
         vertical-align: top;
     }
 </style>
-<script type="text/javascript">
-
-    $(document).ready(function () {
-        $(".account").hover(
-                function () {
-                    // TODO - stop hiding this if we want to allow account deletion! -${param.service}
-                    //        $(this).find(".account-delete").show();
-                },
-                function () {
-                    $(this).find(".account-delete").hide();
-                }
-        );
-
-        $(".account .account-delete").click(function (event) {
-            event.stopPropagation();
-
-            if (confirm("Unlink this account from your Infusionsoft ID?")) {
-                var accountId = $(this).parents(".account").attr("accountId");
-
-                $.ajax({
-                    url: "${unlinkAccount}",
-                    type: "POST",
-                    data: { account: accountId },
-                    success: function (response) {
-                        $(".account[accountId=" + accountId + "]").remove();
-                    }
-                });
-            }
-        });
-
-        $(".account").click(function () {
-            // Yes that's right, a div with an href, to avoid 
-            // silly nested propagation issues.
-            document.location.href = $(this).attr("href");
-        });
-
-        $(".quick-editable").each(function () {
-            $(this).click(function (event) {
-                event.stopPropagation();
-
-                editAlias($(this).attr("accountId"));
-            });
-        });
-        centralHome.attachOnClicks();
-    });
-
-    function editAlias(userAccountId) {
-        hideQuickEditor();
-
-        var editable = $("#quick-editable-" + userAccountId);
-
-        $(editable).addClass("editing");
-        $("#quick-editor #account").val(userAccountId);
-        $("#quick-editor #alias").val(editable.html());
-        $("#quick-editor").show();
-        $("#quick-editor").css("left", editable.offset().left + editable.width());
-        $("#quick-editor").css("top", editable.offset().top - 50);
-        $("#quick-editor #alias").focus();
-
-        event.stopPropagation();
-
-        return false;
-    }
-
-    function updateAlias() {
-        var id = $("#quick-editor #account").val();
-        var alias = $("#quick-editor #alias").val();
-
-        $.ajax("${renameAccount}", {
-            type: "POST",
-            data: { id: id, value: alias },
-            success: function (response) {
-                hideQuickEditor();
-                $("#quick-editable-" + id).html(response);
-            }
-        });
-        return false;
-    }
-
-    function hideQuickEditor() {
-        $(".quick-editable").removeClass("editing");
-        $("#quick-editor").hide();
-    }
-
-    var centralHome = {
-        getAppsGrantedAccessToAccount : function (userId, accountId){
-            manageAppAccess.closeManageAppAccessDisplay();
-            var preSpinnerReplacedContent = $("#manageAccounts-" + accountId).text();
-            window.global.showSpinner({id: "manageAccounts-" + accountId});
-
-            var appsGrantedAccessToAccountInput = new Object();
-            appsGrantedAccessToAccountInput.afterSuccess = centralHome.appsGrantedAccessToAccountAfterSuccess;
-            appsGrantedAccessToAccountInput.afterError = centralHome.appsGrantedAccessToAccountAfterError
-            appsGrantedAccessToAccountInput.useSpinner = true;
-            appsGrantedAccessToAccountInput.preSpinnerReplacedContent = preSpinnerReplacedContent;
-            appsGrantedAccessToAccountInput.userId = userId;
-            appsGrantedAccessToAccountInput.accountId = accountId;
-            manageAppAccess.getAppsGrantedAccessToAccount(appsGrantedAccessToAccountInput);
-        },
-        appsGrantedAccessToAccountAfterSuccess : function (inputObject, response) {
-            $(".crm-account").each(function () {$(this).removeClass('expanded-apps expanded-apps-crm')});
-            $(".crm-account-" + inputObject.accountId).addClass('expanded-apps expanded-apps-crm');
-            $(".displayManageAccountsMarker").each(function () {$(this).hide()});
-            $("#displayManageAccountsContent-" + inputObject.accountId).html(response);
-            $("#displayManageAccountsWrapper-" + inputObject.accountId).show();
-            if(inputObject.preSpinnerReplacedContent){
-                $("#manageAccounts-" + inputObject.accountId).html(inputObject.preSpinnerReplacedContent);
-            }
-        },
-        appsGrantedAccessToAccountAfterError : function (inputObject, response) {
-            $("#manageAccounts-" + inputObject.accountId).html(inputObject.preSpinnerReplacedContent);
-        },
-        attachOnClicks: function(){
-            $(".manageAccounts").each(function () {
-                $(this).click(function (event) {
-                    event.stopPropagation();
-                    centralHome.getAppsGrantedAccessToAccount($(this.attr("userId")), $(this).attr("accountId"));
-                });
-            });
-        }
-    }
-</script>
 
 <c:if test="${!empty connectError}">
     <div class="alert alert-error" style="margin-top: 10px">
@@ -217,7 +99,7 @@
                         </div>
                         <div class="account-detail account-url"><span>${account.appName}.${crmDomain}</span></div>
                         <div class="account-detail app-access">
-                            <span id="manageAccounts-${account.id}" accountId="${account.id}" userId="${user.id}" onclick="centralHome.getAppsGrantedAccessToAccount('${user.id}', '${account.id}');" class="manageAccounts">Manage App Access</span>
+                            <span id="manageAccounts-${account.id}" class="manageAccounts" accountId="${account.id}" userId="${user.id}">Manage App Access</span>
                         </div>
                     </div>
                 </div>
@@ -266,7 +148,7 @@
 </div>
 
 <div id="quick-editor">
-    <form action="${renameAccount}" class="form-vertical" onsubmit="return updateAlias()">
+    <form action="${renameAccount}" class="form-vertical" onsubmit="return centralHome.updateAlias()">
         <fieldset>
             <label for="alias" class="form-label"><spring:message code="central.home.account.alias"/></label>
 
@@ -277,8 +159,10 @@
             <div class="controls">
                 <c:set var="saveLabel"><spring:message code="central.home.account.alias.save"/></c:set>
                 <input type="submit" value="${saveLabel}" class="btn btn-primary"/>
-                <a href="javascript:hideQuickEditor()" class="btn"><spring:message code="central.home.account.alias.cancel"/></a>
+                <a href="javascript:centralHome.hideQuickEditor()" class="btn"><spring:message code="central.home.account.alias.cancel"/></a>
             </div>
         </fieldset>
     </form>
 </div>
+</body>
+</html>

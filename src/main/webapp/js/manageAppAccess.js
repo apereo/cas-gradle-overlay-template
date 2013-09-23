@@ -5,15 +5,15 @@ var manageAppAccess = {
     appNameOfAppBeingRevoked : "",
 
     getAppsGrantedAccessToAccount: function(inputObject) {
-        this.userIdOfUserManagingAppAccess = inputObject.userId;
-        this.accountIdBeingManaged = inputObject.accountId;
+        manageAppAccess.userIdOfUserManagingAppAccess = inputObject.userId;
+        manageAppAccess.accountIdBeingManaged = inputObject.accountId;
         $.ajax("/app/central/manageAccounts", {
             type: "GET",
             data: { userId : manageAppAccess.userIdOfUserManagingAppAccess,
                     infusionsoftAccountId: manageAppAccess.accountIdBeingManaged
             },
             success: function (response) {
-;               inputObject.afterSuccess(inputObject, response);
+                inputObject.afterSuccess(inputObject, response);
             },
             error: function(response){
                 inputObject.afterError(inputObject, response);
@@ -24,9 +24,9 @@ var manageAppAccess = {
     revokeAccess: function(){
         $.ajax("/app/central/revokeAccess", {
             type: "POST",
-            data: { userId: this.userIdOfUserManagingAppAccess,
-                infusionsoftAccountId: this.accountIdBeingManaged,
-                masheryAppId: this.appIdOfAppBeingRevoked
+            data: { userId: manageAppAccess.userIdOfUserManagingAppAccess,
+                infusionsoftAccountId: manageAppAccess.accountIdBeingManaged,
+                masheryAppId: manageAppAccess.appIdOfAppBeingRevoked
             },
             success: function (response) {
                 $('#myModal').modal('hide');
@@ -48,10 +48,10 @@ var manageAppAccess = {
     populateModalBody: function(appIdOfAppBeingRevoked){
         var appName = $("#appName-" + appIdOfAppBeingRevoked).text();
         $("#modal-body-id p").html("Are you sure you want to revoke access for <span>" + appName + "</span>?");
-        this.appIdOfAppBeingRevoked = appIdOfAppBeingRevoked;
-        this.appNameOfAppBeingRevoked = appName;
+        manageAppAccess.appIdOfAppBeingRevoked = appIdOfAppBeingRevoked;
+        manageAppAccess.appNameOfAppBeingRevoked = appName;
     },
     closeManageAppAccessDisplay : function () {
-        $("#displayManageAccountsWrapper-" + this.accountIdBeingManaged).hide();
+        $("#displayManageAccountsWrapper-" + manageAppAccess.accountIdBeingManaged).hide();
     }
-}
+};
