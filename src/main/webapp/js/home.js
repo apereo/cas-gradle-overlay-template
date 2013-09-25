@@ -62,10 +62,12 @@ var centralHome = {
         $("#displayManageAccountsWrapper-" + inputObject.accountId).slideDown(500);
         if(inputObject.preSpinnerReplacedContent){
             $("#spinner-content-" + inputObject.accountId).html(inputObject.preSpinnerReplacedContent);
+            $("#manageAccounts-" + inputObject.accountId).click(centralHome.reattachOnClicksAfterSpinnerRefresh)
         }
     },
     appsGrantedAccessToAccountAfterError : function (inputObject, response) {
-        $("#manageAccounts-" + inputObject.accountId).html(inputObject.preSpinnerReplacedContent);
+        $("#spinner-content-" + inputObject.accountId).html(inputObject.preSpinnerReplacedContent);
+        $("#manageAccounts-" + inputObject.accountId).click(centralHome.reattachOnClicksAfterSpinnerRefresh)
     },
     attachOnClicks: function(){
         $(".manageAccounts").each(function () {
@@ -76,6 +78,12 @@ var centralHome = {
                 centralHome.getAppsGrantedAccessToAccount(userId, accountId);
             });
         });
+    },
+    reattachOnClicksAfterSpinnerRefresh: function(event) {
+        event.stopPropagation();
+        var userId = $(event.target).attr("userId");
+        var accountId = $(event.target).attr("accountId");
+        centralHome.getAppsGrantedAccessToAccount(userId, accountId);
     },
     editAlias : function(userAccountId) {
         centralHome.hideQuickEditor();
