@@ -62,12 +62,12 @@ var centralHome = {
         $("#displayManageAccountsWrapper-" + inputObject.accountId).slideDown(500);
         if(inputObject.preSpinnerReplacedContent){
             $("#spinner-content-" + inputObject.accountId).html(inputObject.preSpinnerReplacedContent);
-            $("#manageAccounts-" + inputObject.accountId).click(centralHome.reattachOnClicksAfterSpinnerRefresh)
+            $("#manageAccounts-" + inputObject.accountId).click(centralHome.reattachOnClicksAfterSpinnerRefresh);
         }
     },
     appsGrantedAccessToAccountAfterError : function (inputObject, response) {
         $("#spinner-content-" + inputObject.accountId).html(inputObject.preSpinnerReplacedContent);
-        $("#manageAccounts-" + inputObject.accountId).click(centralHome.reattachOnClicksAfterSpinnerRefresh)
+        $("#manageAccounts-" + inputObject.accountId).click(centralHome.reattachOnClicksAfterSpinnerRefresh);
     },
     attachOnClicks: function(){
         $(".manageAccounts").each(function () {
