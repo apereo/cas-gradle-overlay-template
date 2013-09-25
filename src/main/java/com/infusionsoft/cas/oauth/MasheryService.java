@@ -77,7 +77,7 @@ public class MasheryService {
         }
 
         if (messageDigest != null) {
-            Long epoch = new Double(Math.floor(System.currentTimeMillis() / 1000)).longValue();
+            long epoch = System.currentTimeMillis() / 1000;
 
             StringBuilder stringBuilder = new StringBuilder();
             stringBuilder.append(apiKey).append(apiSecret).append(epoch);

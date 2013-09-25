@@ -22,10 +22,10 @@
             appsGrantedAccessToAccountAfterSuccess : function(inputObject, response) {
                 $(".displayManageAccountsMarker").each(function () {$(this).hide()});
                 $("#displayManageAccountsContent-" + inputObject.accountId).html(response);
-                $("#displayManageAccountsWrapper-" + inputObject.accountId).show();
+                $("#displayManageAccountsWrapper-" + inputObject.accountId).slideDown(500);
             },
             appsGrantedAccessToAccountAfterError : function(inputObject, response) {
-                $("#manageAccounts-" + inputObject.accountId).html(inputObject.preSpinnerReplacedContent);
+
             }
         }
     </script>

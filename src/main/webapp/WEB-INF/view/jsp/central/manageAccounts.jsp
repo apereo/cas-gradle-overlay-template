@@ -1,33 +1,9 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
-<style type="text/css">
-    table {
-        border-collapse: collapse;
-        border-spacing: 0;
-        empty-cells: show;
-        padding: 0;
-    }
-    .td-width {
-        overflow: hidden;
-    }
-    .dt {
-        white-space: nowrap;
-    }
-    .dateColumn {
-        width: 100px;
-    }
-    td {
-        color: #444444;
-        font-family: 'Open Sans',Arial,Verdana,Sans-Serif;
-        font-size: 12px;
-    }
-
- </style>
 <table class="borderlessTable">
     <tbody>
         <tr>
-            <div id="close-${infusionsoftAccountId}" class="close-link"><a href="" onclick="manageAppAccess.closeAppAccessDisplay()">close</a><img src="/images/close-arrow.png" /></div>
-            <%--<div id="close-${infusionsoftAccountId}" class="close-link" onclick="manageAppAccess.closeAppAccessDisplay();"><span style="color: #006aaa;">close</span><img src="/images/close-arrow.png" /></div>--%>
+            <div id="close-${infusionsoftAccountId}" class="close-link"><a onclick="return manageAppAccess.closeManageAppAccessDisplay(${infusionsoftAccountId});">close</a><img src="/images/close-arrow.png" /></div>
         </tr>
         <tr id="accessRevokedMessageWrapper-${infusionsoftAccountId}" style="display: none">
             <td>

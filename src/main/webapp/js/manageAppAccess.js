@@ -45,13 +45,15 @@ var manageAppAccess = {
         });
         return false;
     },
+    closeManageAppAccessDisplay : function(accountId){
+        $(".crm-account").each(function () {$(this).removeClass('expanded-apps expanded-apps-crm')});
+        $("#displayManageAccountsWrapper-" + accountId).hide();
+        return false;
+    },
     populateModalBody: function(appIdOfAppBeingRevoked){
         var appName = $("#appName-" + appIdOfAppBeingRevoked).text();
         $("#modal-body-id p").html("Are you sure you want to revoke access for <span>" + appName + "</span>?");
         manageAppAccess.appIdOfAppBeingRevoked = appIdOfAppBeingRevoked;
         manageAppAccess.appNameOfAppBeingRevoked = appName;
-    },
-    closeManageAppAccessDisplay : function () {
-        $("#displayManageAccountsWrapper-" + manageAppAccess.accountIdBeingManaged).hide();
     }
 };

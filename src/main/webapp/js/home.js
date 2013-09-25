@@ -42,8 +42,8 @@ $(document).ready(function () {
 var centralHome = {
     getAppsGrantedAccessToAccount : function (userId, accountId){
         manageAppAccess.closeManageAppAccessDisplay();
-        var preSpinnerReplacedContent = $("#manageAccounts-" + accountId).text();
-        window.global.showSpinner({id: "manageAccounts-" + accountId});
+        var preSpinnerReplacedContent = $("#spinner-content-" + accountId).html();
+        window.global.showSpinner({id: "spinner-content-" + accountId});
 
         var appsGrantedAccessToAccountInput = new Object();
         appsGrantedAccessToAccountInput.afterSuccess = centralHome.appsGrantedAccessToAccountAfterSuccess;
@@ -59,9 +59,9 @@ var centralHome = {
         $(".crm-account-" + inputObject.accountId).addClass('expanded-apps expanded-apps-crm');
         $(".displayManageAccountsMarker").each(function () {$(this).hide()});
         $("#displayManageAccountsContent-" + inputObject.accountId).html(response);
-        $("#displayManageAccountsWrapper-" + inputObject.accountId).show();
+        $("#displayManageAccountsWrapper-" + inputObject.accountId).slideDown(500);
         if(inputObject.preSpinnerReplacedContent){
-            $("#manageAccounts-" + inputObject.accountId).html(inputObject.preSpinnerReplacedContent);
+            $("#spinner-content-" + inputObject.accountId).html(inputObject.preSpinnerReplacedContent);
         }
     },
     appsGrantedAccessToAccountAfterError : function (inputObject, response) {

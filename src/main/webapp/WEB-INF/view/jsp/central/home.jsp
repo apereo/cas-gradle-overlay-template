@@ -10,6 +10,7 @@
 <head>
     <meta name="decorator" content="modal"/>
     <meta name="decorator" content="central"/>
+    <link type="text/css" rel="stylesheet" href="<c:url value="/css/home.css" />"/>
     <script type="text/javascript" src="<c:url value="/js/home.js"/>"></script>
 </head>
 <body>
@@ -21,36 +22,6 @@
 <c:url var="createCommunityAccount" value="/app/central/createCommunityAccount"/>
 <c:url var="editCommunityAccount" value="/app/central/editCommunityAccount"/>
 <c:url var="renameAccount" value="/app/central/renameAccount"/>
-<style type="text/css">
-    html, body {
-        background: #F5F5F5;
-    }
-    table.borderlessTable {
-        margin-bottom: 25px !important;
-        width: 100%;
-    }
-    table {
-        empty-cells: show;
-        padding: 0;
-    }
-    table {
-        border-collapse: collapse;
-        border-spacing: 0;
-    }
-    td.borderlessTableTd {
-        color: #444444;
-        font-family: "Open Sans" !important;
-        font-size: 24px;
-        font-weight: 300 !important;
-        padding-top: 40px;
-    }
-    td {
-        font-family: 'Open Sans',Arial,Verdana,Sans-Serif;
-    }
-    td {
-        vertical-align: top;
-    }
-</style>
 
 <c:if test="${!empty connectError}">
     <div class="alert alert-error" style="margin-top: 10px">
@@ -98,7 +69,7 @@
                             <span id="quick-editable-${account.id}" accountId="${account.id}" class="quick-editable">${fn:escapeXml(empty account.alias ? account.appName : account.alias)}</span>
                         </div>
                         <div class="account-detail account-url"><span>${account.appName}.${crmDomain}</span></div>
-                        <div class="account-detail app-access">
+                        <div class="account-detail app-access" id="spinner-content-${account.id}">
                             <span id="manageAccounts-${account.id}" class="manageAccounts" accountId="${account.id}" userId="${user.id}">Manage App Access</span>
                         </div>
                     </div>
