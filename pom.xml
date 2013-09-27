@@ -177,9 +177,9 @@
                         <version>2.12.4</version>
                         <configuration>
                             <testFailureIgnore>false</testFailureIgnore>
-                            <suiteXmlFiles>
-                                <suiteXmlFile>src/test/resources/suite.xml</suiteXmlFile>
-                            </suiteXmlFiles>
+                            <includes>
+                                <include>**/*.java</include>
+                            </includes>
                             <properties>
                                 <property>
                                     <name>listener</name>

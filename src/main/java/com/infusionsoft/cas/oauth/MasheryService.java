@@ -5,6 +5,8 @@ import com.infusionsoft.cas.domain.UserAccount;
 import com.infusionsoft.cas.oauth.domain.*;
 import com.infusionsoft.cas.oauth.wrappers.*;
 import com.infusionsoft.cas.services.CrmService;
+import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -19,9 +21,6 @@ import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.PostConstruct;
-import java.math.BigInteger;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.*;
 
 /**
@@ -67,28 +66,16 @@ public class MasheryService {
 
     protected String buildUrl() {
         //Adapted from Grails App, might not work yet
-        String retVal = null;
-        MessageDigest messageDigest = null;
+        long epoch = System.currentTimeMillis() / 1000;
 
-        try {
-            messageDigest = MessageDigest.getInstance("MD5");
-        } catch (NoSuchAlgorithmException e) {
-            log.error("Unable to get an MD5 MessageDigest", e);
-        }
+        return buildUrl(epoch);
+    }
 
-        if (messageDigest != null) {
-            long epoch = System.currentTimeMillis() / 1000;
+    protected String buildUrl(long epoch) {
+        //Adapted from Grails App, might not work yet
+        String md5 = DigestUtils.md5Hex(StringUtils.join(apiKey, apiSecret, epoch));
 
-            StringBuilder stringBuilder = new StringBuilder();
-            stringBuilder.append(apiKey).append(apiSecret).append(epoch);
-
-            messageDigest.update(stringBuilder.toString().getBytes());
-            String md5 = new BigInteger(1, messageDigest.digest()).toString(16);
-
-            retVal = apiUrl + "/" + siteId + "?apikey=" + apiKey + "&sig=" + md5;
-        }
-
-        return retVal;
+        return StringUtils.join(apiUrl, "/", siteId, "?apikey=", apiKey, "&sig=", md5);
     }
 
     public Set<MasheryUserApplication> fetchUserApplicationsByUserAccount(UserAccount userAccount) {
@@ -107,9 +94,10 @@ public class MasheryService {
         MasheryJsonRpcRequest masheryJsonRpcRequest = new MasheryJsonRpcRequest();
         masheryJsonRpcRequest.setMethod("oauth2.fetchUserApplications");
 
-        masheryJsonRpcRequest.getParams().add(serviceKey);
-        masheryJsonRpcRequest.getParams().add(userContext);
-        masheryJsonRpcRequest.getParams().add(tokenStatus.getValue());
+        final List<Object> requestParams = masheryJsonRpcRequest.getParams();
+        requestParams.add(serviceKey);
+        requestParams.add(userContext);
+        requestParams.add(tokenStatus.getValue());
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -145,11 +133,12 @@ public class MasheryService {
         MasheryJsonRpcRequest masheryJsonRpcRequest = new MasheryJsonRpcRequest();
         masheryJsonRpcRequest.setMethod("oauth2.revokeAccessToken");
 
-        masheryJsonRpcRequest.getParams().add(serviceKey);
+        final List<Object> requestParams = masheryJsonRpcRequest.getParams();
+        requestParams.add(serviceKey);
         Map<String, String> clientMap = new HashMap<String, String>();
         clientMap.put("client_id", clientId);
-        masheryJsonRpcRequest.getParams().add(clientMap);
-        masheryJsonRpcRequest.getParams().add(accessToken);
+        requestParams.add(clientMap);
+        requestParams.add(accessToken);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -163,11 +152,11 @@ public class MasheryService {
         MasheryJsonRpcRequest masheryJsonRpcRequest = new MasheryJsonRpcRequest();
         masheryJsonRpcRequest.setMethod("oauth2.fetchApplication");
 
-        masheryJsonRpcRequest.getParams().add(serviceKey);
-
-        masheryJsonRpcRequest.getParams().add(new MasheryClient(clientId, ""));
-        masheryJsonRpcRequest.getParams().add(new MasheryUri(redirectUri, ""));
-        masheryJsonRpcRequest.getParams().add(responseType);
+        final List<Object> requestParams = masheryJsonRpcRequest.getParams();
+        requestParams.add(serviceKey);
+        requestParams.add(new MasheryClient(clientId, ""));
+        requestParams.add(new MasheryUri(redirectUri, ""));
+        requestParams.add(responseType);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -212,8 +201,9 @@ public class MasheryService {
         MasheryJsonRpcRequest masheryJsonRpcRequest = new MasheryJsonRpcRequest();
         masheryJsonRpcRequest.setMethod("oauth2.fetchAccessToken");
 
-        masheryJsonRpcRequest.getParams().add(serviceKey);
-        masheryJsonRpcRequest.getParams().add(accessToken);
+        final List<Object> requestParams = masheryJsonRpcRequest.getParams();
+        requestParams.add(serviceKey);
+        requestParams.add(accessToken);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -231,11 +221,12 @@ public class MasheryService {
 
         MasheryJsonRpcRequest masheryJsonRpcRequest = new MasheryJsonRpcRequest();
         masheryJsonRpcRequest.setMethod("oauth2.createAuthorizationCode");
-        masheryJsonRpcRequest.getParams().add(serviceKey);
-        masheryJsonRpcRequest.getParams().add(new MasheryClient(clientId, ""));
-        masheryJsonRpcRequest.getParams().add(new MasheryUri(redirectUri, ""));
-        masheryJsonRpcRequest.getParams().add(scope);
-        masheryJsonRpcRequest.getParams().add(userContext);
+        final List<Object> requestParams = masheryJsonRpcRequest.getParams();
+        requestParams.add(serviceKey);
+        requestParams.add(new MasheryClient(clientId, ""));
+        requestParams.add(new MasheryUri(redirectUri, ""));
+        requestParams.add(scope);
+        requestParams.add(userContext);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);

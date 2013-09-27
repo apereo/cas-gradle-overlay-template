@@ -7,10 +7,10 @@ import com.infusionsoft.cas.oauth.domain.MasheryUserApplication;
 import com.infusionsoft.cas.oauth.wrappers.WrappedMasheryUserApplication;
 import com.infusionsoft.cas.services.UserService;
 import com.infusionsoft.cas.web.controllers.CentralController;
-import junit.framework.Assert;
 import org.mockito.Mockito;
 import org.mockito.internal.util.reflection.Whitebox;
 import org.springframework.web.servlet.ModelAndView;
+import org.testng.Assert;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
@@ -45,8 +45,8 @@ public class CentralControllerTest {
         Mockito.when(masheryService.fetchUserApplicationsByUserAccount(ua)).thenReturn(createMasheryUserApplication());
 
         ModelAndView mv = classToTest.manageAccounts(1L, 1L);
-        Assert.assertTrue(((Set<MasheryUserApplication>)mv.getModel().get("appsGrantedAccess")).size() ==1);
-        Assert.assertTrue(((Long)mv.getModel().get("infusionsoftAccountId")).equals(1L) );
+        Assert.assertEquals(((Set<MasheryUserApplication>) mv.getModel().get("appsGrantedAccess")).size(), 1);
+        Assert.assertEquals(mv.getModel().get("infusionsoftAccountId"), 1L);
 
     }
 
