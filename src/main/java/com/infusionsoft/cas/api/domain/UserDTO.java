@@ -12,7 +12,7 @@ import java.util.Set;
  */
 @JsonTypeName("User")
 public class UserDTO {
-    private long casGlobalId;
+    private long globalUserId;
     private String username;
     private String displayName;
     private String firstName;
@@ -25,7 +25,7 @@ public class UserDTO {
     }
 
     public UserDTO(User user, AppHelper appHelper) {
-        casGlobalId = user.getId();
+        globalUserId = user.getId();
         username = user.getUsername();
         displayName = user.getFirstName() + " " + user.getLastName();
         firstName = user.getFirstName();
@@ -40,12 +40,17 @@ public class UserDTO {
         }
     }
 
+    // For backwards compatibility: TODO: remove once all apps use globalUserId instead of casGlobalId
     public long getCasGlobalId() {
-        return casGlobalId;
+        return getGlobalUserId();
     }
 
-    public void setCasGlobalId(long casGlobalId) {
-        this.casGlobalId = casGlobalId;
+    public long getGlobalUserId() {
+        return globalUserId;
+    }
+
+    public void setGlobalUserId(long globalUserId) {
+        this.globalUserId = globalUserId;
     }
 
     public String getUsername() {

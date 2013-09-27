@@ -37,7 +37,6 @@ import java.util.*;
  * We just want something easy that does the job.
  */
 // TODO - make better and more consistent use of HTTP 4xx error codes throughout
-// TODO - replace casGlobalId with globalUserId in next revision of this API
 @Controller
 public class RestController {
     private static final Logger log = Logger.getLogger(RestController.class);
@@ -65,27 +64,36 @@ public class RestController {
      */
     @RequestMapping
     @ResponseBody
-    public ResponseEntity linkAccount(String apiKey, long casGlobalId, String appUsername, String appName, AppType appType, Locale locale) {
+    public ResponseEntity linkAccount(String apiKey, @RequestParam(defaultValue = "0") long casGlobalId, /* TODO: make not optional when casGlobalId is gone */ @RequestParam(defaultValue = "0") long globalUserId, String appUsername, String appName, AppType appType, Locale locale) {
         // Validate the API key
         ResponseEntity apiKeyResponse = validateApiKey(apiKey, locale);
         if (apiKeyResponse != null) {
             return apiKeyResponse;
         }
+        globalUserId = fallbackToCasGlobalId(globalUserId, casGlobalId);
 
         // Attempt the account linking
         User user;
         try {
-            user = userService.loadUser(casGlobalId);
+            user = userService.loadUser(globalUserId);
             userService.associateAccountToUser(user, appType, appName, appUsername);
             return new ResponseEntity<UserDTO>(new UserDTO(user, appHelper), HttpStatus.OK);
         } catch (DuplicateAccountException e) {
-            log.error(messageSource.getMessage("cas.exception.linkAccount.failure", new Object[]{casGlobalId, appUsername, appName, appType}, Locale.US), e);
+            log.error(messageSource.getMessage("cas.exception.linkAccount.failure", new Object[]{globalUserId, appUsername, appName, appType}, Locale.US), e);
             AccountDTO[] duplicateAccountDTOs = AccountDTO.convertFromCollection(e.getDuplicateAccounts(), appHelper);
             return new ResponseEntity<APIErrorDTO>(new APIErrorDTO<AccountDTO[]>("cas.exception.conflict.user.account", messageSource, locale, duplicateAccountDTOs), HttpStatus.CONFLICT);
         } catch (Exception e) {
-            log.error(messageSource.getMessage("cas.exception.linkAccount.failure", new Object[]{casGlobalId, appUsername, appName, appType}, Locale.US), e);
-            return new ResponseEntity<APIErrorDTO>(new APIErrorDTO("cas.exception.linkAccount.failure", messageSource, new Object[]{casGlobalId, appUsername, appName, appType}, locale), HttpStatus.INTERNAL_SERVER_ERROR);
+            log.error(messageSource.getMessage("cas.exception.linkAccount.failure", new Object[]{globalUserId, appUsername, appName, appType}, Locale.US), e);
+            return new ResponseEntity<APIErrorDTO>(new APIErrorDTO("cas.exception.linkAccount.failure", messageSource, new Object[]{globalUserId, appUsername, appName, appType}, locale), HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    /**
+     * This is to ensure that either casGlobalId or globalUserId can be passed in
+     */
+    // TODO - remove casGlobalId in favor of globalUserId in next revision of this API
+    private long fallbackToCasGlobalId(long globalUserId, long casGlobalId) {
+        return (casGlobalId > 0 && globalUserId == 0) ? casGlobalId : globalUserId;
     }
 
     /**
@@ -94,19 +102,20 @@ public class RestController {
      */
     @RequestMapping
     @ResponseBody
-    public ResponseEntity reassociateAccounts(String apiKey, String appName, AppType appType, @RequestParam(required = false) String appUsername, @RequestParam(defaultValue = "0") long casGlobalId, Locale locale) {
+    public ResponseEntity reassociateAccounts(String apiKey, String appName, AppType appType, @RequestParam(required = false) String appUsername, @RequestParam(defaultValue = "0") long casGlobalId, @RequestParam(defaultValue = "0") long globalUserId, Locale locale) {
         // Validate the API key
         ResponseEntity apiKeyResponse = validateApiKey(apiKey, locale);
         if (apiKeyResponse != null) {
             return apiKeyResponse;
         }
+        globalUserId = fallbackToCasGlobalId(globalUserId, casGlobalId);
 
         try {
             List<UserAccount> accounts;
-            if (casGlobalId > 0) {
-                // Find any matching accounts by casGlobalId and re-associate them
-                accounts = userService.findDisabledUserAccounts(appName, appType, casGlobalId);
-                log.info("found " + accounts.size() + " disabled user accounts mapped to local user with casGlobalId = " + casGlobalId + " on " + appName + "/" + appType);
+            if (globalUserId > 0) {
+                // Find any matching accounts by globalUserId and re-associate them
+                accounts = userService.findDisabledUserAccounts(appName, appType, globalUserId);
+                log.info("found " + accounts.size() + " disabled user accounts mapped to local user with globalUserId = " + globalUserId + " on " + appName + "/" + appType);
             } else {
                 // Find any matching accounts by appUsername and re-associate them
                 accounts = userService.findDisabledUserAccounts(appName, appType, appUsername);
@@ -118,7 +127,7 @@ public class RestController {
 
             return new ResponseEntity<String>("OK", HttpStatus.OK);
         } catch (Exception e) {
-            return logAndReturnError(e, "cas.exception.reassociateAccounts.failure", new Object[]{casGlobalId, appUsername, appName, appType}, locale);
+            return logAndReturnError(e, "cas.exception.reassociateAccounts.failure", new Object[]{globalUserId, appUsername, appName, appType}, locale);
         }
     }
 
@@ -130,19 +139,20 @@ public class RestController {
      */
     @RequestMapping
     @ResponseBody
-    public ResponseEntity disassociateAccounts(String apiKey, String appName, AppType appType, @RequestParam(required = false) String appUsername, @RequestParam(defaultValue = "0") long casGlobalId, Locale locale) {
+    public ResponseEntity disassociateAccounts(String apiKey, String appName, AppType appType, @RequestParam(required = false) String appUsername, @RequestParam(defaultValue = "0") long casGlobalId, @RequestParam(defaultValue = "0") long globalUserId, Locale locale) {
         // Validate the API key
         ResponseEntity apiKeyResponse = validateApiKey(apiKey, locale);
         if (apiKeyResponse != null) {
             return apiKeyResponse;
         }
+        globalUserId = fallbackToCasGlobalId(globalUserId, casGlobalId);
 
         try {
             List<UserAccount> accounts;
-            if (casGlobalId > 0) {
-                // Find any matching accounts by casGlobalId and disassociate them
-                accounts = userService.findEnabledUserAccounts(appName, appType, casGlobalId);
-                log.info("found " + accounts.size() + " user accounts mapped to local user with casGlobalId = " + casGlobalId + " on " + appName + "/" + appType);
+            if (globalUserId > 0) {
+                // Find any matching accounts by globalUserId and disassociate them
+                accounts = userService.findEnabledUserAccounts(appName, appType, globalUserId);
+                log.info("found " + accounts.size() + " user accounts mapped to local user with globalUserId = " + globalUserId + " on " + appName + "/" + appType);
             } else {
                 // Find any matching accounts by appUsername and disassociate them
                 accounts = userService.findEnabledUserAccounts(appName, appType, appUsername);
@@ -154,7 +164,7 @@ public class RestController {
 
             return new ResponseEntity<String>("OK", HttpStatus.OK);
         } catch (Exception e) {
-            return logAndReturnError(e, "cas.exception.disassociateAccounts.failure", new Object[]{casGlobalId, appUsername, appName, appType}, locale);
+            return logAndReturnError(e, "cas.exception.disassociateAccounts.failure", new Object[]{globalUserId, appUsername, appName, appType}, locale);
         }
     }
 
@@ -166,19 +176,20 @@ public class RestController {
      */
     @RequestMapping
     @ResponseBody
-    public ResponseEntity unlinkUserFromApp(String apiKey, String appName, AppType appType, @RequestParam(required = false) String appUsername, @RequestParam(defaultValue = "0") long casGlobalId, Locale locale) {
+    public ResponseEntity unlinkUserFromApp(String apiKey, String appName, AppType appType, @RequestParam(required = false) String appUsername, @RequestParam(defaultValue = "0") long casGlobalId, @RequestParam(defaultValue = "0") long globalUserId, Locale locale) {
         // Validate the API key
         ResponseEntity apiKeyResponse = validateApiKey(apiKey, locale);
         if (apiKeyResponse != null) {
             return apiKeyResponse;
         }
+        globalUserId = fallbackToCasGlobalId(globalUserId, casGlobalId);
 
         try {
             List<UserAccount> accounts;
-            if (casGlobalId > 0) {
-                // Find any matching accounts by casGlobalId and unlink them
-                accounts = userService.findUserAccounts(appName, appType, casGlobalId);
-                log.info("Found " + accounts.size() + " user accounts mapped to local user with casGlobalId = " + casGlobalId + " on " + appName + "/" + appType);
+            if (globalUserId > 0) {
+                // Find any matching accounts by globalUserId and unlink them
+                accounts = userService.findUserAccounts(appName, appType, globalUserId);
+                log.info("Found " + accounts.size() + " user accounts mapped to local user with globalUserId = " + globalUserId + " on " + appName + "/" + appType);
             } else {
                 // Find any matching accounts by appUsername and unlink them
                 accounts = userService.findUserAccounts(appName, appType, appUsername);
@@ -190,7 +201,7 @@ public class RestController {
 
             return new ResponseEntity<String>("OK", HttpStatus.OK);
         } catch (Exception e) {
-            return logAndReturnError(e, "cas.exception.unlinkUserFromApp.failure", new Object[]{casGlobalId, appUsername, appName, appType}, locale);
+            return logAndReturnError(e, "cas.exception.unlinkUserFromApp.failure", new Object[]{globalUserId, appUsername, appName, appType}, locale);
         }
     }
 
@@ -199,18 +210,19 @@ public class RestController {
      */
     @RequestMapping
     @ResponseBody
-    public ResponseEntity changeAssociatedAppUsername(String apiKey, long casGlobalId, String appName, AppType appType, String newAppUsername, Locale locale) {
+    public ResponseEntity changeAssociatedAppUsername(String apiKey, @RequestParam(defaultValue = "0") long casGlobalId, /* TODO: make not optional when casGlobalId is gone */ @RequestParam(defaultValue = "0") long globalUserId, String appName, AppType appType, String newAppUsername, Locale locale) {
         // Validate the API key
         ResponseEntity apiKeyResponse = validateApiKey(apiKey, locale);
         if (apiKeyResponse != null) {
             return apiKeyResponse;
         }
+        globalUserId = fallbackToCasGlobalId(globalUserId, casGlobalId);
 
         try {
-            userService.changeAssociatedAppUsername(userService.loadUser(casGlobalId), appName, appType, newAppUsername);
+            userService.changeAssociatedAppUsername(userService.loadUser(globalUserId), appName, appType, newAppUsername);
             return new ResponseEntity<String>("OK", HttpStatus.OK);
         } catch (Exception e) {
-            return logAndReturnError(e, "cas.exception.changeAssociatedAppUsername.failure", new Object[]{newAppUsername, appName, appType, casGlobalId}, locale);
+            return logAndReturnError(e, "cas.exception.changeAssociatedAppUsername.failure", new Object[]{newAppUsername, appName, appType, globalUserId}, locale);
         }
     }
 
@@ -323,22 +335,23 @@ public class RestController {
      * (the Infusionsoft ID of the user they are searching for), by the Global User ID, or by a combination of local
      * appName, appType, and appUsername.  Only returns enabled accounts.
      * <br/>
-     * NOTE: One of these is required:  username OR casGlobalId OR (appName/appType/appUsername)
+     * NOTE: One of these is required:  username OR globalUserId OR (appName/appType/appUsername)
      */
     @RequestMapping
     @ResponseBody
-    public ResponseEntity getUserInfo(String apiKey, @RequestParam(defaultValue = "") String username, @RequestParam(defaultValue = "0") long casGlobalId, @RequestParam(defaultValue = "") String appName, @RequestParam(defaultValue = "") AppType appType, @RequestParam(defaultValue = "") String appUsername, Locale locale) {
+    public ResponseEntity getUserInfo(String apiKey, @RequestParam(defaultValue = "") String username, @RequestParam(defaultValue = "0") long casGlobalId, @RequestParam(defaultValue = "0") long globalUserId, @RequestParam(defaultValue = "") String appName, @RequestParam(defaultValue = "") AppType appType, @RequestParam(defaultValue = "") String appUsername, Locale locale) {
         // Validate the API key
         ResponseEntity apiKeyResponse = validateApiKey(apiKey, locale);
         if (apiKeyResponse != null) {
             return apiKeyResponse;
         }
+        globalUserId = fallbackToCasGlobalId(globalUserId, casGlobalId);
 
         try {
             // Lookup the user
             User user = null;
-            if (casGlobalId > 0) {
-                user = userService.loadUser(casGlobalId);
+            if (globalUserId > 0) {
+                user = userService.loadUser(globalUserId);
                 if (user != null && !user.isEnabled())
                     user = null;
             } else if (StringUtils.isNotEmpty(username)) {
@@ -360,7 +373,7 @@ public class RestController {
                 return new ResponseEntity<JSONObject>(new JSONObject(), HttpStatus.OK);
             }
         } catch (Exception e) {
-            return logAndReturnError(e, "cas.exception.getUserInfo.failure", new Object[]{username, casGlobalId, appName, appType, appUsername}, locale);
+            return logAndReturnError(e, "cas.exception.getUserInfo.failure", new Object[]{username, globalUserId, appName, appType, appUsername}, locale);
         }
     }
 

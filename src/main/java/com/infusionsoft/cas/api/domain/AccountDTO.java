@@ -11,7 +11,7 @@ import java.util.Collection;
 
 /**
  * Represents an account record.  Used when the account is not nested within a {@link UserDTO} object, so the user
- * information ({@link #getInfusionsoftId()}}, {@link #getCasGlobalId()}) must be included.  If the user information
+ * information ({@link #getInfusionsoftId()}}, {@link #getGlobalUserId()}) must be included.  If the user information
  * is not needed, use {@link UserAccountDTO}.
  */
 @JsonTypeName("Account")
@@ -22,7 +22,7 @@ public class AccountDTO {
     private String appAlias;
     private String appUrl;
     private String infusionsoftId;
-    private Long casGlobalId;
+    private Long globalUserId;
 
     public static AccountDTO[] convertFromCollection(final Collection<UserAccount> accountCollection, AppHelper appHelper) {
         AccountDTO[] accounts = new AccountDTO[accountCollection.size()];
@@ -46,10 +46,10 @@ public class AccountDTO {
         User user = userAccount.getUser();
         if (user != null) {
             this.infusionsoftId = user.getUsername();
-            this.casGlobalId = user.getId();
+            this.globalUserId = user.getId();
         } else {
             this.infusionsoftId = null;
-            this.casGlobalId = null;
+            this.globalUserId = null;
         }
     }
 
@@ -101,11 +101,16 @@ public class AccountDTO {
         this.infusionsoftId = infusionsoftId;
     }
 
+    // For backwards compatibility: TODO: remove once all apps use globalUserId instead of casGlobalId
     public Long getCasGlobalId() {
-        return casGlobalId;
+        return getGlobalUserId();
     }
 
-    public void setCasGlobalId(Long casGlobalId) {
-        this.casGlobalId = casGlobalId;
+    public Long getGlobalUserId() {
+        return globalUserId;
+    }
+
+    public void setGlobalUserId(Long globalUserId) {
+        this.globalUserId = globalUserId;
     }
 }

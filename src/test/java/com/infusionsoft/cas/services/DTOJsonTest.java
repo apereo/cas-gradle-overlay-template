@@ -94,7 +94,7 @@ public class DTOJsonTest {
     public void testUserDTOJson() throws Exception {
         UserDTO userDTO = new UserDTO(user, appHelper);
         String actualJson = serializeToJson(userDTO);
-        String expectedJson = "{\"casGlobalId\":13,\"username\":\"test.user@infusionsoft.com\",\"displayName\":\"Test User\",\"firstName\":\"Test\",\"lastName\":\"User\",\"linkedApps\":[{\"appType\":\"CRM\",\"appName\":\"app1\",\"appUsername\":\"user1\",\"appAlias\":\"My App #1\",\"appUrl\":\"https://app1.infusionsoft.com\"},{\"appType\":\"CUSTOMERHUB\",\"appName\":\"app2\",\"appUsername\":\"user2\",\"appAlias\":\"My App #2\",\"appUrl\":\"https://app2.customerhub.net/admin\"}],\"authorities\":[\"AUTHORITY1\",\"CAS_ROLE_USER\"]}";
+        String expectedJson = "{\"globalUserId\":13,\"username\":\"test.user@infusionsoft.com\",\"displayName\":\"Test User\",\"firstName\":\"Test\",\"lastName\":\"User\",\"linkedApps\":[{\"appType\":\"CRM\",\"appName\":\"app1\",\"appUsername\":\"user1\",\"appAlias\":\"My App #1\",\"appUrl\":\"https://app1.infusionsoft.com\"},{\"appType\":\"CUSTOMERHUB\",\"appName\":\"app2\",\"appUsername\":\"user2\",\"appAlias\":\"My App #2\",\"appUrl\":\"https://app2.customerhub.net/admin\"}],\"authorities\":[\"AUTHORITY1\",\"CAS_ROLE_USER\"],\"casGlobalId\":13}";
         Assert.assertEquals(actualJson, expectedJson, "JSON must match the expected format");
     }
 
@@ -110,7 +110,7 @@ public class DTOJsonTest {
     public void testUserAccountDTOJson() throws Exception {
         AccountDTO accountDTO = new AccountDTO(account1, appHelper);
         String actualJson = serializeToJson(accountDTO);
-        String expectedJson = "{\"appType\":\"CRM\",\"appName\":\"app1\",\"appUsername\":\"user1\",\"appAlias\":\"My App #1\",\"appUrl\":\"https://app1.infusionsoft.com\",\"infusionsoftId\":\"test.user@infusionsoft.com\",\"casGlobalId\":13}";
+        String expectedJson = "{\"appType\":\"CRM\",\"appName\":\"app1\",\"appUsername\":\"user1\",\"appAlias\":\"My App #1\",\"appUrl\":\"https://app1.infusionsoft.com\",\"infusionsoftId\":\"test.user@infusionsoft.com\",\"globalUserId\":13,\"casGlobalId\":13}";
         Assert.assertEquals(actualJson, expectedJson, "JSON must match the expected format");
     }
 
@@ -136,7 +136,7 @@ public class DTOJsonTest {
     public void testAPIErrorDTOWithComplexRelatedObjectJson() throws Exception {
         APIErrorDTO apiErrorDTO = new APIErrorDTO("code", "message", new AccountDTO[]{new AccountDTO(account1, appHelper)});
         String actualJson = serializeToJson(apiErrorDTO);
-        String expectedJson = "{\"code\":\"code\",\"message\":\"message\",\"relatedObject\":[\"Account[]\",[{\"appType\":\"CRM\",\"appName\":\"app1\",\"appUsername\":\"user1\",\"appAlias\":\"My App #1\",\"appUrl\":\"https://app1.infusionsoft.com\",\"infusionsoftId\":\"test.user@infusionsoft.com\",\"casGlobalId\":13}]]}";
+        String expectedJson = "{\"code\":\"code\",\"message\":\"message\",\"relatedObject\":[\"Account[]\",[{\"appType\":\"CRM\",\"appName\":\"app1\",\"appUsername\":\"user1\",\"appAlias\":\"My App #1\",\"appUrl\":\"https://app1.infusionsoft.com\",\"infusionsoftId\":\"test.user@infusionsoft.com\",\"globalUserId\":13,\"casGlobalId\":13}]]}";
         Assert.assertEquals(actualJson, expectedJson, "JSON must match the expected format");
     }
 
