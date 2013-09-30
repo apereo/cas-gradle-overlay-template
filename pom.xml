@@ -26,6 +26,7 @@
         <maven.test.skip>true</maven.test.skip>
         <filtering.enabled>true</filtering.enabled>
         <powermock.version>1.4.6</powermock.version>
+        <jersey-version>1.4</jersey-version>
     </properties>
 
     <scm>
@@ -37,6 +38,111 @@
     <build>
         <defaultGoal>install</defaultGoal>
         <plugins>
+            <!-- plugin to generate JAX-RS resourcedoc.xml which is needed to generate WADL -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>javadoc</goal>
+                        </goals>
+                        <phase>compile</phase>
+                    </execution>
+                </executions>
+
+                <configuration>
+                    <useStandardDocletOptions>false</useStandardDocletOptions>
+                    <encoding>UTF-8</encoding>
+                    <verbose>false</verbose>
+                    <show>public</show>
+                    <subpackages>com.infusionsoft.cas.api.jersey.resource</subpackages>
+                    <doclet>com.sun.jersey.wadl.resourcedoc.ResourceDoclet</doclet>
+                    <docletArtifacts>
+                        <docletArtifact>
+                            <groupId>com.sun.jersey.contribs</groupId>
+                            <artifactId>wadl-resourcedoc-doclet</artifactId>
+                            <version>${jersey-version}</version>
+                        </docletArtifact>
+                        <!--
+                            Also specify jersey and xerces as doclet artifacts as the ResourceDoclet
+                            uses classes provided by them to generate the resourcedoc.
+                         -->
+
+                        <docletArtifact>
+                            <groupId>xerces</groupId>
+                            <artifactId>xercesImpl</artifactId>
+                            <version>2.6.1</version>
+                        </docletArtifact>
+                    </docletArtifacts>
+                    <additionalparam>-output ${project.build.outputDirectory}/doc/resourcedoc.xml</additionalparam>
+
+                </configuration>
+            </plugin>
+
+            <!-- Plugin to generate WADL file -->
+            <plugin>
+                <groupId>com.sun.jersey.contribs</groupId>
+                <artifactId>maven-wadl-plugin</artifactId>
+                <version>${jersey-version}</version>
+                <executions>
+                    <execution>
+                        <id>generate</id>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <phase>compile</phase>
+                    </execution>
+                </executions>
+                <configuration>
+                    <wadlFile>${project.build.outputDirectory}/doc/application.wadl</wadlFile>
+                    <formatWadlFile>true</formatWadlFile>
+                    <baseUri>https://signin.infusiontest.com/restful/api</baseUri>
+                    <packagesResourceConfig>
+                        <param>com.infusionsoft.cas.api.jersey.resource</param>
+                    </packagesResourceConfig>
+                    <dependencies>
+                        <dependency>
+                            <groupId>org.slf4j</groupId>
+                            <artifactId>slf4j-api</artifactId>
+                            <version>1.6.1</version>
+                        </dependency>
+                    </dependencies>
+                    <wadlGenerators>
+                        <wadlGeneratorDescription>
+                            <className>com.sun.jersey.server.wadl.generators.WadlGeneratorApplicationDoc</className>
+                            <properties>
+                                <property>
+                                    <name>applicationDocsFile</name>
+                                    <value>${basedir}/src/main/resources/doc/application-doc.xml</value>
+                                </property>
+                            </properties>
+                        </wadlGeneratorDescription>
+                        <wadlGeneratorDescription>
+                            <className>
+                                com.sun.jersey.server.wadl.generators.WadlGeneratorGrammarsSupport
+                            </className>
+                            <properties>
+                                <property>
+                                    <name>grammarsFile</name>
+                                    <value>${basedir}/src/main/resources/doc/application-grammars.xml</value>
+                                </property>
+                            </properties>
+                        </wadlGeneratorDescription>
+                        <wadlGeneratorDescription>
+                            <className>
+                                com.sun.jersey.server.wadl.generators.resourcedoc.WadlGeneratorResourceDocSupport
+                            </className>
+                            <properties>
+                                <property>
+                                    <name>resourceDocFile</name>
+                                    <value>${project.build.outputDirectory}/doc/resourcedoc.xml</value>
+                                </property>
+                            </properties>
+                        </wadlGeneratorDescription>
+                    </wadlGenerators>
+                </configuration>
+            </plugin>
             <plugin>
                 <artifactId>maven-jar-plugin</artifactId>
                 <!-- Optimize performance for JAR plugin under development profile -->
@@ -558,6 +664,55 @@
             <version>${powermock.version}</version>
             <scope>test</scope>
         </dependency>
+
+        <dependency>
+            <groupId>com.sun.jersey</groupId>
+            <artifactId>jersey-core</artifactId>
+            <version>${jersey-version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.sun.jersey</groupId>
+            <artifactId>jersey-json</artifactId>
+            <version>${jersey-version}</version>
+        </dependency>
+
+        <!--used for apiWadlGeneratorGonfig-->
+        <dependency>
+            <groupId>com.sun.jersey.contribs</groupId>
+            <artifactId>jersey-spring</artifactId>
+            <version>${jersey-version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework</groupId>
+                    <artifactId>spring</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.springframework</groupId>
+                    <artifactId>spring-core</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.springframework</groupId>
+                    <artifactId>spring-web</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.springframework</groupId>
+                    <artifactId>spring-beans</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.springframework</groupId>
+                    <artifactId>spring-context</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <!--provides org/springframework/data/domain/Pageable used by wadl plugin-->
+        <dependency>
+            <groupId>org.springframework.data</groupId>
+            <artifactId>spring-data-commons-core</artifactId>
+            <version>1.2.1.RELEASE</version>
+        </dependency>
+
 
     </dependencies>
 

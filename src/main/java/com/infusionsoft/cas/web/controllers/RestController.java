@@ -1,9 +1,6 @@
 package com.infusionsoft.cas.web.controllers;
 
-import com.infusionsoft.cas.api.domain.APIErrorDTO;
-import com.infusionsoft.cas.api.domain.AccountDTO;
-import com.infusionsoft.cas.api.domain.UserAccountDTO;
-import com.infusionsoft.cas.api.domain.UserDTO;
+import com.infusionsoft.cas.api.domain.*;
 import com.infusionsoft.cas.auth.LoginResult;
 import com.infusionsoft.cas.dao.UserAccountDAO;
 import com.infusionsoft.cas.domain.AppType;
@@ -14,6 +11,7 @@ import com.infusionsoft.cas.exceptions.DuplicateAccountException;
 import com.infusionsoft.cas.services.InfusionsoftAuthenticationService;
 import com.infusionsoft.cas.services.UserService;
 import com.infusionsoft.cas.support.AppHelper;
+import com.infusionsoft.cas.web.RestfulResponseBean;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.json.simple.JSONObject;
@@ -21,12 +19,15 @@ import org.springframework.beans.TypeMismatchException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.annotation.support.HandlerMethodInvocationException;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.*;
@@ -58,6 +59,36 @@ public class RestController {
 
     @Value("${infusionsoft.cas.apikey}")
     private String requiredApiKey;
+
+    @RequestMapping(value = "userSearch", method = RequestMethod.GET)
+    public ResponseEntity userSearch(@RequestParam String apiKey, @RequestParam(required = false) String userName, @RequestParam(defaultValue = "0", required = false) Integer pageNumberRequested, @RequestParam(defaultValue = "10", required = false) Integer pageSizeFromRequest, HttpServletRequest request) throws IOException {
+        Locale localeFromRequest = request.getLocale();
+        if(localeFromRequest == null || StringUtils.isBlank(localeFromRequest.getLanguage())){
+            localeFromRequest = Locale.US;
+        }
+        ResponseEntity apiKeyResponse = validateApiKey(apiKey, localeFromRequest);
+        if (apiKeyResponse != null) {
+            return apiKeyResponse;
+        }
+        try{
+            Page<User> pagedUsers = userService.findByUsernameLike(userName, new PageRequest(pageNumberRequested, pageSizeFromRequest));
+            PageMetaData pageMetaData = new PageMetaData();
+            pageMetaData.setTotalElements((int) pagedUsers.getTotalElements());
+            pageMetaData.setTotalPages(pagedUsers.getTotalPages());
+            pageMetaData.setSize(pageSizeFromRequest);
+            pageMetaData.setNumber(pageNumberRequested);
+
+            List<UserDTO> userDtos = new ArrayList<UserDTO>();
+            for (User user : pagedUsers.getContent()) {
+                UserDTO userDTO = new UserDTO(user, appHelper);
+                userDtos.add(userDTO);
+            }
+            return new ResponseEntity<RestfulResponseBean>(new RestfulResponseBean(userDtos, pageMetaData), HttpStatus.OK);
+
+        } catch(Exception e){
+            return new ResponseEntity<APIErrorDTO>(new APIErrorDTO("cas.exception.user.search", messageSource, localeFromRequest), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 
     /**
      * Registers a new user account mapped to an app account.
