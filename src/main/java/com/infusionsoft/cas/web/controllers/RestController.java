@@ -61,7 +61,7 @@ public class RestController {
     private String requiredApiKey;
 
     @RequestMapping(value = "userSearch", method = RequestMethod.GET)
-    public ResponseEntity userSearch(@RequestParam String apiKey, @RequestParam(required = false) String userName, @RequestParam(defaultValue = "0", required = false) Integer pageNumberRequested, @RequestParam(defaultValue = "10", required = false) Integer pageSizeFromRequest, HttpServletRequest request) throws IOException {
+    public ResponseEntity userSearch(@RequestParam String apiKey, @RequestParam(required = false) String userName, @RequestParam(defaultValue = "0", required = false) Integer pageNumber, @RequestParam(defaultValue = "10", required = false) Integer pageSize, HttpServletRequest request) throws IOException {
         Locale localeFromRequest = request.getLocale();
         if(localeFromRequest == null || StringUtils.isBlank(localeFromRequest.getLanguage())){
             localeFromRequest = Locale.US;
@@ -71,12 +71,12 @@ public class RestController {
             return apiKeyResponse;
         }
         try{
-            Page<User> pagedUsers = userService.findByUsernameLike(userName, new PageRequest(pageNumberRequested, pageSizeFromRequest));
+            Page<User> pagedUsers = userService.findByUsernameLike(userName, new PageRequest(pageNumber, pageSize));
             PageMetaData pageMetaData = new PageMetaData();
             pageMetaData.setTotalElements((int) pagedUsers.getTotalElements());
             pageMetaData.setTotalPages(pagedUsers.getTotalPages());
-            pageMetaData.setSize(pageSizeFromRequest);
-            pageMetaData.setNumber(pageNumberRequested);
+            pageMetaData.setSize(pageSize);
+            pageMetaData.setNumber(pageNumber);
 
             List<UserDTO> userDtos = new ArrayList<UserDTO>();
             for (User user : pagedUsers.getContent()) {
