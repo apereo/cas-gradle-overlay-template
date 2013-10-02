@@ -23,6 +23,8 @@
                 $(".displayManageAccountsMarker").each(function () {$(this).hide()});
                 $("#displayManageAccountsContent-" + inputObject.accountId).html(response);
                 $("#displayManageAccountsWrapper-" + inputObject.accountId).slideDown(500);
+                $(".open-marker").each(function () {$(this).removeClass('open')});
+                $("#accountAnchor-" + inputObject.accountId).addClass("open");
             },
             appsGrantedAccessToAccountAfterError : function(inputObject, response) {
 
@@ -49,7 +51,7 @@
                 <spring:message code="unlock.label"/>
             </th>
             <th>
-                Accounts
+                <spring:message code="accounts.label"/>
             </th>
         </tr>
         </thead>
@@ -75,12 +77,12 @@
                     <td>
                         <a href="/app/support/unlockUser?id=${user.id}"><spring:message code="unlock.label"/></a>
                     </td>
-                    <td>
+                    <td class="account-list">
                         <table class="table table-bordered table-striped dataTable">
                             <c:forEach var="account" items="${user.accounts}">
                                 <tr>
                                     <td>
-                                        <span><a onclick="userSearch.getAppsGrantedAccessToAccount('${user.id}', '${account.id}'); return false;">${account.appName}.${crmDomain}</a></span>
+                                        <span><a id="accountAnchor-${account.id}" class="open-marker" onclick="userSearch.getAppsGrantedAccessToAccount('${user.id}', '${account.id}'); return false;">${account.appName}.${crmDomain}</a></span>
                                     </td>
                                 </tr>
                                 <tr id="displayManageAccountsWrapper-${account.id}" class="displayManageAccountsMarker" style="display: none">

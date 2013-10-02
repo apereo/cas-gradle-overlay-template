@@ -3,7 +3,7 @@
 <table class="borderlessTable">
     <tbody>
         <tr>
-            <div id="close-${infusionsoftAccountId}" class="close-link"><a onclick="return manageAppAccess.closeManageAppAccessDisplay(${infusionsoftAccountId});">close</a><img src="/images/close-arrow.png" /></div>
+            <div id="close-${infusionsoftAccountId}" class="close-link"><a onclick="return manageAppAccess.closeManageAppAccessDisplay(${infusionsoftAccountId});">close</a>&nbsp;<img src="/images/close-arrow.png" /></div>
         </tr>
         <tr id="accessRevokedMessageWrapper-${infusionsoftAccountId}" style="display: none">
             <td>

@@ -47,7 +47,7 @@ var manageAppAccess = {
     },
     closeManageAppAccessDisplay : function(accountId){
         $(".crm-account").each(function () {$(this).removeClass('expanded-apps expanded-apps-crm')});
-        $("#displayManageAccountsWrapper-" + accountId).hide();
+        $("#displayManageAccountsWrapper-" + accountId).slideUp(500);
         return false;
     },
     populateModalBody: function(appIdOfAppBeingRevoked){

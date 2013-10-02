@@ -24,6 +24,7 @@ var centralHome = {
     getAppsGrantedAccessToAccount : function (userId, accountId){
         manageAppAccess.closeManageAppAccessDisplay();
         var preSpinnerReplacedContent = $("#spinner-content-" + accountId).html();
+        $("#spinner-content-" + accountId).removeClass('app-access');
         window.global.showSpinner({id: "spinner-content-" + accountId});
 
         var appsGrantedAccessToAccountInput = new Object();
@@ -44,6 +45,7 @@ var centralHome = {
         if(inputObject.preSpinnerReplacedContent){
             $("#spinner-content-" + inputObject.accountId).html(inputObject.preSpinnerReplacedContent);
             $("#manageAccounts-" + inputObject.accountId).click(centralHome.reattachOnClicksAfterSpinnerRefresh);
+            $("#spinner-content-" + inputObject.accountId).addClass('app-access');  //to restore "key" background image on "Manage App Access span"
         }
     },
     appsGrantedAccessToAccountAfterError : function (inputObject, response) {
