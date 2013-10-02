@@ -1,5 +1,7 @@
 package com.infusionsoft.cas.services;
 
+import com.infusionsoft.cas.domain.AppType;
+import com.infusionsoft.cas.domain.UserAccount;
 import com.infusionsoft.cas.exceptions.AppCredentialsExpiredException;
 import com.infusionsoft.cas.exceptions.AppCredentialsInvalidException;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -10,6 +12,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Vector;
 
 /**
@@ -108,5 +112,17 @@ public class CrmService {
                 throw new AppCredentialsInvalidException("credentials are invalid for " + appUsername + " on " + appName, e);
             }
         }
+    }
+
+    public List<String> extractAppNames(List<UserAccount> userAccounts) {
+        List<String> appNames = new LinkedList<String>();
+
+        for (UserAccount userAccount : userAccounts) {
+            if (userAccount.getAppType().equals(AppType.CRM)) {
+                appNames.add(buildCrmHostName(userAccount.getAppName()));
+            }
+        }
+
+        return appNames;
     }
 }

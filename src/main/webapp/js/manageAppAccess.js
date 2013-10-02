@@ -7,7 +7,7 @@ var manageAppAccess = {
     getAppsGrantedAccessToAccount: function(inputObject) {
         manageAppAccess.userIdOfUserManagingAppAccess = inputObject.userId;
         manageAppAccess.accountIdBeingManaged = inputObject.accountId;
-        $.ajax("/app/central/manageAccounts", {
+        $.ajax("/app/oauth/manageAccounts", {
             type: "GET",
             data: { userId : manageAppAccess.userIdOfUserManagingAppAccess,
                     infusionsoftAccountId: manageAppAccess.accountIdBeingManaged
@@ -22,7 +22,7 @@ var manageAppAccess = {
         return false;
     },
     revokeAccess: function(){
-        $.ajax("/app/central/revokeAccess", {
+        $.ajax("/app/oauth/revokeAccess", {
             type: "POST",
             data: { userId: manageAppAccess.userIdOfUserManagingAppAccess,
                 infusionsoftAccountId: manageAppAccess.accountIdBeingManaged,

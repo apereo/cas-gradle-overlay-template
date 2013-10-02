@@ -1,28 +1,9 @@
 $(document).ready(function () {
     $(".account").hover(
         function () {
-            // TODO - stop hiding this if we want to allow account deletion! -${param.service}
-            //        $(this).find(".account-delete").show();
-        },
-        function () {
             $(this).find(".account-delete").hide();
         }
     );
-
-    $(".account .account-delete").click(function (event) {
-        event.stopPropagation();
-        if (confirm("Unlink this account from your Infusionsoft ID?")) {
-            var accountId = $(this).parents(".account").attr("accountId");
-            $.ajax({
-                url: "/app/central/unlinkAccount",
-                type: "POST",
-                data: { account: accountId },
-                success: function (response) {
-                    $(".account[accountId=" + accountId + "]").remove();
-                }
-            });
-        }
-    });
 
     $(".account").click(function () {
         // Yes that's right, a div with an href, to avoid

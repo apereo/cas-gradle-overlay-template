@@ -8,8 +8,6 @@ import com.infusionsoft.cas.exceptions.AppCredentialsExpiredException;
 import com.infusionsoft.cas.exceptions.AppCredentialsInvalidException;
 import com.infusionsoft.cas.exceptions.CommunityUsernameTakenException;
 import com.infusionsoft.cas.exceptions.DuplicateAccountException;
-import com.infusionsoft.cas.oauth.MasheryService;
-import com.infusionsoft.cas.oauth.domain.MasheryUserApplication;
 import com.infusionsoft.cas.services.*;
 import com.infusionsoft.cas.support.AppHelper;
 import com.infusionsoft.cas.web.ValidationUtils;
@@ -29,7 +27,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URL;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Controller that powers the central "hub" along with account association and profile management.
@@ -58,9 +58,6 @@ public class CentralController {
 
     @Autowired
     AutoLoginService autoLoginService;
-
-    @Autowired
-    private MasheryService masheryService;
 
     @Value("${infusionsoft.cas.connect.account.crm.enabled}")
     boolean connectAccountCrmEnabled = false;
@@ -94,46 +91,6 @@ public class CentralController {
 
     @Value("${infusionsoft.marketplace.loginurl}")
     String marketplaceLoginUrl;
-
-    @Value("${mashery.service.key}")
-    private String serviceKey;
-
-    /**
-     * Allows user to view to all apps granted access to their CRM account via oauth.
-     */
-    @RequestMapping
-    public ModelAndView manageAccounts(Long userId, Long infusionsoftAccountId) throws IOException {
-        Map<String, Object> model = new HashMap<String, Object>();
-        User user = userService.loadUser(userId);
-        UserAccount ua = userService.findUserAccount(user, infusionsoftAccountId);
-        model.put("appsGrantedAccess", masheryService.fetchUserApplicationsByUserAccount(ua));
-        model.put("infusionsoftAccountId", infusionsoftAccountId);
-        return new ModelAndView("central/manageAccounts", model);
-    }
-
-    /**
-     * Allows user to revoke access to any app granted access to their CRM account via oauth.
-     */
-    @RequestMapping
-    public ModelAndView revokeAccess(HttpServletResponse response, Long userId, Long infusionsoftAccountId, Long masheryAppId) throws IOException {
-        User user = userService.loadUser(userId);
-        UserAccount ua = userService.findUserAccount(user, infusionsoftAccountId);
-        Set<MasheryUserApplication> masheryUserApplications = masheryService.fetchUserApplicationsByUserAccount(ua);
-        for (MasheryUserApplication ma : masheryUserApplications) {
-            if (masheryAppId == Long.parseLong(ma.getId())) {
-                for (String accessToken : ma.getAccess_tokens()) {
-                    try {
-                        masheryService.revokeAccessToken(serviceKey, ma.getClient_id(), accessToken);
-                    } catch (Exception e) {
-                        log.error("Failed to revoke app access for app= " + ma.getName(), e);
-                        response.sendError(500);
-                    }
-                }
-                break;
-            }
-        }
-        return null;
-    }
 
     /**
      * Renders the Infusionsoft Central home page.
@@ -196,19 +153,6 @@ public class CentralController {
         model.addAttribute("appType", AppType.COMMUNITY);
 
         return "central/linkCommunityAccount";
-    }
-
-    /**
-     * Unlinks an account.
-     */
-    @RequestMapping
-    public ModelAndView unlinkAccount(Long account) {
-        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        UserAccount userAccount = userService.findUserAccount(user, account);
-
-        userService.disableAccount(userAccount);
-        masheryService.revokeAccessTokensByUserAccount(userAccount);
-        return new ModelAndView("redirect:/central/home");
     }
 
     /**
@@ -383,20 +327,5 @@ public class CentralController {
         }
 
         return null;
-    }
-
-    private void logUserAccountInfoToSplunk(List<UserAccount> userAccountList, User user) {
-        int payingAccounts = 0;
-        for (UserAccount account : userAccountList) {
-            if (account.getAppType().equals(AppType.CRM) || account.getAppType().equals(AppType.CUSTOMERHUB)) {
-                payingAccounts++;
-            }
-        }
-        //add user id so we can search by unique and eliminate dups
-        if (payingAccounts == 1) {
-            log.error("User has 1 paying account. User=" + user.getId());
-        } else if (payingAccounts > 1) {
-            log.error("User has > 1 paying accounts. User=" + user.getId());
-        }
     }
 }

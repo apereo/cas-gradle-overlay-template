@@ -27,6 +27,8 @@ public interface UserService {
 
     List<UserAccount> findSortedUserAccounts(User user);
 
+    List<UserAccount> findSortedUserAccountsByAppType(User user, AppType appType);
+
     PendingUserAccount createPendingUserAccount(AppType appType, String appName, String appUsername, String firstName, String lastName, String email, boolean passwordVerificationRequired);
 
     UserAccount associateAccountToUser(User user, AppType appType, String appName, String appUsername) throws AccountException;
@@ -40,6 +42,8 @@ public interface UserService {
     List<UserAccount> findUserAccounts(String appName, AppType appType, String appUsername);
 
     List<UserAccount> findUserAccounts(String appName, AppType appType, long globalUserId);
+
+    UserAccount findUserAccountByInfusionsoftId(String appName, AppType appType, String infusionsoftId);
 
     List<UserAccount> findDisabledUserAccounts(String appName, AppType appType, String appUsername);
 

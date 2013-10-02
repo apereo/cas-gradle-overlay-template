@@ -5,7 +5,8 @@ import com.infusionsoft.cas.domain.*;
 import com.infusionsoft.cas.exceptions.AccountException;
 import com.infusionsoft.cas.exceptions.DuplicateAccountException;
 import com.infusionsoft.cas.exceptions.InfusionsoftValidationException;
-import com.infusionsoft.cas.oauth.MasheryService;
+import com.infusionsoft.cas.oauth.exceptions.OAuthException;
+import com.infusionsoft.cas.oauth.services.OAuthService;
 import com.infusionsoft.cas.web.ValidationUtils;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -48,7 +49,7 @@ public class UserServiceImpl implements UserService {
     private UserAccountDAO userAccountDAO;
 
     @Autowired
-    private MasheryService masheryService;
+    private OAuthService oauthService;
 
     @Override
     public List<Authority> findAllAuthorities() {
@@ -209,11 +210,19 @@ public class UserServiceImpl implements UserService {
     public List<UserAccount> findSortedUserAccounts(User user) {
         List<UserAccount> accounts = new ArrayList<UserAccount>();
 
-        accounts.addAll(userAccountDAO.findByUserAndAppTypeAndDisabled(user, AppType.CRM, false));
-        accounts.addAll(userAccountDAO.findByUserAndAppTypeAndDisabled(user, AppType.COMMUNITY, false));
-        accounts.addAll(userAccountDAO.findByUserAndAppTypeAndDisabled(user, AppType.CUSTOMERHUB, false));
+        accounts.addAll(userAccountDAO.findByUserAndAppTypeAndDisabledOrderByAppNameAsc(user, AppType.CRM, false));
+        accounts.addAll(userAccountDAO.findByUserAndAppTypeAndDisabledOrderByAppNameAsc(user, AppType.COMMUNITY, false));
+        accounts.addAll(userAccountDAO.findByUserAndAppTypeAndDisabledOrderByAppNameAsc(user, AppType.CUSTOMERHUB, false));
 
         return accounts;
+    }
+
+    /**
+     * Returns a user's accounts, sorted by type and name for consistency when displaying lists of connected accounts.
+     */
+    @Override
+    public List<UserAccount> findSortedUserAccountsByAppType(User user, AppType appType) {
+        return userAccountDAO.findByUserAndAppTypeAndDisabledOrderByAppNameAsc(user, appType, false);
     }
 
     /**
@@ -365,6 +374,14 @@ public class UserServiceImpl implements UserService {
     }
 
     /**
+     * Finds any linked user accounts to a given app and Global User ID.
+     */
+    @Override
+    public UserAccount findUserAccountByInfusionsoftId(String appName, AppType appType, String infusionsoftId) {
+        return userAccountDAO.findByAppNameAndAppTypeAndUser_Username(appName, appType, infusionsoftId);
+    }
+
+    /**
      * Finds any linked user accounts to a given app and local username that have been disabled.
      */
     @Override
@@ -392,11 +409,17 @@ public class UserServiceImpl implements UserService {
         log.info("Deleting user account " + account.toString());
 
         User accountUser = account.getUser();
-        if (!accountUser.getAccounts().remove(account))
+        if (!accountUser.getAccounts().remove(account)) {
             log.debug("Account not found on user to remove: " + account.toString());
+        }
         userDAO.save(accountUser);
         userAccountDAO.delete(account);
-        masheryService.revokeAccessTokensByUserAccount(account);
+
+        try {
+            oauthService.revokeAccessTokensByUserAccount(account);
+        } catch (OAuthException e) {
+            log.error("Unable to revoke access tokens during account deletion -> " + account.toString());
+        }
     }
 
     /**
@@ -409,7 +432,12 @@ public class UserServiceImpl implements UserService {
         account.setDisabled(true);
         userAccountDAO.save(account);
         userDAO.save(account.getUser());
-        masheryService.revokeAccessTokensByUserAccount(account);
+
+        try {
+            oauthService.revokeAccessTokensByUserAccount(account);
+        } catch (OAuthException e) {
+            log.error("Unable to revoke access tokens during account disabling -> " + account.toString());
+        }
     }
 
     /**

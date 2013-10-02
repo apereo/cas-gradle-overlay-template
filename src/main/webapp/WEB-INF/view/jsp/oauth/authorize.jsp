@@ -83,6 +83,7 @@
                     <input type="hidden" name="redirect_uri" value="${fn:escapeXml(redirect_uri)}">
                     <input type="hidden" name="response_type" value="${fn:escapeXml(response_type)}">
                     <input type="hidden" name="requestedScope" value="${fn:escapeXml(requestedScope)}">
+                    <input type="hidden" name="state" value="${fn:escapeXml(state)}">
                     <c:choose>
                         <c:when test="${fn:length(apps) > 1}">
                             <p>
