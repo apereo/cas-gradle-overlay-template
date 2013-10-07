@@ -4,6 +4,7 @@ import com.infusionsoft.cas.domain.User;
 import com.infusionsoft.cas.domain.UserAccount;
 import com.infusionsoft.cas.oauth.mashery.api.client.MasheryApiClientService;
 import com.infusionsoft.cas.oauth.mashery.api.domain.MasheryUserApplication;
+import com.infusionsoft.cas.oauth.services.OAuthService;
 import com.infusionsoft.cas.services.UserService;
 import com.infusionsoft.cas.web.controllers.OAuthController;
 import org.mockito.Mockito;
@@ -20,6 +21,7 @@ public class OAuthControllerTest {
     private OAuthController classToTest;
     private UserService userService;
     private MasheryApiClientService masheryApiClientService;
+    private OAuthService oAuthService;
 
     @BeforeTest
     public void beforeTest() {
@@ -30,9 +32,10 @@ public class OAuthControllerTest {
         }
         userService = Mockito.mock(UserService.class);
         masheryApiClientService = Mockito.mock(MasheryApiClientService.class);
+        oAuthService =  Mockito.mock(OAuthService.class);
 
         Whitebox.setInternalState(classToTest, "userService", userService);
-        Whitebox.setInternalState(classToTest, "masheryService", masheryApiClientService);
+        Whitebox.setInternalState(classToTest, "oauthService", oAuthService);
     }
 
     @Test
@@ -41,7 +44,7 @@ public class OAuthControllerTest {
         Mockito.when(userService.loadUser(1L)).thenReturn(user);
         UserAccount ua = new UserAccount();
         Mockito.when(userService.findUserAccount(user, 1L)).thenReturn(ua);
-        Mockito.when(masheryApiClientService.fetchUserApplicationsByUserAccount(ua)).thenReturn(createMasheryUserApplication());
+        Mockito.when(oAuthService.fetchUserApplicationsByUserAccount(ua)).thenReturn(createMasheryUserApplication());
 
         ModelAndView mv = classToTest.manageAccounts(1L, 1L);
         Assert.assertEquals(((Set<MasheryUserApplication>) mv.getModel().get("appsGrantedAccess")).size(), 1);
