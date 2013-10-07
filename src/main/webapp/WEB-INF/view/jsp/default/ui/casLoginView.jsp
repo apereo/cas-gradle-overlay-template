@@ -24,6 +24,7 @@
 <meta name="decorator" content="anonymousNoLogo"/>
 <html>
 <head>
+<link type="text/css" rel="stylesheet" href="https://infusionmedia.s3.amazonaws.com/app/login-screen/cas-holiday.css">
 <title>Sign in to Infusionsoft</title>
 
 <script type="text/javascript">
@@ -134,7 +135,7 @@ body {
     width: 620px;
     height: 330px;
     clear: both;
-}
+    padding-top: 120px; }
 
 #login-form {
     color: #000;
@@ -203,19 +204,17 @@ body {
     font-style: italic;
 }
 
-#email-help-floater {
-    top: 22px;
+#email-help-floater  {
+    top: 141px;
     left: -163px;
     padding-right: 50px;
-    background: url("/images/right-ball-login.png") no-repeat scroll 100% center transparent;
-}
+    background: url("/images/right-ball-login.png") no-repeat scroll 100% center transparent; }
 
 #create-help-floater {
-    top: 214px;
+    top: 335px;
     right: -141px;
     padding-left: 55px;
-    background: url("/images/left-ball-login.png") no-repeat scroll 0 center transparent;
-}
+    background: url("/images/left-ball-login.png") no-repeat scroll 0 center transparent; }
 
 #create-header-text {
     padding-top: 21px;
@@ -394,8 +393,6 @@ input:-moz-placeholder {
 </head>
 
 <body>
-
-<div style="height: 120px"></div>
 
 <div id="full-login-content">
     <div id="email-help-floater">
