@@ -51,6 +51,8 @@ public class OAuthController {
         model.put("error", e.getErrorCode());
         model.put("state", request.getParameter("state"));
 
+        logger.info("Unhandled OAuthException", e);
+
         return new ModelAndView("redirect:" + request.getParameter("redirect_uri"), model);
     }
 

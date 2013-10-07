@@ -1,10 +1,8 @@
 package com.infusionsoft.cas.oauth.mashery.api.client;
 
-import com.infusionsoft.cas.domain.User;
-import com.infusionsoft.cas.domain.UserAccount;
+import com.infusionsoft.cas.oauth.exceptions.OAuthServerErrorException;
 import com.infusionsoft.cas.oauth.mashery.api.domain.*;
 import com.infusionsoft.cas.oauth.mashery.api.wrappers.*;
-import com.infusionsoft.cas.services.CrmService;
 import edu.emory.mathcs.backport.java.util.Arrays;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -12,11 +10,9 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.log4j.Logger;
 import org.mockito.ArgumentCaptor;
 import org.mockito.internal.util.reflection.Whitebox;
-import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.testng.PowerMockObjectFactory;
 import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
@@ -38,25 +34,21 @@ public class MasheryApiClientServiceTest {
 
     private static final String SERVICE_KEY = "serviceKey";
     private static final String USER_CONTEXT = "userContext";
-    private static final String TEST_APP = "testApp";
     private static final String TEST_APP_HOST_NAME = "testApp.infusionsoft.com";
     private static final String TEST_STATE = "testState";
     private static final String TEST_USERNAME = "jojo@infusionsoft.com";
-    private static final String TEST_USER_CONTEXT = TEST_USERNAME + "|" + TEST_APP_HOST_NAME;
     private static final String TOKEN_1 = "token1";
     private static final String TOKEN_2 = "token2";
     private static final String TOKEN_3 = "token3";
     private static final String CLIENT_ID = "client_id";
     private static final String ACCESS_TOKEN = "accessToken";
-    private static final String MOCKED_URL = "mockedUrl";
     private static final String TEST_REDIRECT_URI = "redirectUri";
 
-    private RestTemplate restTemplate;
     private MasheryApiClientService masheryServiceToTest;
-
+    private RestTemplate restTemplate;
+    private Logger log;
 
     private WrappedMasheryUserApplication wrappedMasheryUserApplication;
-    private UserAccount testAccount;
 
     @ObjectFactory
     public IObjectFactory getObjectFactory() {
@@ -71,10 +63,11 @@ public class MasheryApiClientServiceTest {
         restTemplate = mock(RestTemplate.class);
 
         masheryServiceToTest = new MasheryApiClientService();
-        masheryServiceToTest.setServiceKey(SERVICE_KEY);
+        Whitebox.setInternalState(masheryServiceToTest, "serviceKey", SERVICE_KEY);
         Whitebox.setInternalState(masheryServiceToTest, "restTemplate", restTemplate);
 
-        setupUserAccount();
+        log = mock(Logger.class);
+        Whitebox.setInternalState(masheryServiceToTest, "log", log);
     }
 
     private void createWrappedMasheryUserApplication() {
@@ -93,67 +86,6 @@ public class MasheryApiClientServiceTest {
 
         wrappedMasheryUserApplication.setResult(userApps);
     }
-
-    private void setupUserAccount() {
-        testAccount = new UserAccount();
-        testAccount.setAppName(TEST_APP);
-        User user = new User();
-        user.setUsername(TEST_USERNAME);
-        testAccount.setUser(user);
-    }
-
-    /*@Test
-    public void testRevokeAccessTokensByUserAccount_spyFetchAndRevoke() throws Exception {
-        // Spy it so we can mock fetchUserApplicationsByUserAccount and revokeAccessToken, which are tested elsewhere
-        masheryServiceToTest = spy(masheryServiceToTest);
-        doReturn(wrappedMasheryUserApplication.getResult()).when(masheryServiceToTest).fetchUserApplicationsByUserAccount(testAccount);
-        doReturn(true).when(masheryServiceToTest).revokeAccessToken(anyString(), anyString(), anyString());
-
-        Boolean wasSuccessful = masheryServiceToTest.revokeAccessTokensByUserAccount(testAccount);
-        Assert.assertTrue(wasSuccessful);
-
-        verify(masheryServiceToTest, times(1)).fetchUserApplicationsByUserAccount(testAccount);
-        verify(masheryServiceToTest, times(1)).revokeAccessToken(SERVICE_KEY, CLIENT_ID, TOKEN_1);
-        verify(masheryServiceToTest, times(1)).revokeAccessToken(SERVICE_KEY, CLIENT_ID, TOKEN_2);
-        verify(masheryServiceToTest, times(1)).revokeAccessToken(SERVICE_KEY, CLIENT_ID, TOKEN_3);
-    } */
-
-
-    /*@Test
-    public void testRevokeAccessTokensByUserAccount_spyBuildUrl() throws Exception {
-        // We have to spy here in order to have buildUrl() return a known value, so we can match on specific parameters for restTemplate.postForObject()
-        masheryServiceToTest = spy(masheryServiceToTest);
-        when(masheryServiceToTest.buildUrl()).thenReturn(MOCKED_URL);
-
-        MasheryJsonRpcRequest masheryJsonRpcRequest = mock(MasheryJsonRpcRequest.class);
-        List<Object> paramList = mock(List.class);
-        when(masheryJsonRpcRequest.getParams()).thenReturn(paramList);
-        HttpHeaders headers = mock(HttpHeaders.class);
-        HttpEntity<MasheryJsonRpcRequest> request = mock(HttpEntity.class);
-
-        PowerMockito.whenNew(MasheryJsonRpcRequest.class).withNoArguments().thenReturn(masheryJsonRpcRequest);
-        PowerMockito.whenNew(HttpHeaders.class).withNoArguments().thenReturn(headers);
-        PowerMockito.whenNew(HttpEntity.class).withArguments(masheryJsonRpcRequest, headers).thenReturn(request);
-
-        when(crmService.buildCrmHostName(TEST_APP)).thenReturn(TEST_APP_HOST_NAME);
-        when(restTemplate.postForObject(MOCKED_URL, request, WrappedMasheryUserApplication.class)).thenReturn(wrappedMasheryUserApplication);
-
-        WrappedMasheryBoolean wrappedBooleanResult = new WrappedMasheryBoolean();
-        wrappedBooleanResult.setResult(Boolean.TRUE);
-        when(restTemplate.postForObject(MOCKED_URL, request, WrappedMasheryBoolean.class)).thenReturn(wrappedBooleanResult);
-
-        Boolean wasSuccessful = masheryServiceToTest.revokeAccessTokensByUserAccount(testAccount);
-        Assert.assertTrue(wasSuccessful);
-
-        //verify what happened for call to fetch user apps from mashery
-        verify(headers, times(4)).setContentType(MediaType.APPLICATION_JSON);   //once get get apps, 3 times to revoke tokens
-        verify(masheryJsonRpcRequest).setMethod("oauth2.fetchUserApplications");
-        verify(paramList, times(4)).add(SERVICE_KEY);   //once get get apps, 3 times to revoke tokens
-        verify(paramList).add(TEST_USER_CONTEXT);
-
-        //verify which happened for call to revoke all 3 tokens associated with mashery app
-        verify(masheryJsonRpcRequest, times(3)).setMethod("oauth2.revokeAccessToken");
-    } */
 
     @Test
     public void testFetchUserApplicationsByUserContext() throws Exception {
@@ -188,14 +120,14 @@ public class MasheryApiClientServiceTest {
             // If the class has an equals method other than the one inherited from Object, use it to compare. Otherwise use EqualsBuilder.reflectionEquals().
             final Method equalsMethod = actualParam.getClass().getMethod("equals", Object.class);
             if (equalsMethod.getDeclaringClass().equals(Object.class)) {
-                Assert.assertTrue(EqualsBuilder.reflectionEquals(actualParam, expectedParam));
+                Assert.assertTrue(EqualsBuilder.reflectionEquals(actualParam, expectedParam), "parameters should be equal");
             } else {
                 Assert.assertEquals(actualParam, expectedParam);
             }
         }
     }
 
-    /*@Test
+    @Test
     public void testFetchUserApplicationsByUserContext_throwsException() throws Exception {
         final RestClientException testException = new RestClientException("blah");
         doThrow(testException).when(restTemplate).postForObject(anyString(), anyObject(), any(Class.class));
@@ -203,26 +135,13 @@ public class MasheryApiClientServiceTest {
         try {
             masheryServiceToTest.fetchUserApplicationsByUserContext(USER_CONTEXT, TokenStatus.Active);
             Assert.fail();
-        } catch (RestClientException e) {
-            Assert.assertEquals(e, testException);
+        } catch (OAuthServerErrorException e) {
+            Assert.assertEquals(e.getCause(), testException);
         }
         ArgumentCaptor<RestClientException> exceptionArgumentCaptor = ArgumentCaptor.forClass(RestClientException.class);
+        verify(log).error(anyString(), exceptionArgumentCaptor.capture());
         Assert.assertEquals(exceptionArgumentCaptor.getValue(), testException);
-    } */
-
-    /*@Test
-    public void testFetchUserApplicationsByUserAccount() throws Exception {
-        when(restTemplate.postForObject(anyString(), anyObject(), any(Class.class))).thenReturn(wrappedMasheryUserApplication);
-
-        Set<MasheryUserApplication> oauthApps = masheryServiceToTest.fetchUserApplicationsByUserAccount(testAccount);
-
-        // verify result
-        Assert.assertNotNull(oauthApps.iterator().next());
-        Assert.assertEquals(oauthApps.iterator().next().getName(), wrappedMasheryUserApplication.getResult().iterator().next().getName());
-
-        // verify what happened for call to Mashery
-        verifyCallToMashery("oauth2.fetchUserApplications", Arrays.asList(new Object[]{SERVICE_KEY, TEST_USER_CONTEXT, TokenStatus.Active.getValue()}));
-    } */
+    }
 
     @Test
     public void testRevokeAccessToken() throws Exception {
@@ -298,20 +217,21 @@ public class MasheryApiClientServiceTest {
         verifyCallToMashery("oauth2.fetchAccessToken", Arrays.asList(new Object[]{SERVICE_KEY, ACCESS_TOKEN}));
     }
 
-    /*@Test
+    @Test
     public void testCreateAuthorizationCode() throws Exception {
         WrappedMasheryAuthorizationCode wrappedMasheryAuthorizationCode = new WrappedMasheryAuthorizationCode();
         wrappedMasheryAuthorizationCode.setResult(new MasheryAuthorizationCode());
         when(restTemplate.postForObject(anyString(), anyObject(), any(Class.class))).thenReturn(wrappedMasheryAuthorizationCode);
 
         // verify result
-        final String requestedScope = "requestedScope";
-        MasheryAuthorizationCode MasheryAuthorizationCode = masheryServiceToTest.createAuthorizationCode(CLIENT_ID, requestedScope, TEST_REDIRECT_URI, TEST_USERNAME, TEST_STATE);
+        final String requestedScope = "requestedScope" + "|" + TEST_APP_HOST_NAME;
+        final String userContext = TEST_USERNAME + "|" + TEST_APP_HOST_NAME;
+        MasheryAuthorizationCode MasheryAuthorizationCode = masheryServiceToTest.createAuthorizationCode(CLIENT_ID, requestedScope, TEST_REDIRECT_URI, userContext, TEST_STATE);
         Assert.assertSame(MasheryAuthorizationCode, wrappedMasheryAuthorizationCode.getResult());
 
         // verify what happened for call to Mashery
-        verifyCallToMashery("oauth2.createAuthorizationCode", Arrays.asList(new Object[]{SERVICE_KEY, new MasheryClient(CLIENT_ID, ""), new MasheryUri(TEST_REDIRECT_URI, ""), requestedScope + "|" + TEST_APP_HOST_NAME, TEST_USER_CONTEXT}));
-    } */
+        verifyCallToMashery("oauth2.createAuthorizationCode", Arrays.asList(new Object[]{SERVICE_KEY, new MasheryClient(CLIENT_ID, ""), new MasheryUri(TEST_REDIRECT_URI, TEST_STATE), requestedScope, userContext}));
+    }
 
     @Test
     public void testBuildUrl() throws Exception {

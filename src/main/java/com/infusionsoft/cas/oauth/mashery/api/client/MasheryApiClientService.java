@@ -6,6 +6,7 @@ import com.infusionsoft.cas.oauth.mashery.api.domain.*;
 import com.infusionsoft.cas.oauth.mashery.api.wrappers.*;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -28,6 +29,8 @@ import java.util.*;
  */
 @Service
 public class MasheryApiClientService {
+
+    private static final Logger log = Logger.getLogger(MasheryApiClientService.class);
 
     @Value("${mashery.api.url}")
     private String apiUrl;
@@ -242,15 +245,8 @@ public class MasheryApiClientService {
         //The annotation will cause the caches to clear
     }
 
-    public void setServiceKey(String serviceKey) {
-        this.serviceKey = serviceKey;
-    }
-
     private OAuthException convertException(RestClientException e) {
-        if (e.getCause() instanceof OAuthException) {
-            return (OAuthException) e.getCause();
-        } else {
-            return new OAuthServerErrorException(e);
-        }
+        log.error("Error contacting Mashery", e);
+        return new OAuthServerErrorException(e);
     }
 }

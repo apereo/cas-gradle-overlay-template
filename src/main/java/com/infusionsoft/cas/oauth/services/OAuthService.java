@@ -73,7 +73,7 @@ public class OAuthService {
         for (MasheryUserApplication masheryUserApplication : masheryUserApplications) {
             for (String token : masheryUserApplication.getAccess_tokens()) {
                 try {
-                    masheryApiClientService.revokeAccessToken(masheryUserApplication.getClient_id(), token);
+                    revokeSuccessful = masheryApiClientService.revokeAccessToken(masheryUserApplication.getClient_id(), token) && revokeSuccessful;
                 } catch (RestClientException e) {
                     log.error("Unable to revoke access token for app=" + account.getAppName() + " clientId=" + masheryUserApplication.getClient_id() + " token=" + token, e);
                     revokeSuccessful = false;
