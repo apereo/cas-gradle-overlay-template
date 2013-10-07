@@ -22,19 +22,22 @@ $(document).ready(function () {
 
 var centralHome = {
     getAppsGrantedAccessToAccount : function (userId, accountId){
-        manageAppAccess.closeManageAppAccessDisplay();
-        var preSpinnerReplacedContent = $("#spinner-content-" + accountId).html();
-        $("#spinner-content-" + accountId).removeClass('app-access');
-        window.global.showSpinner({id: "spinner-content-" + accountId});
+        var displayIsClosed = $("#displayManageAccountsWrapper-" + accountId).is(':visible') ? false : true;
+        manageAppAccess.closeManageAppAccessDisplay(accountId);
+        if(displayIsClosed){
+            var preSpinnerReplacedContent = $("#spinner-content-" + accountId).html();
+            $("#spinner-content-" + accountId).removeClass('app-access');
+            window.global.showSpinner({id: "spinner-content-" + accountId});
 
-        var appsGrantedAccessToAccountInput = new Object();
-        appsGrantedAccessToAccountInput.afterSuccess = centralHome.appsGrantedAccessToAccountAfterSuccess;
-        appsGrantedAccessToAccountInput.afterError = centralHome.appsGrantedAccessToAccountAfterError
-        appsGrantedAccessToAccountInput.useSpinner = true;
-        appsGrantedAccessToAccountInput.preSpinnerReplacedContent = preSpinnerReplacedContent;
-        appsGrantedAccessToAccountInput.userId = userId;
-        appsGrantedAccessToAccountInput.accountId = accountId;
-        manageAppAccess.getAppsGrantedAccessToAccount(appsGrantedAccessToAccountInput);
+            var appsGrantedAccessToAccountInput = new Object();
+            appsGrantedAccessToAccountInput.afterSuccess = centralHome.appsGrantedAccessToAccountAfterSuccess;
+            appsGrantedAccessToAccountInput.afterError = centralHome.appsGrantedAccessToAccountAfterError
+            appsGrantedAccessToAccountInput.useSpinner = true;
+            appsGrantedAccessToAccountInput.preSpinnerReplacedContent = preSpinnerReplacedContent;
+            appsGrantedAccessToAccountInput.userId = userId;
+            appsGrantedAccessToAccountInput.accountId = accountId;
+            manageAppAccess.getAppsGrantedAccessToAccount(appsGrantedAccessToAccountInput);
+        }
     },
     appsGrantedAccessToAccountAfterSuccess : function (inputObject, response) {
         $(".crm-account").each(function () {$(this).removeClass('expanded-apps expanded-apps-crm')});

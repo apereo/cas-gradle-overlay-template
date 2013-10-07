@@ -34,6 +34,8 @@ var manageAppAccess = {
                 $("#accessRevokedSuccessText-" + manageAppAccess.accountIdBeingManaged).html(manageAppAccess.appNameOfAppBeingRevoked);
                 $("#accessRevokedMessageWrapper-"+ manageAppAccess.accountIdBeingManaged).show();
                 $("#accessRevokedSuccess-" + manageAppAccess.accountIdBeingManaged).show();
+                $("#displayManageAccountsWrapper-" + manageAppAccess.accountIdBeingManaged).slideUp(3000);
+
             },
             error: function(response){
                 $('#myModal').modal('hide');

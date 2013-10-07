@@ -9,6 +9,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -91,7 +92,7 @@ public class MasheryApiClientService {
         return wrappedMasheryUserApplication.getResult();
     }
 
-    @CacheEvict(value = {"masheryAccessTokens", "masheryUserApplication"}, key = "#accessToken")
+    @Caching(evict = { @CacheEvict("masheryUserApplications"), @CacheEvict(value = "masheryAccessTokens", key = "#accessToken") })
     public Boolean revokeAccessToken(String clientId, String accessToken) throws OAuthException {
         MasheryJsonRpcRequest masheryJsonRpcRequest = new MasheryJsonRpcRequest();
         masheryJsonRpcRequest.setMethod("oauth2.revokeAccessToken");
