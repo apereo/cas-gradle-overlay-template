@@ -61,17 +61,19 @@ public class RestController {
     private String requiredApiKey;
 
     @RequestMapping(value = "userSearch", method = RequestMethod.GET)
-    public ResponseEntity userSearch(@RequestParam String apiKey, @RequestParam(required = false) String userName, @RequestParam(defaultValue = "0", required = false) Integer pageNumber, @RequestParam(defaultValue = "10", required = false) Integer pageSize, HttpServletRequest request) throws IOException {
+    public ResponseEntity userSearch(@RequestParam String apiKey, @RequestParam(required = false) String username, @RequestParam(defaultValue = "0", required = false) Integer pageNumber, @RequestParam(defaultValue = "10", required = false) Integer pageSize, HttpServletRequest request, HttpServletResponse response) throws IOException {
         Locale localeFromRequest = request.getLocale();
-        if(localeFromRequest == null || StringUtils.isBlank(localeFromRequest.getLanguage())){
-            localeFromRequest = Locale.US;
-        }
+        localeFromRequest  = (localeFromRequest== null || StringUtils.isBlank(localeFromRequest.getLanguage())) ? Locale.US : localeFromRequest;
         ResponseEntity apiKeyResponse = validateApiKey(apiKey, localeFromRequest);
         if (apiKeyResponse != null) {
             return apiKeyResponse;
         }
+        pageSize = pageSize > 100 ? 100 : pageSize;
+        if(StringUtils.isBlank(username)){
+            return new ResponseEntity<APIErrorDTO>(new APIErrorDTO("cas.exception.user.search.empty.username", messageSource, localeFromRequest), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
         try{
-            Page<User> pagedUsers = userService.findByUsernameLike(userName, new PageRequest(pageNumber, pageSize));
+            Page<User> pagedUsers = userService.findByUsernameLike(username, new PageRequest(pageNumber, pageSize));
             PageMetaData pageMetaData = new PageMetaData();
             pageMetaData.setTotalElements((int) pagedUsers.getTotalElements());
             pageMetaData.setTotalPages(pagedUsers.getTotalPages());
