@@ -69,7 +69,7 @@
                             <span id="quick-editable-${account.id}" accountId="${account.id}" class="quick-editable">${fn:escapeXml(empty account.alias ? account.appName : account.alias)}</span>
                         </div>
                         <div class="account-detail account-url"><span>${account.appName}.${crmDomain}</span></div>
-                        <div class="account-detail app-access" id="spinner-content-${account.id}">
+                        <div class="account-detail app-access hide" id="spinner-content-${account.id}">
                             <span id="manageAccounts-${account.id}" class="manageAccounts" accountId="${account.id}" userId="${user.id}">Manage App Access</span>
                         </div>
                     </div>
