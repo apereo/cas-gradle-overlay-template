@@ -12,7 +12,7 @@ public class OAuthServerErrorException extends OAuthException {
     }
 
     public OAuthServerErrorException(Exception e) {
-        super("super", e);
+        super("invalid_request", e);
     }
 
 }
