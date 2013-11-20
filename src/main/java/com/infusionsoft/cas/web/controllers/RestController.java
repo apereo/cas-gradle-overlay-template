@@ -1,6 +1,9 @@
 package com.infusionsoft.cas.web.controllers;
 
-import com.infusionsoft.cas.api.domain.*;
+import com.infusionsoft.cas.api.domain.APIErrorDTO;
+import com.infusionsoft.cas.api.domain.AccountDTO;
+import com.infusionsoft.cas.api.domain.UserAccountDTO;
+import com.infusionsoft.cas.api.domain.UserDTO;
 import com.infusionsoft.cas.auth.LoginResult;
 import com.infusionsoft.cas.dao.UserAccountDAO;
 import com.infusionsoft.cas.domain.AppType;
@@ -11,7 +14,6 @@ import com.infusionsoft.cas.exceptions.DuplicateAccountException;
 import com.infusionsoft.cas.services.InfusionsoftAuthenticationService;
 import com.infusionsoft.cas.services.UserService;
 import com.infusionsoft.cas.support.AppHelper;
-import com.infusionsoft.cas.web.RestfulResponseBean;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.json.simple.JSONObject;
@@ -21,13 +23,14 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.hateoas.PagedResources;
+import org.springframework.hateoas.PagedResources.PageMetadata;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.annotation.support.HandlerMethodInvocationException;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.*;
@@ -61,34 +64,28 @@ public class RestController {
     private String requiredApiKey;
 
     @RequestMapping(value = "userSearch", method = RequestMethod.GET)
-    public ResponseEntity userSearch(@RequestParam String apiKey, @RequestParam(required = false) String username, @RequestParam(defaultValue = "0", required = false) Integer pageNumber, @RequestParam(defaultValue = "10", required = false) Integer pageSize, HttpServletRequest request, HttpServletResponse response) throws IOException {
-        Locale localeFromRequest = request.getLocale();
-        localeFromRequest  = (localeFromRequest== null || StringUtils.isBlank(localeFromRequest.getLanguage())) ? Locale.US : localeFromRequest;
-        ResponseEntity apiKeyResponse = validateApiKey(apiKey, localeFromRequest);
+    public ResponseEntity userSearch(@RequestParam String apiKey, @RequestParam(required = false) String username, @RequestParam(defaultValue = "0", required = false) Integer pageNumber, @RequestParam(defaultValue = "10", required = false) Integer pageSize, Locale locale) throws IOException {
+        // Validate the API key
+        ResponseEntity apiKeyResponse = validateApiKey(apiKey, locale);
         if (apiKeyResponse != null) {
             return apiKeyResponse;
         }
         pageSize = pageSize > 100 ? 100 : pageSize;
-        if(StringUtils.isBlank(username)){
-            return new ResponseEntity<APIErrorDTO>(new APIErrorDTO("cas.exception.user.search.empty.username", messageSource, localeFromRequest), HttpStatus.INTERNAL_SERVER_ERROR);
+        if (StringUtils.isBlank(username)) {
+            return new ResponseEntity<APIErrorDTO>(new APIErrorDTO("cas.exception.user.search.empty.username", messageSource, locale), HttpStatus.BAD_REQUEST);
         }
-        try{
+        try {
             Page<User> pagedUsers = userService.findByUsernameLike(username, new PageRequest(pageNumber, pageSize));
-            PageMetaData pageMetaData = new PageMetaData();
-            pageMetaData.setTotalElements((int) pagedUsers.getTotalElements());
-            pageMetaData.setTotalPages(pagedUsers.getTotalPages());
-            pageMetaData.setSize(pageSize);
-            pageMetaData.setNumber(pageNumber);
+            PageMetadata pageMetadata = new PageMetadata(pageSize, pageNumber, pagedUsers.getTotalElements(), pagedUsers.getTotalPages());
 
             List<UserDTO> userDtos = new ArrayList<UserDTO>();
             for (User user : pagedUsers.getContent()) {
-                UserDTO userDTO = new UserDTO(user, appHelper);
-                userDtos.add(userDTO);
+                userDtos.add(new UserDTO(user, appHelper));
             }
-            return new ResponseEntity<RestfulResponseBean>(new RestfulResponseBean(userDtos, pageMetaData), HttpStatus.OK);
+            return new ResponseEntity<PagedResources<UserDTO>>(new PagedResources<UserDTO>(userDtos, pageMetadata), HttpStatus.OK);
 
-        } catch(Exception e){
-            return new ResponseEntity<APIErrorDTO>(new APIErrorDTO("cas.exception.user.search", messageSource, localeFromRequest), HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (Exception e) {
+            return new ResponseEntity<APIErrorDTO>(new APIErrorDTO("cas.exception.user.search", messageSource, locale), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
