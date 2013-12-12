@@ -8,9 +8,9 @@
               p:targetObject-ref="garbageMan"
               p:targetMethod="cleanup"/>
 
-        <bean id="triggerJobDetailGarbageMan" class="org.springframework.scheduling.quartz.SimpleTriggerBean"
-              p:jobDetail-ref="jobDetailGarbageMan"
-              p:startDelay="1800000"
-              p:repeatInterval="1800000"/>
+    <bean id="triggerJobDetailGarbageMan" class="org.springframework.scheduling.quartz.SimpleTriggerBean"
+          p:jobDetail-ref="jobDetailGarbageMan"
+          p:startDelay="300000"
+          p:repeatInterval="300000"/>
 
 </beans>

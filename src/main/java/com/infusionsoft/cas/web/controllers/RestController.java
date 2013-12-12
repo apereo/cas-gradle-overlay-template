@@ -11,6 +11,7 @@ import com.infusionsoft.cas.domain.PendingUserAccount;
 import com.infusionsoft.cas.domain.User;
 import com.infusionsoft.cas.domain.UserAccount;
 import com.infusionsoft.cas.exceptions.DuplicateAccountException;
+import com.infusionsoft.cas.services.AuditService;
 import com.infusionsoft.cas.services.InfusionsoftAuthenticationService;
 import com.infusionsoft.cas.services.UserService;
 import com.infusionsoft.cas.support.AppHelper;
@@ -31,6 +32,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.annotation.support.HandlerMethodInvocationException;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.*;
@@ -59,6 +61,9 @@ public class RestController {
 
     @Autowired
     private MessageSource messageSource;
+
+    @Autowired
+    private AuditService auditService;
 
     @Value("${infusionsoft.cas.apikey}")
     private String requiredApiKey;
@@ -299,7 +304,7 @@ public class RestController {
      */
     @RequestMapping(value = "authenticateUser", method = RequestMethod.POST)
     @ResponseBody
-    public ResponseEntity authenticateUser(String username, String password, String md5password, Locale locale) throws IOException {
+    public ResponseEntity authenticateUser(String username, String password, String md5password, Locale locale, HttpServletRequest request) throws IOException {
         String error = null;
         LoginResult loginResult = null;
 
@@ -347,12 +352,18 @@ public class RestController {
 
             if (error == null) {
                 UserDTO userDTO = new UserDTO(loginResult.getUser(), appHelper);
+
                 // TODO: This is a hack to make it lowercase.  Remove when mobile app does case-insensitive comparisons
                 for (UserAccountDTO userAccountDTO : userDTO.getLinkedApps()) {
                     userAccountDTO.setAppType(StringUtils.lowerCase(userAccountDTO.getAppType()));
                 }
+
+                auditService.logApiLoginSuccess(loginResult.getUser());
+
                 return new ResponseEntity<UserDTO>(userDTO, HttpStatus.OK);
             } else {
+                auditService.logApiLoginFailure(username);
+
                 return new ResponseEntity<APIErrorDTO>(new APIErrorDTO(error, messageSource, locale), HttpStatus.UNAUTHORIZED);
             }
         } catch (Exception e) {

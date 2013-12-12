@@ -114,6 +114,8 @@
 
     <bean id="auditTrailManager" class="com.github.inspektr.audit.support.Slf4jLoggingAuditTrailManager"/>
 
+    <bean id="infusionsoftAuditTrailManager" class="com.infusionsoft.cas.support.InfusionsoftAuditTrailManager"/>
+
     <bean id="healthCheckMonitor" class="org.jasig.cas.monitor.HealthCheckMonitor">
         <property name="monitors">
             <list>

@@ -14,6 +14,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -50,6 +51,9 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private OAuthService oauthService;
+
+    @Value("${infusionsoft.cas.garbageman.loginattemptmaxage}")
+    private long loginAttemptMaxAge = 86400000; // default to 1 day
 
     @Override
     public List<Authority> findAllAuthorities() {
@@ -471,7 +475,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void cleanupLoginAttempts() {
-        long loginAttemptMaxAge = 86400000;
+        log.info("cleaning up login attempts older than " + loginAttemptMaxAge + " ms");
+
         Date date = new Date(System.currentTimeMillis() - loginAttemptMaxAge);
         List<LoginAttempt> attempts = loginAttemptDAO.findByDateAttemptedLessThan(date);
 

@@ -1,5 +1,6 @@
 package com.infusionsoft.cas.domain;
 
+import org.hibernate.annotations.Index;
 import org.hibernate.validator.constraints.Length;
 
 import javax.persistence.*;
@@ -27,6 +28,7 @@ public class LoginAttempt implements Serializable {
 
     @Column(name = "username", length = 120)
     @Length(min = 1, max = 120, message = "{user.error.email.length}")
+    @Index(name = "login_attempt_username_index", columnNames = { "username" })
     public String getUsername() {
         return username;
     }
@@ -36,6 +38,7 @@ public class LoginAttempt implements Serializable {
     }
 
     @Column(name = "date")
+    @Index(name = "login_attempt_date_index", columnNames = { "date_attempted" })
     public Date getDateAttempted() {
         return dateAttempted;
     }
