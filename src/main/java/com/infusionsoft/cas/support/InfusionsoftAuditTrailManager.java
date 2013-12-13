@@ -101,7 +101,7 @@ public class InfusionsoftAuditTrailManager implements AuditTrailManager {
 
                 baseUrl.append("://").append(url.getHost().toLowerCase());
 
-                if (url.getPort() != url.getDefaultPort()) {
+                if (url.getPort() != url.getDefaultPort() && url.getPort() != -1) {
                     baseUrl.append(":").append(url.getPort());
                 }
 
@@ -125,7 +125,7 @@ public class InfusionsoftAuditTrailManager implements AuditTrailManager {
      */
     private Long getUserIdForPrincipal(String principal) {
         try {
-            User user = userService.findEnabledUser(principal);
+            User user = userService.findEnabledUser(getUsernameForPrincipal(principal));
 
             if (user != null) {
                 return user.getId();

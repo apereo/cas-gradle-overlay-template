@@ -127,6 +127,11 @@
         <appender-ref ref="cas" />
     </logger>
 
+    <logger name="com.infusionsoft.cas.support.InfusionsoftAuditTrailManager">
+        <level value="DEBUG" />
+        <appender-ref ref="cas" />
+    </logger>
+
     <logger name="org.hibernate">
         <level value="WARN" />
         <appender-ref ref="cas" />
