@@ -33,6 +33,7 @@ public class InfusionsoftAuthenticationServiceTest {
     private AppHelper appHelper;
     private PasswordService passwordService;
     private LoginAttemptDAO loginAttemptDAO;
+    private UserService userService;
 
     @BeforeTest
     public void setUp() {
@@ -64,7 +65,7 @@ public class InfusionsoftAuthenticationServiceTest {
         Whitebox.setInternalState(infusionsoftAuthenticationService, "crmService", crmService);
         Whitebox.setInternalState(infusionsoftAuthenticationService, "communityService", communityService);
         Whitebox.setInternalState(infusionsoftAuthenticationService, "communityDomain", "community.infusionsoft.com");
-        UserService userService = mock(UserService.class);
+        userService = mock(UserService.class);
         Whitebox.setInternalState(infusionsoftAuthenticationService, "userService", userService);
         passwordService = mock(PasswordService.class);
         Whitebox.setInternalState(infusionsoftAuthenticationService, "passwordService", passwordService);
@@ -489,13 +490,18 @@ public class InfusionsoftAuthenticationServiceTest {
 
     @Test
     public void testCompletePasswordReset() throws Exception {
+        reset(userService);
         reset(loginAttemptDAO);
         infusionsoftAuthenticationService.completePasswordReset(user);
 
-        ArgumentCaptor<LoginAttempt> argument = ArgumentCaptor.forClass(LoginAttempt.class);
-        verify(loginAttemptDAO, times(1)).save(argument.capture());
-        Assert.assertEquals(argument.getValue().getStatus(), LoginAttemptStatus.PasswordReset);
-        Assert.assertEquals(argument.getValue().getUsername(), testUsername);
+        ArgumentCaptor<Long> userIdArgumentCaptor = ArgumentCaptor.forClass(Long.class);
+        verify(userService, times(1)).clearPasswordRecoveryCode(userIdArgumentCaptor.capture());
+        Assert.assertEquals(userIdArgumentCaptor.getValue(), user.getId());
+
+        ArgumentCaptor<LoginAttempt> loginAttemptArgumentCaptor = ArgumentCaptor.forClass(LoginAttempt.class);
+        verify(loginAttemptDAO, times(1)).save(loginAttemptArgumentCaptor.capture());
+        Assert.assertEquals(loginAttemptArgumentCaptor.getValue().getStatus(), LoginAttemptStatus.PasswordReset);
+        Assert.assertEquals(loginAttemptArgumentCaptor.getValue().getUsername(), testUsername);
     }
 
     @Test(enabled = false)
