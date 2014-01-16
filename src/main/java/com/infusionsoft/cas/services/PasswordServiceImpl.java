@@ -47,9 +47,6 @@ public class PasswordServiceImpl implements PasswordService {
     @Autowired
     private UserPasswordDAO userPasswordDAO;
 
-    @Autowired
-    private UserService userService;
-
     /**
      * Checks if a user's existing password is correct. We need this for when an already logged in user wants
      * to update his user profile.
@@ -159,8 +156,6 @@ public class PasswordServiceImpl implements PasswordService {
             userPasswordDAO.save(userPassword);
 
             log.debug("Set password for user " + user.getId());
-
-            userService.clearPasswordRecoveryCode(user.getId());
         } else {
             throw new InfusionsoftValidationException(passwordError);
         }

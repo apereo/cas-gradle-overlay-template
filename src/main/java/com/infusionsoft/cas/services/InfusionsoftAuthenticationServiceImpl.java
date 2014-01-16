@@ -434,6 +434,7 @@ public class InfusionsoftAuthenticationServiceImpl implements InfusionsoftAuthen
     }
 
     public void completePasswordReset(User user) {
+        userService.clearPasswordRecoveryCode(user.getId());
         log.info("Password reset completed by user " + user);
         recordLoginAttempt(LoginAttemptStatus.PasswordReset, user.getUsername());
     }
