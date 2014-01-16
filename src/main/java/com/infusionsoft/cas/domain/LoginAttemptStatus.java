@@ -8,8 +8,23 @@ public enum LoginAttemptStatus {
     BadPassword,
     DisabledUser,
     NoSuchUser,
-    PasswordExpired,
-    Success,
     OldPassword,
-    UnlockedByAdmin
+    PasswordExpired(true),
+    PasswordReset(true),
+    Success(true),
+    UnlockedByAdmin(true);
+
+    private boolean successful;
+
+    private LoginAttemptStatus() {
+        this(false);
+    }
+
+    private LoginAttemptStatus(boolean successful) {
+        this.successful = successful;
+    }
+
+    public boolean isSuccessful() {
+        return successful;
+    }
 }

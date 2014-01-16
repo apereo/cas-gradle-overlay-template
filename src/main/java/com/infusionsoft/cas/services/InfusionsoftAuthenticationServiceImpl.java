@@ -5,21 +5,16 @@ import com.infusionsoft.cas.dao.LoginAttemptDAO;
 import com.infusionsoft.cas.domain.*;
 import com.infusionsoft.cas.exceptions.AppCredentialsExpiredException;
 import com.infusionsoft.cas.exceptions.AppCredentialsInvalidException;
-import com.infusionsoft.cas.support.AppHelper;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
-import org.jasig.cas.authentication.AuthenticationManager;
 import org.jasig.cas.authentication.principal.Principal;
 import org.jasig.cas.ticket.Ticket;
 import org.jasig.cas.ticket.TicketGrantingTicket;
 import org.jasig.cas.ticket.registry.TicketRegistry;
-import org.jasig.cas.ticket.support.TicketGrantingTicketExpirationPolicy;
-import org.jasig.cas.web.support.CookieRetrievingCookieGenerator;
 import org.joda.time.DateTime;
 import org.joda.time.Minutes;
 import org.joda.time.base.BaseSingleFieldPeriod;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -47,66 +42,49 @@ public class InfusionsoftAuthenticationServiceImpl implements InfusionsoftAuthen
     private static final Minutes lockoutTimePeriod = Minutes.minutes(30);
 
     @Autowired
-    CustomerHubService customerHubService;
+    private CustomerHubService customerHubService;
 
     @Autowired
-    CommunityService communityService;
+    private CommunityService communityService;
 
     @Autowired
-    CrmService crmService;
+    private CrmService crmService;
 
     @Autowired
-    @Qualifier("ticketGrantingTicketCookieGenerator")
-    CookieRetrievingCookieGenerator ticketGrantingTicketCookieGenerator;
+    private TicketRegistry ticketRegistry;
 
     @Autowired
-    @Qualifier("warnCookieGenerator")
-    CookieRetrievingCookieGenerator warnCookieGenerator;
+    private LoginAttemptDAO loginAttemptDAO;
 
     @Autowired
-    TicketRegistry ticketRegistry;
+    private UserService userService;
 
     @Autowired
-    LoginAttemptDAO loginAttemptDAO;
-
-    @Autowired
-    AuthenticationManager authenticationManager;
-
-    @Autowired
-    UserService userService;
-
-    @Autowired
-    PasswordService passwordService;
-
-    @Autowired
-    AppHelper appHelper;
-
-    @Autowired
-    TicketGrantingTicketExpirationPolicy ticketGrantingTicketExpirationPolicy;
+    private PasswordService passwordService;
 
     @Value("${server.prefix}")
-    String serverPrefix;
+    private String serverPrefix;
 
     @Value("${infusionsoft.crm.protocol}")
-    String crmProtocol;
+    private String crmProtocol;
 
     @Value("${infusionsoft.crm.domain}")
-    String crmDomain;
+    private String crmDomain;
 
     @Value("${infusionsoft.crm.port}")
-    String crmPort;
+    private String crmPort;
 
     @Value("${infusionsoft.customerhub.domain}")
-    String customerHubDomain;
+    private String customerHubDomain;
 
     @Value("${infusionsoft.community.domain}")
-    String communityDomain;
+    private String communityDomain;
 
     @Value("${infusionsoft.marketplace.domain}")
-    String marketplaceDomain;
+    private String marketplaceDomain;
 
     @Value("${infusionsoft.marketplace.loginurl}")
-    String marketplaceLoginUrl;
+    private String marketplaceLoginUrl;
 
     @Value("${infusionsoft.cas.support.phone}")
     private String supportPhoneNumber;
@@ -278,7 +256,7 @@ public class InfusionsoftAuthenticationServiceImpl implements InfusionsoftAuthen
             log.info("Authenticated CAS user " + username);
         } else if (loginAttemptStatus == LoginAttemptStatus.PasswordExpired) {
             log.info("Authenticated CAS user " + username + " with expired password");
-        } else if (loginAttemptStatus == LoginAttemptStatus.UnlockedByAdmin) {
+        } else if (loginAttemptStatus.isSuccessful()) {
             // Already logged elsewhere
         } else {
             // Write anything to the logs that would help us see where bad logins are coming from
@@ -324,7 +302,7 @@ public class InfusionsoftAuthenticationServiceImpl implements InfusionsoftAuthen
 
         for (LoginAttempt loginAttempt : attempts) {
             LoginAttemptStatus loginAttemptStatus = loginAttempt.getStatus();
-            if (loginAttemptStatus == LoginAttemptStatus.Success || loginAttemptStatus == LoginAttemptStatus.PasswordExpired || loginAttemptStatus == LoginAttemptStatus.UnlockedByAdmin) {
+            if (loginAttemptStatus.isSuccessful()) {
                 break;
             } else if (loginAttemptStatus != LoginAttemptStatus.OldPassword) {
                 failures++;
@@ -453,6 +431,11 @@ public class InfusionsoftAuthenticationServiceImpl implements InfusionsoftAuthen
             // This is a warning because we want to make sure it gets audited in the logs
             log.warn("User " + user.getUsername() + " unlocked username " + username);
         }
+    }
+
+    public void completePasswordReset(User user) {
+        log.info("Password reset completed by user " + user);
+        recordLoginAttempt(LoginAttemptStatus.PasswordReset, user.getUsername());
     }
 
     @Override

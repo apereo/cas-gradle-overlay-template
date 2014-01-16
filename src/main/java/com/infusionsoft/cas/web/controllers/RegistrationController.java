@@ -89,7 +89,7 @@ public class RegistrationController {
      */
     @RequestMapping
     public String createInfusionsoftId(Model model, String registrationCode, String returnUrl, String skipUrl, String userToken, String firstName, String lastName, String email, HttpServletRequest request) throws IOException {
-        //If you get here, you should not have a ticket granting cookie in the request. If we don't clear it, we may be linking the wrong user account if user chooses "Already have ID" from the registration page
+        // If you get here, you should not have a ticket granting cookie in the request. If we don't clear it, we may be linking the wrong user account if user chooses "Already have ID" from the registration page
         autoLoginService.killTGT(request);
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -350,7 +350,7 @@ public class RegistrationController {
     }
 
     /**
-     * Resets the user's password, if the recovery code is valid and the new password meets the rules.
+     * Resets the user's password and clears the password recovery code, if the recovery code is valid and the new password meets the rules.
      */
     @RequestMapping
     public ModelAndView reset(String recoveryCode, String password1, String password2, HttpServletRequest request, HttpServletResponse response) {
@@ -366,6 +366,7 @@ public class RegistrationController {
         } else {
             try {
                 passwordService.setPasswordForUser(user, password1);
+                infusionsoftAuthenticationService.completePasswordReset(user);
             } catch (InfusionsoftValidationException e) {
                 model.put("error", e.getErrorMessageCode());
             }

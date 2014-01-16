@@ -5,6 +5,7 @@ import com.infusionsoft.cas.dao.LoginAttemptDAO;
 import com.infusionsoft.cas.domain.*;
 import com.infusionsoft.cas.support.AppHelper;
 import org.mockito.ArgumentCaptor;
+import org.mockito.internal.util.reflection.Whitebox;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.BeforeTest;
@@ -30,6 +31,8 @@ public class InfusionsoftAuthenticationServiceTest {
     private static final String testPassword = "passwordEncoded";
     private static final String testPasswordMD5 = "passwordEncodedMD5";
     private AppHelper appHelper;
+    private PasswordService passwordService;
+    private LoginAttemptDAO loginAttemptDAO;
 
     @BeforeTest
     public void setUp() {
@@ -52,30 +55,32 @@ public class InfusionsoftAuthenticationServiceTest {
         appHelper.communityService = communityService;
 
         infusionsoftAuthenticationService = new InfusionsoftAuthenticationServiceImpl();
-        infusionsoftAuthenticationService.appHelper = appHelper;
-        infusionsoftAuthenticationService.serverPrefix = "https://signin.infusionsoft.com";
-        infusionsoftAuthenticationService.crmProtocol = "https";
-        infusionsoftAuthenticationService.crmDomain = "infusionsoft.com";
-        infusionsoftAuthenticationService.crmPort = "443";
-        infusionsoftAuthenticationService.customerHubDomain = "customerhub.net";
-        infusionsoftAuthenticationService.customerHubService = customerHubService;
-        infusionsoftAuthenticationService.crmService = crmService;
-        infusionsoftAuthenticationService.communityService = communityService;
-        infusionsoftAuthenticationService.communityDomain = "community.infusionsoft.com";
-        infusionsoftAuthenticationService.userService = mock(UserService.class);
-        infusionsoftAuthenticationService.passwordService = mock(PasswordService.class);
-        infusionsoftAuthenticationService.loginAttemptDAO = mock(LoginAttemptDAO.class);
+        Whitebox.setInternalState(infusionsoftAuthenticationService, "serverPrefix", "https://signin.infusionsoft.com");
+        Whitebox.setInternalState(infusionsoftAuthenticationService, "crmProtocol", "https");
+        Whitebox.setInternalState(infusionsoftAuthenticationService, "crmDomain", "infusionsoft.com");
+        Whitebox.setInternalState(infusionsoftAuthenticationService, "crmPort", "443");
+        Whitebox.setInternalState(infusionsoftAuthenticationService, "customerHubDomain", "customerhub.net");
+        Whitebox.setInternalState(infusionsoftAuthenticationService, "customerHubService", customerHubService);
+        Whitebox.setInternalState(infusionsoftAuthenticationService, "crmService", crmService);
+        Whitebox.setInternalState(infusionsoftAuthenticationService, "communityService", communityService);
+        Whitebox.setInternalState(infusionsoftAuthenticationService, "communityDomain", "community.infusionsoft.com");
+        UserService userService = mock(UserService.class);
+        Whitebox.setInternalState(infusionsoftAuthenticationService, "userService", userService);
+        passwordService = mock(PasswordService.class);
+        Whitebox.setInternalState(infusionsoftAuthenticationService, "passwordService", passwordService);
+        loginAttemptDAO = mock(LoginAttemptDAO.class);
+        Whitebox.setInternalState(infusionsoftAuthenticationService, "loginAttemptDAO", loginAttemptDAO);
 
         user = new User();
-        when(infusionsoftAuthenticationService.userService.loadUser(testUsername)).thenReturn(user);
+        when(userService.loadUser(testUsername)).thenReturn(user);
 
         password = new UserPassword();
         password.setUser(user);
         password.setPasswordEncoded(testPassword);
         password.setPasswordEncodedMD5(testPasswordMD5);
 
-        when(infusionsoftAuthenticationService.passwordService.getMatchingPasswordForUser(any(User.class), anyString())).thenReturn(null);
-        when(infusionsoftAuthenticationService.passwordService.getMatchingMD5PasswordForUser(any(User.class), anyString())).thenReturn(null);
+        when(passwordService.getMatchingPasswordForUser(any(User.class), anyString())).thenReturn(null);
+        when(passwordService.getMatchingMD5PasswordForUser(any(User.class), anyString())).thenReturn(null);
     }
 
     @BeforeMethod
@@ -91,9 +96,9 @@ public class InfusionsoftAuthenticationServiceTest {
         password.setActive(true);
 
         setupFailedLogins(0);
-        when(infusionsoftAuthenticationService.passwordService.getMatchingPasswordForUser(user, testPassword)).thenReturn(password);
-        when(infusionsoftAuthenticationService.passwordService.getMatchingMD5PasswordForUser(user, testPasswordMD5)).thenReturn(password);
-        when(infusionsoftAuthenticationService.passwordService.isPasswordExpired(password)).thenReturn(false);
+        when(passwordService.getMatchingPasswordForUser(user, testPassword)).thenReturn(password);
+        when(passwordService.getMatchingMD5PasswordForUser(user, testPasswordMD5)).thenReturn(password);
+        when(passwordService.isPasswordExpired(password)).thenReturn(false);
     }
 
     private List<LoginAttempt> setupFailedLogins(int failedCount) {
@@ -118,7 +123,7 @@ public class InfusionsoftAuthenticationServiceTest {
             loginAttempt.setStatus(LoginAttemptStatus.OldPassword);
             loginAttemptList.add(loginAttempt);
         }
-        when(infusionsoftAuthenticationService.loginAttemptDAO.findByUsernameAndDateAttemptedGreaterThanOrderByDateAttemptedDesc(anyString(), any(Date.class))).thenReturn(loginAttemptList);
+        when(loginAttemptDAO.findByUsernameAndDateAttemptedGreaterThanOrderByDateAttemptedDesc(anyString(), any(Date.class))).thenReturn(loginAttemptList);
         return loginAttemptList;
     }
 
@@ -288,7 +293,7 @@ public class InfusionsoftAuthenticationServiceTest {
         Assert.assertEquals(loginResult.getFailedAttempts(), 1);
 
         // No password for user
-        when(infusionsoftAuthenticationService.passwordService.getMatchingPasswordForUser(user, testPassword)).thenReturn(null);
+        when(passwordService.getMatchingPasswordForUser(user, testPassword)).thenReturn(null);
         loginResult = infusionsoftAuthenticationService.attemptLogin(testUsername, testPassword);
         Assert.assertEquals(loginResult.getLoginStatus(), LoginAttemptStatus.BadPassword);
         Assert.assertEquals(loginResult.getFailedAttempts(), 1);
@@ -311,7 +316,7 @@ public class InfusionsoftAuthenticationServiceTest {
 
     @Test
     public void testAttemptLoginPasswordExpired() {
-        when(infusionsoftAuthenticationService.passwordService.isPasswordExpired(password)).thenReturn(true);
+        when(passwordService.isPasswordExpired(password)).thenReturn(true);
         LoginResult loginResult = infusionsoftAuthenticationService.attemptLogin(testUsername, testPassword);
         Assert.assertEquals(loginResult.getLoginStatus(), LoginAttemptStatus.PasswordExpired);
         Assert.assertEquals(loginResult.getFailedAttempts(), 0);
@@ -398,7 +403,7 @@ public class InfusionsoftAuthenticationServiceTest {
         Assert.assertEquals(loginResult.getFailedAttempts(), 1);
 
         // No password for user
-        when(infusionsoftAuthenticationService.passwordService.getMatchingMD5PasswordForUser(user, testPasswordMD5)).thenReturn(null);
+        when(passwordService.getMatchingMD5PasswordForUser(user, testPasswordMD5)).thenReturn(null);
         loginResult = infusionsoftAuthenticationService.attemptLoginWithMD5Password(testUsername, testPasswordMD5);
         Assert.assertEquals(loginResult.getLoginStatus(), LoginAttemptStatus.BadPassword);
         Assert.assertEquals(loginResult.getFailedAttempts(), 1);
@@ -421,7 +426,7 @@ public class InfusionsoftAuthenticationServiceTest {
 
     @Test
     public void testAttemptLoginWithMD5PasswordExpired() {
-        when(infusionsoftAuthenticationService.passwordService.isPasswordExpired(password)).thenReturn(true);
+        when(passwordService.isPasswordExpired(password)).thenReturn(true);
         LoginResult loginResult = infusionsoftAuthenticationService.attemptLoginWithMD5Password(testUsername, testPasswordMD5);
         Assert.assertEquals(loginResult.getLoginStatus(), LoginAttemptStatus.PasswordExpired);
         Assert.assertEquals(loginResult.getFailedAttempts(), 0);
@@ -474,11 +479,22 @@ public class InfusionsoftAuthenticationServiceTest {
 
     @Test
     public void testUnlockUser() throws Exception {
-        reset(infusionsoftAuthenticationService.loginAttemptDAO);
+        reset(loginAttemptDAO);
         infusionsoftAuthenticationService.unlockUser(testUsername);
         ArgumentCaptor<LoginAttempt> argument = ArgumentCaptor.forClass(LoginAttempt.class);
-        verify(infusionsoftAuthenticationService.loginAttemptDAO, times(1)).save(argument.capture());
+        verify(loginAttemptDAO, times(1)).save(argument.capture());
         Assert.assertEquals(argument.getValue().getStatus(), LoginAttemptStatus.UnlockedByAdmin);
+        Assert.assertEquals(argument.getValue().getUsername(), testUsername);
+    }
+
+    @Test
+    public void testCompletePasswordReset() throws Exception {
+        reset(loginAttemptDAO);
+        infusionsoftAuthenticationService.completePasswordReset(user);
+
+        ArgumentCaptor<LoginAttempt> argument = ArgumentCaptor.forClass(LoginAttempt.class);
+        verify(loginAttemptDAO, times(1)).save(argument.capture());
+        Assert.assertEquals(argument.getValue().getStatus(), LoginAttemptStatus.PasswordReset);
         Assert.assertEquals(argument.getValue().getUsername(), testUsername);
     }
 

@@ -35,5 +35,7 @@ public interface InfusionsoftAuthenticationService {
 
     void unlockUser(String username);
 
+    void completePasswordReset(User user);
+
     String getSupportPhoneNumber();
 }
