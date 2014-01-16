@@ -240,7 +240,7 @@ public class RegistrationController {
                 log.warn("couldn't create new user account: " + model.asMap().get("error"));
             } else {
 
-                user = userService.saveUser(user, password1);
+                user = userService.createUser(user, password1);
                 model.addAttribute("user", user);
 
                 if (StringUtils.isNotEmpty(registrationCode)) {

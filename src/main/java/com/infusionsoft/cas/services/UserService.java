@@ -11,7 +11,7 @@ import java.util.List;
 public interface UserService {
     User saveUser(User user) throws InfusionsoftValidationException;
 
-    User saveUser(User user, String plainTextPassword) throws InfusionsoftValidationException;
+    User createUser(User user, String plainTextPassword) throws InfusionsoftValidationException;
 
     User loadUser(String username);
 
@@ -19,7 +19,9 @@ public interface UserService {
 
     User findUserByRecoveryCode(String recoveryCode);
 
-    User updatePasswordRecoveryCode(User user);
+    User updatePasswordRecoveryCode(long userId);
+
+    User clearPasswordRecoveryCode(long userId);
 
     UserAccount findUserAccount(User user, Long accountId);
 

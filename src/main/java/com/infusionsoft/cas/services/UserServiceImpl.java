@@ -113,7 +113,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User saveUser(User user, String plainTextPassword) throws InfusionsoftValidationException {
+    public User createUser(User user, String plainTextPassword) throws InfusionsoftValidationException {
         User savedUser = saveUser(user);
         passwordService.setPasswordForUser(savedUser, plainTextPassword);
         return savedUser;
@@ -138,10 +138,10 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public String resetPassword(User user) {
-        user = updatePasswordRecoveryCode(user);
+        user = updatePasswordRecoveryCode(user.getId());
         String recoveryCode = user.getPasswordRecoveryCode();
 
-        log.info("password recovery code " + recoveryCode + " created for user " + user.getId());
+        log.info("password recovery code " + recoveryCode + " created for user " + user);
 
         mailService.sendPasswordResetEmail(user);
 
@@ -168,20 +168,35 @@ public class UserServiceImpl implements UserService {
      * Updates the password recovery code for a user.
      */
     @Override
-    public synchronized User updatePasswordRecoveryCode(User user) {
+    public synchronized User updatePasswordRecoveryCode(long userId) {
         String recoveryCode = generateRecoveryCode();
-
+        // Keep generating new codes until we find one that's not already in use
         while (findUserByRecoveryCode(recoveryCode) != null) {
             recoveryCode = generateRecoveryCode();
         }
 
-        // Load the user again, to avoid opening the door to updates on more than just the password recovery code
-        user = loadUser(user.getId());
+        // Load the user, to avoid opening the door to updates on more than just the password recovery code
+        User user = loadUser(userId);
         user.setPasswordRecoveryCode(recoveryCode);
         // TODO: use UTC date here
         user.setPasswordRecoveryCodeCreatedTime(new DateTime());
 
         return userDAO.save(user);
+    }
+
+    @Override
+    public synchronized User clearPasswordRecoveryCode(long userId) {
+        // Load the user, to avoid opening the door to updates on more than just the password recovery code
+        User user = loadUser(userId);
+        if (StringUtils.isBlank(user.getPasswordRecoveryCode())) {
+            return user;
+        } else {
+            user.setPasswordRecoveryCode(null);
+            user.setPasswordRecoveryCodeCreatedTime(null);
+
+            log.info("Cleared password recovery code for user " + user);
+            return userDAO.save(user);
+        }
     }
 
     /**
@@ -287,7 +302,7 @@ public class UserServiceImpl implements UserService {
 
                 userAccountDAO.save(account);
             } catch (Exception e) {
-                throw new AccountException("Failed to associate user " + user.getUsername() + " to app account " + appUsername + " on " + appName + "/" + appType, e);
+                throw new AccountException("Failed to associate user " + user + " to app account " + appUsername + " on " + appName + "/" + appType, e);
             }
         }
 
@@ -325,11 +340,11 @@ public class UserServiceImpl implements UserService {
                 userDAO.save(user);
             }
 
-            log.info("associated user " + user.getId() + " to " + account.getAppName() + "/" + account.getAppType());
+            log.info("associated user " + user + " to " + account.getAppName() + "/" + account.getAppType());
 
             pendingUserAccountDAO.delete(pendingAccount);
         } catch (Exception e) {
-            throw new AccountException("failed to associate user " + user.getId() + " to registration code " + registrationCode, e);
+            throw new AccountException("failed to associate user " + user + " to registration code " + registrationCode, e);
         }
 
         return account;
@@ -513,7 +528,7 @@ public class UserServiceImpl implements UserService {
                 String oldAppUsername = account.getAppUsername();
                 account.setAppUsername(newAppUsername);
                 userAccountDAO.save(account);
-                log.info("Changed application username on " + appName + "/" + appType + " for CAS user " + user.getUsername() + " from " + oldAppUsername + " to " + newAppUsername);
+                log.info("Changed application username on " + appName + "/" + appType + " for CAS user " + user + " from " + oldAppUsername + " to " + newAppUsername);
             }
         }
     }
@@ -526,7 +541,7 @@ public class UserServiceImpl implements UserService {
             for (UserAccount account : accounts) {
                 usernames.add(account.getUser().getUsername());
             }
-            log.error("Account " + appUsername + " on " + appName + "/" + appType + " could not be linked to " + user.getUsername() + " since it is already linked to a different Infusionsoft ID (" + StringUtils.join(usernames, ", ") + ")");
+            log.error("Account " + appUsername + " on " + appName + "/" + appType + " could not be linked to " + user + " since it is already linked to a different Infusionsoft ID (" + StringUtils.join(usernames, ", ") + ")");
             throw new DuplicateAccountException(accounts);
         }
     }
