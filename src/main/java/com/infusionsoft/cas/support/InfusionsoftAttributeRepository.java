@@ -8,8 +8,6 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.jasig.services.persondir.IPersonAttributes;
 import org.jasig.services.persondir.support.AbstractFlatteningPersonAttributeDao;
 import org.jasig.services.persondir.support.AttributeNamedPersonImpl;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -30,17 +28,8 @@ public class InfusionsoftAttributeRepository extends AbstractFlatteningPersonAtt
     @Autowired
     public AppHelper appHelper;
 
-    private IPersonAttributes backingPerson = null;
-
     public final static String[] POSSIBLE_VALUES = {"id", "accounts", "authorities", "displayName", "firstName", "lastName", "email"};
     public final static Set<String> ATTRIBUTE_NAMES = new HashSet<String>(Arrays.asList(POSSIBLE_VALUES));
-
-    public InfusionsoftAttributeRepository() {
-    }
-
-    public InfusionsoftAttributeRepository(Map<String, List<Object>> backingMap) {
-        backingPerson = new AttributeNamedPersonImpl(backingMap);
-    }
 
     /**
      * Resolves a user and sets custom attributes.
@@ -64,14 +53,12 @@ public class InfusionsoftAttributeRepository extends AbstractFlatteningPersonAtt
             // We use a query instead of user.getAccounts() so that we only include enabled accounts
             List<UserAccount> accounts = userService.findByUserAndDisabled(user, false);
             resultsMap.put("accounts", Arrays.asList(new Object[]{getAccountsJSON(accounts)}));
-
             resultsMap.put("authorities", new ArrayList<Object>(user.getAuthorities()));
         } else {
             logger.error("could not find a user record for: " + uid);
         }
 
-        this.backingPerson = new AttributeNamedPersonImpl(resultsMap);
-        return this.backingPerson;
+        return new AttributeNamedPersonImpl(resultsMap);
     }
 
     /****************************************************************************************************
@@ -97,11 +84,7 @@ public class InfusionsoftAttributeRepository extends AbstractFlatteningPersonAtt
             throw new IllegalArgumentException("Illegal to invoke getPeople(Map) with a null argument");
         }
 
-        if (backingPerson == null) {
-            return null;
-        }
-
-        return Collections.singleton(this.backingPerson);
+        return null;
     }
 
     public Set<String> getPossibleUserAttributeNames() {
