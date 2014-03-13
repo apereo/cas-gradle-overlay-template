@@ -16,8 +16,10 @@ import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
 import java.io.ByteArrayOutputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
+import java.util.List;
 
 /**
  * Test for serializing DTOs to JSON.
@@ -92,7 +94,9 @@ public class DTOJsonTest {
 
     @Test
     public void testUserDTOJson() throws Exception {
-        UserDTO userDTO = new UserDTO(user, appHelper);
+        List<UserAccount> accounts = new ArrayList<UserAccount>(user.getAccounts());
+        UserDTO userDTO = new UserDTO(user, accounts, appHelper);
+
         String actualJson = serializeToJson(userDTO);
         String expectedJson = "{\"globalUserId\":13,\"username\":\"test.user@infusionsoft.com\",\"displayName\":\"Test User\",\"firstName\":\"Test\",\"lastName\":\"User\",\"linkedApps\":[{\"appType\":\"CRM\",\"appName\":\"app1\",\"appUsername\":\"user1\",\"appAlias\":\"My App #1\",\"appUrl\":\"https://app1.infusionsoft.com\"},{\"appType\":\"CUSTOMERHUB\",\"appName\":\"app2\",\"appUsername\":\"user2\",\"appAlias\":\"My App #2\",\"appUrl\":\"https://app2.customerhub.net/admin\"}],\"authorities\":[\"AUTHORITY1\",\"CAS_ROLE_USER\"],\"casGlobalId\":13}";
         Assert.assertEquals(actualJson, expectedJson, "JSON must match the expected format");
