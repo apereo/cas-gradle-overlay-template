@@ -51,7 +51,7 @@ public class InfusionsoftAttributeRepository extends AbstractFlatteningPersonAtt
             resultsMap.put("email", Arrays.asList(new Object[]{user.getUsername()}));
 
             // We use a query instead of user.getAccounts() so that we only include enabled accounts
-            List<UserAccount> accounts = userService.findByUserAndDisabled(user, false);
+            List<UserAccount> accounts = userService.findActiveUserAccounts(user);
             resultsMap.put("accounts", Arrays.asList(new Object[]{getAccountsJSON(accounts)}));
             resultsMap.put("authorities", new ArrayList<Object>(user.getAuthorities()));
         } else {

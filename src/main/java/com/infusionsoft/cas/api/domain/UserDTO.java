@@ -2,9 +2,11 @@ package com.infusionsoft.cas.api.domain;
 
 import com.infusionsoft.cas.domain.Authority;
 import com.infusionsoft.cas.domain.User;
+import com.infusionsoft.cas.domain.UserAccount;
 import com.infusionsoft.cas.support.AppHelper;
 import org.codehaus.jackson.annotate.JsonTypeName;
 
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -24,13 +26,13 @@ public class UserDTO {
         // For de-serialization
     }
 
-    public UserDTO(User user, AppHelper appHelper) {
+    public UserDTO(User user, List<UserAccount> accounts, AppHelper appHelper) {
         globalUserId = user.getId();
         username = user.getUsername();
         displayName = user.getFirstName() + " " + user.getLastName();
         firstName = user.getFirstName();
         lastName = user.getLastName();
-        linkedApps = UserAccountDTO.convertFromCollection(user.getAccounts(), appHelper);
+        linkedApps = UserAccountDTO.convertFromCollection(accounts, appHelper);
 
         Set<Authority> userAuthorities = user.getAuthorities();
         authorities = new String[userAuthorities.size()];

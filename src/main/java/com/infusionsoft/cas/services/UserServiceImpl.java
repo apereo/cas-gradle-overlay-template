@@ -501,8 +501,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<UserAccount> findByUserAndDisabled(User user, boolean disabled) {
-        return userAccountDAO.findByUserAndDisabled(user, disabled);
+    public List<UserAccount> findActiveUserAccounts(User user) {
+        return userAccountDAO.findByUserAndDisabled(user, false);
     }
 
     @Override

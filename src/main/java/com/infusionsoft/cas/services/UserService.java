@@ -63,7 +63,7 @@ public interface UserService {
 
     void cleanupLoginAttempts();
 
-    List<UserAccount> findByUserAndDisabled(User user, boolean disabled);
+    List<UserAccount> findActiveUserAccounts(User user);
 
     UserAccount saveUserAccount(UserAccount userAccount);
 
