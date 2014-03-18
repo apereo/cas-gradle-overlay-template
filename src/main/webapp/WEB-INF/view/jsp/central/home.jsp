@@ -16,7 +16,6 @@
 <body>
 
 
-<c:url var="linkInfusionsoftAppAccount" value="/app/central/linkInfusionsoftAppAccount"/>
 <c:url var="linkCustomerHubAccount" value="/app/central/linkCustomerHubAccount"/>
 <c:url var="linkCommunityAccount" value="/app/central/linkCommunityAccount"/>
 <c:url var="createCommunityAccount" value="/app/central/createCommunityAccount"/>
@@ -34,16 +33,13 @@
         <spring:message code="central.home.your.accounts"/>
     </h2>
 
-    <c:if test="${connectAccountCrmEnabled || connectAccountCustomerHubEnabled || connectAccountCommunityEnabled}">
+    <c:if test="${connectAccountCustomerHubEnabled || connectAccountCommunityEnabled}">
         <div class="btn-group" style="float: right">
             <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
                 <spring:message code="central.home.connect.account"/>
                 <span class="caret"></span>
             </a>
             <ul class="dropdown-menu">
-                <c:if test="${connectAccountCrmEnabled}">
-                    <li><a href="${linkInfusionsoftAppAccount}"><spring:message code="central.home.connect.crm.account"/></a></li>
-                </c:if>
                 <c:if test="${connectAccountCustomerHubEnabled}">
                     <li><a href="${linkCustomerHubAccount}"><spring:message code="central.home.connect.customerhub.account"/></a></li>
                 </c:if>

@@ -59,9 +59,6 @@ public class CentralController {
     @Autowired
     AutoLoginService autoLoginService;
 
-    @Value("${infusionsoft.cas.connect.account.crm.enabled}")
-    boolean connectAccountCrmEnabled = false;
-
     @Value("${infusionsoft.cas.connect.account.community.enabled}")
     boolean connectAccountCommunityEnabled = false;
 
@@ -114,24 +111,12 @@ public class CentralController {
         List<UserAccount> userAccountList = userService.findSortedUserAccounts(user);
 
         model.addAttribute("accounts", userAccountList);
-        model.addAttribute("connectAccountCrmEnabled", connectAccountCrmEnabled);
         model.addAttribute("connectAccountCommunityEnabled", connectAccountCommunityEnabled);
         model.addAttribute("connectAccountCustomerHubEnabled", connectAccountCustomerHubEnabled);
 
         //logUserAccountInfoToSplunk(userAccountList, user);
 
         return "central/home";
-    }
-
-    /**
-     * Displays the form to link up an existing Infusionsoft CRM account.
-     */
-    @RequestMapping
-    public String linkInfusionsoftAppAccount(Model model) {
-        model.addAttribute("crmDomain", crmDomain);
-        model.addAttribute("appType", AppType.CRM);
-
-        return "central/linkInfusionsoftAppAccount";
     }
 
     /**
@@ -237,9 +222,7 @@ public class CentralController {
                     } else {
                         model.put("connectError", "registration.error.invalidLegacyCredentials");
                     }
-                } else if (AppType.CRM.equals(appType) && !crmService.isCasEnabled(sanitizedAppName)) {
-                    model.put("connectError", "registration.error.ssoIsNotEnabled");
-                } else if (AppType.CRM.equals(appType) || AppType.CUSTOMERHUB.equals(appType)) {
+                } else if (AppType.CUSTOMERHUB.equals(appType)) {
                     try {
                         try {
                             infusionsoftAuthenticationService.verifyAppCredentials(appType, sanitizedAppName, appUsername, appPassword);
@@ -267,13 +250,7 @@ public class CentralController {
             model.put("appType", appType);
             model.put("appName", sanitizedAppName);
             model.put("appUsername", appUsername);
-            if (AppType.CRM.equals(appType)) {
-                String appUrl = appHelper.buildAppUrl(appType, sanitizedAppName);
-                model.put("crmDomain", crmDomain);
-                model.put("appDomain", new URL(appUrl).getHost());
-                model.put("appUrl", appUrl);
-                return new ModelAndView("central/linkInfusionsoftAppAccount", model);
-            } else if (AppType.CUSTOMERHUB.equals(appType)) {
+            if (AppType.CUSTOMERHUB.equals(appType)) {
                 model.put("customerHubDomain", customerHubDomain);
                 return new ModelAndView("central/linkCustomerHubAccount", model);
             } else if (AppType.COMMUNITY.equals(appType)) {
