@@ -338,9 +338,7 @@ public class InfusionsoftAuthenticationServiceImpl implements InfusionsoftAuthen
      */
     @Override
     public void verifyAppCredentials(AppType appType, String appName, String appUsername, String appPassword) throws AppCredentialsInvalidException, AppCredentialsExpiredException {
-        if (AppType.CRM.equals(appType)) {
-            crmService.authenticateUser(appName, appUsername, appPassword);
-        } else if (AppType.COMMUNITY.equals(appType)) {
+        if (AppType.COMMUNITY.equals(appType)) {
             if (communityService.authenticateUser(appUsername, appPassword) == null) {
                 throw new AppCredentialsInvalidException("community credentials are invalid or could not be verified");
             }
