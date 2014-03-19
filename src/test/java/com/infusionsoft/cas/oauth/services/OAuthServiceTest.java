@@ -25,8 +25,9 @@ public class OAuthServiceTest {
     private static final String TEST_APP = "testApp";
     private static final String TEST_APP_HOST_NAME = "testApp.infusionsoft.com";
     private static final String TEST_STATE = "testState";
+    private static final Long TEST_GLOBAL_USER_ID = 1L;
     private static final String TEST_USERNAME = "jojo@infusionsoft.com";
-    private static final String TEST_USER_CONTEXT = TEST_USERNAME + "|" + TEST_APP_HOST_NAME;
+    private static final String TEST_USER_CONTEXT = TEST_GLOBAL_USER_ID + "|" + TEST_APP_HOST_NAME;
     private static final String TOKEN_1 = "token1";
     private static final String TOKEN_2 = "token2";
     private static final String TOKEN_3 = "token3";
@@ -83,6 +84,7 @@ public class OAuthServiceTest {
         testAccount.setAppName(TEST_APP);
         User user = new User();
         user.setUsername(TEST_USERNAME);
+        user.setId(TEST_GLOBAL_USER_ID);
         testAccount.setUser(user);
     }
 
@@ -134,7 +136,7 @@ public class OAuthServiceTest {
 
         // verify result
         final String requestedScope = "requestedScope";
-        MasheryAuthorizationCode masheryAuthorizationCodeOutput = oAuthServiceToTest.createAuthorizationCode(CLIENT_ID, requestedScope, TEST_APP_HOST_NAME, TEST_REDIRECT_URI, TEST_USERNAME, TEST_STATE);
+        MasheryAuthorizationCode masheryAuthorizationCodeOutput = oAuthServiceToTest.createAuthorizationCode(CLIENT_ID, requestedScope, TEST_APP_HOST_NAME, TEST_REDIRECT_URI, TEST_GLOBAL_USER_ID, TEST_STATE);
         Assert.assertSame(masheryAuthorizationCodeOutput, masheryAuthorizationCodeInput);
 
         // verify what happened for call to Mashery

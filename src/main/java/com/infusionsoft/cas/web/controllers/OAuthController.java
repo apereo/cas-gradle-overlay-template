@@ -102,7 +102,7 @@ public class OAuthController {
             List<String> crmAccounts = crmService.extractAppNames(accounts);
 
             if (crmAccounts.contains(application)) {
-                MasheryAuthorizationCode masheryAuthorizationCode = oauthService.createAuthorizationCode(client_id, requestedScope, application, redirect_uri, user.getUsername(), state);
+                MasheryAuthorizationCode masheryAuthorizationCode = oauthService.createAuthorizationCode(client_id, requestedScope, application, redirect_uri, user.getId(), state);
 
                 if (masheryAuthorizationCode != null && masheryAuthorizationCode.getUri() != null) {
                     return "redirect:" + masheryAuthorizationCode.getUri().getUri();

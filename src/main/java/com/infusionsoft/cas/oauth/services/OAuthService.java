@@ -37,9 +37,9 @@ public class OAuthService {
         return masheryApiClientService.fetchMember(username);
     }
 
-    public MasheryAuthorizationCode createAuthorizationCode(String clientId, String requestedScope, String application, String redirectUri, String username, String state) throws OAuthException {
+    public MasheryAuthorizationCode createAuthorizationCode(String clientId, String requestedScope, String application, String redirectUri, Long globalUserId, String state) throws OAuthException {
         String scope = requestedScope + "|" + application;
-        String userContext = username + "|" + application;
+        String userContext = globalUserId + "|" + application;
 
         return masheryApiClientService.createAuthorizationCode(clientId, scope, redirectUri, userContext, state);
     }
@@ -58,7 +58,7 @@ public class OAuthService {
         if (userAccount != null) {
             User user = userAccount.getUser();
             if (user != null) {
-                String userContext = user.getUsername() + "|" + crmService.buildCrmHostName(userAccount.getAppName());
+                String userContext = user.getId() + "|" + crmService.buildCrmHostName(userAccount.getAppName());
                 masheryUserApplications = masheryApiClientService.fetchUserApplicationsByUserContext(userContext, TokenStatus.Active);
             }
         }
