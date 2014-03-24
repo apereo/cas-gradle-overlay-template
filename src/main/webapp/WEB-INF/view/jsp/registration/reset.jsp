@@ -7,94 +7,104 @@
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 
-<meta name="decorator" content="green-header-minimal"/>
+<head>
 
-<style type="text/css">
-    #recover {
-        width: 420px;
-        margin: 10px auto;
-    }
+    <meta name="decorator" content="green-header-minimal" />
 
-    #back-to-signin {
-        text-align: center;
-        margin: 5px auto;
-    }
-    input[type="text"] {
-        padding: 6px 6px;
-    }
-</style>
-<link href="<c:url value="/css/flip.css"/>" rel="stylesheet">
+    <meta name="robots" content="noindex">
 
-<script type="text/javascript">
-
-    //Password check stuff
-    function resetCheckPassword() {
-        $("#pw_length").css({"list-style-image":''});
-        $("#pw_number").css({"list-style-image":''});
-        $("#pw_upper").css({"list-style-image":''});
-        $("#pw_under").css({"list-style-image":''});
-    }
-    function checkPasswordReq() {
-        var currPass = $('#password1').val();
-        resetCheckPassword();
-        if (currPass.length >= 7) {
-            $("#pw_length").css({"list-style-image":"url('/img/checkmark.png')"});
+    <style type="text/css">
+        #recover {
+            width: 420px;
+            margin: 10px auto;
         }
-        if (/\d/.test(currPass)) {
-            $("#pw_number").css({"list-style-image":"url('/img/checkmark.png')"});
-        }
-        if (/[a-z]/.test(currPass)) {
-            $("#pw_under").css({"list-style-image":"url('/img/checkmark.png')"});
-        }
-        if (/[A-Z]/.test(currPass)) {
-            $("#pw_upper").css({"list-style-image":"url('/img/checkmark.png')"});
-        }
-    }
-    setInterval(function() {checkPasswordReq();}, 100);
 
-    $(document).ready(function() {
-        jQuery.validator.addMethod("password", function( value, element ) {
-            var result = this.optional(element) || value.length >= 7 && /\d/.test(value) && /[a-z]/.test(value) && /[A-Z]/.test(value);
-            return result;
-        }, "<spring:message code='password.error.invalid'/>");
+        #back-to-signin {
+            text-align: center;
+            margin: 5px auto;
+        }
 
-        //Check to ensure that password matches
-        //Validate the form
-        $('#fm1').validate(
-                {
-                    rules: {
-                        password1: {
-                            required: true,
-                            password: true
+        input[type="text"] {
+            padding: 6px 6px;
+        }
+    </style>
+    <link href="<c:url value="/css/flip.css"/>" rel="stylesheet">
+
+    <script type="text/javascript">
+
+        //Password check stuff
+        function resetCheckPassword() {
+            $("#pw_length").css({"list-style-image": ''});
+            $("#pw_number").css({"list-style-image": ''});
+            $("#pw_upper").css({"list-style-image": ''});
+            $("#pw_under").css({"list-style-image": ''});
+        }
+        function checkPasswordReq() {
+            var currPass = $('#password1').val();
+            resetCheckPassword();
+            if (currPass.length >= 7) {
+                $("#pw_length").css({"list-style-image": "url('/img/checkmark.png')"});
+            }
+            if (/\d/.test(currPass)) {
+                $("#pw_number").css({"list-style-image": "url('/img/checkmark.png')"});
+            }
+            if (/[a-z]/.test(currPass)) {
+                $("#pw_under").css({"list-style-image": "url('/img/checkmark.png')"});
+            }
+            if (/[A-Z]/.test(currPass)) {
+                $("#pw_upper").css({"list-style-image": "url('/img/checkmark.png')"});
+            }
+        }
+        setInterval(function () {
+            checkPasswordReq();
+        }, 100);
+
+        $(document).ready(function () {
+            jQuery.validator.addMethod("password", function (value, element) {
+                var result = this.optional(element) || value.length >= 7 && /\d/.test(value) && /[a-z]/.test(value) && /[A-Z]/.test(value);
+                return result;
+            }, "<spring:message code='password.error.invalid'/>");
+
+            //Check to ensure that password matches
+            //Validate the form
+            $('#fm1').validate(
+                    {
+                        rules: {
+                            password1: {
+                                required: true,
+                                password: true
+                            },
+                            password2: {
+                                required: true,
+                                password: false,
+                                equalTo: "#password1"
+                            }
                         },
-                        password2: {
-                            required: true,
-                            password: false,
-                            equalTo: "#password1"
-                        }
-                    },
-                    messages: {
-                        password1: {
-                            required:  "<spring:message code='password.error.blank'/>",
-                            password: "<spring:message code='password.error.invalid'/>"
+                        messages: {
+                            password1: {
+                                required: "<spring:message code='password.error.blank'/>",
+                                password: "<spring:message code='password.error.invalid'/>"
+                            },
+                            password2: {
+                                required: "<spring:message code='password.error.blank'/>",
+                                equalTo: "<spring:message code='password.error.passwords.dont.match'/>"
+                            }
                         },
-                        password2: {
-                            required:  "<spring:message code='password.error.blank'/>",
-                            equalTo: "<spring:message code='password.error.passwords.dont.match'/>"
+                        highlight: function (element) {
+                            $(element).closest('.control-group').removeClass('success').addClass('error');
+                        },
+                        success: function (element) {
+                            element.closest('.control-group').removeClass('error');
+                            element.closest('label.error').hide().removeClass('error').addClass('valid').addClass('error');
                         }
-                    },
-                    highlight: function(element) {
-                        $(element).closest('.control-group').removeClass('success').addClass('error');
-                    },
-                    success: function(element) {
-                        element.closest('.control-group').removeClass('error');
-                        element.closest('label.error').hide().removeClass('error').addClass('valid').addClass('error');
-                    }
 
-                });
-    });
+                    });
+        });
 
-</script>
+    </script>
+
+</head>
+<body>
 
 <div id="top-spacer" style="height: 101px;"></div>
 <div id="recover">
@@ -152,3 +162,5 @@
     <c:url var="loginUrl" value="/login"/>
     <a href="${loginUrl}">Back to Sign In</a>
 </div>
+
+</body>

@@ -5,33 +5,40 @@
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 
-<meta name="decorator" content="modal"/>
+<head>
 
-<style type="text/css">
+    <meta name="decorator" content="modal" />
 
-    #welcome {
-        width: 390px;
-        margin: 100px auto 0 auto;
-        text-align: center;
-        font-size: 18px;
-    }
+    <meta name="robots" content="noindex">
 
-    #success {
-        color: #60a939;
-        text-align: center;
-        margin: 0 0 20px 0;
-    }
+    <style type="text/css">
 
-    #register {
-        width: 330px;
-        padding: 30px;
-        margin: 10px auto;
-        background: #fff;
-        border: 1px solid #DDDDDD;
-        border-radius: 4px;
-    }
+        #welcome {
+            width: 390px;
+            margin: 100px auto 0 auto;
+            text-align: center;
+            font-size: 18px;
+        }
 
-</style>
+        #success {
+            color: #60a939;
+            text-align: center;
+            margin: 0 0 20px 0;
+        }
+
+        #register {
+            width: 330px;
+            padding: 30px;
+            margin: 10px auto;
+            background: #fff;
+            border: 1px solid #DDDDDD;
+            border-radius: 4px;
+        }
+
+    </style>
+
+</head>
+<body>
 
 <div class="modal-title">
     Success! This Is Your Infusionsoft ID!
@@ -62,3 +69,5 @@
         </c:if>
     </div>
 </div>
+
+</body>

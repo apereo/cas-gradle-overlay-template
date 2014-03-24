@@ -7,54 +7,62 @@
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 
-<meta name="decorator" content="green-header-minimal"/>
+<head>
 
-<style type="text/css">
+    <meta name="decorator" content="green-header-minimal" />
 
-    #recover {
-        width: 299px;
-        margin: 10px auto;
-    }
+    <meta name="robots" content="noindex">
 
-    #back-to-signin {
-        text-align: center;
-        margin: 5px auto;
-    }
-    input[type="text"], input[type="password"] {
-        padding: 6px 6px;
-    }
+    <style type="text/css">
 
-</style>
+        #recover {
+            width: 299px;
+            margin: 10px auto;
+        }
 
-<script type="text/javascript">
+        #back-to-signin {
+            text-align: center;
+            margin: 5px auto;
+        }
 
-    $(document).ready(function() {
+        input[type="text"], input[type="password"] {
+            padding: 6px 6px;
+        }
 
-        //Validate the form
-        $('#fm1').validate(
-                {
-                    rules: {
-                        recoveryCode: {
-                            required: true
+    </style>
+
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+
+            //Validate the form
+            $('#fm1').validate(
+                    {
+                        rules: {
+                            recoveryCode: {
+                                required: true
+                            }
+                        },
+                        messages: {
+                            recoveryCode: "<spring:message code='forgotpassword.noRecoveryCode'/>"
+
+                        },
+                        highlight: function (element) {
+                            $(element).closest('.control-group').removeClass('success').addClass('error');
+                        },
+                        success: function (element) {
+                            element.closest('.control-group').removeClass('error');
+                            element.closest('label.error').hide().removeClass('error').addClass('valid').addClass('error');
                         }
-                    },
-                    messages: {
-                        recoveryCode: "<spring:message code='forgotpassword.noRecoveryCode'/>"
 
-                    },
-                    highlight: function(element) {
-                        $(element).closest('.control-group').removeClass('success').addClass('error');
-                    },
-                    success: function(element) {
-                        element.closest('.control-group').removeClass('error');
-                        element.closest('label.error').hide().removeClass('error').addClass('valid').addClass('error');
-                    }
+                    });
 
-                });
+        });
 
-    });
+    </script>
 
-</script>
+</head>
+<body>
 
 <div id="top-spacer" style="height: 101px;"></div>
 <div id="recover">
@@ -94,3 +102,5 @@
     <c:url var="loginUrl" value="/login"/>
     <a href="${loginUrl}">Back to Sign In</a>
 </div>
+
+</body>

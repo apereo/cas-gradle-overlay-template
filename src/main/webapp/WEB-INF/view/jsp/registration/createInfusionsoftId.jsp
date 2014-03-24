@@ -16,6 +16,7 @@
 <head>
     <title><spring:message code='registration.pageTitle'/></title>
     <meta name="decorator" content="green-header-minimal"/>
+    <meta name="robots" content="noindex">
     <link href="<c:url value="/css/flip.css"/>" rel="stylesheet">
 
     <script type="text/javascript" src="<c:url value="/js/jquery.flippy.min.js"/>"></script>

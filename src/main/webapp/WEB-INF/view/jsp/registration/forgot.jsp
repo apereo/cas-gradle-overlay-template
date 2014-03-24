@@ -7,59 +7,66 @@
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 
-<meta name="decorator" content="green-header-minimal"/>
+<head>
 
-<style type="text/css">
+    <meta name="decorator" content="green-header-minimal" />
 
-    #forgot {
-        width: 299px;
-        margin: 10px auto;
-    }
+    <meta name="robots" content="noindex">
 
-    #back-to-signin {
-        margin: 5px auto;
-        text-align: center;
-    }
+    <style type="text/css">
 
-    input[type="text"] {
-        padding: 6px 6px;
-    }
+        #forgot {
+            width: 299px;
+            margin: 10px auto;
+        }
 
-</style>
+        #back-to-signin {
+            margin: 5px auto;
+            text-align: center;
+        }
 
-<script type="text/javascript">
+        input[type="text"] {
+            padding: 6px 6px;
+        }
 
-    $(document).ready(function() {
+    </style>
 
-        //Validate the form
-        $('#fm1').validate(
-                {
-                    rules: {
-                        username: {
-                            required: true,
-                            email: true
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+
+            //Validate the form
+            $('#fm1').validate(
+                    {
+                        rules: {
+                            username: {
+                                required: true,
+                                email: true
+                            }
+                        },
+                        messages: {
+                            username: {
+                                required: "<spring:message code='user.error.email.blank'/>",
+                                email: "<spring:message code='user.error.email.invalid'/>"
+                            }
+
+                        },
+                        highlight: function (element) {
+                            $(element).closest('.control-group').removeClass('success').addClass('error');
+                        },
+                        success: function (element) {
+                            element.closest('.control-group').removeClass('error');
+                            element.closest('label.error').hide().removeClass('error').addClass('valid').addClass('error');
                         }
-                    },
-                    messages: {
-                        username: {
-                            required: "<spring:message code='user.error.email.blank'/>",
-                            email: "<spring:message code='user.error.email.invalid'/>"
-                        }
 
-                    },
-                    highlight: function(element) {
-                        $(element).closest('.control-group').removeClass('success').addClass('error');
-                    },
-                    success: function(element) {
-                        element.closest('.control-group').removeClass('error');
-                        element.closest('label.error').hide().removeClass('error').addClass('valid').addClass('error');
-                    }
+                    });
 
-                });
+        });
 
-    });
+    </script>
 
-</script>
+</head>
+<body>
 
 <div id="top-spacer" style="height: 101px;"></div>
 <div id="forgot">
@@ -93,3 +100,5 @@
     <c:url var="loginUrl" value="/login"/>
     <a href="${loginUrl}">Back to Sign In</a>
 </div>
+
+</body>

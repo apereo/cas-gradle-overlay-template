@@ -61,9 +61,6 @@ public class RegistrationController {
     private MailService mailService;
 
     @Autowired
-    private UrlService urlService;
-
-    @Autowired
     private UserService userService;
 
     @Autowired
@@ -79,6 +76,8 @@ public class RegistrationController {
      * Uses the new action for now.  Once old registrations finish we can kill this action
      */
     //TODO: Kill after a couple weeks after any outstanding new user invites have processed.
+    // NOTE: as of March 2014 this is still being hit (828 times in the last month)!  It is showing up in Google search
+    // results, and people also must have it bookmarked.  How do we kill this without impacting customers?
     @RequestMapping
     public String welcome(Model model, String registrationCode, String returnUrl, String skipUrl, String userToken, String firstName, String lastName, String email, HttpServletRequest request) throws IOException {
         return createInfusionsoftId(model, registrationCode, returnUrl, skipUrl, userToken, firstName, lastName, email, request);
@@ -95,8 +94,8 @@ public class RegistrationController {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         if (!(authentication instanceof AnonymousAuthenticationToken)) {
-            String service = serverPrefix + urlService.url("registration", "createInfusionsoftId") + (StringUtils.isNotEmpty(registrationCode) ? "?registrationCode=" + registrationCode : "");
-            return "redirect:/j_spring_security_logout?service=" + URLEncoder.encode(service, "UTF-8");
+            log.debug("User is registering while already logged in as " + authentication.getName() + "; redirecting to j_spring_security_logout");
+            return "redirect:/j_spring_security_logout?service=" + URLEncoder.encode(getFullRequestUrl(request), "UTF-8");
         } else {
             User user = new User();
             user.setFirstName(StringEscapeUtils.escapeHtml4(firstName));
@@ -119,14 +118,23 @@ public class RegistrationController {
         }
     }
 
+    private String getFullRequestUrl(HttpServletRequest request) {
+        StringBuffer urlBuffer = request.getRequestURL();
+        String queryString = request.getQueryString();
+        if (StringUtils.isNotBlank(queryString)) {
+            urlBuffer.append("?").append(queryString);
+        }
+        return urlBuffer.toString();
+    }
+
     /**
      * Builds the model with attributes that are required for displaying the createInfusionsoftId page.
      */
     private void buildModelForCreateInfusionsoftId(Model model, String returnUrl, String skipUrl, String userToken, User user, String registrationCode) {
-        if (isValidUrl(returnUrl, "returnUrl")) {
+        if (isAllowedUrl(returnUrl, "returnUrl")) {
             model.addAttribute("returnUrl", returnUrl);
         }
-        if (isValidUrl(skipUrl, "skipUrl")) {
+        if (isAllowedUrl(skipUrl, "skipUrl")) {
             model.addAttribute("skipUrl", skipUrl);
         }
         model.addAttribute("userToken", userToken);
@@ -137,7 +145,7 @@ public class RegistrationController {
     /**
      * Determines if the given URL is allowed.  This ensures that we don't have unvalidated redirects.
      */
-    private boolean isValidUrl(String url, String parameterName) {
+    private boolean isAllowedUrl(String url, String parameterName) {
         // Validate the return URL against the service whitelist
         /** Modeled after {@link org.jasig.cas.web.LogoutController#handleRequestInternal(HttpServletRequest, HttpServletResponse)} }*/
         boolean retVal = false;
@@ -173,10 +181,21 @@ public class RegistrationController {
                 model.addAttribute("error", "Registration Code not found");
                 retVal = "registration/createInfusionsoftId";
             }
-        } else if (isValidUrl(returnUrl, "returnUrl") && StringUtils.isNotBlank(userToken)) {
-            return generateRedirectForReturnUrl(returnUrl, userToken, user, false);
         } else {
-            return "redirect:/app/central/home";
+            boolean urlIsAllowed = isAllowedUrl(returnUrl, "returnUrl");
+            boolean userTokenIsValid = StringUtils.isNotBlank(userToken);
+
+            if (urlIsAllowed && userTokenIsValid) {
+                String redirectToAppUrl = generateRedirectToAppFromReturnUrl(returnUrl, userToken, user, false);
+                log.info("Account linkage request for existing user " + user.getUsername() + ". Redirecting to " + redirectToAppUrl);
+                retVal = "redirect:" + redirectToAppUrl;
+            } else if (!urlIsAllowed) {
+                log.warn("Invalid account linkage request for existing user " + user.getUsername() + " (URL not allowed). Redirecting to app central.");
+                retVal = "redirect:/app/central/home";
+            } else {
+                log.warn("Invalid account linkage request for existing user " + user.getUsername() + " (user token missing). Redirecting to app central.");
+                retVal = "redirect:/app/central/home";
+            }
         }
 
         return retVal;
@@ -185,12 +204,12 @@ public class RegistrationController {
     /**
      * Creates the redirect from the return URL, user token, and user.  The page at this URL is responsible for completing the linkage of the CAS ID to an application user and displaying a success page if desired.
      */
-    private String generateRedirectForReturnUrl(String returnUrl, String userToken, User user, boolean isNewInfusionsoftId) {
+    private String generateRedirectToAppFromReturnUrl(String returnUrl, String userToken, User user, boolean isNewInfusionsoftId) {
         // Redirect back to the app, which will do the linkage
         try {
-            return "redirect:" + returnUrl + "?userToken=" + URLEncoder.encode(userToken, CharEncoding.UTF_8) + "&casGlobalId=" + user.getId() + "&globalUserId=" + user.getId() + "&isNewInfusionsoftId=" + isNewInfusionsoftId;
+            return returnUrl + "?userToken=" + URLEncoder.encode(userToken, CharEncoding.UTF_8) + "&casGlobalId=" + user.getId() + "&globalUserId=" + user.getId() + "&isNewInfusionsoftId=" + isNewInfusionsoftId;
             // TODO: change to this once all apps use globalUserId instead of casGlobalId:
-            // return "redirect:" + returnUrl + "?userToken=" + URLEncoder.encode(userToken, CharEncoding.UTF_8) + "&globalUserId=" + user.getId() + "&isNewInfusionsoftId=" + isNewInfusionsoftId;
+            // return returnUrl + "?userToken=" + URLEncoder.encode(userToken, CharEncoding.UTF_8) + "&globalUserId=" + user.getId() + "&isNewInfusionsoftId=" + isNewInfusionsoftId;
         } catch (UnsupportedEncodingException e) {
             // This should never happen
             throw new RuntimeException(e);
@@ -267,8 +286,10 @@ public class RegistrationController {
         if (model.containsAttribute("error")) {
             buildModelForCreateInfusionsoftId(model, returnUrl, skipUrl, userToken, user, registrationCode);
             return "registration/createInfusionsoftId";
-        } else if (isValidUrl(returnUrl, "returnUrl") && StringUtils.isNotBlank(userToken)) {
-            return generateRedirectForReturnUrl(returnUrl, userToken, user, true);
+        } else if (isAllowedUrl(returnUrl, "returnUrl") && StringUtils.isNotBlank(userToken)) {
+            String redirectToAppUrl = generateRedirectToAppFromReturnUrl(returnUrl, userToken, user, true);
+            log.info("Registration complete for new user " + user.getUsername() + ". Redirecting to " + redirectToAppUrl);
+            return "redirect:" + redirectToAppUrl;
         } else {
             return "registration/success";
         }
