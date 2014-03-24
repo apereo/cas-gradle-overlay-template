@@ -6,7 +6,8 @@ import com.infusionsoft.cas.oauth.mashery.api.domain.*;
 import com.infusionsoft.cas.oauth.mashery.api.wrappers.*;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -30,7 +31,7 @@ import java.util.*;
 @Service
 public class MasheryApiClientService {
 
-    private static final Logger log = Logger.getLogger(MasheryApiClientService.class);
+    private static final Logger log = LoggerFactory.getLogger(MasheryApiClientService.class);
 
     @Value("${mashery.api.url}")
     private String apiUrl;
@@ -124,6 +125,7 @@ public class MasheryApiClientService {
     @Cacheable(value = "masheryOAuthApplications")
     public MasheryOAuthApplication fetchOAuthApplication(String clientId, String redirectUri, String responseType) throws OAuthException {
         try {
+            log.info("Fetch OAuth Application. {}, {}, {}, {}", serviceKey, clientId, redirectUri, redirectUri);
             MasheryJsonRpcRequest masheryJsonRpcRequest = new MasheryJsonRpcRequest();
             masheryJsonRpcRequest.setMethod("oauth2.fetchApplication");
 
