@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -68,9 +69,6 @@ public class RegistrationController {
 
     @Autowired
     private ServicesManager servicesManager;
-
-    @Value("${server.prefix}")
-    private String serverPrefix;
 
     /**
      * Uses the new action for now.  Once old registrations finish we can kill this action
@@ -119,12 +117,8 @@ public class RegistrationController {
     }
 
     private String getFullRequestUrl(HttpServletRequest request) {
-        StringBuffer urlBuffer = request.getRequestURL();
-        String queryString = request.getQueryString();
-        if (StringUtils.isNotBlank(queryString)) {
-            urlBuffer.append("?").append(queryString);
-        }
-        return urlBuffer.toString();
+        // Force SSL (this is needed when running behind the F5, which hides the fact that we're using SSL)
+        return ServletUriComponentsBuilder.fromRequest(request).scheme("https").build().toUriString();
     }
 
     /**
