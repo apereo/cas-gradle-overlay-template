@@ -129,6 +129,10 @@
             <evaluate result="viewScope.appType" expression="infusionsoftAuthenticationService.guessAppType(viewScope.service)"/>
             <evaluate result="viewScope.appUrl" expression="appHelper.buildAppUrl(viewScope.appType, viewScope.appName)"/>
             <evaluate result="viewScope.supportPhoneNumber" expression="infusionsoftAuthenticationService.getSupportPhoneNumber()"/>
+            <evaluate result="viewScope.href" expression="marketingOptionsService.fetch().href"/>
+            <evaluate result="viewScope.mobileImageSrcUrl" expression="marketingOptionsService.fetch().mobileImageSrcUrl"/>
+            <evaluate result="viewScope.desktopImageSrcUrl" expression="marketingOptionsService.fetch().desktopImageSrcUrl"/>
+            <evaluate result="viewScope.enableAds" expression="marketingOptionsService.fetch().enableAds"/>
             <set name="viewScope.commandName" value="'credentials'"/>
         </on-entry>
         <transition on="submit" bind="true" validate="true" to="realSubmit">
