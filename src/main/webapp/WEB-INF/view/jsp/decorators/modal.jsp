@@ -19,12 +19,12 @@
 
     <spring:theme code="standard.custom.css.file" var="customCssFile"/>
     <link type="text/css" rel="stylesheet" href="<c:url value="${customCssFile}" />"/>
-    <script type="text/javascript" src="<c:url value="/js/jquery-1.10.0.min.js"/>"></script>
-    <script type="text/javascript" src="<c:url value="/js/bootstrap.min.js" />"></script>
+    <script type="text/javascript" src="<c:url value="/js/jquery-1.10.0/jquery-1.10.0.min.js"/>"></script>
+    <script type="text/javascript" src="<c:url value="/js/bootstrap-2.3.1/bootstrap.min.js" />"></script>
 
-    <script type="text/javascript" src="<c:url value="/js/jquery.placeholder.js"/>"></script>
-    <script type="text/javascript" src="<c:url value="/js/jquery.qtip-1.0.0-rc3.min.js"/>"></script>
-    <script type="text/javascript" src="<c:url value="/js/jquery.validate.min.js"/>"></script>
+    <script type="text/javascript" src="<c:url value="/js/jquery-plugins/placeholder-2.0.7/jquery.placeholder.js"/>"></script>
+    <script type="text/javascript" src="<c:url value="/js/jquery-plugins/qtip-1.0.0-rc3/jquery.qtip.min.js"/>"></script>
+    <script type="text/javascript" src="<c:url value="/js/jquery-plugins/validate-1.9.0/jquery.validate.min.js"/>"></script>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700,800" type="text/css">
     <decorator:head/>
 </head>

@@ -19,7 +19,7 @@
     <meta name="robots" content="noindex">
     <link href="<c:url value="/css/flip.css"/>" rel="stylesheet">
 
-    <script type="text/javascript" src="<c:url value="/js/jquery.flippy.min.js"/>"></script>
+    <script type="text/javascript" src="<c:url value="/js/jquery-plugins/flippy-1.3/jquery.flippy.min.js"/>"></script>
     <script type="text/javascript" src="<c:url value="/js/createInfusionsoftId.js"/>"></script>
 
     <script type="text/javascript">

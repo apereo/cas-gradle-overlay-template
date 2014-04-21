@@ -36,7 +36,7 @@
     <sec:http pattern="/app/registration/getLogoImageUrl*" security="none"/>
     <sec:http pattern="/app/rest/**" security="none"/>
     <sec:http pattern="/app/error/**" security="none"/>
-
+    <sec:http pattern="/img/**" security="none"/>
 
     <sec:http pattern="/status/**" entry-point-ref="notAuthorizedEntryPoint" use-expressions="true" auto-config="true">
         <sec:intercept-url pattern="/status" access="hasIpAddress('${cas.securityContext.status.allowedSubnet}')"/>

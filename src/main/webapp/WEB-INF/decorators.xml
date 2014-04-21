@@ -16,7 +16,7 @@
     <decorator name="base-no-layout" page="base-no-layout.jsp"/>
     <decorator name="green-header-minimal" page="green-header-minimal.jsp"/>
 
-
+    <decorator name="base-bootstrap3" page="base-bootstrap3.jsp"/>
 
     <excludes>
         <pattern>/central/renameAccount</pattern>

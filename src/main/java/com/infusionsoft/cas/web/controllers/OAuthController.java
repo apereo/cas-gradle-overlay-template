@@ -12,6 +12,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -44,6 +45,13 @@ public class OAuthController {
 
     @Autowired
     UserService userService;
+
+    @Value("${cas.viewResolver.basename}")
+    private String viewResolverBaseName;
+
+    private String getViewBase() {
+        return "default_views".equals(viewResolverBaseName) ? "" : viewResolverBaseName + "/";
+    }
 
     @ExceptionHandler(OAuthException.class)
     public ModelAndView handleOAuthException(OAuthException e, HttpServletRequest request) {
@@ -86,7 +94,7 @@ public class OAuthController {
             model.addAttribute("requestedScope", scope);
             model.addAttribute("apps", crmService.extractAppNames(accounts));
 
-            return "oauth/authorize";
+            return "oauth/" + getViewBase() + "authorize";
         }
     }
 

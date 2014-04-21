@@ -1,5 +1,6 @@
 package com.infusionsoft.cas.web.controllers;
 
+import com.infusionsoft.cas.auth.LoginResult;
 import com.infusionsoft.cas.domain.AppType;
 import com.infusionsoft.cas.domain.PendingUserAccount;
 import com.infusionsoft.cas.domain.User;
@@ -29,6 +30,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -69,6 +71,18 @@ public class RegistrationController {
 
     @Autowired
     private ServicesManager servicesManager;
+
+    @Value("${cas.viewResolver.basename}")
+    private String viewResolverBaseName;
+
+    private String getViewBase() {
+        return "default_views".equals(viewResolverBaseName) ? "" : viewResolverBaseName + "/";
+    }
+
+    @PostConstruct
+    public void init() {
+
+    }
 
     /**
      * Uses the new action for now.  Once old registrations finish we can kill this action
@@ -318,7 +332,8 @@ public class RegistrationController {
     @RequestMapping
     public String forgot(Model model, @RequestParam(required = false) String username) {
         model.addAttribute("username", username);
-        return "registration/forgot";
+        model.addAttribute("supportPhoneNumber", infusionsoftAuthenticationService.getSupportPhoneNumber());
+        return "registration/" + getViewBase() + "forgot";
     }
 
     /**
@@ -329,6 +344,7 @@ public class RegistrationController {
     public String recover(Model model, String username, String recoveryCode) {
         log.info("password recovery request for email " + username);
         model.addAttribute("username", username);
+        model.addAttribute("supportPhoneNumber", infusionsoftAuthenticationService.getSupportPhoneNumber());
         recoveryCode = StringUtils.trim(recoveryCode);
 
         if (StringUtils.isNotEmpty(recoveryCode)) {
@@ -338,11 +354,11 @@ public class RegistrationController {
             if (user == null) {
                 log.warn("invalid password recovery code was entered: " + recoveryCode);
                 model.addAttribute("error", "forgotpassword.noSuchCode");
-                return "registration/recover";
+                return "registration/" + getViewBase() + "recover";
             } else {
                 log.info("correct password recovery code was entered for user " + user.getId());
                 model.addAttribute("recoveryCode", recoveryCode);
-                return "registration/reset";
+                return "registration/" + getViewBase() + "reset";
             }
         } else if (StringUtils.isNotEmpty(username)) {
             //Recovery Code Requested
@@ -354,13 +370,13 @@ public class RegistrationController {
             } else {
                 log.warn("password recovery attempted for non-existent user: " + username);
                 model.addAttribute("error", "forgotpassword.noSuchUser");
-                return "registration/forgot";
+                return "registration/" + getViewBase() + "forgot";
             }
 
-            return "registration/recover";
+            return "registration/" + getViewBase() + "recover";
         } else {
             //Not requesting new code nor provided existing code
-            return "registration/forgot";
+            return "registration/" + getViewBase() + "forgot";
         }
     }
 
@@ -368,36 +384,51 @@ public class RegistrationController {
      * Resets the user's password and clears the password recovery code, if the recovery code is valid and the new password meets the rules.
      */
     @RequestMapping
-    public ModelAndView reset(String recoveryCode, String password1, String password2, HttpServletRequest request, HttpServletResponse response) {
-        Map<String, Object> model = new HashMap<String, Object>();
+    public String reset(Model model, String recoveryCode, String password1, String password2, HttpServletRequest request, HttpServletResponse response) {
+        model.addAttribute("supportPhoneNumber", infusionsoftAuthenticationService.getSupportPhoneNumber());
+
         User user = userService.findUserByRecoveryCode(recoveryCode);
 
         if (user == null) {
-            model.put("error", "forgotpassword.noSuchCode");
+            model.addAttribute("error", "forgotpassword.noSuchCode");
         } else if (StringUtils.isEmpty(password1)) {
-            model.put("error", "password.error.blank");
+            model.addAttribute("error", "password.error.blank");
         } else if (!password1.equals(password2)) {
-            model.put("error", "password.error.passwords.dont.match");
+            model.addAttribute("error", "password.error.passwords.dont.match");
         } else {
             try {
                 passwordService.setPasswordForUser(user, password1);
                 infusionsoftAuthenticationService.completePasswordReset(user);
             } catch (InfusionsoftValidationException e) {
-                model.put("error", e.getErrorMessageCode());
+                model.addAttribute("error", e.getErrorMessageCode());
             }
         }
 
-        if (model.containsKey("error")) {
-            model.put("recoveryCode", recoveryCode);
+        if (model.containsAttribute("error")) {
+            model.addAttribute("recoveryCode", recoveryCode);
 
-            return new ModelAndView("registration/reset", model);
+            return "registration/" + getViewBase() + "reset";
         } else {
             if (user != null) {
                 autoLoginService.autoLogin(user.getUsername(), request, response);
             }
 
-            return new ModelAndView("redirect:/app/central/home");
+            return "redirect:/app/central/home";
         }
+    }
+
+    @RequestMapping
+    public @ResponseBody boolean checkPasswordForLast4WithRecoveryCode(String recoveryCode, String password1) {
+        User user = userService.findUserByRecoveryCode(recoveryCode);
+
+        return user != null && StringUtils.isNotBlank(password1) && !passwordService.lastFourPasswordsContains(user, password1);
+    }
+
+    @RequestMapping
+    public @ResponseBody boolean checkPasswordForLast4WithOldPassword(String username, String currentPassword, String password1) {
+        LoginResult loginResult = infusionsoftAuthenticationService.attemptLogin(username, currentPassword);
+
+        return loginResult.getLoginStatus().isSuccessful() && StringUtils.isNotBlank(password1) && !passwordService.lastFourPasswordsContains(loginResult.getUser(), password1);
     }
 
     /**

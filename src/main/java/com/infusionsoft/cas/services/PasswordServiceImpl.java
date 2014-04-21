@@ -203,7 +203,7 @@ public class PasswordServiceImpl implements PasswordService {
     /**
      * Checks if a password matches any of the last four passwords.
      */
-    private boolean lastFourPasswordsContains(User user, String password) {
+    public boolean lastFourPasswordsContains(User user, String password) {
         String passwordEncoded = encodePassword(password);
         Page<UserPassword> passwords = userPasswordDAO.findByUser(user, new PageRequest(0, 4, Sort.Direction.DESC, "DateCreated"));
 

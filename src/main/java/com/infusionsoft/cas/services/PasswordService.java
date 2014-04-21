@@ -18,4 +18,6 @@ public interface PasswordService {
     void setPasswordForUser(User user, String plainTextPassword) throws InfusionsoftValidationException;
 
     String validatePassword(User user, String plainTextPassword);
+
+    boolean lastFourPasswordsContains(User user, String password);
 }
