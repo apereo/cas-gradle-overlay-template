@@ -114,6 +114,8 @@ input.form-control {
 }
 .login-form {
     text-align: center;
+    margin: 0 auto;
+
 }
 .is-icon {
     position: relative;
@@ -445,6 +447,28 @@ select.form-control {
     .rounded-box-wide .is-icon.is-icon-error.form-control-feedback {
         top: -13px;
     }
+    .col-md-6.login-form.noImage {
+        width: 60%;
+        float: none;
+        border: 1px solid #DDD;
+        border-radius: 4px;
+        padding: 30px 40px 35px;
+        text-align: center;
+    }
+    .col-md-6.login-form.noImage .col-md-10 {
+        width: 100%;
+    }
+    .col-md-12.login-footer.noImage {
+        margin: 0;
+        padding: 0;
+    }
+    .col-md-12.login-footer.noImage p {
+        background: none;
+    }
+    .noImage .infusionsoftID {
+        width: 323px;
+        margin: 25px auto 0 auto;
+    }
 }
 
 @media (min-width: 992px) {
@@ -562,5 +586,22 @@ select.form-control {
     }
     .rounded-box .is-icon.is-icon-error.form-control-feedback {
         top: -13px;
+    }
+    .col-md-6.login-form.noImage {
+        width: 50%;
+        float: none;
+        border: 1px solid #DDD;
+        border-radius: 4px;
+        padding: 25px 40px 35px;
+    }
+    .col-md-6.login-form.noImage .col-md-10 {
+        width: 100%;
+    }
+    .col-md-12.login-footer.noImage {
+        margin: 0;
+        padding: 0;
+    }
+    .col-md-12.login-footer.noImage p {
+        background: none;
     }
 }

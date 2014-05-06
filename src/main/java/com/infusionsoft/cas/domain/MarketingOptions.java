@@ -10,7 +10,7 @@ public class MarketingOptions implements Serializable {
     private String href;
     private String mobileImageSrcUrl;
     private String desktopImageSrcUrl;
-    private boolean enableAds = true;
+    private boolean enableAds = false;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

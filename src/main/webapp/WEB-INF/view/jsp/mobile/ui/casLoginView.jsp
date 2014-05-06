@@ -9,8 +9,10 @@
 
 <c:url var="getLogoImageUrl" value="/app/registration/getLogoImageUrl"/>
 <c:url var="forgotPasswordUrl" value="/app/registration/forgot"/>
-<c:url var="adDesktopImageUrl" value="/img/icon_ad.png"/>
-<c:url var="adMobileImageUrl" value="/img/icon_ad_sm.png"/>
+<c:url var="adDesktopImageUrl" value="${desktopImageSrcUrl}"/>
+<c:url var="adMobileImageUrl" value="${mobileImageSrcUrl}"/>
+
+<c:set var="adClass" value="${enableAds ? '' : 'noImage'}"/>
 
 <!-- If they come from the CRM we want to redirect them to the old login -->
 <c:choose>
@@ -34,12 +36,14 @@
 
 <div class="container">
     <div class="row">
-        <div class="col-md-6">
-            <!-- This image is meant to be a placeholder only -->
-            <img src="${adDesktopImageUrl}" class="iconAd img-responsive" alt="Get your tickets for ICON14 now">
-            <!-- End -->
-        </div>
-        <div class="col-md-6 login-form">
+
+
+        <c:if test="${enableAds}">
+            <div class="col-md-6 " >
+                <img src="${adDesktopImageUrl}" class="iconAd img-responsive">
+            </div>
+        </c:if>
+        <div class="col-md-6 login-form ${adClass}">
             <object type="image/svg+xml" tabindex="-1" data="/img/is_logo.svg" width="159" height="26" class="logo">Infusionsoft</object>
 
             <form:form method="post" id="loginForm" cssClass="form-horizontal" commandName="${commandName}" htmlEscape="true" role="form" data-toggle="validator">
@@ -86,15 +90,15 @@
         </div>
     </div>
     <div class="row">
-        <div class="col-md-12 login-footer">
+        <div class="col-md-12 login-footer ${adClass}">
             <p>Need Help? Call <strong>${supportPhoneNumber}</strong>.</p>
         </div>
     </div>
-    <div class="navbar navbar-default navbar-fixed-bottom">
-        <!-- This image is meant to be a placeholder only -->
-        <img src="${adMobileImageUrl}" class="iconAdSm img-responsive" alt="Get your tickets for ICON14 now">
-        <!-- End -->
-    </div>
+    <c:if test="${enableAds}">
+        <div class="navbar navbar-default navbar-fixed-bottom">
+            <img src="${adMobileImageUrl}" class="iconAdSm img-responsive">
+        </div>
+    </c:if>
 </div>
 
 <content tag="local_script">
