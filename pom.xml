@@ -30,9 +30,9 @@
     </properties>
 
     <scm>
-        <connection>scm:svn:https://scm.infusiontest.com/svn/cas/trunk</connection>
-        <developerConnection>scm:svn:https://scm.infusiontest.com/svn/cas/trunk</developerConnection>
-        <url>https://scm.infusiontest.com/svn/cas/trunk</url>
+        <connection>scm:git:ssh://github.com/infusionsoft/infusionsoft-cas.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com/infusionsoft/infusionsoft-cas.git</developerConnection>
+        <url>https://github.com/infusionsoft/infusionsoft-cas.git</url>
     </scm>
 
     <build>
