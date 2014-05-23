@@ -193,7 +193,6 @@ public class MasheryApiClientService {
         return wrappedMasheryOAuthApplication.getResult();
     }
 
-    @Cacheable(value = "masheryAccessTokens")
     public MasheryCreateAccessTokenResponse createAccessToken(String clientId, String clientSecret, String grant_type, String scope, String userContext) throws OAuthException {
         MasheryJsonRpcRequest masheryJsonRpcRequest = new MasheryJsonRpcRequest();
         masheryJsonRpcRequest.setMethod("oauth2.createAccessToken");
