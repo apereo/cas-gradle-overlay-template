@@ -194,6 +194,32 @@ public class MasheryApiClientService {
     }
 
     @Cacheable(value = "masheryAccessTokens")
+    public MasheryCreateAccessTokenResponse createAccessToken(String clientId, String clientSecret, String grant_type, String scope, String userContext) throws OAuthException {
+        MasheryJsonRpcRequest masheryJsonRpcRequest = new MasheryJsonRpcRequest();
+        masheryJsonRpcRequest.setMethod("oauth2.createAccessToken");
+
+        masheryJsonRpcRequest.getParams().add(serviceKey);
+        masheryJsonRpcRequest.getParams().add(new MasheryClient(clientId, clientSecret));
+        masheryJsonRpcRequest.getParams().add(new MasheryTokenData(grant_type, scope));
+        masheryJsonRpcRequest.getParams().add(new MasheryUri("", ""));
+        masheryJsonRpcRequest.getParams().add(userContext);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<MasheryJsonRpcRequest> request = new HttpEntity<MasheryJsonRpcRequest>(masheryJsonRpcRequest, headers);
+
+        WrappedMasheryCreateAccessTokenResponse wrappedMasheryCreateAccessTokenResponse;
+
+        try {
+            wrappedMasheryCreateAccessTokenResponse = restTemplate.postForObject(buildUrl(), request, WrappedMasheryCreateAccessTokenResponse.class);
+        } catch (RestClientException e) {
+            throw convertException(e);
+        }
+
+        return  wrappedMasheryCreateAccessTokenResponse != null ? wrappedMasheryCreateAccessTokenResponse.getResult() : null;
+    }
+
+    @Cacheable(value = "masheryAccessTokens")
     public MasheryAccessToken fetchAccessToken(String accessToken) throws OAuthException {
         MasheryJsonRpcRequest masheryJsonRpcRequest = new MasheryJsonRpcRequest();
         masheryJsonRpcRequest.setMethod("oauth2.fetchAccessToken");

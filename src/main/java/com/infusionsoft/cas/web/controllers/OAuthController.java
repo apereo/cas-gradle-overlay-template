@@ -3,6 +3,7 @@ package com.infusionsoft.cas.web.controllers;
 import com.infusionsoft.cas.domain.AppType;
 import com.infusionsoft.cas.domain.User;
 import com.infusionsoft.cas.domain.UserAccount;
+import com.infusionsoft.cas.oauth.dto.OAuthAccessToken;
 import com.infusionsoft.cas.oauth.exceptions.*;
 import com.infusionsoft.cas.oauth.mashery.api.domain.*;
 import com.infusionsoft.cas.oauth.services.OAuthService;
@@ -18,6 +19,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
@@ -96,6 +98,19 @@ public class OAuthController {
 
             return "oauth/" + getViewBase() + "authorize";
         }
+    }
+
+    /**
+     * Token generation for Resource Grant Type
+     */
+    @RequestMapping
+    @ResponseBody
+    public OAuthAccessToken token(String client_id, String client_secret, String grant_type, String scope, String application) throws Exception {
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        MasheryCreateAccessTokenResponse masheryCreateAccessTokenResponse = oauthService.createAccessToken(client_id, client_secret, grant_type, scope, application, user.getId());
+
+        return new OAuthAccessToken(masheryCreateAccessTokenResponse.getAccess_token(), masheryCreateAccessTokenResponse.getToken_type(), masheryCreateAccessTokenResponse.getExpires_in(), masheryCreateAccessTokenResponse.getRefresh_token(), masheryCreateAccessTokenResponse.getScope());
     }
 
     /**

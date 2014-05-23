@@ -44,6 +44,13 @@ public class OAuthService {
         return masheryApiClientService.createAuthorizationCode(clientId, scope, redirectUri, userContext, state);
     }
 
+    public MasheryCreateAccessTokenResponse createAccessToken(String clientId, String clientSecret, String grantType, String requestedScope, String application, Long globalUserId) throws OAuthException {
+        String scope = requestedScope + "|" + application;
+        String userContext = globalUserId + "|" + application;
+
+        return masheryApiClientService.createAccessToken(clientId, clientSecret, grantType, scope, userContext);
+    }
+
     public Boolean revokeAccessToken(String clientId, String accessToken) throws OAuthException {
         return masheryApiClientService.revokeAccessToken(clientId, accessToken);
     }
