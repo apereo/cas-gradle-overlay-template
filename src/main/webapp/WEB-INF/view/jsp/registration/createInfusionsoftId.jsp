@@ -168,6 +168,7 @@
                     <form:form id="registerForm" action="register" method="post" class="form-vertical" modelAttribute="user">
                         ${commonFormElements}
                         <input type="hidden" name="skipUrl" value="${fn:escapeXml(skipUrl)}"/>
+                        <input type="hidden" name="skipWelcomeEmail" value="${fn:escapeXml(skipWelcomeEmail)}"/>
 
                         <c:if test="${error != null}">
                             <div class="alert alert-error">
