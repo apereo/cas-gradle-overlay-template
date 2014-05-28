@@ -92,14 +92,14 @@ public class RegistrationController {
     // results, and people also must have it bookmarked.  How do we kill this without impacting customers?
     @RequestMapping
     public String welcome(Model model, String registrationCode, String returnUrl, String skipUrl, String userToken, String firstName, String lastName, String email, HttpServletRequest request) throws IOException {
-        return createInfusionsoftId(model, registrationCode, returnUrl, skipUrl, userToken, firstName, lastName, email, request);
+        return createInfusionsoftId(model, registrationCode, returnUrl, skipUrl, userToken, firstName, lastName, email, true, request);
     }
 
     /**
      * Shows the registration form.
      */
     @RequestMapping
-    public String createInfusionsoftId(Model model, String registrationCode, String returnUrl, String skipUrl, String userToken, String firstName, String lastName, String email, HttpServletRequest request) throws IOException {
+    public String createInfusionsoftId(Model model, String registrationCode, String returnUrl, String skipUrl, String userToken, String firstName, String lastName, String email, @RequestParam(defaultValue = "false") boolean skipWelcomeEmail, HttpServletRequest request) throws IOException {
         // If you get here, you should not have a ticket granting cookie in the request. If we don't clear it, we may be linking the wrong user account if user chooses "Already have ID" from the registration page
         autoLoginService.killTGT(request);
 
@@ -125,7 +125,7 @@ public class RegistrationController {
                 }
             }
 
-            buildModelForCreateInfusionsoftId(model, returnUrl, skipUrl, userToken, user, registrationCode);
+            buildModelForCreateInfusionsoftId(model, returnUrl, skipUrl, userToken, user, registrationCode, skipWelcomeEmail);
             return "registration/createInfusionsoftId";
         }
     }
@@ -138,7 +138,7 @@ public class RegistrationController {
     /**
      * Builds the model with attributes that are required for displaying the createInfusionsoftId page.
      */
-    private void buildModelForCreateInfusionsoftId(Model model, String returnUrl, String skipUrl, String userToken, User user, String registrationCode) {
+    private void buildModelForCreateInfusionsoftId(Model model, String returnUrl, String skipUrl, String userToken, User user, String registrationCode, boolean skipWelcomeEmail) {
         if (isAllowedUrl(returnUrl, "returnUrl")) {
             model.addAttribute("returnUrl", returnUrl);
         }
@@ -148,6 +148,7 @@ public class RegistrationController {
         model.addAttribute("userToken", userToken);
         model.addAttribute("user", user);
         model.addAttribute("registrationCode", registrationCode);
+        model.addAttribute("skipWelcomeEmail", skipWelcomeEmail);
     }
 
     /**
@@ -228,7 +229,7 @@ public class RegistrationController {
      * Registers a new user account.
      */
     @RequestMapping
-    public String register(Model model, String firstName, String lastName, String username, String username2, String password1, String password2, String eula, String registrationCode, String returnUrl, String skipUrl, String userToken, HttpServletRequest request, HttpServletResponse response) {
+    public String register(Model model, String firstName, String lastName, String username, String username2, String password1, String password2, String eula, String registrationCode, String returnUrl, String skipUrl, String userToken, @RequestParam(defaultValue = "false") boolean skipWelcomeEmail, HttpServletRequest request, HttpServletResponse response) {
         boolean eulaChecked = StringUtils.equals(eula, "agreed");
         User user = new User();
 
@@ -280,7 +281,9 @@ public class RegistrationController {
                     }
                 }
 
-                mailService.sendWelcomeEmail(user, request.getLocale());
+                if (!skipWelcomeEmail) {
+                    mailService.sendWelcomeEmail(user, request.getLocale());
+                }
                 autoLoginService.autoLogin(user.getUsername(), request, response);
             }
         } catch (InfusionsoftValidationException e) {
@@ -292,7 +295,7 @@ public class RegistrationController {
         }
 
         if (model.containsAttribute("error")) {
-            buildModelForCreateInfusionsoftId(model, returnUrl, skipUrl, userToken, user, registrationCode);
+            buildModelForCreateInfusionsoftId(model, returnUrl, skipUrl, userToken, user, registrationCode, skipWelcomeEmail);
             return "registration/createInfusionsoftId";
         } else if (isAllowedUrl(returnUrl, "returnUrl") && StringUtils.isNotBlank(userToken)) {
             String redirectToAppUrl = generateRedirectToAppFromReturnUrl(returnUrl, userToken, user, true);
