@@ -1,14 +1,12 @@
-package com.infusionsoft.cas.services;
+package com.infusionsoft.cas.api.domain;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.infusionsoft.cas.api.domain.APIErrorDTO;
-import com.infusionsoft.cas.api.domain.AccountDTO;
-import com.infusionsoft.cas.api.domain.UserAccountDTO;
-import com.infusionsoft.cas.api.domain.UserDTO;
 import com.infusionsoft.cas.domain.AppType;
 import com.infusionsoft.cas.domain.Authority;
 import com.infusionsoft.cas.domain.User;
 import com.infusionsoft.cas.domain.UserAccount;
+import com.infusionsoft.cas.services.CommunityServiceImpl;
+import com.infusionsoft.cas.services.CrmService;
+import com.infusionsoft.cas.services.CustomerHubService;
 import com.infusionsoft.cas.support.AppHelper;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
@@ -32,17 +30,17 @@ public class DTOJsonTest {
     @BeforeTest
     public void setUp() {
         CrmService crmService = new CrmService();
-        crmService.crmDomain = "infusionsoft.com";
-        crmService.crmPort = 443;
-        crmService.crmProtocol = "https";
+        crmService.setCrmDomain("infusionsoft.com");
+        crmService.setCrmPort(443);
+        crmService.setCrmProtocol("https");
 
         CustomerHubService customerHubService = new CustomerHubService();
-        customerHubService.customerHubDomain = "customerhub.net";
-        customerHubService.customerHubPort = 443;
-        customerHubService.customerHubProtocol = "https";
+        customerHubService.setCustomerHubDomain("customerhub.net");
+        customerHubService.setCustomerHubPort(443);
+        customerHubService.setCustomerHubProtocol("https");
 
         CommunityServiceImpl communityService = new CommunityServiceImpl();
-        communityService.communityBaseUrl = "http://community.infusionsoft.com";
+        communityService.setCommunityBaseUrl("http://community.infusionsoft.com");
 
         appHelper = new AppHelper();
         appHelper.crmService = crmService;

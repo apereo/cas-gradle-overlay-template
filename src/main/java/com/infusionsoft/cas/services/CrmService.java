@@ -2,19 +2,12 @@ package com.infusionsoft.cas.services;
 
 import com.infusionsoft.cas.domain.AppType;
 import com.infusionsoft.cas.domain.UserAccount;
-import com.infusionsoft.cas.exceptions.AppCredentialsExpiredException;
-import com.infusionsoft.cas.exceptions.AppCredentialsInvalidException;
-import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.log4j.Logger;
-import org.apache.xmlrpc.XmlRpcClient;
-import org.apache.xmlrpc.XmlRpcException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Vector;
 
 /**
  * Service for communicating with the Infusionsoft CRM (aka "the app").
@@ -23,14 +16,26 @@ import java.util.Vector;
 public class CrmService {
     private static final Logger log = Logger.getLogger(CrmService.class);
 
+    private String crmProtocol;
+
+    private String crmDomain;
+
+    private int crmPort;
+
     @Value("${infusionsoft.crm.protocol}")
-    String crmProtocol;
+    public void setCrmProtocol(String crmProtocol) {
+        this.crmProtocol = crmProtocol;
+    }
 
     @Value("${infusionsoft.crm.domain}")
-    String crmDomain;
+    public void setCrmDomain(String crmDomain) {
+        this.crmDomain = crmDomain;
+    }
 
     @Value("${infusionsoft.crm.port}")
-    int crmPort;
+    public void setCrmPort(int crmPort) {
+        this.crmPort = crmPort;
+    }
 
     /**
      * Builds a base URL to a CRM app.

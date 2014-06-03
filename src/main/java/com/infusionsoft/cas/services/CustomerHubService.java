@@ -33,20 +33,40 @@ public class CustomerHubService {
 
     private DefaultHttpClient customerHubHttpClient;
 
+    private String customerHubDomain;
+
+    private String customerHubApiUsername;
+
+    private String customerHubApiPassword;
+
+    private String customerHubProtocol;
+
+    private int customerHubPort = 443;
+
     @Value("${infusionsoft.customerhub.domain}")
-    String customerHubDomain;
+    public void setCustomerHubDomain(String customerHubDomain) {
+        this.customerHubDomain = customerHubDomain;
+    }
 
     @Value("${infusionsoft.customerhub.api.username}")
-    String customerHubApiUsername;
+    public void setCustomerHubApiUsername(String customerHubApiUsername) {
+        this.customerHubApiUsername = customerHubApiUsername;
+    }
 
     @Value("${infusionsoft.customerhub.api.password}")
-    String customerHubApiPassword;
+    public void setCustomerHubApiPassword(String customerHubApiPassword) {
+        this.customerHubApiPassword = customerHubApiPassword;
+    }
 
     @Value("${infusionsoft.customerhub.protocol}")
-    String customerHubProtocol;
+    public void setCustomerHubProtocol(String customerHubProtocol) {
+        this.customerHubProtocol = customerHubProtocol;
+    }
 
     @Value("${infusionsoft.customerhub.port}")
-    int customerHubPort = 443;
+    public void setCustomerHubPort(int customerHubPort) {
+        this.customerHubPort = customerHubPort;
+    }
 
     /**
      * Builds a URL where users of this app should be sent after login.

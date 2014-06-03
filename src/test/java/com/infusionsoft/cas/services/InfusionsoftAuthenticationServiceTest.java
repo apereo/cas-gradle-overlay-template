@@ -38,17 +38,17 @@ public class InfusionsoftAuthenticationServiceTest {
     @BeforeTest
     public void setUp() {
         CrmService crmService = new CrmService();
-        crmService.crmDomain = "infusionsoft.com";
-        crmService.crmPort = 443;
-        crmService.crmProtocol = "https";
+        crmService.setCrmDomain("infusionsoft.com");
+        crmService.setCrmPort(443);
+        crmService.setCrmProtocol("https");
 
         CustomerHubService customerHubService = new CustomerHubService();
-        customerHubService.customerHubDomain = "customerhub.net";
-        customerHubService.customerHubPort = 443;
-        customerHubService.customerHubProtocol = "https";
+        customerHubService.setCustomerHubDomain("customerhub.net");
+        customerHubService.setCustomerHubPort(443);
+        customerHubService.setCustomerHubProtocol("https");
 
         CommunityServiceImpl communityService = new CommunityServiceImpl();
-        communityService.communityBaseUrl = "http://community.infusionsoft.com";
+        communityService.setCommunityBaseUrl("http://community.infusionsoft.com");
 
         appHelper = new AppHelper();
         appHelper.crmService = crmService;

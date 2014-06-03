@@ -1,6 +1,5 @@
-package com.infusiontest.cas;
+package com.infusionsoft.cas.support;
 
-import com.infusionsoft.cas.support.InfusionsoftSaml2Service;
 import org.apache.commons.codec.binary.Base64;
 import org.jasig.cas.authentication.principal.Response;
 import org.jasig.cas.authentication.principal.SimplePrincipal;
