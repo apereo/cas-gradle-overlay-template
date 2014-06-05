@@ -3,13 +3,8 @@ package com.infusionsoft.cas.services;
 import com.infusionsoft.cas.auth.LetMeInCredentials;
 import org.apache.log4j.Logger;
 import org.jasig.cas.CentralAuthenticationService;
-import org.jasig.cas.authentication.Authentication;
-import org.jasig.cas.authentication.principal.UsernamePasswordCredentials;
-import org.jasig.cas.ticket.ExpirationPolicy;
 import org.jasig.cas.ticket.TicketGrantingTicket;
-import org.jasig.cas.ticket.TicketGrantingTicketImpl;
 import org.jasig.cas.ticket.registry.TicketRegistry;
-import org.jasig.cas.util.UniqueTicketIdGenerator;
 import org.jasig.cas.web.support.CookieRetrievingCookieGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -24,23 +19,14 @@ public class AutoLoginService {
     private static final Logger log = Logger.getLogger(AutoLoginService.class);
 
     @Autowired
-    CentralAuthenticationService centralAuthenticationService;
+    private CentralAuthenticationService centralAuthenticationService;
 
     @Autowired
     @Qualifier("ticketGrantingTicketCookieGenerator")
-    CookieRetrievingCookieGenerator ticketGrantingTicketCookieGenerator;
+    private CookieRetrievingCookieGenerator ticketGrantingTicketCookieGenerator;
 
     @Autowired
-    TicketRegistry ticketRegistry;
-
-    @Autowired
-    @Qualifier("ticketGrantingTicketUniqueIdGenerator")
-    UniqueTicketIdGenerator ticketGrantingTicketUniqueIdGenerator;
-
-    @Autowired
-    @Qualifier("grantingTicketExpirationPolicy")
-    ExpirationPolicy ticketGrantingTicketExpirationPolicy;
-
+    private TicketRegistry ticketRegistry;
 
     public boolean autoLogin(String username, HttpServletRequest request, HttpServletResponse response) {
         boolean retVal;
