@@ -5,6 +5,7 @@ import com.infusionsoft.cas.exceptions.AccountException;
 import com.infusionsoft.cas.exceptions.InfusionsoftValidationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.AccessDeniedException;
 
 import java.util.List;
 
@@ -78,4 +79,6 @@ public interface UserService {
     List<Authority> findAllAuthorities();
 
     Authority findAuthorityByName(String authorityName);
+
+    void validateUserApplication(String application) throws AccessDeniedException;
 }

@@ -5,6 +5,7 @@ import com.infusionsoft.cas.domain.*;
 import com.infusionsoft.cas.exceptions.AccountException;
 import com.infusionsoft.cas.exceptions.DuplicateAccountException;
 import com.infusionsoft.cas.exceptions.InfusionsoftValidationException;
+import com.infusionsoft.cas.oauth.exceptions.OAuthAccessDeniedException;
 import com.infusionsoft.cas.oauth.exceptions.OAuthException;
 import com.infusionsoft.cas.oauth.services.OAuthService;
 import com.infusionsoft.cas.web.ValidationUtils;
@@ -17,6 +18,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,6 +33,9 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private AuthorityDAO authorityDAO;
+
+    @Autowired
+    private CrmService crmService;
 
     @Autowired
     private LoginAttemptDAO loginAttemptDAO;
@@ -530,6 +536,18 @@ public class UserServiceImpl implements UserService {
                 userAccountDAO.save(account);
                 log.info("Changed application username on " + appName + "/" + appType + " for CAS user " + user + " from " + oldAppUsername + " to " + newAppUsername);
             }
+        }
+    }
+
+    @Override
+    public void validateUserApplication(String application) throws AccessDeniedException {
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        List<UserAccount> accounts = findSortedUserAccountsByAppType(user, AppType.CRM);
+        List<String> crmAccounts = crmService.extractAppNames(accounts);
+
+        if (!crmAccounts.contains(application)) {
+            log.error("User " + SecurityContextHolder.getContext().getAuthentication().getName() + " tried to gain access to the application " + application);
+            throw new AccessDeniedException("User does not have access to provided application");
         }
     }
 

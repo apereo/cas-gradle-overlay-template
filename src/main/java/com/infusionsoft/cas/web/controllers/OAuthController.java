@@ -4,8 +4,11 @@ import com.infusionsoft.cas.domain.AppType;
 import com.infusionsoft.cas.domain.User;
 import com.infusionsoft.cas.domain.UserAccount;
 import com.infusionsoft.cas.oauth.dto.OAuthAccessToken;
+import com.infusionsoft.cas.oauth.dto.OAuthUserApplication;
 import com.infusionsoft.cas.oauth.exceptions.*;
-import com.infusionsoft.cas.oauth.mashery.api.domain.*;
+import com.infusionsoft.cas.oauth.mashery.api.domain.MasheryAccessToken;
+import com.infusionsoft.cas.oauth.mashery.api.domain.MasheryCreateAccessTokenResponse;
+import com.infusionsoft.cas.oauth.mashery.api.domain.MasheryUserApplication;
 import com.infusionsoft.cas.oauth.services.OAuthService;
 import com.infusionsoft.cas.services.CrmService;
 import com.infusionsoft.cas.services.UserService;
@@ -80,13 +83,7 @@ public class OAuthController {
         } else if (!"code".equals(response_type)) {
             throw new OAuthUnsupportedResponseTypeException();
         } else {
-            MasheryOAuthApplication masheryOAuthApplication = oauthService.fetchOAuthApplication(client_id, redirect_uri, response_type);
-
-            MasheryApplication masheryApplication = oauthService.fetchApplication(masheryOAuthApplication.getId());
-            MasheryMember masheryMember = oauthService.fetchMember(masheryApplication.getUsername());
-
-            model.addAttribute("masheryApplication", masheryApplication);
-            model.addAttribute("masheryMember", masheryMember);
+            model.addAttribute("oauthApplication", oauthService.fetchApplication(client_id, redirect_uri, response_type));
 
             User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
             List<UserAccount> accounts = userService.findSortedUserAccountsByAppType(user, AppType.CRM);
@@ -105,10 +102,10 @@ public class OAuthController {
      */
     @RequestMapping
     @ResponseBody
-    public OAuthAccessToken token(String client_id, String client_secret, String grant_type, String scope, String application) throws Exception {
+    public OAuthAccessToken token(String client_id, String client_secret, String grant_type, String scope) throws Exception {
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-        MasheryCreateAccessTokenResponse masheryCreateAccessTokenResponse = oauthService.createAccessToken(client_id, client_secret, grant_type, scope, application, user.getId());
+        MasheryCreateAccessTokenResponse masheryCreateAccessTokenResponse = oauthService.createAccessToken(client_id, client_secret, grant_type, scope, user.getId());
 
         return new OAuthAccessToken(masheryCreateAccessTokenResponse.getAccess_token(), masheryCreateAccessTokenResponse.getToken_type(), masheryCreateAccessTokenResponse.getExpires_in(), masheryCreateAccessTokenResponse.getRefresh_token(), masheryCreateAccessTokenResponse.getScope());
     }
@@ -125,10 +122,10 @@ public class OAuthController {
             List<String> crmAccounts = crmService.extractAppNames(accounts);
 
             if (crmAccounts.contains(application)) {
-                MasheryAuthorizationCode masheryAuthorizationCode = oauthService.createAuthorizationCode(client_id, requestedScope, application, redirect_uri, user.getId(), state);
+                String redirectUriWithCode = oauthService.createAuthorizationCode(client_id, requestedScope, application, redirect_uri, user.getId(), state);
 
-                if (masheryAuthorizationCode != null && masheryAuthorizationCode.getUri() != null) {
-                    return "redirect:" + masheryAuthorizationCode.getUri().getUri();
+                if (StringUtils.isNotBlank(redirectUriWithCode)) {
+                    return "redirect:" + redirectUriWithCode;
                 } else {
                     throw new OAuthServerErrorException();
                 }
@@ -162,20 +159,21 @@ public class OAuthController {
     public ModelAndView revokeAccess(HttpServletResponse response, Long userId, Long infusionsoftAccountId, Long masheryAppId) throws IOException {
         User user = userService.loadUser(userId);
         UserAccount ua = userService.findUserAccount(user, infusionsoftAccountId);
-        Set<MasheryUserApplication> masheryUserApplications = oauthService.fetchUserApplicationsByUserAccount(ua);
-        for (MasheryUserApplication ma : masheryUserApplications) {
-            if (masheryAppId == Long.parseLong(ma.getId())) {
-                for (String accessToken : ma.getAccess_tokens()) {
-                    try {
-                        oauthService.revokeAccessToken(ma.getClient_id(), accessToken);
-                    } catch (Exception e) {
-                        logger.error("Failed to revoke app access for app= " + ma.getName(), e);
-                        response.sendError(500);
-                    }
-                }
-                break;
-            }
-        }
+        oauthService.revokeAccessTokensByUserAccount(ua);
+//        Set<MasheryUserApplication> masheryUserApplications = oauthService.fetchUserApplicationsByUserAccount(ua);
+//        for (MasheryUserApplication ma : masheryUserApplications) {
+//            if (masheryAppId == Long.parseLong(ma.getId())) {
+//                for (String accessToken : ma.getAccess_tokens()) {
+//                    try {
+//                        oauthService.revokeAccessToken(ma.getClient_id(), accessToken);
+//                    } catch (Exception e) {
+//                        logger.error("Failed to revoke app access for app= " + ma.getName(), e);
+//                        response.sendError(500);
+//                    }
+//                }
+//                break;
+//            }
+//        }
 
         return null;
     }
@@ -189,9 +187,9 @@ public class OAuthController {
     public String userApplicationSearch(Model model, String username, String appName) throws OAuthException {
         if (StringUtils.isNotBlank(username) && StringUtils.isNotBlank(appName)) {
             UserAccount userAccount = userService.findUserAccountByInfusionsoftId(appName, AppType.CRM, username);
-            Set<MasheryUserApplication> masheryUserApplications = oauthService.fetchUserApplicationsByUserAccount(userAccount);
+            Set<OAuthUserApplication> userApplications = oauthService.fetchUserApplicationsByUserAccount(userAccount);
 
-            model.addAttribute("masheryUserApplications", masheryUserApplications);
+            model.addAttribute("userApplications", userApplications);
             model.addAttribute("username", username);
             model.addAttribute("appName", appName);
         }

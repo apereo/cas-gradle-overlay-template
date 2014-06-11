@@ -22,12 +22,12 @@
         <div class="row">
             <div class="col-sm-12">
                 <object type="image/svg+xml" tabindex="-1" data="/img/is_logo.svg" width="159" height="26" class="logo">Infusionsoft</object>
-                <p>The application <strong>${masheryApplication.name} by ${masheryMember.displayName}</strong> would like the ability to interact with one of your Infusionsoft applications.</p>
+                <p>The application <strong>${oauthApplication.name} by ${oauthApplication.developedBy}</strong> would like the ability to interact with one of your Infusionsoft applications.</p>
 
-                <p><em>${masheryApplication.description}</em></p>
+                <p><em>${oauthApplication.description}</em></p>
 
                 <c:if test="${fn:length(apps) > 1}">
-                    <p>Which application would you like to allow <strong>${masheryApplication.name}</strong> access to?</p>
+                    <p>Which application would you like to allow <strong>${oauthApplication.name}</strong> access to?</p>
                 </c:if>
             </div>
         </div>
@@ -53,7 +53,7 @@
                 </c:when>
                 <c:otherwise>
                     <p>
-                        Allow <strong>${masheryApplication.name}</strong> access?
+                        Allow <strong>${oauthApplication.name}</strong> access?
                     </p>
 
                     <input type="hidden" name="application" value="${apps[0]}">

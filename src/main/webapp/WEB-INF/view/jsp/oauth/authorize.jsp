@@ -71,11 +71,11 @@
         <div id="access_multi">
             <div class="accessText">
                 <p>
-                    The application <strong>${masheryApplication.name}</strong> by <strong>${masheryMember.displayName}</strong> would like the ability to interact with one of your Infusionsoft applications.
+                    The application <strong>${oauthApplication.name}</strong> by <strong>${oauthApplication.developedBy}</strong> would like the ability to interact with one of your Infusionsoft applications.
                 </p>
 
                 <p style="font-size: 14px;">
-                    <em>${masheryApplication.description}</em>
+                    <em>${oauthApplication.description}</em>
                 </p>
 
                 <form style="text-align:center; margin:30px 0 ;" action="processAuthorization" method="post">
@@ -105,7 +105,7 @@
                         </c:when>
                         <c:otherwise>
                             <p>
-                                Allow <strong>${masheryApplication.name}</strong> access?
+                                Allow <strong>${oauthApplication.name}</strong> access?
                             </p>
 
                             <input type="hidden" name="application" value="${apps[0]}">
