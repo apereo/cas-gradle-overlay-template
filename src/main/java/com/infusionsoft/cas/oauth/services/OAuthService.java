@@ -1,33 +1,28 @@
 package com.infusionsoft.cas.oauth.services;
 
-import com.infusionsoft.cas.domain.AppType;
 import com.infusionsoft.cas.domain.User;
 import com.infusionsoft.cas.domain.UserAccount;
+import com.infusionsoft.cas.events.UserAccountDeletedEvent;
 import com.infusionsoft.cas.oauth.dto.OAuthAccessToken;
 import com.infusionsoft.cas.oauth.dto.OAuthApplication;
 import com.infusionsoft.cas.oauth.dto.OAuthUserApplication;
-import com.infusionsoft.cas.oauth.exceptions.OAuthAccessDeniedException;
 import com.infusionsoft.cas.oauth.exceptions.OAuthException;
 import com.infusionsoft.cas.oauth.mashery.api.client.MasheryApiClientService;
 import com.infusionsoft.cas.oauth.mashery.api.domain.*;
 import com.infusionsoft.cas.services.CrmService;
 import com.infusionsoft.cas.services.UserService;
 import org.apache.commons.lang3.math.NumberUtils;
-import org.apache.commons.lang3.time.DateUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 
-import java.text.ParseException;
-import java.util.Date;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 @Service
-public class OAuthService {
+public class OAuthService implements ApplicationListener<UserAccountDeletedEvent> {
 
     private static final Logger log = Logger.getLogger(OAuthService.class);
 
@@ -39,6 +34,15 @@ public class OAuthService {
 
     @Autowired
     private UserService userService;
+
+    @Override
+    public void onApplicationEvent(UserAccountDeletedEvent userAccountDeletedEvent) {
+        try {
+            revokeAccessTokensByUserAccount(userAccountDeletedEvent.getUserAccount());
+        } catch (OAuthException e) {
+            log.error("Unable to revoke access tokens during account deletion -> " + userAccountDeletedEvent.getUserAccount().toString());
+        }
+    }
 
     public OAuthApplication fetchApplication(String clientId, String redirectUri, String responseType) throws OAuthException {
         MasheryOAuthApplication masheryOAuthApplication = masheryApiClientService.fetchOAuthApplication(clientId, redirectUri, responseType);
