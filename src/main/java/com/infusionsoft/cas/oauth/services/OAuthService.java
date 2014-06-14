@@ -11,6 +11,7 @@ import com.infusionsoft.cas.oauth.mashery.api.client.MasheryApiClientService;
 import com.infusionsoft.cas.oauth.mashery.api.domain.*;
 import com.infusionsoft.cas.services.CrmService;
 import com.infusionsoft.cas.services.UserService;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -74,17 +75,19 @@ public class OAuthService implements ApplicationListener<UserAccountDeletedEvent
      * @return The created access token or throws exception
      * @throws OAuthException
      */
-    public MasheryCreateAccessTokenResponse createAccessToken(String clientId, String clientSecret, String grantType, String requestedScope, Long globalUserId) throws OAuthException {
-        return createAccessToken(clientId, clientSecret, grantType, requestedScope, requestedScope, globalUserId);
-    }
+//    public OAuthAccessToken createAccessToken(String clientId, String clientSecret, String grantType, String requestedScope, Long globalUserId) throws OAuthException {
+//        return createAccessToken(clientId, clientSecret, grantType, requestedScope, requestedScope, globalUserId);
+//    }
 
-    public MasheryCreateAccessTokenResponse createAccessToken(String clientId, String clientSecret, String grantType, String requestedScope, String application, Long globalUserId) throws OAuthException {
-        String scope = requestedScope + "|" + application;
+    public OAuthAccessToken createAccessToken(String clientId, String clientSecret, String grantType, String requestedScope, String application, Long globalUserId) throws OAuthException {
+        String scope = StringUtils.defaultString(requestedScope) + "|" + application;
         String userContext = globalUserId + "|" + application;
 
         userService.validateUserApplication(application);
 
-        return masheryApiClientService.createAccessToken(clientId, clientSecret, grantType, scope, userContext);
+        MasheryCreateAccessTokenResponse masheryCreateAccessTokenResponse = masheryApiClientService.createAccessToken(clientId, clientSecret, grantType, scope, userContext);
+
+        return new OAuthAccessToken(masheryCreateAccessTokenResponse.getAccess_token(), masheryCreateAccessTokenResponse.getToken_type(), masheryCreateAccessTokenResponse.getExpires_in(), masheryCreateAccessTokenResponse.getRefresh_token(), masheryCreateAccessTokenResponse.getScope());
     }
 
     public Boolean revokeAccessToken(String clientId, String accessToken) throws OAuthException {
@@ -142,7 +145,7 @@ public class OAuthService implements ApplicationListener<UserAccountDeletedEvent
         for (OAuthUserApplication masheryUserApplication : masheryUserApplications) {
             for (OAuthAccessToken token : masheryUserApplication.getAccessTokens()) {
                 try {
-                    revokeSuccessful = masheryApiClientService.revokeAccessToken(masheryUserApplication.getClientId(), token.getAccess_token()) && revokeSuccessful;
+                    revokeSuccessful = masheryApiClientService.revokeAccessToken(masheryUserApplication.getClientId(), token.getAccessToken()) && revokeSuccessful;
                 } catch (RestClientException e) {
                     log.error("Unable to revoke access token for app=" + account.getAppName() + " clientId=" + masheryUserApplication.getClientId() + " token=" + token, e);
                     revokeSuccessful = false;

@@ -17,7 +17,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.http.converter.HttpMessageConverter;
-import org.springframework.http.converter.json.MappingJacksonHttpMessageConverter;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
@@ -55,7 +55,7 @@ public class MasheryApiClientService {
         restTemplate = new RestTemplate();
 
         List<HttpMessageConverter<?>> httpMessageConverters = new ArrayList<HttpMessageConverter<?>>();
-        httpMessageConverters.add(new MappingJacksonHttpMessageConverter());
+        httpMessageConverters.add(new MappingJackson2HttpMessageConverter());
 
         restTemplate.setMessageConverters(httpMessageConverters);
         restTemplate.setErrorHandler(new MasheryRestErrorHandler());

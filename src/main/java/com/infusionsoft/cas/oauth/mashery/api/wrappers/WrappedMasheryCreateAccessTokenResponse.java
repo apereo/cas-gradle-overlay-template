@@ -1,8 +1,7 @@
 package com.infusionsoft.cas.oauth.mashery.api.wrappers;
 
-import com.infusionsoft.cas.oauth.mashery.api.domain.MasheryAccessToken;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.infusionsoft.cas.oauth.mashery.api.domain.MasheryCreateAccessTokenResponse;
-import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class WrappedMasheryCreateAccessTokenResponse extends MasheryResult {

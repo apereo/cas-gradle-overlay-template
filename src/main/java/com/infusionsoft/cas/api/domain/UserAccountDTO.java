@@ -1,10 +1,10 @@
 package com.infusionsoft.cas.api.domain;
 
+import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.infusionsoft.cas.domain.UserAccount;
 import com.infusionsoft.cas.support.AppHelper;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.codehaus.jackson.annotate.JsonTypeName;
 
 import java.util.Collection;
 

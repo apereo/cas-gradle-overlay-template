@@ -13,7 +13,7 @@
 <div>
     <form class="form-horizontal">
         <div class="control-group">
-            <label class="control-label" for="token"><spring:message code="mashery.access_token.label"/></label>
+            <label class="control-label" for="token"><spring:message code="mashery.accessToken.label"/></label>
             <div class="controls">
                 <span id="token" class="uneditable-input">${masheryAccessToken.token}</span>
             </div>
@@ -25,9 +25,9 @@
             </div>
         </div>
         <div class="control-group">
-            <label class="control-label" for="token_type"><spring:message code="mashery.token_type.label"/></label>
+            <label class="control-label" for="tokenType"><spring:message code="mashery.tokenType.label"/></label>
             <div class="controls">
-                <span id="token_type" class="uneditable-input">${masheryAccessToken.token_type}</span>
+                <span id="tokenType" class="uneditable-input">${masheryAccessToken.tokenType}</span>
             </div>
         </div>
         <div class="control-group">

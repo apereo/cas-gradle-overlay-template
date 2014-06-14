@@ -8,12 +8,12 @@
     <parent>
         <groupId>com.infusionsoft</groupId>
         <artifactId>infusionsoft-parent</artifactId>
-        <version>0.5.0.40</version>
+        <version>0.6.2</version>
     </parent>
 
     <properties>
         <cas.version>3.5.2</cas.version>
-        <spring.version>3.1.1.RELEASE</spring.version>
+        <spring.version>3.2.9.RELEASE</spring.version>
         <spring.security.version>3.1.0.RELEASE</spring.security.version>
         <spring.webflow.version>2.3.0.RELEASE</spring.webflow.version>
         <hibernate.validator.version>4.2.0.Final</hibernate.validator.version>
@@ -27,6 +27,7 @@
         <filtering.enabled>true</filtering.enabled>
         <powermock.version>1.4.6</powermock.version>
         <ehcache.version>2.7.4</ehcache.version>
+        <jackson.version>2.4.0</jackson.version>
     </properties>
 
     <scm>
@@ -70,6 +71,7 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>tomcat-maven-plugin</artifactId>
+                <version>1.1</version>
                 <configuration>
                     <server>myserver</server>
                     <path>/</path>
@@ -127,27 +129,6 @@
             </build>
         </profile>
 
-        <!--<profile>-->
-        <!--<id>klocwork</id>-->
-        <!--<build>-->
-        <!--<plugins>-->
-        <!--<plugin>-->
-        <!--<groupId>com.klocwork.ps</groupId>-->
-        <!--<artifactId>kwmaven</artifactId>-->
-        <!--<executions>-->
-        <!--<execution>-->
-        <!--<configuration>-->
-        <!--<buildspec_filename>infusionsoft.out</buildspec_filename>-->
-        <!--</configuration>-->
-        <!--<phase>validate</phase>-->
-        <!--<goals>-->
-        <!--<goal>run</goal>-->
-        <!--</goals>-->
-        <!--</execution>-->
-        <!--</executions>-->
-        <!--</plugin>-->
-        <!--</plugins>-->
-        <!--</build>-->
         <!--</profile>-->
 
         <profile>
@@ -292,9 +273,15 @@
         </dependency>
 
         <dependency>
-            <groupId>org.codehaus.jackson</groupId>
-            <artifactId>jackson-mapper-asl</artifactId>
-            <version>1.9.4</version>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>${jackson.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-annotations</artifactId>
+            <version>${jackson.version}</version>
         </dependency>
 
         <dependency>

@@ -1,5 +1,7 @@
 package com.infusionsoft.cas.oauth.exceptions;
 
+import org.springframework.http.HttpStatus;
+
 /**
  * This is an exception that is used OAuth Error Responses
  *
@@ -8,7 +10,7 @@ package com.infusionsoft.cas.oauth.exceptions;
 public class OAuthTemporarilyUnavailableException extends OAuthException {
 
     public OAuthTemporarilyUnavailableException() {
-        super("temporarily_unavailable");
+        super("temporarily_unavailable", HttpStatus.SERVICE_UNAVAILABLE);
     }
 
 }

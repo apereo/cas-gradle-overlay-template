@@ -1,10 +1,10 @@
 package com.infusionsoft.cas.support;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.infusionsoft.cas.api.domain.UserAccountDTO;
 import com.infusionsoft.cas.domain.User;
 import com.infusionsoft.cas.domain.UserAccount;
 import com.infusionsoft.cas.services.UserService;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.jasig.services.persondir.IPersonAttributes;
 import org.jasig.services.persondir.support.AbstractFlatteningPersonAttributeDao;
 import org.jasig.services.persondir.support.AttributeNamedPersonImpl;

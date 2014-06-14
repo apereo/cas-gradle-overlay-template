@@ -1,5 +1,6 @@
 package com.infusionsoft.cas.web.controllers;
 
+import com.infusionsoft.cas.auth.OAuthClientCredentialAuthenticationToken;
 import com.infusionsoft.cas.domain.AppType;
 import com.infusionsoft.cas.domain.User;
 import com.infusionsoft.cas.domain.UserAccount;
@@ -60,13 +61,31 @@ public class OAuthController {
 
     @ExceptionHandler(OAuthException.class)
     public ModelAndView handleOAuthException(OAuthException e, HttpServletRequest request) {
+        ModelAndView modelAndView = new ModelAndView();
         Map<String, String> model = new HashMap<String, String>();
-        model.put("error", e.getErrorCode());
-        model.put("state", request.getParameter("state"));
 
         logger.info("Unhandled OAuthException", e);
 
-        return new ModelAndView("redirect:" + request.getParameter("redirect_uri"), model);
+        model.put("error", e.getErrorCode());
+
+        if(StringUtils.isNotBlank(e.getErrorDescription()) ){
+            model.put("error_description", e.getErrorDescription());
+        }
+
+        if(StringUtils.isNotBlank(e.getErrorUri()) ){
+            model.put("error_uri", e.getErrorUri());
+        }
+
+        String grantType = request.getParameter("grant_type");
+
+        if("code".equals(grantType)) {
+            model.put("state", request.getParameter("state"));
+            modelAndView.setViewName("redirect:" + request.getParameter("redirect_uri"));
+        }
+
+        modelAndView.addAllObjects(model);
+
+        return modelAndView;
     }
 
     /**
@@ -102,12 +121,19 @@ public class OAuthController {
      */
     @RequestMapping
     @ResponseBody
-    public OAuthAccessToken token(String client_id, String client_secret, String grant_type, String scope) throws Exception {
-        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    public OAuthAccessToken token(String grant_type, String scope) throws Exception {
+        OAuthClientCredentialAuthenticationToken oAuthClientCredentialAuthenticationToken = (OAuthClientCredentialAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
 
-        MasheryCreateAccessTokenResponse masheryCreateAccessTokenResponse = oauthService.createAccessToken(client_id, client_secret, grant_type, scope, user.getId());
+        if(oAuthClientCredentialAuthenticationToken != null) {
+            User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-        return new OAuthAccessToken(masheryCreateAccessTokenResponse.getAccess_token(), masheryCreateAccessTokenResponse.getToken_type(), masheryCreateAccessTokenResponse.getExpires_in(), masheryCreateAccessTokenResponse.getRefresh_token(), masheryCreateAccessTokenResponse.getScope());
+            /**
+             * The scope is the application for this grant type
+             */
+            return oauthService.createAccessToken(oAuthClientCredentialAuthenticationToken.getClientId(), oAuthClientCredentialAuthenticationToken.getClientSecret(), grant_type, "", scope, user.getId());
+        } else {
+            throw new OAuthInvalidRequestException();
+        }
     }
 
     /**

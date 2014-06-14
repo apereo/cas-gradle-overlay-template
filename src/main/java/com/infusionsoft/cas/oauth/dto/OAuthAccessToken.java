@@ -1,50 +1,59 @@
 package com.infusionsoft.cas.oauth.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class OAuthAccessToken {
-    private String access_token;
-    private String token_type;
-    private Integer expires_in;
-    private String refresh_token;
+    private String accessToken;
+    private String tokenType;
+    private Integer expiresIn;
+    private String refreshToken;
     private String scope;
 
-    public OAuthAccessToken(String access_token, String token_type, Integer expires_in, String refresh_token, String scope) {
-        this.access_token = access_token;
-        this.token_type = token_type;
-        this.expires_in = expires_in;
-        this.refresh_token = refresh_token;
+    public OAuthAccessToken(String accessToken, String tokenType, Integer expiresIn, String refreshToken, String scope) {
+        this.accessToken = accessToken;
+        this.tokenType = tokenType;
+        this.expiresIn = expiresIn;
+        this.refreshToken = refreshToken;
         this.scope = scope;
     }
 
-    public String getAccess_token() {
-        return access_token;
+    @JsonProperty("access_token")
+    public String getAccessToken() {
+        return accessToken;
     }
 
-    public void setAccess_token(String access_token) {
-        this.access_token = access_token;
+    public void setAccessToken(String accessToken) {
+        this.accessToken = accessToken;
     }
 
-    public String getToken_type() {
-        return token_type;
+    @JsonProperty("token_type")
+    public String getTokenType() {
+        return tokenType;
     }
 
-    public void setToken_type(String token_type) {
-        this.token_type = token_type;
+    public void setTokenType(String tokenType) {
+        this.tokenType = tokenType;
     }
 
-    public Integer getExpires_in() {
-        return expires_in;
+    @JsonProperty("expires_in")
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
+    public Integer getExpiresIn() {
+        return expiresIn;
     }
 
-    public void setExpires_in(Integer expires_in) {
-        this.expires_in = expires_in;
+    public void setExpiresIn(Integer expiresIn) {
+        this.expiresIn = expiresIn;
     }
 
-    public String getRefresh_token() {
-        return refresh_token;
+    @JsonProperty("refresh_token")
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
+    public String getRefreshToken() {
+        return refreshToken;
     }
 
-    public void setRefresh_token(String refresh_token) {
-        this.refresh_token = refresh_token;
+    public void setRefreshToken(String refreshToken) {
+        this.refreshToken = refreshToken;
     }
 
     public String getScope() {

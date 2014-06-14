@@ -50,7 +50,7 @@
     <bean id="stringHttpMessageConverter" class="org.springframework.http.converter.StringHttpMessageConverter"/>
     <bean id="sourceHttpMessageConverterConverter" class="org.springframework.http.converter.xml.SourceHttpMessageConverter"/>
     <bean id="xmlAwareFormHttpMessageConverter" class="org.springframework.http.converter.xml.XmlAwareFormHttpMessageConverter"/>
-    <bean id="mappingJacksonHttpMessageConverter" class="org.springframework.http.converter.json.MappingJacksonHttpMessageConverter"/>
+    <bean id="mappingJacksonHttpMessageConverter" class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter"/>
     <!--<bean id="jaxb2RootElementHttpMessageConverter" class="org.springframework.http.converter.xml.Jaxb2RootElementHttpMessageConverter"/>-->
     <bean id="resourceHttpMessageConverter" class="org.springframework.http.converter.ResourceHttpMessageConverter"/>
 
@@ -82,7 +82,7 @@
         </property>
         <property name="defaultViews">
             <list>
-                <bean class="org.springframework.web.servlet.view.json.MappingJacksonJsonView"/>
+                <bean class="org.springframework.web.servlet.view.json.MappingJackson2JsonView"/>
             </list>
         </property>
     </bean>
