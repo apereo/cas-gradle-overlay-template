@@ -7,7 +7,7 @@ body {
     color: #5E5E5E;
 }
 a {
-    color: #1E80B9;
+    color: #51A3DC;
 }
 p.text-info {
     margin-bottom: 30px;
@@ -21,7 +21,7 @@ p.text-error {
     background: none;
     padding-left: 0;
     margin: -15px 0 20px 0;
-    color: #C33C22;
+    color: #E34825;
 }
 p.text-error object {
     display: none;
@@ -142,14 +142,15 @@ input.form-control {
 }
 .has-error .form-control,
 .has-error .form-control:focus {
-    border-color: #FF2626;
+    border-color: #E34825;
 }
 .has-success .form-control,
 .has-success .form-control:focus {
     border-color: #55B958;
 }
 .has-error .help-block {
-    color: #D90000;
+    color: #E34825;
+    text-align: left;
 }
 .rounded-box,
 .rounded-box-wide {
@@ -185,7 +186,7 @@ input.form-control {
     padding: 0 10px;
 }
 .has-error {
-    color: #D90000;
+    color: #E34825;
 }
 .well {
     min-height: 0;
