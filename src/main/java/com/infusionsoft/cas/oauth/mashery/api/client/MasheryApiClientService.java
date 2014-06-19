@@ -287,7 +287,7 @@ public class MasheryApiClientService {
                     return new OAuthUnauthorizedClientException();
 
                 default:
-                    return new OAuthServerErrorException();
+                    return new OAuthServerErrorException(e);
 
             }
         }

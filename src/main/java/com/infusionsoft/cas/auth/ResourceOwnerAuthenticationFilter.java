@@ -22,6 +22,12 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 
+/**
+ * A Spring Security Filter that is responsible for extracting client credentials and user credentials
+ * to be authenticated via CAS and Mashery.
+ *
+ * The filter was original copied from BasicAuthenticationFilter and modified from there.
+ */
 @Component
 public class ResourceOwnerAuthenticationFilter extends GenericFilterBean {
 

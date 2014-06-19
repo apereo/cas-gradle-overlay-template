@@ -12,6 +12,8 @@ import java.util.Collection;
  * the default basic auth filter was seeing the username being different
  * and attempting an authentication against the local CAS database for
  * client_id and client_secret
+ *
+ * The class was mostly copied from UsernamePasswordToken
  */
 public class OAuthClientCredentialAuthenticationToken extends AbstractAuthenticationToken {
 
