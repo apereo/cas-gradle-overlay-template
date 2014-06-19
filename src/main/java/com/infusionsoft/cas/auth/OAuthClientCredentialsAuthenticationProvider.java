@@ -20,7 +20,7 @@ public class OAuthClientCredentialsAuthenticationProvider implements Authenticat
         OAuthClientCredentialAuthenticationToken retVal = null;
         OAuthClientCredentialAuthenticationToken oAuthClientCredentialAuthenticationToken = (OAuthClientCredentialAuthenticationToken) authentication;
 
-        if (oAuthClientCredentialAuthenticationToken != null && !CasAuthenticationFilter.CAS_STATEFUL_IDENTIFIER.equals(oAuthClientCredentialAuthenticationToken.getName())) {
+        if (oAuthClientCredentialAuthenticationToken != null) {
             LoginResult loginResult = infusionsoftAuthenticationService.attemptLogin(oAuthClientCredentialAuthenticationToken.getName(), oAuthClientCredentialAuthenticationToken.getCredentials().toString());
             if (loginResult.getLoginStatus().isSuccessful()) {
                 retVal = new OAuthClientCredentialAuthenticationToken(loginResult.getUser(), null, oAuthClientCredentialAuthenticationToken.getClientId(), oAuthClientCredentialAuthenticationToken.getClientSecret(), loginResult.getUser().getAuthorities());
