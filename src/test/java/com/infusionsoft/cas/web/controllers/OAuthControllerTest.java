@@ -6,12 +6,8 @@ import com.infusionsoft.cas.oauth.dto.OAuthAccessToken;
 import com.infusionsoft.cas.oauth.dto.OAuthUserApplication;
 import com.infusionsoft.cas.oauth.services.OAuthService;
 import com.infusionsoft.cas.services.UserService;
-import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.mockito.internal.util.reflection.Whitebox;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
 import org.springframework.web.servlet.ModelAndView;
 import org.testng.Assert;
 import org.testng.annotations.BeforeTest;
@@ -20,8 +16,7 @@ import org.testng.annotations.Test;
 import java.util.HashSet;
 import java.util.Set;
 
-@ContextConfiguration("cas-servelt.xml")
-public class OAuthControllerTest extends AbstractTestNGSpringContextTests {
+public class OAuthControllerTest {
     private OAuthController classToTest;
     private UserService userService;
 //    private MasheryApiClientService masheryApiClientService;

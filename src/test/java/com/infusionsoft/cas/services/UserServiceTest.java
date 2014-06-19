@@ -60,7 +60,6 @@ public class UserServiceTest {
         Whitebox.setInternalState(serviceToTest, "pendingUserAccountDAO", pendingUserAccountDAO);
         Whitebox.setInternalState(serviceToTest, "userDAO", userDAO);
         Whitebox.setInternalState(serviceToTest, "userAccountDAO", userAccountDAO);
-        Whitebox.setInternalState(serviceToTest, "oauthService", oauthService);
 
         when(userDAO.findOne(user.getId())).thenReturn(user);
         when(userDAO.findByUsername(testUsername)).thenReturn(user);

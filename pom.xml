@@ -25,7 +25,7 @@
         <add.artifact.descriptors>false</add.artifact.descriptors>
         <maven.test.skip>true</maven.test.skip>
         <filtering.enabled>true</filtering.enabled>
-        <powermock.version>1.4.6</powermock.version>
+        <powermock.version>1.5.5</powermock.version>
         <ehcache.version>2.7.4</ehcache.version>
         <jackson.version>2.4.0</jackson.version>
     </properties>
