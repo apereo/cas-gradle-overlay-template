@@ -10,7 +10,7 @@ import org.springframework.http.HttpStatus;
 public class OAuthInvalidScopeException extends OAuthException {
 
     public OAuthInvalidScopeException() {
-        super("invalid_scope", HttpStatus.BAD_REQUEST);
+        super("invalid_scope", HttpStatus.BAD_REQUEST, "oauth.exception.invalid.scope");
     }
 
 }

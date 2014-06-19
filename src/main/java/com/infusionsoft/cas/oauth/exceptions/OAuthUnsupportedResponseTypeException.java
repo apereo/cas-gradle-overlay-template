@@ -10,7 +10,7 @@ import org.springframework.http.HttpStatus;
 public class OAuthUnsupportedResponseTypeException extends OAuthException {
 
     public OAuthUnsupportedResponseTypeException() {
-        super("unsupported_response_type", HttpStatus.BAD_REQUEST);
+        super("unsupported_response_type", HttpStatus.BAD_REQUEST, "oauth.exception.unsupported.response.type");
     }
 
 }

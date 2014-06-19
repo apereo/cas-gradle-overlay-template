@@ -10,7 +10,11 @@ import org.springframework.http.HttpStatus;
 public class OAuthInvalidRequestException extends OAuthException {
 
     public OAuthInvalidRequestException() {
-        super("invalid_request", HttpStatus.BAD_REQUEST);
+        super("invalid_request", HttpStatus.BAD_REQUEST, "oauth.exception.invalid.request");
+    }
+
+    public OAuthInvalidRequestException(String message) {
+        super("invalid_request", HttpStatus.BAD_REQUEST, message);
     }
 
 }

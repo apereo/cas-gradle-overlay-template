@@ -37,24 +37,10 @@
                  p:httpClient-ref="noRedirectHttpClient"
                  p:disableSingleSignOut="${slo.callbacks.disabled:false}" />
 
-
-    <bean id="saml2ArgumentExtractor" class="com.infusionsoft.cas.support.InfusionsoftSaml2ArgumentExtractor"
-          p:privateKey-ref="privateKeyFactoryBean"
-          p:publicKey-ref="publicKeyFactoryBean"
-          p:httpClient-ref="noRedirectHttpClient"
-          p:serverPrefix="${server.prefix}"/>
-
  	<util:list id="argumentExtractors">
 		 <ref bean="casArgumentExtractor" />
  		 <ref bean="samlArgumentExtractor" />
-         <ref bean="saml2ArgumentExtractor" />
+         <!--<ref bean="saml2ArgumentExtractor" />-->
  	</util:list>
 
-    <bean id="privateKeyFactoryBean" class="org.jasig.cas.util.PrivateKeyFactoryBean"
-          p:location="${saml2.privateKey}"
-          p:algorithm="RSA" />
-
-    <bean id="publicKeyFactoryBean"	class="org.jasig.cas.util.PublicKeyFactoryBean"
-          p:location="${saml2.publicKey}"
-          p:algorithm="RSA" />
 </beans>

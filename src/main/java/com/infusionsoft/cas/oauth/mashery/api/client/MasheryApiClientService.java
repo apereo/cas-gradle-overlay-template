@@ -2,6 +2,7 @@ package com.infusionsoft.cas.oauth.mashery.api.client;
 
 import com.infusionsoft.cas.oauth.exceptions.OAuthException;
 import com.infusionsoft.cas.oauth.exceptions.OAuthServerErrorException;
+import com.infusionsoft.cas.oauth.exceptions.OAuthUnauthorizedClientException;
 import com.infusionsoft.cas.oauth.mashery.api.domain.*;
 import com.infusionsoft.cas.oauth.mashery.api.wrappers.*;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -32,6 +33,7 @@ import java.util.*;
 public class MasheryApiClientService {
 
     private static final Logger log = LoggerFactory.getLogger(MasheryApiClientService.class);
+    private static final int MASHERY_BAD_CLIENT_ID = -2001;
 
     @Value("${mashery.api.url}")
     private String apiUrl;
@@ -96,7 +98,7 @@ public class MasheryApiClientService {
         return wrappedMasheryUserApplication.getResult();
     }
 
-    @Caching(evict = { @CacheEvict("masheryUserApplications"), @CacheEvict(value = "masheryAccessTokens", key = "#accessToken") })
+    @Caching(evict = {@CacheEvict("masheryUserApplications"), @CacheEvict(value = "masheryAccessTokens", key = "#accessToken")})
     public Boolean revokeAccessToken(String clientId, String accessToken) throws OAuthException {
         MasheryJsonRpcRequest masheryJsonRpcRequest = new MasheryJsonRpcRequest();
         masheryJsonRpcRequest.setMethod("oauth2.revokeAccessToken");
@@ -215,7 +217,7 @@ public class MasheryApiClientService {
             throw convertException(e);
         }
 
-        return  wrappedMasheryCreateAccessTokenResponse != null ? wrappedMasheryCreateAccessTokenResponse.getResult() : null;
+        return wrappedMasheryCreateAccessTokenResponse != null ? wrappedMasheryCreateAccessTokenResponse.getResult() : null;
     }
 
     @Cacheable(value = "masheryAccessTokens")
@@ -274,6 +276,21 @@ public class MasheryApiClientService {
 
     private OAuthException convertException(RestClientException e) {
         log.error("Error contacting Mashery", e);
+
+        if (e.getCause() != null && e.getCause() instanceof MasheryApiException) {
+            MasheryApiException masheryApiException = (MasheryApiException) e.getCause();
+
+            int errorCode = Integer.parseInt(masheryApiException.getMasheryError().getCode());
+
+            switch (errorCode) {
+                case MASHERY_BAD_CLIENT_ID:
+                    return new OAuthUnauthorizedClientException();
+
+                default:
+                    return new OAuthServerErrorException();
+
+            }
+        }
         return new OAuthServerErrorException(e);
     }
 }

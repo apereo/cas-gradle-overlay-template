@@ -23,8 +23,6 @@ public class MasheryRestErrorHandler extends DefaultResponseErrorHandler {
 
     private static final Logger log = LoggerFactory.getLogger(MasheryRestErrorHandler.class);
 
-    private static final int MASHERY_BAD_CLIENT_ID = -2001;
-
     @Override
     public void handleError(ClientHttpResponse response) throws IOException {
         ObjectMapper objectMapper = new ObjectMapper();
@@ -41,17 +39,7 @@ public class MasheryRestErrorHandler extends DefaultResponseErrorHandler {
         log.error(new StrBuilder("Error calling mashery=").appendln(masheryResult.getError().toString()).append("Headers from response=").append(sb.toString()).toString());
 
         if (masheryResult.getError() != null) {
-
-            int errorCode = Integer.parseInt(masheryResult.getError().getCode());
-
-            switch (errorCode) {
-                case MASHERY_BAD_CLIENT_ID:
-                    throw new OAuthUnauthorizedClientException();
-
-                default:
-                    throw new OAuthServerErrorException();
-
-            }
+            throw new MasheryApiException(masheryResult.getError());
         } else {
             super.handleError(response);
         }

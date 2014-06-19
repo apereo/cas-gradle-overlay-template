@@ -10,7 +10,7 @@ import org.springframework.http.HttpStatus;
 public class OAuthUnauthorizedClientException extends OAuthException {
 
     public OAuthUnauthorizedClientException() {
-        super("unauthorized_client", HttpStatus.BAD_REQUEST);
+        super("unauthorized_client", HttpStatus.BAD_REQUEST, "oauth.exception.unauthorized.client");
     }
 
 }

@@ -61,12 +61,14 @@ public class InfusionsoftAttributeRepository extends AbstractFlatteningPersonAtt
         return new AttributeNamedPersonImpl(resultsMap);
     }
 
-    /****************************************************************************************************
+    /**
+     * *************************************************************************************************
      * * * WARNING * * *
      * If the format/content of this JSON ever changes in a way that affects parsing on the receiving end,
      * the TICKETGRANTINGTICKET table needs to be completely cleared, since the old tickets stored there
      * will still have the old format
-     ****************************************************************************************************/
+     * **************************************************************************************************
+     */
     private String getAccountsJSON(List<UserAccount> accounts) {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         try {

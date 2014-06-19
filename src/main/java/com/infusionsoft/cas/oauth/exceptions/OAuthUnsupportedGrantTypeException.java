@@ -10,7 +10,7 @@ import org.springframework.http.HttpStatus;
 public class OAuthUnsupportedGrantTypeException extends OAuthException {
 
     public OAuthUnsupportedGrantTypeException() {
-        super("unsupported_grant_type", HttpStatus.BAD_REQUEST);
+        super("unsupported_grant_type", HttpStatus.BAD_REQUEST, "oauth.exception.unsupported.grant.type");
     }
 
 }

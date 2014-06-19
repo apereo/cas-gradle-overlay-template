@@ -9,7 +9,7 @@ public class MasheryAccessToken {
     private String client_id;
     private String token_type;
     private String grant_type;
-    private String expires;
+    private Integer expires;
     private String scope;
     private String user_context;
     private String extended;
@@ -46,11 +46,11 @@ public class MasheryAccessToken {
         this.grant_type = grant_type;
     }
 
-    public String getExpires() {
+    public Integer getExpires() {
         return expires;
     }
 
-    public void setExpires(String expires) {
+    public void setExpires(Integer expires) {
         this.expires = expires;
     }
 

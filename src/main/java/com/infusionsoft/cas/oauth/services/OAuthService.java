@@ -12,7 +12,6 @@ import com.infusionsoft.cas.oauth.mashery.api.domain.*;
 import com.infusionsoft.cas.services.CrmService;
 import com.infusionsoft.cas.services.UserService;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
@@ -75,9 +74,6 @@ public class OAuthService implements ApplicationListener<UserAccountDeletedEvent
      * @return The created access token or throws exception
      * @throws OAuthException
      */
-//    public OAuthAccessToken createAccessToken(String clientId, String clientSecret, String grantType, String requestedScope, Long globalUserId) throws OAuthException {
-//        return createAccessToken(clientId, clientSecret, grantType, requestedScope, requestedScope, globalUserId);
-//    }
 
     public OAuthAccessToken createAccessToken(String clientId, String clientSecret, String grantType, String requestedScope, String application, Long globalUserId) throws OAuthException {
         String scope = StringUtils.defaultString(requestedScope) + "|" + application;
@@ -94,23 +90,11 @@ public class OAuthService implements ApplicationListener<UserAccountDeletedEvent
         return masheryApiClientService.revokeAccessToken(clientId, accessToken);
     }
 
-    public MasheryAccessToken fetchAccessToken(String accessToken) throws OAuthException {
-        return masheryApiClientService.fetchAccessToken(accessToken);
-    }
+    public OAuthAccessToken fetchAccessToken(String accessToken) throws OAuthException {
+        MasheryAccessToken masheryAccessToken = masheryApiClientService.fetchAccessToken(accessToken);
 
-//    public Set<MasheryUserApplication> fetchUserApplicationsByUserAccount(UserAccount userAccount) throws OAuthException {
-//        Set<MasheryUserApplication> masheryUserApplications = new HashSet<MasheryUserApplication>();
-//
-//        if (userAccount != null) {
-//            User user = userAccount.getUser();
-//            if (user != null) {
-//                String userContext = user.getId() + "|" + crmService.buildCrmHostName(userAccount.getAppName());
-//                masheryUserApplications = masheryApiClientService.fetchUserApplicationsByUserContext(userContext, TokenStatus.Active);
-//            }
-//        }
-//
-//        return masheryUserApplications;
-//    }
+        return new OAuthAccessToken(masheryAccessToken.getToken(), masheryAccessToken.getToken_type(), masheryAccessToken.getExpires(), null, masheryAccessToken.getScope());
+    }
 
     public Set<OAuthUserApplication> fetchUserApplicationsByUserAccount(UserAccount userAccount) throws OAuthException {
         Set<OAuthUserApplication> retVal = new HashSet<OAuthUserApplication>();
@@ -125,7 +109,7 @@ public class OAuthService implements ApplicationListener<UserAccountDeletedEvent
                     Set<OAuthAccessToken> accessTokens = new HashSet<OAuthAccessToken>();
 
                     for (MasheryAccessToken masheryAccessToken : masheryUserApplication.getTokens()) {
-                        accessTokens.add(new OAuthAccessToken(masheryAccessToken.getToken(), masheryAccessToken.getToken_type(), NumberUtils.createInteger(masheryAccessToken.getExpires()), null, masheryAccessToken.getScope()));
+                        accessTokens.add(new OAuthAccessToken(masheryAccessToken.getToken(), masheryAccessToken.getToken_type(), masheryAccessToken.getExpires(), null, masheryAccessToken.getScope()));
                     }
 
                     OAuthUserApplication oAuthUserApplication = new OAuthUserApplication(masheryUserApplication.getId(), masheryUserApplication.getName(), masheryUserApplication.getClient_id(), accessTokens);
@@ -149,6 +133,26 @@ public class OAuthService implements ApplicationListener<UserAccountDeletedEvent
                 } catch (RestClientException e) {
                     log.error("Unable to revoke access token for app=" + account.getAppName() + " clientId=" + masheryUserApplication.getClientId() + " token=" + token, e);
                     revokeSuccessful = false;
+                }
+            }
+        }
+
+        return revokeSuccessful;
+    }
+
+    public boolean revokeAccessTokensByUserAccount(UserAccount account, String applicationId) throws OAuthException {
+        boolean revokeSuccessful = true;
+
+        Set<OAuthUserApplication> oAuthUserApplications = this.fetchUserApplicationsByUserAccount(account);
+        for (OAuthUserApplication oAuthUserApplication : oAuthUserApplications) {
+            if(applicationId.equals(oAuthUserApplication.getId())) {
+                for (OAuthAccessToken token : oAuthUserApplication.getAccessTokens()) {
+                    try {
+                        revokeSuccessful = masheryApiClientService.revokeAccessToken(oAuthUserApplication.getClientId(), token.getAccessToken()) && revokeSuccessful;
+                    } catch (RestClientException e) {
+                        log.error("Unable to revoke access token for app=" + account.getAppName() + " clientId=" + oAuthUserApplication.getClientId() + " token=" + token, e);
+                        revokeSuccessful = false;
+                    }
                 }
             }
         }

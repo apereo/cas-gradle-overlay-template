@@ -2,14 +2,15 @@ package com.infusionsoft.cas.oauth.exceptions;
 
 import org.springframework.http.HttpStatus;
 
-import java.io.IOException;
-
 /**
- * This is an exception that is used OAuth Error Responses
+ * This is an exception that is used OAuth Error Responses.  Extends IOException so the RestTemplate can throw them when communicating with Mashery
  *
  * @see <a href="http://tools.ietf.org/html/draft-ietf-oauth-v2-31#section-4.1.2.1"/>
  */
-public abstract class OAuthException extends IOException {
+public abstract class OAuthException extends Exception {
+
+    protected static final String DEFAULT_ERROR_DESCRIPTION = "oauth.exception.server.error";
+    protected static final String DEFAULT_ERROR_URI = "https://developer.infusionsoft.com/docs/read/Getting_Started_With_OAuth2";
 
     protected final String errorCode;
     protected final HttpStatus httpStatus;
@@ -19,8 +20,15 @@ public abstract class OAuthException extends IOException {
     protected OAuthException(String errorCode, HttpStatus httpStatus) {
         this.errorCode = errorCode;
         this.httpStatus = httpStatus;
-        this.errorDescription = "";
-        this.errorUri = "";
+        this.errorDescription = DEFAULT_ERROR_DESCRIPTION;
+        this.errorUri = DEFAULT_ERROR_URI;
+    }
+
+    protected OAuthException(String errorCode, HttpStatus httpStatus, String errorDescription) {
+        this.errorCode = errorCode;
+        this.httpStatus = httpStatus;
+        this.errorDescription = errorDescription;
+        this.errorUri = DEFAULT_ERROR_URI;
     }
 
     protected OAuthException(String errorCode, HttpStatus httpStatus, String errorDescription, String errorUri) {
@@ -34,8 +42,16 @@ public abstract class OAuthException extends IOException {
         super(e);
         this.errorCode = errorCode;
         this.httpStatus = httpStatus;
-        this.errorDescription = "";
-        this.errorUri = "";
+        this.errorDescription = DEFAULT_ERROR_DESCRIPTION;
+        this.errorUri = DEFAULT_ERROR_URI;
+    }
+
+    protected OAuthException(String errorCode, HttpStatus httpStatus, Exception e, String errorDescription) {
+        super(e);
+        this.errorCode = errorCode;
+        this.httpStatus = httpStatus;
+        this.errorDescription = errorDescription;
+        this.errorUri = DEFAULT_ERROR_URI;
     }
 
     protected OAuthException(String errorCode, HttpStatus httpStatus, Exception e, String errorDescription, String errorUri) {

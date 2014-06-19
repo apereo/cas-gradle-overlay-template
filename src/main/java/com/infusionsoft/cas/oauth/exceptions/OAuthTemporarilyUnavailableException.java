@@ -10,7 +10,7 @@ import org.springframework.http.HttpStatus;
 public class OAuthTemporarilyUnavailableException extends OAuthException {
 
     public OAuthTemporarilyUnavailableException() {
-        super("temporarily_unavailable", HttpStatus.SERVICE_UNAVAILABLE);
+        super("temporarily_unavailable", HttpStatus.SERVICE_UNAVAILABLE, "oauth.exception.temporarily.unavailable");
     }
 
 }

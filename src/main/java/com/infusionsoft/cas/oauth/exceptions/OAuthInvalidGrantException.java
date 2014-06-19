@@ -10,7 +10,7 @@ import org.springframework.http.HttpStatus;
 public class OAuthInvalidGrantException extends OAuthException {
 
     public OAuthInvalidGrantException() {
-        super("invalid_grant", HttpStatus.BAD_REQUEST);
+        super("invalid_grant", HttpStatus.BAD_REQUEST, "oauth.exception.invalid.grant");
     }
 
 }
