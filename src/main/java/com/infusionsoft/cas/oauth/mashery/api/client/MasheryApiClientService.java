@@ -208,10 +208,10 @@ public class MasheryApiClientService {
         headers.setContentType(MediaType.APPLICATION_JSON);
         HttpEntity<MasheryJsonRpcRequest> request = new HttpEntity<MasheryJsonRpcRequest>(masheryJsonRpcRequest, headers);
 
-        WrappedMasheryMemberQueryResult wrappedMasheryMember;
+        WrappedMasheryMemberListQueryResult wrappedMasheryMember;
 
         try {
-            wrappedMasheryMember = restTemplate.postForObject(buildUrl(), request, WrappedMasheryMemberQueryResult.class);
+            wrappedMasheryMember = restTemplate.postForObject(buildUrl(), request, WrappedMasheryMemberListQueryResult.class);
         } catch (RestClientException e) {
             throw convertException(e);
         }
@@ -219,7 +219,7 @@ public class MasheryApiClientService {
         if(wrappedMasheryMember.getResult().getTotalItems() != 1) {
             throw new OAuthServerErrorException("oauth.exception.missing.member");
         } else {
-            return wrappedMasheryMember.getResult().getItems().iterator().next();
+            return wrappedMasheryMember.getResult().getItems().iterator().next().getMember();
         }
     }
 
@@ -229,8 +229,8 @@ public class MasheryApiClientService {
 
         masheryJsonRpcRequest.getParams().add(serviceKey);
         masheryJsonRpcRequest.getParams().add(new MasheryClient(clientId, clientSecret));
-        masheryJsonRpcRequest.getParams().add(new MasheryTokenData(grant_type, scope));
-        masheryJsonRpcRequest.getParams().add(new MasheryUri("", ""));
+        masheryJsonRpcRequest.getParams().add(new MasheryTokenData(grant_type, scope, null, null, null));
+        masheryJsonRpcRequest.getParams().add(new MasheryUri());
         masheryJsonRpcRequest.getParams().add(userContext);
 
         HttpHeaders headers = new HttpHeaders();

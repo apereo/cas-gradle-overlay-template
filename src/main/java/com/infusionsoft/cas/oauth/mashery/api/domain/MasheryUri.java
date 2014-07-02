@@ -1,6 +1,7 @@
 package com.infusionsoft.cas.oauth.mashery.api.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -23,6 +24,7 @@ public class MasheryUri {
     }
 
     @JsonProperty("redirect_uri")
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
     public void setUri(String uri) {
         this.uri = uri;
     }
@@ -31,6 +33,7 @@ public class MasheryUri {
         return state;
     }
 
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
     public void setState(String state) {
         this.state = state;
     }

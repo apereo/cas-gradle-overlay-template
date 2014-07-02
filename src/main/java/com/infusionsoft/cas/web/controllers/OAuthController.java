@@ -21,6 +21,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
@@ -132,9 +133,9 @@ public class OAuthController {
     /**
      * Token generation for Resource Grant Type
      */
-    @RequestMapping
     @ResponseBody
-    public OAuthAccessToken token() throws Exception {
+    @RequestMapping("/oauth/service/{serviceKey}/token")
+    public OAuthAccessToken token(@PathVariable String serviceKey) throws Exception {
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         OAuthAuthenticationToken oAuthAuthenticationToken = (OAuthAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
 
@@ -142,7 +143,7 @@ public class OAuthController {
             /**
              * The scope is the application for these grant type
              */
-            return oauthService.createAccessToken(oAuthAuthenticationToken.getClientId(), oAuthAuthenticationToken.getClientSecret(), oAuthAuthenticationToken.getGrantType(), oAuthAuthenticationToken.getScope(), oAuthAuthenticationToken.getApplication(), user.getId());
+            return oauthService.createAccessToken(serviceKey, oAuthAuthenticationToken.getClientId(), oAuthAuthenticationToken.getClientSecret(), oAuthAuthenticationToken.getGrantType(), oAuthAuthenticationToken.getScope(), oAuthAuthenticationToken.getApplication(), user.getId());
         } else {
             throw new OAuthInvalidRequestException();
         }

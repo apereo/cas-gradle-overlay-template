@@ -8,7 +8,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-@JsonRootName("member")
 public class MasheryMember {
 
     private String username;

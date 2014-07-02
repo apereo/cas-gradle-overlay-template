@@ -10,6 +10,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -34,7 +35,12 @@ public class OAuthExtendedGrantAuthenticationProvider implements AuthenticationP
 
                 if (oAuthService.isClientAuthorizedForExtendedGrantType(oAuthExtendedGrantAuthenticationToken.getClientId())) {
                     User user = userService.loadUser(oAuthExtendedGrantAuthenticationToken.getGlobalUserId());
-                    retVal = new OAuthExtendedGrantAuthenticationToken(user, null, oAuthExtendedGrantAuthenticationToken.getClientId(), oAuthExtendedGrantAuthenticationToken.getClientSecret(), oAuthExtendedGrantAuthenticationToken.getScope(), oAuthExtendedGrantAuthenticationToken.getGrantType(), oAuthExtendedGrantAuthenticationToken.getApplication(), oAuthExtendedGrantAuthenticationToken.getGlobalUserId(), user.getAuthorities());
+
+                    if(user != null) {
+                        retVal = new OAuthExtendedGrantAuthenticationToken(user, null, oAuthExtendedGrantAuthenticationToken.getClientId(), oAuthExtendedGrantAuthenticationToken.getClientSecret(), oAuthExtendedGrantAuthenticationToken.getScope(), oAuthExtendedGrantAuthenticationToken.getGrantType(), oAuthExtendedGrantAuthenticationToken.getApplication(), oAuthExtendedGrantAuthenticationToken.getGlobalUserId(), user.getAuthorities());
+                    } else {
+                        throw new UsernameNotFoundException("Unable to find user");
+                    }
                 } else {
                     throw new AccessDeniedException("Client is not authorized for extended grant type");
                 }
