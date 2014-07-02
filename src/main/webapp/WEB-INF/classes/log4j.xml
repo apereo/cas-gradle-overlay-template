@@ -77,6 +77,10 @@
         <level value="WARN" />
     </logger>
 
+    <logger name="com.fasterxml">
+        <level value="DEBUG" />
+    </logger>
+
     <logger name="org.springframework.security">
         <level value="INFO" />
         <appender-ref ref="cas" />
@@ -113,16 +117,6 @@
     </logger>
 
     <logger name="com.infusionsoft.cas.support.InfusionsoftSaml2ArgumentExtractor">
-        <level value="DEBUG" />
-        <appender-ref ref="cas" />
-    </logger>
-
-    <logger name="com.infusionsoft.cas.support.InfusionsoftSaml2Service">
-        <level value="DEBUG" />
-        <appender-ref ref="cas" />
-    </logger>
-
-    <logger name="com.infusionsoft.cas.support.SamlHelper">
         <level value="DEBUG" />
         <appender-ref ref="cas" />
     </logger>

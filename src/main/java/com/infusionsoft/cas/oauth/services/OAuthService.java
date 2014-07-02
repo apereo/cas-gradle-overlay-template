@@ -2,10 +2,11 @@ package com.infusionsoft.cas.oauth.services;
 
 import com.infusionsoft.cas.domain.User;
 import com.infusionsoft.cas.domain.UserAccount;
-import com.infusionsoft.cas.events.UserAccountDeletedEvent;
+import com.infusionsoft.cas.events.UserAccountRemovedEvent;
 import com.infusionsoft.cas.oauth.dto.OAuthAccessToken;
 import com.infusionsoft.cas.oauth.dto.OAuthApplication;
 import com.infusionsoft.cas.oauth.dto.OAuthUserApplication;
+import com.infusionsoft.cas.oauth.exceptions.OAuthAccessDeniedException;
 import com.infusionsoft.cas.oauth.exceptions.OAuthException;
 import com.infusionsoft.cas.oauth.mashery.api.client.MasheryApiClientService;
 import com.infusionsoft.cas.oauth.mashery.api.domain.*;
@@ -14,6 +15,7 @@ import com.infusionsoft.cas.services.UserService;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
@@ -22,9 +24,11 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Service
-public class OAuthService implements ApplicationListener<UserAccountDeletedEvent> {
+public class OAuthService implements ApplicationListener<UserAccountRemovedEvent> {
 
     private static final Logger log = Logger.getLogger(OAuthService.class);
+    private static final String EXTENDED_GRANT_TYPE_URN = "urn:infusionsoft:params:oauth:grant-type:trusted";
+    private static final String TRUSTED_INTERNAL_SYSTEM_ROLE = "Trusted Internal System";
 
     @Autowired
     private MasheryApiClientService masheryApiClientService;
@@ -35,30 +39,40 @@ public class OAuthService implements ApplicationListener<UserAccountDeletedEvent
     @Autowired
     private UserService userService;
 
+    @Value("${mashery.api.crm.service.key}")
+    private String serviceKey;
+
     @Override
-    public void onApplicationEvent(UserAccountDeletedEvent userAccountDeletedEvent) {
+    public void onApplicationEvent(UserAccountRemovedEvent userAccountRemovedEvent) {
         try {
-            revokeAccessTokensByUserAccount(userAccountDeletedEvent.getUserAccount());
+            revokeAccessTokensByUserAccount(userAccountRemovedEvent.getUserAccount());
         } catch (OAuthException e) {
-            log.error("Unable to revoke access tokens during account deletion -> " + userAccountDeletedEvent.getUserAccount().toString());
+            log.error("Unable to revoke access tokens during account deletion -> " + userAccountRemovedEvent.getUserAccount().toString());
         }
     }
 
     public OAuthApplication fetchApplication(String clientId, String redirectUri, String responseType) throws OAuthException {
-        MasheryOAuthApplication masheryOAuthApplication = masheryApiClientService.fetchOAuthApplication(clientId, redirectUri, responseType);
+        MasheryOAuthApplication masheryOAuthApplication = masheryApiClientService.fetchOAuthApplication(serviceKey, clientId, redirectUri, responseType);
         MasheryApplication masheryApplication = masheryApiClientService.fetchApplication(masheryOAuthApplication.getId());
         MasheryMember masheryMember = masheryApiClientService.fetchMember(masheryApplication.getUsername());
 
-        return new OAuthApplication(masheryApplication.getName(), masheryApplication.getDescription(), masheryMember.getDisplayName());
+        Set<String> roles = new HashSet<String>();
+        for (MasheryRole masheryRole : masheryMember.getRoles()) {
+            roles.add(masheryRole.getName());
+        }
+
+        return new OAuthApplication(masheryApplication.getName(), masheryApplication.getDescription(), masheryMember.getDisplayName(), roles);
     }
 
     public String createAuthorizationCode(String clientId, String requestedScope, String application, String redirectUri, Long globalUserId, String state) throws OAuthException {
         String scope = requestedScope + "|" + application;
         String userContext = globalUserId + "|" + application;
 
-        userService.validateUserApplication(application);
+        if(!userService.validateUserApplication(application) ) {
+            throw new OAuthAccessDeniedException();
+        }
 
-        MasheryAuthorizationCode masheryAuthorizationCode = masheryApiClientService.createAuthorizationCode(clientId, scope, redirectUri, userContext, state);
+        MasheryAuthorizationCode masheryAuthorizationCode = masheryApiClientService.createAuthorizationCode(serviceKey, clientId, scope, redirectUri, userContext, state);
 
         return masheryAuthorizationCode.getUri().getUri();
     }
@@ -74,24 +88,25 @@ public class OAuthService implements ApplicationListener<UserAccountDeletedEvent
      * @return The created access token or throws exception
      * @throws OAuthException
      */
-
     public OAuthAccessToken createAccessToken(String clientId, String clientSecret, String grantType, String requestedScope, String application, Long globalUserId) throws OAuthException {
         String scope = StringUtils.defaultString(requestedScope) + "|" + application;
         String userContext = globalUserId + "|" + application;
 
-        userService.validateUserApplication(application);
+        if(!userService.validateUserApplication(application) ) {
+            throw new OAuthAccessDeniedException();
+        }
 
-        MasheryCreateAccessTokenResponse masheryCreateAccessTokenResponse = masheryApiClientService.createAccessToken(clientId, clientSecret, grantType, scope, userContext);
+        MasheryCreateAccessTokenResponse masheryCreateAccessTokenResponse = masheryApiClientService.createAccessToken(serviceKey, clientId, clientSecret, grantType, scope, userContext);
 
         return new OAuthAccessToken(masheryCreateAccessTokenResponse.getAccess_token(), masheryCreateAccessTokenResponse.getToken_type(), masheryCreateAccessTokenResponse.getExpires_in(), masheryCreateAccessTokenResponse.getRefresh_token(), masheryCreateAccessTokenResponse.getScope());
     }
 
     public Boolean revokeAccessToken(String clientId, String accessToken) throws OAuthException {
-        return masheryApiClientService.revokeAccessToken(clientId, accessToken);
+        return masheryApiClientService.revokeAccessToken(serviceKey, clientId, accessToken);
     }
 
     public OAuthAccessToken fetchAccessToken(String accessToken) throws OAuthException {
-        MasheryAccessToken masheryAccessToken = masheryApiClientService.fetchAccessToken(accessToken);
+        MasheryAccessToken masheryAccessToken = masheryApiClientService.fetchAccessToken(serviceKey, accessToken);
 
         return new OAuthAccessToken(masheryAccessToken.getToken(), masheryAccessToken.getToken_type(), masheryAccessToken.getExpires(), null, masheryAccessToken.getScope());
     }
@@ -103,7 +118,7 @@ public class OAuthService implements ApplicationListener<UserAccountDeletedEvent
             User user = userAccount.getUser();
             if (user != null) {
                 String userContext = user.getId() + "|" + crmService.buildCrmHostName(userAccount.getAppName());
-                Set<MasheryUserApplication> masheryUserApplications = masheryApiClientService.fetchUserApplicationsByUserContext(userContext, TokenStatus.Active);
+                Set<MasheryUserApplication> masheryUserApplications = masheryApiClientService.fetchUserApplicationsByUserContext(serviceKey, userContext, TokenStatus.Active);
 
                 for (MasheryUserApplication masheryUserApplication : masheryUserApplications) {
                     Set<OAuthAccessToken> accessTokens = new HashSet<OAuthAccessToken>();
@@ -129,7 +144,7 @@ public class OAuthService implements ApplicationListener<UserAccountDeletedEvent
         for (OAuthUserApplication masheryUserApplication : masheryUserApplications) {
             for (OAuthAccessToken token : masheryUserApplication.getAccessTokens()) {
                 try {
-                    revokeSuccessful = masheryApiClientService.revokeAccessToken(masheryUserApplication.getClientId(), token.getAccessToken()) && revokeSuccessful;
+                    revokeSuccessful = masheryApiClientService.revokeAccessToken(serviceKey, masheryUserApplication.getClientId(), token.getAccessToken()) && revokeSuccessful;
                 } catch (RestClientException e) {
                     log.error("Unable to revoke access token for app=" + account.getAppName() + " clientId=" + masheryUserApplication.getClientId() + " token=" + token, e);
                     revokeSuccessful = false;
@@ -145,10 +160,10 @@ public class OAuthService implements ApplicationListener<UserAccountDeletedEvent
 
         Set<OAuthUserApplication> oAuthUserApplications = this.fetchUserApplicationsByUserAccount(account);
         for (OAuthUserApplication oAuthUserApplication : oAuthUserApplications) {
-            if(applicationId.equals(oAuthUserApplication.getId())) {
+            if (applicationId.equals(oAuthUserApplication.getId())) {
                 for (OAuthAccessToken token : oAuthUserApplication.getAccessTokens()) {
                     try {
-                        revokeSuccessful = masheryApiClientService.revokeAccessToken(oAuthUserApplication.getClientId(), token.getAccessToken()) && revokeSuccessful;
+                        revokeSuccessful = masheryApiClientService.revokeAccessToken(serviceKey, oAuthUserApplication.getClientId(), token.getAccessToken()) && revokeSuccessful;
                     } catch (RestClientException e) {
                         log.error("Unable to revoke access token for app=" + account.getAppName() + " clientId=" + oAuthUserApplication.getClientId() + " token=" + token, e);
                         revokeSuccessful = false;
@@ -158,5 +173,20 @@ public class OAuthService implements ApplicationListener<UserAccountDeletedEvent
         }
 
         return revokeSuccessful;
+    }
+
+    public boolean isExtendedGrantType(String grantType) {
+        return EXTENDED_GRANT_TYPE_URN.equals(grantType);
+    }
+
+    public boolean isClientAuthorizedForExtendedGrantType(String clientId) throws OAuthException {
+        MasheryMember masheryMember = masheryApiClientService.fetchMemberByClientId(clientId);
+        for(MasheryRole masheryRole : masheryMember.getRoles()) {
+            if(TRUSTED_INTERNAL_SYSTEM_ROLE.equals(masheryRole.getName())) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

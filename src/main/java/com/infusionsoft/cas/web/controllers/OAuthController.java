@@ -1,6 +1,6 @@
 package com.infusionsoft.cas.web.controllers;
 
-import com.infusionsoft.cas.auth.OAuthClientCredentialAuthenticationToken;
+import com.infusionsoft.cas.auth.OAuthAuthenticationToken;
 import com.infusionsoft.cas.domain.AppType;
 import com.infusionsoft.cas.domain.User;
 import com.infusionsoft.cas.domain.UserAccount;
@@ -120,10 +120,6 @@ public class OAuthController {
                 User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
                 List<UserAccount> accounts = userService.findSortedUserAccountsByAppType(user, AppType.CRM);
 
-//                model.addAttribute("client_id", client_id);
-//                model.addAttribute("redirect_uri", redirect_uri);
-//                model.addAttribute("requestedScope", scope);
-//                model.addAttribute("response_type", response_type);
                 model.addAttribute("apps", crmService.extractAppNames(accounts));
             }
         } catch (OAuthException e) {
@@ -138,16 +134,15 @@ public class OAuthController {
      */
     @RequestMapping
     @ResponseBody
-    public OAuthAccessToken token(String grant_type, String scope) throws Exception {
-        OAuthClientCredentialAuthenticationToken oAuthClientCredentialAuthenticationToken = (OAuthClientCredentialAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
+    public OAuthAccessToken token() throws Exception {
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        OAuthAuthenticationToken oAuthAuthenticationToken = (OAuthAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
 
-        if (oAuthClientCredentialAuthenticationToken != null) {
-            User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-
+        if (oAuthAuthenticationToken != null) {
             /**
-             * The scope is the application for this grant type
+             * The scope is the application for these grant type
              */
-            return oauthService.createAccessToken(oAuthClientCredentialAuthenticationToken.getClientId(), oAuthClientCredentialAuthenticationToken.getClientSecret(), grant_type, "", scope, user.getId());
+            return oauthService.createAccessToken(oAuthAuthenticationToken.getClientId(), oAuthAuthenticationToken.getClientSecret(), oAuthAuthenticationToken.getGrantType(), oAuthAuthenticationToken.getScope(), oAuthAuthenticationToken.getApplication(), user.getId());
         } else {
             throw new OAuthInvalidRequestException();
         }
@@ -161,20 +156,12 @@ public class OAuthController {
 
         if (allow != null) {
             User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-            List<UserAccount> accounts = userService.findSortedUserAccountsByAppType(user, AppType.CRM);
-            List<String> crmAccounts = crmService.extractAppNames(accounts);
+            String redirectUriWithCode = oauthService.createAuthorizationCode(client_id, requestedScope, application, redirect_uri, user.getId(), state);
 
-            if (crmAccounts.contains(application)) {
-                String redirectUriWithCode = oauthService.createAuthorizationCode(client_id, requestedScope, application, redirect_uri, user.getId(), state);
-
-                if (StringUtils.isNotBlank(redirectUriWithCode)) {
-                    return "redirect:" + redirectUriWithCode;
-                } else {
-                    throw new OAuthServerErrorException();
-                }
+            if (StringUtils.isNotBlank(redirectUriWithCode)) {
+                return "redirect:" + redirectUriWithCode;
             } else {
-                logger.error("User " + SecurityContextHolder.getContext().getAuthentication().getName() + " tried to parameter tamper the application scope (" + application + ").");
-                throw new OAuthAccessDeniedException();
+                throw new OAuthServerErrorException();
             }
         } else {
             throw new OAuthAccessDeniedException();

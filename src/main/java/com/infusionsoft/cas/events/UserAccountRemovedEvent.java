@@ -6,9 +6,9 @@ import org.springframework.context.ApplicationEvent;
 /**
  * Event for when a user account is deleted
  */
-public class UserAccountDeletedEvent extends ApplicationEvent {
+public class UserAccountRemovedEvent extends ApplicationEvent {
 
-    public UserAccountDeletedEvent(UserAccount userAccount) {
+    public UserAccountRemovedEvent(UserAccount userAccount) {
         super(userAccount);
     }
 

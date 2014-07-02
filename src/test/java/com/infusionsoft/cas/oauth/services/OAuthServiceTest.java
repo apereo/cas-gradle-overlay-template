@@ -61,8 +61,8 @@ public class OAuthServiceTest {
         when(crmService.buildCrmHostName(TEST_APP)).thenReturn(TEST_APP_HOST_NAME);
 
         userService = mock(UserService.class);
-        doNothing().when(userService).validateUserApplication(TEST_APP_HOST_NAME);
-        doThrow(new AccessDeniedException("access denied")).when(userService).validateUserApplication(TEST_INVALID_APP_HOST_NAME);
+        when(userService.validateUserApplication(TEST_APP_HOST_NAME)).thenReturn(true);
+        when(userService.validateUserApplication(TEST_INVALID_APP_HOST_NAME)).thenReturn(false);
 
         createTestApps();
 

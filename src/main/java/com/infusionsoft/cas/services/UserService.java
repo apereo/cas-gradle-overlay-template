@@ -80,5 +80,5 @@ public interface UserService {
 
     Authority findAuthorityByName(String authorityName);
 
-    void validateUserApplication(String application) throws AccessDeniedException;
+    boolean validateUserApplication(String application) throws AccessDeniedException;
 }

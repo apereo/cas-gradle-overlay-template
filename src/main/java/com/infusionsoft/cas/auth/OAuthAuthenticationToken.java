@@ -15,32 +15,31 @@ import java.util.Collection;
  *
  * The class was mostly copied from UsernamePasswordToken
  */
-public class OAuthClientCredentialAuthenticationToken extends AbstractAuthenticationToken {
-
+public class OAuthAuthenticationToken extends AbstractAuthenticationToken {
     private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
-
-    //~ Instance fields ================================================================================================
-
-    private final Object principal;
-    private Object credentials;
-
-    private final String clientId;
-    private final String clientSecret;
-
-    //~ Constructors ===================================================================================================
+    protected final Object principal;
+    protected final String clientId;
+    protected final String clientSecret;
+    protected final String scope;
+    protected final String grantType;
+    protected final String application;
+    protected Object credentials;
 
     /**
      * This constructor can be safely used by any code that wishes to create a
-     * <code>OAuthClientCredentialAuthenticationToken</code>, as the {@link
+     * <code>OAuthAuthenticationToken</code>, as the {@link
      * #isAuthenticated()} will return <code>false</code>.
      *
      */
-    public OAuthClientCredentialAuthenticationToken(Object principal, Object credentials, String clientId, String clientSecret) {
+    public OAuthAuthenticationToken(Object principal, Object credentials, String clientId, String clientSecret, String scope, String grantType, String application) {
         super(null);
         this.principal = principal;
         this.credentials = credentials;
         this.clientId = clientId;
         this.clientSecret = clientSecret;
+        this.scope = scope;
+        this.grantType = grantType;
+        this.application = application;
         setAuthenticated(false);
     }
 
@@ -55,17 +54,17 @@ public class OAuthClientCredentialAuthenticationToken extends AbstractAuthentica
      * @param clientSecret
      * @param authorities
      */
-    public OAuthClientCredentialAuthenticationToken(Object principal, Object credentials, String clientId, String clientSecret, Collection<? extends GrantedAuthority> authorities) {
+    public OAuthAuthenticationToken(Object principal, Object credentials, String clientId, String clientSecret, String scope, String grantType, String application, Collection<? extends GrantedAuthority> authorities) {
         super(authorities);
         this.principal = principal;
         this.credentials = credentials;
         this.clientId = clientId;
         this.clientSecret = clientSecret;
+        this.scope = scope;
+        this.grantType = grantType;
+        this.application = application;
         super.setAuthenticated(true); // must use super, as we override
     }
-
-
-    //~ Methods ========================================================================================================
 
     public Object getCredentials() {
         return this.credentials;
@@ -81,6 +80,18 @@ public class OAuthClientCredentialAuthenticationToken extends AbstractAuthentica
 
     public String getClientSecret() {
         return  clientSecret;
+    }
+
+    public String getScope() {
+        return scope;
+    }
+
+    public String getApplication() {
+        return application;
+    }
+
+    public String getGrantType() {
+        return grantType;
     }
 
     public void setAuthenticated(boolean isAuthenticated) throws IllegalArgumentException {

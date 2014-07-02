@@ -2,7 +2,7 @@ package com.infusionsoft.cas.services;
 
 import com.infusionsoft.cas.dao.*;
 import com.infusionsoft.cas.domain.*;
-import com.infusionsoft.cas.events.UserAccountDeletedEvent;
+import com.infusionsoft.cas.events.UserAccountRemovedEvent;
 import com.infusionsoft.cas.exceptions.AccountException;
 import com.infusionsoft.cas.exceptions.DuplicateAccountException;
 import com.infusionsoft.cas.exceptions.InfusionsoftValidationException;
@@ -437,7 +437,7 @@ public class UserServiceImpl implements UserService {
         userDAO.save(accountUser);
         userAccountDAO.delete(account);
 
-        applicationEventPublisher.publishEvent(new UserAccountDeletedEvent(account));
+        applicationEventPublisher.publishEvent(new UserAccountRemovedEvent(account));
     }
 
     /**
@@ -451,7 +451,7 @@ public class UserServiceImpl implements UserService {
         userAccountDAO.save(account);
         userDAO.save(account.getUser());
 
-        applicationEventPublisher.publishEvent(new UserAccountDeletedEvent(account));
+        applicationEventPublisher.publishEvent(new UserAccountRemovedEvent(account));
     }
 
     /**
@@ -529,15 +529,19 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void validateUserApplication(String application) throws AccessDeniedException {
+    public boolean validateUserApplication(String application) {
+        boolean retVal = true;
+
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         List<UserAccount> accounts = findSortedUserAccountsByAppType(user, AppType.CRM);
         List<String> crmAccounts = crmService.extractAppNames(accounts);
 
         if (!crmAccounts.contains(application)) {
             log.error("User " + SecurityContextHolder.getContext().getAuthentication().getName() + " tried to gain access to the application " + application);
-            throw new AccessDeniedException("User does not have access to provided application");
+            retVal = false;
         }
+
+        return retVal;
     }
 
     private void ensureAccountIsNotLinkedToDifferentUser(String appName, AppType appType, String appUsername, User user) throws DuplicateAccountException {

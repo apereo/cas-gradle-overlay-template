@@ -6,13 +6,11 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.codec.Base64;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
-import org.springframework.util.Assert;
 import org.springframework.web.filter.GenericFilterBean;
 
 import javax.servlet.FilterChain;
@@ -25,11 +23,11 @@ import java.io.IOException;
 /**
  * A Spring Security Filter that is responsible for extracting client credentials and user credentials
  * to be authenticated via CAS and Mashery.
- *
+ * <p/>
  * The filter was original copied from BasicAuthenticationFilter and modified from there.
  */
 @Component
-public class ResourceOwnerAuthenticationFilter extends GenericFilterBean {
+public class OAuthResourceOwnerAuthenticationFilter extends GenericFilterBean {
 
     protected AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource = new WebAuthenticationDetailsSource();
 
@@ -37,18 +35,29 @@ public class ResourceOwnerAuthenticationFilter extends GenericFilterBean {
     @Qualifier("casAuthenticationManager")
     private AuthenticationManager authenticationManager;
 
-    private String credentialsCharset = "UTF-8";
-
     @Override
     public void doFilter(ServletRequest req, ServletResponse response, FilterChain chain) throws IOException, ServletException {
 
         final HttpServletRequest request = (HttpServletRequest) req;
 
-        String grantType =StringUtils.defaultString( request.getParameter("grant_type"));
+        String scope = null;
+        String application = null;
+
+        String grantType = StringUtils.defaultString(request.getParameter("grant_type"));
         String username = StringUtils.defaultString(request.getParameter("username")).trim();
         String password = StringUtils.defaultString(request.getParameter("password"));
         String clientId = StringUtils.defaultString(request.getParameter("client_id"));
         String clientSecret = StringUtils.defaultString(request.getParameter("client_secret"));
+        String passedScopeUnSplit = StringUtils.defaultString(request.getParameter("scope"));
+        String[] passedScope = StringUtils.split(passedScopeUnSplit, "|");
+
+        if(passedScope.length > 1) {
+            scope = passedScope[0];
+            application = passedScope[1];
+        } else if(passedScope.length == 1) {
+            scope = "";
+            application = passedScope[0];
+        }
 
         if (!grantType.equals("password")) {
             chain.doFilter(request, response);
@@ -56,7 +65,7 @@ public class ResourceOwnerAuthenticationFilter extends GenericFilterBean {
         }
 
         String header = request.getHeader("Authorization");
-        if(header != null && header.startsWith("Basic ")) {
+        if (header != null && header.startsWith("Basic ")) {
             String[] clientCredentials = extractAndDecodeHeader(header);
             clientId = clientCredentials[0];
             clientSecret = clientCredentials[1];
@@ -67,7 +76,7 @@ public class ResourceOwnerAuthenticationFilter extends GenericFilterBean {
             return;
         }
 
-        OAuthClientCredentialAuthenticationToken authRequest = new OAuthClientCredentialAuthenticationToken(username, password, clientId, clientSecret);
+        OAuthResourceOwnerAuthenticationToken authRequest = new OAuthResourceOwnerAuthenticationToken(username, password, clientId, clientSecret, scope, grantType, application);
         authRequest.setDetails(authenticationDetailsSource.buildDetails(request));
         Authentication authResult = authenticationManager.authenticate(authRequest);
 
@@ -78,13 +87,14 @@ public class ResourceOwnerAuthenticationFilter extends GenericFilterBean {
 
     /**
      * Decodes the header into a username and password.
-     *
+     * <p/>
      * Copied from BasicAuthenticationFilter
      *
      * @throws org.springframework.security.authentication.BadCredentialsException if the Basic header is not present or is not valid Base64
      */
     private String[] extractAndDecodeHeader(String header) throws IOException {
 
+        String credentialsCharset = "UTF-8";
         byte[] base64Token = header.substring(6).getBytes(credentialsCharset);
         byte[] decoded;
         try {
@@ -100,6 +110,6 @@ public class ResourceOwnerAuthenticationFilter extends GenericFilterBean {
         if (delim == -1) {
             throw new BadCredentialsException("Invalid basic authentication token");
         }
-        return new String[] {token.substring(0, delim), token.substring(delim + 1)};
+        return new String[]{token.substring(0, delim), token.substring(delim + 1)};
     }
 }
