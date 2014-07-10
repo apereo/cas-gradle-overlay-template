@@ -58,6 +58,9 @@ public class OAuthController {
     @Autowired
     UserService userService;
 
+    @Value("${mashery.api.crm.service.key}")
+    private String crmServiceKey;
+
     @Value("${cas.viewResolver.basename}")
     private String viewResolverBaseName;
 
@@ -116,7 +119,7 @@ public class OAuthController {
             } else if (grantType != OAuthGrantType.AUTHORIZATION_CODE) {
                 throw new OAuthUnsupportedResponseTypeException();
             } else {
-                model.addAttribute("oauthApplication", oauthService.fetchApplication(client_id, redirect_uri, response_type));
+                model.addAttribute("oauthApplication", oauthService.fetchApplication(crmServiceKey, client_id, redirect_uri, response_type));
 
                 User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
                 List<UserAccount> accounts = userService.findSortedUserAccountsByAppType(user, AppType.CRM);
@@ -157,7 +160,7 @@ public class OAuthController {
 
         if (allow != null) {
             User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-            String redirectUriWithCode = oauthService.createAuthorizationCode(client_id, requestedScope, application, redirect_uri, user.getId(), state);
+            String redirectUriWithCode = oauthService.createAuthorizationCode(crmServiceKey, client_id, requestedScope, application, redirect_uri, user.getId(), state);
 
             if (StringUtils.isNotBlank(redirectUriWithCode)) {
                 return "redirect:" + redirectUriWithCode;
@@ -177,7 +180,7 @@ public class OAuthController {
         Map<String, Object> model = new HashMap<String, Object>();
         User user = userService.loadUser(userId);
         UserAccount ua = userService.findUserAccount(user, infusionsoftAccountId);
-        model.put("appsGrantedAccess", oauthService.fetchUserApplicationsByUserAccount(ua));
+        model.put("appsGrantedAccess", oauthService.fetchUserApplicationsByUserAccount(crmServiceKey, ua));
         model.put("infusionsoftAccountId", infusionsoftAccountId);
 
         return new ModelAndView("oauth/manageAccounts", model);
@@ -190,7 +193,7 @@ public class OAuthController {
     public void revokeAccess(Long userId, Long infusionsoftAccountId, String masheryAppId) throws OAuthException {
         User user = userService.loadUser(userId);
         UserAccount ua = userService.findUserAccount(user, infusionsoftAccountId);
-        oauthService.revokeAccessTokensByUserAccount(ua, masheryAppId);
+        oauthService.revokeAccessTokensByUserAccount(crmServiceKey, ua, masheryAppId);
     }
 
     /**
@@ -202,7 +205,7 @@ public class OAuthController {
     public String userApplicationSearch(Model model, String username, String appName) throws OAuthException {
         if (StringUtils.isNotBlank(username) && StringUtils.isNotBlank(appName)) {
             UserAccount userAccount = userService.findUserAccountByInfusionsoftId(appName, AppType.CRM, username);
-            Set<OAuthUserApplication> userApplications = oauthService.fetchUserApplicationsByUserAccount(userAccount);
+            Set<OAuthUserApplication> userApplications = oauthService.fetchUserApplicationsByUserAccount(crmServiceKey, userAccount);
 
             model.addAttribute("userApplications", userApplications);
             model.addAttribute("username", username);
@@ -220,7 +223,7 @@ public class OAuthController {
     @RequestMapping
     public String viewAccessToken(Model model, String accessToken) throws OAuthException {
         if (StringUtils.isNotBlank(accessToken)) {
-            OAuthAccessToken masheryAccessToken = oauthService.fetchAccessToken(accessToken);
+            OAuthAccessToken masheryAccessToken = oauthService.fetchAccessToken(crmServiceKey, accessToken);
 
             model.addAttribute("masheryAccessToken", masheryAccessToken);
         }

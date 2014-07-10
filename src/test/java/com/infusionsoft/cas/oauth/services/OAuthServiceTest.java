@@ -4,6 +4,7 @@ import com.infusionsoft.cas.domain.User;
 import com.infusionsoft.cas.domain.UserAccount;
 import com.infusionsoft.cas.oauth.dto.OAuthAccessToken;
 import com.infusionsoft.cas.oauth.dto.OAuthApplication;
+import com.infusionsoft.cas.oauth.exceptions.OAuthAccessDeniedException;
 import com.infusionsoft.cas.oauth.mashery.api.client.MasheryApiClientService;
 import com.infusionsoft.cas.oauth.mashery.api.domain.*;
 import com.infusionsoft.cas.services.CrmService;
@@ -36,6 +37,7 @@ public class OAuthServiceTest {
     private static final String TOKEN_1 = "token1";
     private static final String TOKEN_2 = "token2";
     private static final String TOKEN_3 = "token3";
+    private static final String SERVICE_KEY = "serviceKey";
     private static final String CLIENT_ID = "client_id";
     private static final String ACCESS_TOKEN = "accessToken";
     private static final String TEST_REDIRECT_URI = "http://redirect.com";
@@ -118,7 +120,7 @@ public class OAuthServiceTest {
     public void testFetchOAuthApplication() throws Exception {
         final MasheryOAuthApplication masheryOAuthApplication = new MasheryOAuthApplication();
         masheryOAuthApplication.setId(1);
-        when(masheryApiClientService.fetchOAuthApplication(anyString(), anyString(), anyString())).thenReturn(masheryOAuthApplication);
+        when(masheryApiClientService.fetchOAuthApplication(anyString(), anyString(), anyString(), anyString())).thenReturn(masheryOAuthApplication);
 
         final MasheryApplication masheryApplication = new MasheryApplication();
         masheryApplication.setDescription("description");
@@ -132,13 +134,13 @@ public class OAuthServiceTest {
 
         // verify result
         final String responseType = "responseType";
-        OAuthApplication oAuthApplication = oAuthServiceToTest.fetchApplication(CLIENT_ID, TEST_REDIRECT_URI, responseType);
+        OAuthApplication oAuthApplication = oAuthServiceToTest.fetchApplication(SERVICE_KEY, CLIENT_ID, TEST_REDIRECT_URI, responseType);
         Assert.assertEquals(oAuthApplication.getDescription(), masheryApplication.getDescription());
         Assert.assertEquals(oAuthApplication.getDevelopedBy(), masheryMember.getDisplayName());
         Assert.assertEquals(oAuthApplication.getName(), masheryApplication.getName());
 
         // verify what happened for call to Mashery
-        verify(masheryApiClientService, times(1)).fetchOAuthApplication(CLIENT_ID, TEST_REDIRECT_URI, responseType);
+        verify(masheryApiClientService, times(1)).fetchOAuthApplication(SERVICE_KEY, CLIENT_ID, TEST_REDIRECT_URI, responseType);
     }
 
     @Test
@@ -153,33 +155,33 @@ public class OAuthServiceTest {
         masheryAuthorizationCodeInput.setCode(code);
         masheryAuthorizationCodeInput.setUri(masheryUri);
 
-        when(masheryApiClientService.createAuthorizationCode(anyString(), anyString(), anyString(), anyString(), anyString())).thenReturn(masheryAuthorizationCodeInput);
+        when(masheryApiClientService.createAuthorizationCode(anyString(), anyString(), anyString(), anyString(), anyString(), anyString())).thenReturn(masheryAuthorizationCodeInput);
 
         // verify result
         final String requestedScope = "requestedScope";
-        String authorizationCode = oAuthServiceToTest.createAuthorizationCode(CLIENT_ID, requestedScope, TEST_APP_HOST_NAME, TEST_REDIRECT_URI, TEST_GLOBAL_USER_ID, TEST_STATE);
+        String authorizationCode = oAuthServiceToTest.createAuthorizationCode(SERVICE_KEY, CLIENT_ID, requestedScope, TEST_APP_HOST_NAME, TEST_REDIRECT_URI, TEST_GLOBAL_USER_ID, TEST_STATE);
         Assert.assertEquals(authorizationCode, masheryAuthorizationCodeInput.getUri().getUri());
 
         // verify what happened for call to Mashery
         verify(userService, times(1)).validateUserApplication(TEST_APP_HOST_NAME);
-        verify(masheryApiClientService, times(1)).createAuthorizationCode(CLIENT_ID, requestedScope + "|" + TEST_APP_HOST_NAME, TEST_REDIRECT_URI, TEST_USER_CONTEXT, TEST_STATE);
+        verify(masheryApiClientService, times(1)).createAuthorizationCode(SERVICE_KEY, CLIENT_ID, requestedScope + "|" + TEST_APP_HOST_NAME, TEST_REDIRECT_URI, TEST_USER_CONTEXT, TEST_STATE);
     }
 
-    @Test(expectedExceptions = AccessDeniedException.class)
+    @Test(expectedExceptions = OAuthAccessDeniedException.class)
     public void testCreateAuthorizationCodeWithInvalidApplication() throws Exception {
-        oAuthServiceToTest.createAuthorizationCode(CLIENT_ID, "requestedScope", TEST_INVALID_APP_HOST_NAME, TEST_REDIRECT_URI, TEST_GLOBAL_USER_ID, TEST_STATE);
+        oAuthServiceToTest.createAuthorizationCode(SERVICE_KEY, CLIENT_ID, "requestedScope", TEST_INVALID_APP_HOST_NAME, TEST_REDIRECT_URI, TEST_GLOBAL_USER_ID, TEST_STATE);
     }
 
     @Test
     public void testRevokeAccessToken() throws Exception {
-        when(masheryApiClientService.revokeAccessToken(anyString(), anyString())).thenReturn(true);
+        when(masheryApiClientService.revokeAccessToken(anyString(), anyString(), anyString())).thenReturn(true);
 
         // verify result
-        Boolean wasSuccessful = oAuthServiceToTest.revokeAccessToken(CLIENT_ID, ACCESS_TOKEN);
+        Boolean wasSuccessful = oAuthServiceToTest.revokeAccessToken(SERVICE_KEY, CLIENT_ID, ACCESS_TOKEN);
         Assert.assertTrue(wasSuccessful);
 
         // verify what happened for call to Mashery
-        verify(masheryApiClientService, times(1)).revokeAccessToken(CLIENT_ID, ACCESS_TOKEN);
+        verify(masheryApiClientService, times(1)).revokeAccessToken(SERVICE_KEY, CLIENT_ID, ACCESS_TOKEN);
     }
 
     @Test
@@ -192,10 +194,10 @@ public class OAuthServiceTest {
         masheryAccessTokenInput.setScope("scope");
         masheryAccessTokenInput.setToken("token");
         masheryAccessTokenInput.setUser_context("user_context");
-        when(masheryApiClientService.fetchAccessToken(anyString())).thenReturn(masheryAccessTokenInput);
+        when(masheryApiClientService.fetchAccessToken(anyString(), anyString())).thenReturn(masheryAccessTokenInput);
 
         // verify result
-        OAuthAccessToken oAuthAccessToken = oAuthServiceToTest.fetchAccessToken(ACCESS_TOKEN);
+        OAuthAccessToken oAuthAccessToken = oAuthServiceToTest.fetchAccessToken(SERVICE_KEY, ACCESS_TOKEN);
         Assert.assertEquals(oAuthAccessToken.getAccessToken(), masheryAccessTokenInput.getToken());
         Assert.assertEquals(oAuthAccessToken.getExpiresIn(), masheryAccessTokenInput.getExpires());
         Assert.assertNull(oAuthAccessToken.getRefreshToken());
@@ -203,7 +205,7 @@ public class OAuthServiceTest {
         Assert.assertEquals(oAuthAccessToken.getTokenType(), masheryAccessTokenInput.getToken_type());
 
         // verify what happened for call to Mashery
-        verify(masheryApiClientService, times(1)).fetchAccessToken(ACCESS_TOKEN);
+        verify(masheryApiClientService, times(1)).fetchAccessToken(SERVICE_KEY, ACCESS_TOKEN);
     }
 
 //    @Test
@@ -220,36 +222,36 @@ public class OAuthServiceTest {
 
     @Test
     public void testRevokeAccessTokensByUserAccount() throws Exception {
-        when(masheryApiClientService.fetchUserApplicationsByUserContext(anyString(), any(TokenStatus.class))).thenReturn(testAppSet);
-        when(masheryApiClientService.revokeAccessToken(anyString(), anyString())).thenReturn(true);
+        when(masheryApiClientService.fetchUserApplicationsByUserContext(anyString(), anyString(), any(TokenStatus.class))).thenReturn(testAppSet);
+        when(masheryApiClientService.revokeAccessToken(anyString(), anyString(), anyString())).thenReturn(true);
 
         // verify result
-        Boolean wasSuccessful = oAuthServiceToTest.revokeAccessTokensByUserAccount(testAccount);
+        Boolean wasSuccessful = oAuthServiceToTest.revokeAccessTokensByUserAccount(SERVICE_KEY, testAccount);
         Assert.assertTrue(wasSuccessful);
 
         // verify what happened for call to Mashery
-        verify(masheryApiClientService, times(1)).fetchUserApplicationsByUserContext(TEST_USER_CONTEXT, TokenStatus.Active);
-        verify(masheryApiClientService, times(1)).revokeAccessToken(CLIENT_ID, TOKEN_1);
-        verify(masheryApiClientService, times(1)).revokeAccessToken(CLIENT_ID, TOKEN_2);
-        verify(masheryApiClientService, times(1)).revokeAccessToken(CLIENT_ID, TOKEN_3);
+        verify(masheryApiClientService, times(1)).fetchUserApplicationsByUserContext(SERVICE_KEY, TEST_USER_CONTEXT, TokenStatus.Active);
+        verify(masheryApiClientService, times(1)).revokeAccessToken(SERVICE_KEY, CLIENT_ID, TOKEN_1);
+        verify(masheryApiClientService, times(1)).revokeAccessToken(SERVICE_KEY, CLIENT_ID, TOKEN_2);
+        verify(masheryApiClientService, times(1)).revokeAccessToken(SERVICE_KEY, CLIENT_ID, TOKEN_3);
     }
 
     @Test
     public void testRevokeAccessTokensByUserAccountUnsuccessful() throws Exception {
-        when(masheryApiClientService.fetchUserApplicationsByUserContext(anyString(), any(TokenStatus.class))).thenReturn(testAppSet);
-        when(masheryApiClientService.revokeAccessToken(CLIENT_ID, TOKEN_1)).thenReturn(true);
-        when(masheryApiClientService.revokeAccessToken(CLIENT_ID, TOKEN_2)).thenReturn(false);
-        when(masheryApiClientService.revokeAccessToken(CLIENT_ID, TOKEN_3)).thenReturn(true);
+        when(masheryApiClientService.fetchUserApplicationsByUserContext(anyString(), anyString(), any(TokenStatus.class))).thenReturn(testAppSet);
+        when(masheryApiClientService.revokeAccessToken(SERVICE_KEY, CLIENT_ID, TOKEN_1)).thenReturn(true);
+        when(masheryApiClientService.revokeAccessToken(SERVICE_KEY, CLIENT_ID, TOKEN_2)).thenReturn(false);
+        when(masheryApiClientService.revokeAccessToken(SERVICE_KEY, CLIENT_ID, TOKEN_3)).thenReturn(true);
 
         // verify result
-        Boolean wasSuccessful = oAuthServiceToTest.revokeAccessTokensByUserAccount(testAccount);
+        Boolean wasSuccessful = oAuthServiceToTest.revokeAccessTokensByUserAccount(SERVICE_KEY, testAccount);
         Assert.assertFalse(wasSuccessful);
 
         // verify what happened for call to Mashery
-        verify(masheryApiClientService, times(1)).fetchUserApplicationsByUserContext(TEST_USER_CONTEXT, TokenStatus.Active);
-        verify(masheryApiClientService, times(1)).revokeAccessToken(CLIENT_ID, TOKEN_1);
-        verify(masheryApiClientService, times(1)).revokeAccessToken(CLIENT_ID, TOKEN_2);
-        verify(masheryApiClientService, times(1)).revokeAccessToken(CLIENT_ID, TOKEN_3);
+        verify(masheryApiClientService, times(1)).fetchUserApplicationsByUserContext(SERVICE_KEY, TEST_USER_CONTEXT, TokenStatus.Active);
+        verify(masheryApiClientService, times(1)).revokeAccessToken(SERVICE_KEY, CLIENT_ID, TOKEN_1);
+        verify(masheryApiClientService, times(1)).revokeAccessToken(SERVICE_KEY, CLIENT_ID, TOKEN_2);
+        verify(masheryApiClientService, times(1)).revokeAccessToken(SERVICE_KEY, CLIENT_ID, TOKEN_3);
     }
 
 }

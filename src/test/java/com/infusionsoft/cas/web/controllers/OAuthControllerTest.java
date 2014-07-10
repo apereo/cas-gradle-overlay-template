@@ -19,22 +19,19 @@ import java.util.Set;
 public class OAuthControllerTest {
     private OAuthController classToTest;
     private UserService userService;
-//    private MasheryApiClientService masheryApiClientService;
     private OAuthService oAuthService;
+
+    private static final String serviceKey = "serviceKey";
 
     @BeforeTest
     public void beforeTest() {
-//        try{
-            classToTest = new OAuthController();
-//        } catch(Exception e){
-
-//        }
+        classToTest = new OAuthController();
         userService = Mockito.mock(UserService.class);
-//        masheryApiClientService = Mockito.mock(MasheryApiClientService.class);
-        oAuthService =  Mockito.mock(OAuthService.class);
+        oAuthService = Mockito.mock(OAuthService.class);
 
         Whitebox.setInternalState(classToTest, "userService", userService);
         Whitebox.setInternalState(classToTest, "oauthService", oAuthService);
+        Whitebox.setInternalState(classToTest, "crmServiceKey", serviceKey);
     }
 
     @Test
@@ -43,14 +40,14 @@ public class OAuthControllerTest {
         Mockito.when(userService.loadUser(1L)).thenReturn(user);
         UserAccount ua = new UserAccount();
         Mockito.when(userService.findUserAccount(user, 1L)).thenReturn(ua);
-        Mockito.when(oAuthService.fetchUserApplicationsByUserAccount(ua)).thenReturn(createUserApplication());
+        Mockito.when(oAuthService.fetchUserApplicationsByUserAccount(serviceKey, ua)).thenReturn(createUserApplication());
 
         ModelAndView mv = classToTest.manageAccounts(1L, 1L);
         Assert.assertEquals(((Set<OAuthUserApplication>) mv.getModel().get("appsGrantedAccess")).size(), 1);
         Assert.assertEquals(mv.getModel().get("infusionsoftAccountId"), 1L);
     }
 
-    private Set<OAuthUserApplication> createUserApplication(){
+    private Set<OAuthUserApplication> createUserApplication() {
         Set<OAuthUserApplication> userApps = new HashSet<OAuthUserApplication>();
 
         Set<OAuthAccessToken> accessTokens = new HashSet<OAuthAccessToken>();
@@ -59,7 +56,7 @@ public class OAuthControllerTest {
         accessTokens.add(new OAuthAccessToken("token3", null, null, null, null));
 
         OAuthUserApplication app = new OAuthUserApplication("id", "ACME", "client_id", accessTokens);
-        app.setAccessTokens(accessTokens);
+//        app.setAccessTokens(accessTokens);
 
         userApps.add(app);
         return userApps;
