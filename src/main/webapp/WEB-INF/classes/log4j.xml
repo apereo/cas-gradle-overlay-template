@@ -117,16 +117,6 @@
         <appender-ref ref="cas" />
     </logger>
 
-    <logger name="com.infusionsoft.cas.support.InfusionsoftSaml2Service">
-        <level value="DEBUG" />
-        <appender-ref ref="cas" />
-    </logger>
-
-    <logger name="com.infusionsoft.cas.support.SamlHelper">
-        <level value="DEBUG" />
-        <appender-ref ref="cas" />
-    </logger>
-
     <logger name="com.infusionsoft.cas.support.InfusionsoftAuditTrailManager">
         <level value="DEBUG" />
         <appender-ref ref="cas" />

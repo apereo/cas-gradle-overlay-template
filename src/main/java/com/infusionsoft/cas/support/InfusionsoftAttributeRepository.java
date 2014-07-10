@@ -1,10 +1,10 @@
 package com.infusionsoft.cas.support;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.infusionsoft.cas.api.domain.UserAccountDTO;
 import com.infusionsoft.cas.domain.User;
 import com.infusionsoft.cas.domain.UserAccount;
 import com.infusionsoft.cas.services.UserService;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.jasig.services.persondir.IPersonAttributes;
 import org.jasig.services.persondir.support.AbstractFlatteningPersonAttributeDao;
 import org.jasig.services.persondir.support.AttributeNamedPersonImpl;
@@ -61,12 +61,14 @@ public class InfusionsoftAttributeRepository extends AbstractFlatteningPersonAtt
         return new AttributeNamedPersonImpl(resultsMap);
     }
 
-    /****************************************************************************************************
+    /**
+     * *************************************************************************************************
      * * * WARNING * * *
      * If the format/content of this JSON ever changes in a way that affects parsing on the receiving end,
      * the TICKETGRANTINGTICKET table needs to be completely cleared, since the old tickets stored there
      * will still have the old format
-     ****************************************************************************************************/
+     * **************************************************************************************************
+     */
     private String getAccountsJSON(List<UserAccount> accounts) {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         try {

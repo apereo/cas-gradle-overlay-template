@@ -1,5 +1,7 @@
 package com.infusionsoft.cas.oauth.exceptions;
 
+import org.springframework.http.HttpStatus;
+
 /**
  * This is an exception that is used OAuth Error Responses
  *
@@ -8,7 +10,7 @@ package com.infusionsoft.cas.oauth.exceptions;
 public class OAuthUnsupportedResponseTypeException extends OAuthException {
 
     public OAuthUnsupportedResponseTypeException() {
-        super("unsupported_response_type");
+        super("unsupported_response_type", HttpStatus.BAD_REQUEST, "oauth.exception.unsupported.response.type");
     }
 
 }

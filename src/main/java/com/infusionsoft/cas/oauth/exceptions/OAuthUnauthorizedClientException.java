@@ -1,5 +1,7 @@
 package com.infusionsoft.cas.oauth.exceptions;
 
+import org.springframework.http.HttpStatus;
+
 /**
  * This is an exception that is used OAuth Error Responses
  *
@@ -8,7 +10,7 @@ package com.infusionsoft.cas.oauth.exceptions;
 public class OAuthUnauthorizedClientException extends OAuthException {
 
     public OAuthUnauthorizedClientException() {
-        super("unauthorized_client");
+        super("unauthorized_client", HttpStatus.BAD_REQUEST, "oauth.exception.unauthorized.client");
     }
 
 }

@@ -2,11 +2,10 @@ package com.infusionsoft.cas.services;
 
 import com.infusionsoft.cas.dao.*;
 import com.infusionsoft.cas.domain.*;
+import com.infusionsoft.cas.events.UserAccountRemovedEvent;
 import com.infusionsoft.cas.exceptions.AccountException;
 import com.infusionsoft.cas.exceptions.DuplicateAccountException;
 import com.infusionsoft.cas.exceptions.InfusionsoftValidationException;
-import com.infusionsoft.cas.oauth.exceptions.OAuthException;
-import com.infusionsoft.cas.oauth.services.OAuthService;
 import com.infusionsoft.cas.web.ValidationUtils;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -15,8 +14,11 @@ import org.apache.log4j.Logger;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,7 +31,13 @@ public class UserServiceImpl implements UserService {
     private static final Logger log = Logger.getLogger(UserServiceImpl.class);
 
     @Autowired
+    ApplicationEventPublisher applicationEventPublisher;
+
+    @Autowired
     private AuthorityDAO authorityDAO;
+
+    @Autowired
+    private CrmService crmService;
 
     @Autowired
     private LoginAttemptDAO loginAttemptDAO;
@@ -48,9 +56,6 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private UserAccountDAO userAccountDAO;
-
-    @Autowired
-    private OAuthService oauthService;
 
     @Value("${infusionsoft.cas.garbageman.loginattemptmaxage}")
     private long loginAttemptMaxAge = 86400000; // default to 1 day
@@ -105,11 +110,9 @@ public class UserServiceImpl implements UserService {
         user.setFirstName(ValidationUtils.removeAllHtmlTags(user.getFirstName()));
         user.setLastName(ValidationUtils.removeAllHtmlTags(user.getLastName()));
 
-        User savedUser = userDAO.save(user);
-
         //TODO: if this user is currently logged in then change the object in the security context
 
-        return savedUser;
+        return userDAO.save(user);
     }
 
     @Override
@@ -434,11 +437,7 @@ public class UserServiceImpl implements UserService {
         userDAO.save(accountUser);
         userAccountDAO.delete(account);
 
-        try {
-            oauthService.revokeAccessTokensByUserAccount(account);
-        } catch (OAuthException e) {
-            log.error("Unable to revoke access tokens during account deletion -> " + account.toString());
-        }
+        applicationEventPublisher.publishEvent(new UserAccountRemovedEvent(account));
     }
 
     /**
@@ -452,11 +451,7 @@ public class UserServiceImpl implements UserService {
         userAccountDAO.save(account);
         userDAO.save(account.getUser());
 
-        try {
-            oauthService.revokeAccessTokensByUserAccount(account);
-        } catch (OAuthException e) {
-            log.error("Unable to revoke access tokens during account disabling -> " + account.toString());
-        }
+        applicationEventPublisher.publishEvent(new UserAccountRemovedEvent(account));
     }
 
     /**
@@ -531,6 +526,22 @@ public class UserServiceImpl implements UserService {
                 log.info("Changed application username on " + appName + "/" + appType + " for CAS user " + user + " from " + oldAppUsername + " to " + newAppUsername);
             }
         }
+    }
+
+    @Override
+    public boolean validateUserApplication(String application) {
+        boolean retVal = true;
+
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        List<UserAccount> accounts = findSortedUserAccountsByAppType(user, AppType.CRM);
+        List<String> crmAccounts = crmService.extractAppNames(accounts);
+
+        if (!crmAccounts.contains(application)) {
+            log.error("User " + SecurityContextHolder.getContext().getAuthentication().getName() + " tried to gain access to the application " + application);
+            retVal = false;
+        }
+
+        return retVal;
     }
 
     private void ensureAccountIsNotLinkedToDifferentUser(String appName, AppType appType, String appUsername, User user) throws DuplicateAccountException {

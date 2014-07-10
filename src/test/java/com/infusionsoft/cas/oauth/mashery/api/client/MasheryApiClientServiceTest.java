@@ -63,7 +63,6 @@ public class MasheryApiClientServiceTest {
         restTemplate = mock(RestTemplate.class);
 
         masheryServiceToTest = new MasheryApiClientService();
-        Whitebox.setInternalState(masheryServiceToTest, "serviceKey", SERVICE_KEY);
         Whitebox.setInternalState(masheryServiceToTest, "restTemplate", restTemplate);
 
         log = mock(Logger.class);
@@ -91,7 +90,7 @@ public class MasheryApiClientServiceTest {
     public void testFetchUserApplicationsByUserContext() throws Exception {
         when(restTemplate.postForObject(anyString(), anyObject(), any(Class.class))).thenReturn(wrappedMasheryUserApplication);
 
-        Set<MasheryUserApplication> oauthApps = masheryServiceToTest.fetchUserApplicationsByUserContext(USER_CONTEXT, TokenStatus.Active);
+        Set<MasheryUserApplication> oauthApps = masheryServiceToTest.fetchUserApplicationsByUserContext(SERVICE_KEY, USER_CONTEXT, TokenStatus.Active);
 
         // verify result
         Assert.assertNotNull(oauthApps.iterator().next());
@@ -133,7 +132,7 @@ public class MasheryApiClientServiceTest {
         doThrow(testException).when(restTemplate).postForObject(anyString(), anyObject(), any(Class.class));
         // Make sure the call doesn't mask the exception, and that it gets logged
         try {
-            masheryServiceToTest.fetchUserApplicationsByUserContext(USER_CONTEXT, TokenStatus.Active);
+            masheryServiceToTest.fetchUserApplicationsByUserContext(SERVICE_KEY, USER_CONTEXT, TokenStatus.Active);
             Assert.fail();
         } catch (OAuthServerErrorException e) {
             Assert.assertEquals(e.getCause(), testException);
@@ -150,7 +149,7 @@ public class MasheryApiClientServiceTest {
         when(restTemplate.postForObject(anyString(), anyObject(), any(Class.class))).thenReturn(wrappedBooleanResult);
 
         // verify result
-        Boolean wasSuccessful = masheryServiceToTest.revokeAccessToken(CLIENT_ID, ACCESS_TOKEN);
+        Boolean wasSuccessful = masheryServiceToTest.revokeAccessToken(SERVICE_KEY, CLIENT_ID, ACCESS_TOKEN);
         Assert.assertTrue(wasSuccessful);
 
         // verify what happened for call to Mashery
@@ -167,7 +166,7 @@ public class MasheryApiClientServiceTest {
 
         // verify result
         final String responseType = "responseType";
-        MasheryOAuthApplication oAuthApplication = masheryServiceToTest.fetchOAuthApplication(CLIENT_ID, TEST_REDIRECT_URI, responseType);
+        MasheryOAuthApplication oAuthApplication = masheryServiceToTest.fetchOAuthApplication(SERVICE_KEY, CLIENT_ID, TEST_REDIRECT_URI, responseType);
         Assert.assertSame(oAuthApplication, wrappedMasheryOAuthApplication.getResult());
 
         // verify what happened for call to Mashery
@@ -191,16 +190,23 @@ public class MasheryApiClientServiceTest {
 
     @Test
     public void testFetchMember() throws Exception {
-        WrappedMasheryMember wrappedMasheryMember = new WrappedMasheryMember();
-        wrappedMasheryMember.setResult(new MasheryMember());
-        when(restTemplate.postForObject(anyString(), anyObject(), any(Class.class))).thenReturn(wrappedMasheryMember);
+        Set<MasheryMember> masheryMembers = new HashSet<MasheryMember>();
+        masheryMembers.add(new MasheryMember());
+
+        MasheryQueryResult<MasheryMember> masheryQueryResult = new MasheryQueryResult<MasheryMember>();
+        masheryQueryResult.setItems(masheryMembers);
+        masheryQueryResult.setTotalItems(masheryMembers.size());
+
+        WrappedMasheryMemberQueryResult wrappedMasheryMemberQueryResult = new WrappedMasheryMemberQueryResult();
+        wrappedMasheryMemberQueryResult.setResult(masheryQueryResult);
+        when(restTemplate.postForObject(anyString(), anyObject(), any(Class.class))).thenReturn(wrappedMasheryMemberQueryResult);
 
         // verify result
         MasheryMember masheryMember = masheryServiceToTest.fetchMember(TEST_USERNAME);
-        Assert.assertSame(masheryMember, wrappedMasheryMember.getResult());
+        Assert.assertTrue(wrappedMasheryMemberQueryResult.getResult().getItems().contains(masheryMember));
 
         // verify what happened for call to Mashery
-        verifyCallToMashery("member.fetch", Arrays.asList(new Object[]{TEST_USERNAME}));
+        verifyCallToMashery("object.query", Arrays.asList(new Object[]{"SELECT *, roles FROM members WHERE username='" + TEST_USERNAME + "'"}));
     }
 
     @Test
@@ -210,7 +216,7 @@ public class MasheryApiClientServiceTest {
         when(restTemplate.postForObject(anyString(), anyObject(), any(Class.class))).thenReturn(wrappedMasheryAccessToken);
 
         // verify result
-        MasheryAccessToken masheryAccessToken = masheryServiceToTest.fetchAccessToken(ACCESS_TOKEN);
+        MasheryAccessToken masheryAccessToken = masheryServiceToTest.fetchAccessToken(SERVICE_KEY, ACCESS_TOKEN);
         Assert.assertSame(masheryAccessToken, wrappedMasheryAccessToken.getResult());
 
         // verify what happened for call to Mashery
@@ -226,7 +232,7 @@ public class MasheryApiClientServiceTest {
         // verify result
         final String requestedScope = "requestedScope" + "|" + TEST_APP_HOST_NAME;
         final String userContext = TEST_USERNAME + "|" + TEST_APP_HOST_NAME;
-        MasheryAuthorizationCode MasheryAuthorizationCode = masheryServiceToTest.createAuthorizationCode(CLIENT_ID, requestedScope, TEST_REDIRECT_URI, userContext, TEST_STATE);
+        MasheryAuthorizationCode MasheryAuthorizationCode = masheryServiceToTest.createAuthorizationCode(SERVICE_KEY, CLIENT_ID, requestedScope, TEST_REDIRECT_URI, userContext, TEST_STATE);
         Assert.assertSame(MasheryAuthorizationCode, wrappedMasheryAuthorizationCode.getResult());
 
         // verify what happened for call to Mashery

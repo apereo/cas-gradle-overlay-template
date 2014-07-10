@@ -12,4 +12,7 @@ public class MasheryApiException extends IOException {
         this.masheryError = masheryError;
     }
 
+    public MasheryError getMasheryError() {
+        return masheryError;
+    }
 }
