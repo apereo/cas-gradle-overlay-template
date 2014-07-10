@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>cas</artifactId>
     <packaging>war</packaging>
-    <version>1.0.0.647-SNAPSHOT</version>
+    <version>1.0.0.647</version>
 
     <parent>
         <groupId>com.infusionsoft</groupId>
