@@ -22,6 +22,7 @@
     <link type="text/css" rel="stylesheet" href="<c:url value="/css/chosen.min.css"/>"/>
     <link type="text/css" rel="stylesheet" href="<c:url value="/css/bootstrap-3.1.1.min.css"/>"/>
     <link type="text/css" rel="stylesheet" href="<c:url value="/css/bootstrap-infusionsoft-3.1.1.0.css"/>"/>
+    <script src="https://www.infusionsoft.com/sites/all/modules/contrib/analytics/marketo.js"></script>
 
     <script type="text/javascript">
         //Necessary to overcome the known Microsoft Mobile IE bug
