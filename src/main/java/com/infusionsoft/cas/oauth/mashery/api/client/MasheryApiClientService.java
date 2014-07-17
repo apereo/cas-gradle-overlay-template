@@ -297,7 +297,7 @@ public class MasheryApiClientService {
         return wrappedMasheryAuthorizationCode != null ? wrappedMasheryAuthorizationCode.getResult() : null;
     }
 
-    @CacheEvict(value = {"masheryOAuthApplications", "masheryApplications", "masheryMembers", "masheryUserApplications", "masheryAccessTokens"}, allEntries = true)
+    @CacheEvict(value = {"masheryOAuthApplications", "masheryApplications", "masheryMembers", "masheryMembersByClientId", "masheryUserApplications", "masheryAccessTokens"}, allEntries = true)
     public void clearCaches() {
         //The annotation will cause the caches to clear
     }
