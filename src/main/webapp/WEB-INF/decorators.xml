@@ -1,22 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <decorators defaultdir="/WEB-INF/view/jsp/decorators">
-    <decorator name="anonymous" page="anonymous.jsp">
-        <pattern>/login</pattern>
-        <pattern>/logout</pattern>
-    </decorator>
-    <decorator name="modal" page="modal.jsp">
-        <pattern>/app/registration/*</pattern>
-    </decorator>
-    <decorator name="central" page="central.jsp">
-        <pattern>/central/*</pattern>
-    </decorator>
-    <decorator name="anonymousNoLogo" page="anonymousNoLogo.jsp"/>
-    <decorator name="plain" page="plain.jsp"/>
-
-    <decorator name="base-no-layout" page="base-no-layout.jsp"/>
-    <decorator name="green-header-minimal" page="green-header-minimal.jsp"/>
-
     <decorator name="base-bootstrap3" page="base-bootstrap3.jsp"/>
+    <decorator name="black-header-minimal" page="black-header-minimal.jsp"/>
+
+    <decorator name="central" page="central.jsp"/>
+    <decorator name="login" page="login.jsp"/>
 
     <excludes>
         <pattern>/central/renameAccount</pattern>

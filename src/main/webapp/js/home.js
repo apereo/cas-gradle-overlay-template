@@ -1,30 +1,59 @@
+$(document).on("click", ".list-group-item", function() {
+
+    $this = $(this);
+
+    // Check that the xeditable popup is not open
+    if($this.find("[editable-active]").length === 0) { // means that editable popup is not open so we can do the stuff
+        window.location = $this.data('url');
+    }
+});
+
 $(document).ready(function () {
-    $(".account").hover(
-        function () {
-            $(this).find(".account-delete").hide();
-        }
-    );
+    $.fn.editable.defaults.mode = 'inline';
+    $('.aliasable').each(function() {
+        $this = $(this);
 
-    $(".account").click(function () {
-        // Yes that's right, a div with an href, to avoid
-        // silly nested propagation issues.
-        document.location.href = $(this).attr("href");
-    });
+        console.log($this);
 
-    $(".quick-editable").each(function () {
-        $(this).click(function (event) {
-            event.stopPropagation();
-            centralHome.editAlias($(this).attr("accountId"));
+        $this.editable();
+
+        $this.on('shown', function(e, reason) {
+            $("#divApplicationImage").addClass("hidden-xs");
+            $("#divChevron").addClass("hidden-xs");
+            return $(this).attr("editable-active", true);
+        });
+
+        $this.on('hidden', function(e, reason) {
+            $("#divApplicationImage").removeClass("hidden-xs");
+            $("#divChevron").removeClass("hidden-xs");
+            return $(this).removeAttr("editable-active");
         });
     });
-    centralHome.attachOnClicks();
+
+    $('.accessTokensAllowed').each(function() {
+        $this = $(this);
+
+        console.log($this);
+
+        $this.collapse();
+
+        $this.on('shown.bs.collapse', function(e) {
+            e.stopPropagation();
+        });
+
+        $this.on('hidden.bs.collapse', function(e) {
+            e.stopPropagation();
+        });
+    });
+
+//    centralHome.attachOnClicks();
 });
 
 var centralHome = {
-    getAppsGrantedAccessToAccount : function (userId, accountId){
+    getAppsGrantedAccessToAccount: function (userId, accountId) {
         var displayIsClosed = $("#displayManageAccountsWrapper-" + accountId).is(':visible') ? false : true;
         manageAppAccess.closeManageAppAccessDisplay(accountId);
-        if(displayIsClosed){
+        if (displayIsClosed) {
             var preSpinnerReplacedContent = $("#spinner-content-" + accountId).html();
             $("#spinner-content-" + accountId).removeClass('app-access');
             window.global.showSpinner({id: "spinner-content-" + accountId});
@@ -39,23 +68,27 @@ var centralHome = {
             manageAppAccess.getAppsGrantedAccessToAccount(appsGrantedAccessToAccountInput);
         }
     },
-    appsGrantedAccessToAccountAfterSuccess : function (inputObject, response) {
-        $(".crm-account").each(function () {$(this).removeClass('expanded-apps expanded-apps-crm')});
+    appsGrantedAccessToAccountAfterSuccess: function (inputObject, response) {
+        $(".crm-account").each(function () {
+            $(this).removeClass('expanded-apps expanded-apps-crm')
+        });
         $(".crm-account-" + inputObject.accountId).addClass('expanded-apps expanded-apps-crm');
-        $(".displayManageAccountsMarker").each(function () {$(this).hide()});
+        $(".displayManageAccountsMarker").each(function () {
+            $(this).hide()
+        });
         $("#displayManageAccountsContent-" + inputObject.accountId).html(response);
         $("#displayManageAccountsWrapper-" + inputObject.accountId).slideDown(500);
-        if(inputObject.preSpinnerReplacedContent){
+        if (inputObject.preSpinnerReplacedContent) {
             $("#spinner-content-" + inputObject.accountId).html(inputObject.preSpinnerReplacedContent);
             $("#manageAccounts-" + inputObject.accountId).click(centralHome.reattachOnClicksAfterSpinnerRefresh);
             $("#spinner-content-" + inputObject.accountId).addClass('app-access');  //to restore "key" background image on "Manage App Access span"
         }
     },
-    appsGrantedAccessToAccountAfterError : function (inputObject, response) {
+    appsGrantedAccessToAccountAfterError: function (inputObject, response) {
         $("#spinner-content-" + inputObject.accountId).html(inputObject.preSpinnerReplacedContent);
         $("#manageAccounts-" + inputObject.accountId).click(centralHome.reattachOnClicksAfterSpinnerRefresh);
     },
-    attachOnClicks: function(){
+    attachOnClicks: function () {
         $(".manageAccounts").each(function () {
             $(this).click(function (event) {
                 event.stopPropagation();
@@ -65,39 +98,10 @@ var centralHome = {
             });
         });
     },
-    reattachOnClicksAfterSpinnerRefresh: function(event) {
+    reattachOnClicksAfterSpinnerRefresh: function (event) {
         event.stopPropagation();
         var userId = $(event.target).attr("userId");
         var accountId = $(event.target).attr("accountId");
         centralHome.getAppsGrantedAccessToAccount(userId, accountId);
-    },
-    editAlias : function(userAccountId) {
-        centralHome.hideQuickEditor();
-        var editable = $("#quick-editable-" + userAccountId);
-        $(editable).addClass("editing");
-        $("#quick-editor #account").val(userAccountId);
-        $("#quick-editor #alias").val(editable.html());
-        $("#quick-editor").show();
-        $("#quick-editor").css("left", editable.offset().left + editable.width());
-        $("#quick-editor").css("top", editable.offset().top - 50);
-        $("#quick-editor #alias").focus();
-        return false;
-    },
-    updateAlias : function() {
-        var id = $("#quick-editor #account").val();
-        var alias = $("#quick-editor #alias").val();
-        $.ajax("/app/central/renameAccount", {
-            type: "POST",
-            data: { id: id, value: alias },
-            success: function (response) {
-                centralHome.hideQuickEditor();
-                $("#quick-editable-" + id).html(response);
-            }
-        });
-        return false;
-    },
-    hideQuickEditor : function() {
-        $(".quick-editable").removeClass("editing");
-        $("#quick-editor").hide();
     }
 };

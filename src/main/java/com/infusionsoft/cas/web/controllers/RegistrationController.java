@@ -100,6 +100,10 @@ public class RegistrationController {
      */
     @RequestMapping
     public String createInfusionsoftId(Model model, String registrationCode, String returnUrl, String skipUrl, String userToken, String firstName, String lastName, String email, @RequestParam(defaultValue = "false") boolean skipWelcomeEmail, HttpServletRequest request) throws IOException {
+//        if(true) {
+//            throw new IOException();
+//        }
+
         // If you get here, you should not have a ticket granting cookie in the request. If we don't clear it, we may be linking the wrong user account if user chooses "Already have ID" from the registration page
         autoLoginService.killTGT(request);
 

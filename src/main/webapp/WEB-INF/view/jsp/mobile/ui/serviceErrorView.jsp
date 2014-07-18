@@ -2,7 +2,7 @@
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <html>
 <head>
-    <meta name="decorator" content="modal"/>
+    <meta name="decorator" content="black-header-minimal"/>
 
     <title><spring:message code="screen.service.error.header" /></title>
 </head>

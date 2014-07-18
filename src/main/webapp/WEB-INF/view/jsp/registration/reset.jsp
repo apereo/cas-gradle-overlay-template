@@ -1,3 +1,6 @@
+<%--@elvariable id="error" type="java.lang.String"--%>
+<%--@elvariable id="recoveryCode" type="java.lang.String"--%>
+
 <%@ page session="true" %>
 <%@ page pageEncoding="UTF-8" %>
 <%@ page contentType="text/html; charset=UTF-8" %>
@@ -9,7 +12,7 @@
 
 <head>
 
-    <meta name="decorator" content="green-header-minimal" />
+    <meta name="decorator" content="black-header-minimal" />
 
     <meta name="robots" content="noindex">
 
@@ -28,7 +31,6 @@
             padding: 6px 6px;
         }
     </style>
-    <link href="<c:url value="/css/flip.css"/>" rel="stylesheet">
 
     <script type="text/javascript">
 
@@ -61,8 +63,7 @@
 
         $(document).ready(function () {
             jQuery.validator.addMethod("password", function (value, element) {
-                var result = this.optional(element) || value.length >= 7 && /\d/.test(value) && /[a-z]/.test(value) && /[A-Z]/.test(value);
-                return result;
+                return this.optional(element) || value.length >= 7 && /\d/.test(value) && /[a-z]/.test(value) && /[A-Z]/.test(value);
             }, "<spring:message code='password.error.invalid'/>");
 
             //Check to ensure that password matches

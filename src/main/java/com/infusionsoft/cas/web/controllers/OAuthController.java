@@ -212,6 +212,8 @@ public class OAuthController {
             model.addAttribute("appName", appName);
         }
 
+        model.addAttribute("oauthLinkSelected", "selected");
+
         return "oauth/userApplicationSearch";
     }
 

@@ -268,7 +268,7 @@ public class CentralController {
      */
     @RequestMapping
     public ModelAndView renameAccount(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        Long accountId = new Long(request.getParameter("id"));
+        Long accountId = new Long(request.getParameter("pk"));
         String alias = ValidationUtils.sanitizeAppAlias(request.getParameter("value"));
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         UserAccount account = userService.findUserAccount(user, accountId);
