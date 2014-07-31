@@ -27,13 +27,13 @@ public class SecurityFilter implements Filter {
         // Prevent content-type sniffing by certain browsers
         response.setHeader("X-Content-Type-Options", "nosniff");
 
-        filterChain.doFilter(request, response);
-
         // Forcibly set no-cache headers
         if (path.startsWith("/login") || path.startsWith("/logout") || path.startsWith("/app")) {
             response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate, private");
             response.setHeader("Pragma", "no-cache");
         }
+
+        filterChain.doFilter(request, response);
     }
 
     public void destroy() {

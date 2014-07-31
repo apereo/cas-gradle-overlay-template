@@ -1,5 +1,6 @@
 package com.infusionsoft.cas.services;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.infusionsoft.cas.api.domain.APIErrorDTO;
 import com.infusionsoft.cas.api.domain.AccountDTO;
 import com.infusionsoft.cas.api.domain.UserAccountDTO;
@@ -9,7 +10,6 @@ import com.infusionsoft.cas.domain.Authority;
 import com.infusionsoft.cas.domain.User;
 import com.infusionsoft.cas.domain.UserAccount;
 import com.infusionsoft.cas.support.AppHelper;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.BeforeTest;

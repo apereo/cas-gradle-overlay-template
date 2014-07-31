@@ -35,21 +35,21 @@
         </tr>
         </thead>
         <tbody>
-        <c:if test="${fn:length(masheryUserApplications) > 0}">
-            <c:forEach var="masheryUserApplication" items="${masheryUserApplications}">
+        <c:if test="${fn:length(userApplications) > 0}">
+            <c:forEach var="masheryUserApplication" items="${userApplications}">
                 <tr>
                     <td>
-                            ${masheryUserApplication.id}
+                            ${userApplication.id}
                     </td>
                     <td>
-                            ${masheryUserApplication.name}
+                            ${userApplication.name}
                     </td>
                     <td>
-                            ${masheryUserApplication.client_id}
+                            ${userApplication.client_id}
                     </td>
                     <td>
                         <ul>
-                            <c:forEach var="accessToken" items="${masheryUserApplication.access_tokens}">
+                            <c:forEach var="accessToken" items="${userApplication.accessTokens}">
                                 <li>
                                     <a href="/app/oauth/viewAccessToken?accessToken=${accessToken}">${accessToken}</a>
                                 </li>

@@ -1,7 +1,7 @@
 package com.infusionsoft.cas.oauth.mashery.api.wrappers;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.infusionsoft.cas.oauth.mashery.api.domain.MasheryUserApplication;
-import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 
 import java.util.Set;
 

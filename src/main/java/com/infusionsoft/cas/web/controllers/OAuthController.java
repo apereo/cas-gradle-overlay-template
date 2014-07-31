@@ -1,10 +1,13 @@
 package com.infusionsoft.cas.web.controllers;
 
+import com.infusionsoft.cas.auth.OAuthAuthenticationToken;
 import com.infusionsoft.cas.domain.AppType;
 import com.infusionsoft.cas.domain.User;
 import com.infusionsoft.cas.domain.UserAccount;
+import com.infusionsoft.cas.oauth.dto.OAuthAccessToken;
+import com.infusionsoft.cas.oauth.dto.OAuthGrantType;
+import com.infusionsoft.cas.oauth.dto.OAuthUserApplication;
 import com.infusionsoft.cas.oauth.exceptions.*;
-import com.infusionsoft.cas.oauth.mashery.api.domain.*;
 import com.infusionsoft.cas.oauth.services.OAuthService;
 import com.infusionsoft.cas.services.CrmService;
 import com.infusionsoft.cas.services.UserService;
@@ -13,20 +16,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.MessageSource;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Controller that provides the required Authorization Server endpoints for OAuth 2.0 Grants
@@ -37,6 +39,13 @@ public class OAuthController {
 
     private Logger logger = LoggerFactory.getLogger(OAuthController.class);
 
+    private final static String ERROR_PARAMETER = "error";
+    private final static String ERROR__DESCRIPTION_PARAMETER = "error_description";
+    private final static String ERROR__URI_PARAMETER = "error_uri";
+    private final static String RESPONSE_TYPE_PARAMETER = "response_type";
+    private final static String REDIRECT_URI_PARAMETER = "redirect_uri";
+    private final static String STATE_PARAMETER = "state";
+
     @Autowired
     CrmService crmService;
 
@@ -44,7 +53,13 @@ public class OAuthController {
     OAuthService oauthService;
 
     @Autowired
+    MessageSource messageSource;
+
+    @Autowired
     UserService userService;
+
+    @Value("${mashery.api.crm.service.key}")
+    private String crmServiceKey;
 
     @Value("${cas.viewResolver.basename}")
     private String viewResolverBaseName;
@@ -54,14 +69,34 @@ public class OAuthController {
     }
 
     @ExceptionHandler(OAuthException.class)
-    public ModelAndView handleOAuthException(OAuthException e, HttpServletRequest request) {
+    public ModelAndView handleOAuthException(OAuthException e, HttpServletRequest request, HttpServletResponse response, Locale locale) {
+        ModelAndView modelAndView = new ModelAndView();
         Map<String, String> model = new HashMap<String, String>();
-        model.put("error", e.getErrorCode());
-        model.put("state", request.getParameter("state"));
 
-        logger.info("Unhandled OAuthException", e);
+        logger.info("Unhandled OAuthException", e.getMessage());
 
-        return new ModelAndView("redirect:" + request.getParameter("redirect_uri"), model);
+        model.put(ERROR_PARAMETER, e.getErrorCode());
+
+        if (StringUtils.isNotBlank(e.getErrorDescription())) {
+            model.put(ERROR__DESCRIPTION_PARAMETER, messageSource.getMessage(e.getErrorDescription(), null, locale));
+        }
+
+        if (StringUtils.isNotBlank(e.getErrorUri())) {
+            model.put(ERROR__URI_PARAMETER, e.getErrorUri());
+        }
+
+        OAuthGrantType grantType = OAuthGrantType.fromValue(request.getParameter(RESPONSE_TYPE_PARAMETER));
+
+        if (OAuthGrantType.AUTHORIZATION_CODE.equals(grantType)) {
+            model.put(STATE_PARAMETER, request.getParameter(STATE_PARAMETER));
+            modelAndView.setViewName("redirect:" + request.getParameter(REDIRECT_URI_PARAMETER));
+        } else {
+            response.setStatus(e.getHttpStatus().value());
+        }
+
+        modelAndView.addAllObjects(model);
+
+        return modelAndView;
     }
 
     /**
@@ -70,31 +105,50 @@ public class OAuthController {
     @RequestMapping
     public String authorize(Model model, String client_id, String redirect_uri, String response_type, String scope, String state) throws Exception {
 
+        model.addAttribute("client_id", client_id);
         model.addAttribute("redirect_uri", redirect_uri);
+        model.addAttribute("requestedScope", scope);
+        model.addAttribute("response_type", response_type);
         model.addAttribute("state", state);
 
-        if (StringUtils.isBlank(client_id) || StringUtils.isBlank(redirect_uri) || StringUtils.isBlank(response_type)) {
-            throw new OAuthInvalidRequestException();
-        } else if (!"code".equals(response_type)) {
-            throw new OAuthUnsupportedResponseTypeException();
+        OAuthGrantType grantType = OAuthGrantType.fromValue(response_type);
+
+        try {
+            if (StringUtils.isBlank(client_id) || StringUtils.isBlank(redirect_uri) || StringUtils.isBlank(response_type)) {
+                throw new OAuthInvalidRequestException("oauth.exception.authorization.code.invalid.input");
+            } else if (grantType != OAuthGrantType.AUTHORIZATION_CODE) {
+                throw new OAuthUnsupportedResponseTypeException();
+            } else {
+                model.addAttribute("oauthApplication", oauthService.fetchApplication(crmServiceKey, client_id, redirect_uri, response_type));
+
+                User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+                List<UserAccount> accounts = userService.findSortedUserAccountsByAppType(user, AppType.CRM);
+
+                model.addAttribute("apps", crmService.extractAppNames(accounts));
+            }
+        } catch (OAuthException e) {
+            model.addAttribute("error", e.getErrorDescription());
+        }
+
+        return "oauth/" + getViewBase() + "authorize";
+    }
+
+    /**
+     * Token generation for Resource Grant Type
+     */
+    @ResponseBody
+    @RequestMapping("/oauth/service/{serviceKey}/token")
+    public OAuthAccessToken token(@PathVariable String serviceKey) throws Exception {
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        OAuthAuthenticationToken oAuthAuthenticationToken = (OAuthAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
+
+        if (oAuthAuthenticationToken != null) {
+            /**
+             * The scope is the application for these grant type
+             */
+            return oauthService.createAccessToken(serviceKey, oAuthAuthenticationToken.getClientId(), oAuthAuthenticationToken.getClientSecret(), oAuthAuthenticationToken.getGrantType(), oAuthAuthenticationToken.getScope(), oAuthAuthenticationToken.getApplication(), user.getId());
         } else {
-            MasheryOAuthApplication masheryOAuthApplication = oauthService.fetchOAuthApplication(client_id, redirect_uri, response_type);
-
-            MasheryApplication masheryApplication = oauthService.fetchApplication(masheryOAuthApplication.getId());
-            MasheryMember masheryMember = oauthService.fetchMember(masheryApplication.getUsername());
-
-            model.addAttribute("masheryApplication", masheryApplication);
-            model.addAttribute("masheryMember", masheryMember);
-
-            User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-            List<UserAccount> accounts = userService.findSortedUserAccountsByAppType(user, AppType.CRM);
-
-            model.addAttribute("client_id", client_id);
-            model.addAttribute("redirect_uri", redirect_uri);
-            model.addAttribute("requestedScope", scope);
-            model.addAttribute("apps", crmService.extractAppNames(accounts));
-
-            return "oauth/" + getViewBase() + "authorize";
+            throw new OAuthInvalidRequestException();
         }
     }
 
@@ -106,20 +160,12 @@ public class OAuthController {
 
         if (allow != null) {
             User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-            List<UserAccount> accounts = userService.findSortedUserAccountsByAppType(user, AppType.CRM);
-            List<String> crmAccounts = crmService.extractAppNames(accounts);
+            String redirectUriWithCode = oauthService.createAuthorizationCode(crmServiceKey, client_id, requestedScope, application, redirect_uri, user.getId(), state);
 
-            if (crmAccounts.contains(application)) {
-                MasheryAuthorizationCode masheryAuthorizationCode = oauthService.createAuthorizationCode(client_id, requestedScope, application, redirect_uri, user.getId(), state);
-
-                if (masheryAuthorizationCode != null && masheryAuthorizationCode.getUri() != null) {
-                    return "redirect:" + masheryAuthorizationCode.getUri().getUri();
-                } else {
-                    throw new OAuthServerErrorException();
-                }
+            if (StringUtils.isNotBlank(redirectUriWithCode)) {
+                return "redirect:" + redirectUriWithCode;
             } else {
-                logger.error("User " + SecurityContextHolder.getContext().getAuthentication().getName() + " tried to parameter tamper the application scope (" + application + ").");
-                throw new OAuthAccessDeniedException();
+                throw new OAuthServerErrorException();
             }
         } else {
             throw new OAuthAccessDeniedException();
@@ -130,11 +176,11 @@ public class OAuthController {
      * Allows user to view to all apps granted access to their CRM account via oauth.
      */
     @RequestMapping
-    public ModelAndView manageAccounts(Long userId, Long infusionsoftAccountId) throws IOException {
+    public ModelAndView manageAccounts(Long userId, Long infusionsoftAccountId) throws OAuthException {
         Map<String, Object> model = new HashMap<String, Object>();
         User user = userService.loadUser(userId);
         UserAccount ua = userService.findUserAccount(user, infusionsoftAccountId);
-        model.put("appsGrantedAccess", oauthService.fetchUserApplicationsByUserAccount(ua));
+        model.put("appsGrantedAccess", oauthService.fetchUserApplicationsByUserAccount(crmServiceKey, ua));
         model.put("infusionsoftAccountId", infusionsoftAccountId);
 
         return new ModelAndView("oauth/manageAccounts", model);
@@ -144,25 +190,10 @@ public class OAuthController {
      * Allows user to revoke access to any app granted access to their CRM account via oauth.
      */
     @RequestMapping
-    public ModelAndView revokeAccess(HttpServletResponse response, Long userId, Long infusionsoftAccountId, Long masheryAppId) throws IOException {
+    public void revokeAccess(Long userId, Long infusionsoftAccountId, String masheryAppId) throws OAuthException {
         User user = userService.loadUser(userId);
         UserAccount ua = userService.findUserAccount(user, infusionsoftAccountId);
-        Set<MasheryUserApplication> masheryUserApplications = oauthService.fetchUserApplicationsByUserAccount(ua);
-        for (MasheryUserApplication ma : masheryUserApplications) {
-            if (masheryAppId == Long.parseLong(ma.getId())) {
-                for (String accessToken : ma.getAccess_tokens()) {
-                    try {
-                        oauthService.revokeAccessToken(ma.getClient_id(), accessToken);
-                    } catch (Exception e) {
-                        logger.error("Failed to revoke app access for app= " + ma.getName(), e);
-                        response.sendError(500);
-                    }
-                }
-                break;
-            }
-        }
-
-        return null;
+        oauthService.revokeAccessTokensByUserAccount(crmServiceKey, ua, masheryAppId);
     }
 
     /**
@@ -174,9 +205,9 @@ public class OAuthController {
     public String userApplicationSearch(Model model, String username, String appName) throws OAuthException {
         if (StringUtils.isNotBlank(username) && StringUtils.isNotBlank(appName)) {
             UserAccount userAccount = userService.findUserAccountByInfusionsoftId(appName, AppType.CRM, username);
-            Set<MasheryUserApplication> masheryUserApplications = oauthService.fetchUserApplicationsByUserAccount(userAccount);
+            Set<OAuthUserApplication> userApplications = oauthService.fetchUserApplicationsByUserAccount(crmServiceKey, userAccount);
 
-            model.addAttribute("masheryUserApplications", masheryUserApplications);
+            model.addAttribute("userApplications", userApplications);
             model.addAttribute("username", username);
             model.addAttribute("appName", appName);
         }
@@ -192,7 +223,7 @@ public class OAuthController {
     @RequestMapping
     public String viewAccessToken(Model model, String accessToken) throws OAuthException {
         if (StringUtils.isNotBlank(accessToken)) {
-            MasheryAccessToken masheryAccessToken = oauthService.fetchAccessToken(accessToken);
+            OAuthAccessToken masheryAccessToken = oauthService.fetchAccessToken(crmServiceKey, accessToken);
 
             model.addAttribute("masheryAccessToken", masheryAccessToken);
         }

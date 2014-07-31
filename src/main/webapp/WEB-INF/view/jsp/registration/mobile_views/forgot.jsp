@@ -27,6 +27,7 @@
 
                 <c:if test="${not empty error}">
                     <p class="text-error">
+                        <object type="image/svg+xml" tabindex="-1" data="/img/ic-exclamation-circle.svg" width="16" height="16"></object>
                         <spring:message code="${error}"/>
                     </p>
                 </c:if>

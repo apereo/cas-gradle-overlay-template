@@ -2,6 +2,7 @@ package com.infusionsoft.cas.oauth.mashery.api.client;
 
 import com.infusionsoft.cas.oauth.exceptions.OAuthException;
 import com.infusionsoft.cas.oauth.exceptions.OAuthServerErrorException;
+import com.infusionsoft.cas.oauth.exceptions.OAuthUnauthorizedClientException;
 import com.infusionsoft.cas.oauth.mashery.api.domain.*;
 import com.infusionsoft.cas.oauth.mashery.api.wrappers.*;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -17,7 +18,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.http.converter.HttpMessageConverter;
-import org.springframework.http.converter.json.MappingJacksonHttpMessageConverter;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
@@ -32,6 +33,7 @@ import java.util.*;
 public class MasheryApiClientService {
 
     private static final Logger log = LoggerFactory.getLogger(MasheryApiClientService.class);
+    private static final int MASHERY_BAD_CLIENT_ID = -2001;
 
     @Value("${mashery.api.url}")
     private String apiUrl;
@@ -41,9 +43,6 @@ public class MasheryApiClientService {
 
     @Value("${mashery.api.secret}")
     private String apiSecret;
-
-    @Value("${mashery.service.key}")
-    private String serviceKey;
 
     @Value("${mashery.site.id}")
     private String siteId;
@@ -55,7 +54,7 @@ public class MasheryApiClientService {
         restTemplate = new RestTemplate();
 
         List<HttpMessageConverter<?>> httpMessageConverters = new ArrayList<HttpMessageConverter<?>>();
-        httpMessageConverters.add(new MappingJacksonHttpMessageConverter());
+        httpMessageConverters.add(new MappingJackson2HttpMessageConverter());
 
         restTemplate.setMessageConverters(httpMessageConverters);
         restTemplate.setErrorHandler(new MasheryRestErrorHandler());
@@ -73,7 +72,7 @@ public class MasheryApiClientService {
     }
 
     @Cacheable("masheryUserApplications")
-    public Set<MasheryUserApplication> fetchUserApplicationsByUserContext(String userContext, TokenStatus tokenStatus) throws OAuthException {
+    public Set<MasheryUserApplication> fetchUserApplicationsByUserContext(String serviceKey, String userContext, TokenStatus tokenStatus) throws OAuthException {
         MasheryJsonRpcRequest masheryJsonRpcRequest = new MasheryJsonRpcRequest();
         masheryJsonRpcRequest.setMethod("oauth2.fetchUserApplications");
 
@@ -96,8 +95,8 @@ public class MasheryApiClientService {
         return wrappedMasheryUserApplication.getResult();
     }
 
-    @Caching(evict = { @CacheEvict("masheryUserApplications"), @CacheEvict(value = "masheryAccessTokens", key = "#accessToken") })
-    public Boolean revokeAccessToken(String clientId, String accessToken) throws OAuthException {
+    @Caching(evict = {@CacheEvict("masheryUserApplications"), @CacheEvict(value = "masheryAccessTokens", key = "#accessToken")})
+    public Boolean revokeAccessToken(String serviceKey, String clientId, String accessToken) throws OAuthException {
         MasheryJsonRpcRequest masheryJsonRpcRequest = new MasheryJsonRpcRequest();
         masheryJsonRpcRequest.setMethod("oauth2.revokeAccessToken");
 
@@ -123,7 +122,7 @@ public class MasheryApiClientService {
     }
 
     @Cacheable(value = "masheryOAuthApplications")
-    public MasheryOAuthApplication fetchOAuthApplication(String clientId, String redirectUri, String responseType) throws OAuthException {
+    public MasheryOAuthApplication fetchOAuthApplication(String serviceKey, String clientId, String redirectUri, String responseType) throws OAuthException {
         try {
             log.info("Fetch OAuth Application. {}, {}, {}, {}", serviceKey, clientId, redirectUri, responseType);
             MasheryJsonRpcRequest masheryJsonRpcRequest = new MasheryJsonRpcRequest();
@@ -174,27 +173,83 @@ public class MasheryApiClientService {
     public MasheryMember fetchMember(String username) throws OAuthException {
 
         MasheryJsonRpcRequest masheryJsonRpcRequest = new MasheryJsonRpcRequest();
-        masheryJsonRpcRequest.setMethod("member.fetch");
+        masheryJsonRpcRequest.setMethod("object.query");
 
-        masheryJsonRpcRequest.getParams().add(username);
+        masheryJsonRpcRequest.getParams().add("SELECT *, roles FROM members WHERE username='" + username + "'");
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         HttpEntity<MasheryJsonRpcRequest> request = new HttpEntity<MasheryJsonRpcRequest>(masheryJsonRpcRequest, headers);
 
-        WrappedMasheryMember wrappedMasheryOAuthApplication;
+        WrappedMasheryMemberQueryResult wrappedMasheryMember;
 
         try {
-            wrappedMasheryOAuthApplication = restTemplate.postForObject(buildUrl(), request, WrappedMasheryMember.class);
+            wrappedMasheryMember = restTemplate.postForObject(buildUrl(), request, WrappedMasheryMemberQueryResult.class);
         } catch (RestClientException e) {
             throw convertException(e);
         }
 
-        return wrappedMasheryOAuthApplication.getResult();
+        if(wrappedMasheryMember.getResult().getTotalItems() != 1) {
+            throw new OAuthServerErrorException("oauth.exception.missing.member");
+        } else {
+            return wrappedMasheryMember.getResult().getItems().iterator().next();
+        }
+    }
+
+    @Cacheable(value = "masheryMembersByClientId")
+    public MasheryMember fetchMemberByClientId(String clientId) throws OAuthException {
+
+        MasheryJsonRpcRequest masheryJsonRpcRequest = new MasheryJsonRpcRequest();
+        masheryJsonRpcRequest.setMethod("object.query");
+
+        masheryJsonRpcRequest.getParams().add("SELECT member.*, member.roles.* FROM package_keys WHERE apikey='" + clientId + "'");
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<MasheryJsonRpcRequest> request = new HttpEntity<MasheryJsonRpcRequest>(masheryJsonRpcRequest, headers);
+
+        WrappedMasheryMemberListQueryResult wrappedMasheryMember;
+
+        try {
+            wrappedMasheryMember = restTemplate.postForObject(buildUrl(), request, WrappedMasheryMemberListQueryResult.class);
+        } catch (RestClientException e) {
+            throw convertException(e);
+        }
+
+        if(wrappedMasheryMember.getResult().getTotalItems() != 1) {
+            throw new OAuthServerErrorException("oauth.exception.missing.member");
+        } else {
+            return wrappedMasheryMember.getResult().getItems().iterator().next().getMember();
+        }
+    }
+
+    public MasheryCreateAccessTokenResponse createAccessToken(String serviceKey, String clientId, String clientSecret, String grant_type, String scope, String userContext) throws OAuthException {
+        MasheryJsonRpcRequest masheryJsonRpcRequest = new MasheryJsonRpcRequest();
+        masheryJsonRpcRequest.setMethod("oauth2.createAccessToken");
+
+        masheryJsonRpcRequest.getParams().add(serviceKey);
+        masheryJsonRpcRequest.getParams().add(new MasheryClient(clientId, clientSecret));
+        masheryJsonRpcRequest.getParams().add(new MasheryTokenData(grant_type, scope, null, null, null));
+        masheryJsonRpcRequest.getParams().add(new MasheryUri());
+        masheryJsonRpcRequest.getParams().add(userContext);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<MasheryJsonRpcRequest> request = new HttpEntity<MasheryJsonRpcRequest>(masheryJsonRpcRequest, headers);
+
+        WrappedMasheryCreateAccessTokenResponse wrappedMasheryCreateAccessTokenResponse;
+
+        try {
+            wrappedMasheryCreateAccessTokenResponse = restTemplate.postForObject(buildUrl(), request, WrappedMasheryCreateAccessTokenResponse.class);
+        } catch (RestClientException e) {
+            throw convertException(e);
+        }
+
+        return wrappedMasheryCreateAccessTokenResponse != null ? wrappedMasheryCreateAccessTokenResponse.getResult() : null;
     }
 
     @Cacheable(value = "masheryAccessTokens")
-    public MasheryAccessToken fetchAccessToken(String accessToken) throws OAuthException {
+    public MasheryAccessToken fetchAccessToken(String serviceKey, String accessToken) throws OAuthException {
         MasheryJsonRpcRequest masheryJsonRpcRequest = new MasheryJsonRpcRequest();
         masheryJsonRpcRequest.setMethod("oauth2.fetchAccessToken");
 
@@ -218,7 +273,7 @@ public class MasheryApiClientService {
     }
 
 
-    public MasheryAuthorizationCode createAuthorizationCode(String clientId, String scope, String redirectUri, String userContext, String state) throws OAuthException {
+    public MasheryAuthorizationCode createAuthorizationCode(String serviceKey, String clientId, String scope, String redirectUri, String userContext, String state) throws OAuthException {
         MasheryJsonRpcRequest masheryJsonRpcRequest = new MasheryJsonRpcRequest();
         masheryJsonRpcRequest.setMethod("oauth2.createAuthorizationCode");
         masheryJsonRpcRequest.getParams().add(serviceKey);
@@ -242,13 +297,28 @@ public class MasheryApiClientService {
         return wrappedMasheryAuthorizationCode != null ? wrappedMasheryAuthorizationCode.getResult() : null;
     }
 
-    @CacheEvict(value = {"masheryOAuthApplications", "masheryApplications", "masheryMembers", "masheryUserApplications", "masheryAccessTokens"}, allEntries = true)
+    @CacheEvict(value = {"masheryOAuthApplications", "masheryApplications", "masheryMembers", "masheryMembersByClientId", "masheryUserApplications", "masheryAccessTokens"}, allEntries = true)
     public void clearCaches() {
         //The annotation will cause the caches to clear
     }
 
     private OAuthException convertException(RestClientException e) {
         log.error("Error contacting Mashery", e);
+
+        if (e.getCause() != null && e.getCause() instanceof MasheryApiException) {
+            MasheryApiException masheryApiException = (MasheryApiException) e.getCause();
+
+            int errorCode = Integer.parseInt(masheryApiException.getMasheryError().getCode());
+
+            switch (errorCode) {
+                case MASHERY_BAD_CLIENT_ID:
+                    return new OAuthUnauthorizedClientException();
+
+                default:
+                    return new OAuthServerErrorException(e);
+
+            }
+        }
         return new OAuthServerErrorException(e);
     }
 }

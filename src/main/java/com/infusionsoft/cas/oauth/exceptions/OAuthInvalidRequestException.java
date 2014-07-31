@@ -1,5 +1,7 @@
 package com.infusionsoft.cas.oauth.exceptions;
 
+import org.springframework.http.HttpStatus;
+
 /**
  * This is an exception that is used OAuth Error Responses
  *
@@ -8,7 +10,11 @@ package com.infusionsoft.cas.oauth.exceptions;
 public class OAuthInvalidRequestException extends OAuthException {
 
     public OAuthInvalidRequestException() {
-        super("invalid_request");
+        super("invalid_request", HttpStatus.BAD_REQUEST, "oauth.exception.invalid.request");
+    }
+
+    public OAuthInvalidRequestException(String message) {
+        super("invalid_request", HttpStatus.BAD_REQUEST, message);
     }
 
 }

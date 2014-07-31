@@ -1,6 +1,6 @@
 package com.infusionsoft.cas.oauth.mashery.api.wrappers;
 
-import org.codehaus.jackson.annotate.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class WrappedMasheryBoolean {

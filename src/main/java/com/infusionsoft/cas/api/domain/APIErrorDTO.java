@@ -1,8 +1,7 @@
 package com.infusionsoft.cas.api.domain;
 
-import org.codehaus.jackson.annotate.*;
-import org.codehaus.jackson.annotate.JsonSubTypes.Type;
-import org.codehaus.jackson.map.annotate.JsonSerialize;
+import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.springframework.context.MessageSource;
 
 import java.util.Locale;
@@ -54,14 +53,14 @@ public class APIErrorDTO<T> {
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_ARRAY)
     @JsonSubTypes({
-            @Type(value = UserDTO[].class, name = "User[]"),
-            @Type(value = UserDTO.class, name = "User"),
-            @Type(value = AccountDTO[].class, name = "Account[]"),
-            @Type(value = AccountDTO.class, name = "Account"),
-            @Type(value = UserAccountDTO[].class, name = "UserAccount[]"),
-            @Type(value = UserAccountDTO.class, name = "UserAccount"),
-            @Type(value = APIErrorDTO[].class, name = "Error[]"),
-            @Type(value = APIErrorDTO.class, name = "Error")})
+            @JsonSubTypes.Type(value = UserDTO[].class, name = "User[]"),
+            @JsonSubTypes.Type(value = UserDTO.class, name = "User"),
+            @JsonSubTypes.Type(value = AccountDTO[].class, name = "Account[]"),
+            @JsonSubTypes.Type(value = AccountDTO.class, name = "Account"),
+            @JsonSubTypes.Type(value = UserAccountDTO[].class, name = "UserAccount[]"),
+            @JsonSubTypes.Type(value = UserAccountDTO.class, name = "UserAccount"),
+            @JsonSubTypes.Type(value = APIErrorDTO[].class, name = "Error[]"),
+            @JsonSubTypes.Type(value = APIErrorDTO.class, name = "Error")})
     public T getRelatedObject() {
         return relatedObject;
     }

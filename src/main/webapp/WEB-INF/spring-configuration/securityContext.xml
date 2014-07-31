@@ -42,15 +42,17 @@
         <sec:intercept-url pattern="/status" access="hasIpAddress('${cas.securityContext.status.allowedSubnet}')"/>
     </sec:http>
 
-    <sec:http entry-point-ref="casProcessingFilterEntryPoint" auto-config="true" use-expressions="true" >
+    <sec:http entry-point-ref="casProcessingFilterEntryPoint" auto-config="true" use-expressions="true">
         <sec:logout success-handler-ref="infusionsoftLogoutSuccessHandler"/>
+        <sec:custom-filter ref="OAuthResourceOwnerAuthenticationFilter" before="FORM_LOGIN_FILTER"/>
+        <sec:custom-filter ref="OAuthExtendedGrantAuthenticationFilter" before="BASIC_AUTH_FILTER"/>
         <sec:custom-filter ref="casProcessingFilter" after="CAS_FILTER"/>
         <sec:custom-filter ref="singleLogoutFilter" before="CAS_FILTER"/>
         <sec:intercept-url pattern="/app/registration/linkToExisting*" access="isAuthenticated()"/>
         <sec:intercept-url pattern="/app/registration/**" access="permitAll()"/>
         <sec:intercept-url pattern="/app/admin/**" access="hasRole('ROLE_CAS_ADMIN')"/>
-        <sec:intercept-url pattern="/app/oauth/userApplicationSearch*" access="hasRole('ROLE_CAS_ADMIN')"/>
         <sec:intercept-url pattern="/app/marketingOptions/**" access="hasRole('ROLE_CAS_MARKETING_ADMIN')"/>
+        <sec:intercept-url pattern="/app/oauth/userApplicationSearch*" access="hasRole('ROLE_CAS_ADMIN')"/>
         <sec:intercept-url pattern="/app/oauth/viewAccessToken*" access="hasRole('ROLE_CAS_ADMIN')"/>
         <sec:intercept-url pattern="/app/support/**" access="hasRole('ROLE_CAS_ADMIN') or hasRole('ROLE_CAS_SUPPORT_TIER_1')"/>
         <sec:intercept-url pattern="/app/profile/updatePassword" access="isAnonymous() or isAuthenticated()"/>
@@ -60,6 +62,8 @@
     </sec:http>
 
     <sec:authentication-manager alias="casAuthenticationManager">
+        <sec:authentication-provider ref="OAuthExtendedGrantAuthenticationProvider"/>
+        <sec:authentication-provider ref="OAuthResourceOwnerAuthenticationProvider"/>
         <sec:authentication-provider ref="casAuthenticationProvider"/>
     </sec:authentication-manager>
 

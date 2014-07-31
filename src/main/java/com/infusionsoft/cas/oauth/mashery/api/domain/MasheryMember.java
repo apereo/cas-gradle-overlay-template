@@ -1,7 +1,11 @@
 package com.infusionsoft.cas.oauth.mashery.api.domain;
 
-import org.codehaus.jackson.annotate.JsonIgnoreProperties;
-import org.codehaus.jackson.annotate.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonRootName;
+
+import java.util.HashSet;
+import java.util.Set;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class MasheryMember {
@@ -9,6 +13,7 @@ public class MasheryMember {
     private String username;
     private String displayName;
     private String uri;
+    private Set<MasheryRole> roles = new HashSet<MasheryRole>();
 
     public String getUsername() {
         return username;
@@ -33,5 +38,13 @@ public class MasheryMember {
 
     public void setUri(String uri) {
         this.uri = uri;
+    }
+
+    public Set<MasheryRole> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(Set<MasheryRole> roles) {
+        this.roles = roles;
     }
 }
