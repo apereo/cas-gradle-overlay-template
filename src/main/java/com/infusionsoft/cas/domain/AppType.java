@@ -5,19 +5,31 @@ package com.infusionsoft.cas.domain;
  */
 public enum AppType {
 
-    CAS(false),
-    COMMUNITY(true),
-    CRM(true),
-    CUSTOMERHUB(true),
-    MARKETPLACE(false);
+    CAS(false, false, false),
+    COMMUNITY(true, false, false),
+    CRM(true, true, true),
+    CUSTOMERHUB(true, true, false),
+    MARKETPLACE(false, false, false);
 
     private boolean linkageAllowed;
+    private boolean aliasable;
+    private boolean accessTokensAllowed;
 
-    AppType(boolean linkageAllowed) {
+    AppType(boolean linkageAllowed, boolean aliasable, boolean accessTokensAllowed) {
         this.linkageAllowed = linkageAllowed;
+        this.aliasable = aliasable;
+        this.accessTokensAllowed = accessTokensAllowed;
     }
 
     public boolean isLinkageAllowed() {
         return linkageAllowed;
+    }
+
+    public boolean isAliasable() {
+        return aliasable;
+    }
+
+    public boolean isAccessTokensAllowed() {
+        return accessTokensAllowed;
     }
 }

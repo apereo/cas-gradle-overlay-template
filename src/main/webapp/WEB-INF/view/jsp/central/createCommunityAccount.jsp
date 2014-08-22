@@ -6,7 +6,7 @@
 
 <%@ page contentType="text/html; charset=UTF-8" %>
 
-<meta name="decorator" content="modal"/>
+<meta name="decorator" content="black-header-minimal"/>
 
 <c:url var="centralUrl" value="/app/central/home"/>
 <c:url var="associateUrl" value="/app/central/associate"/>

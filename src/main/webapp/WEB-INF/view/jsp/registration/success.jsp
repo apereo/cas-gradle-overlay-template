@@ -5,69 +5,63 @@
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 
+<%--@elvariable id="appUrl" type="java.lang.String"--%>
+<%--@elvariable id="user" type="com.infusionsoft.cas.domain.User"--%>
+
+<c:url var="centralUrl" value="/app/central/home"/>
+<c:url var="imageUrl" value="/images/incognito.png"/>
+
+<c:choose>
+    <c:when test="${not empty appUrl}">
+        <c:url var="nextUrl" value="${appUrl}"/>
+    </c:when>
+    <c:otherwise>
+        <c:url var="nextUrl" value="${centralUrl}"/>
+    </c:otherwise>
+</c:choose>
+
 <head>
-
-    <meta name="decorator" content="modal" />
-
+    <meta name="decorator" content="black-header-minimal"/>
     <meta name="robots" content="noindex">
-
-    <style type="text/css">
-
-        #welcome {
-            width: 390px;
-            margin: 100px auto 0 auto;
-            text-align: center;
-            font-size: 18px;
-        }
-
-        #success {
-            color: #60a939;
-            text-align: center;
-            margin: 0 0 20px 0;
-        }
-
-        #register {
-            width: 330px;
-            padding: 30px;
-            margin: 10px auto;
-            background: #fff;
-            border: 1px solid #DDDDDD;
-            border-radius: 4px;
-        }
-
-    </style>
-
 </head>
 <body>
 
-<div class="modal-title">
-    Success! This Is Your Infusionsoft ID!
-</div>
+<div class="container">
+    <div class="row">
+        <div class="col-xs-12 col-sm-6 col-sm-offset-3 col-lg-4 col-lg-offset-4">
 
-<div id="register">
-    <c:url var="centralUrl" value="/app/central/home"/>
+            <h3 class="text-center">
+                This Is Your Infusionsoft ID!
+            </h3>
 
-    <div class="usercard">
-        <img class="photo"/>
-        <div class="name">${user.firstName} ${user.lastName}</div>
-        <div class="info">
-            ${user.username}<br/>
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <div class="well well-sm">
+                        <div class="row">
+                            <div class="col-xs-3">
+                                <img src="${imageUrl}"/>
+                            </div>
+                            <div class="col-xs-9">
+                                <h4>${user.firstName} ${user.lastName}</h4>
+                                ${user.username}
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <p>
+                        You will sign in to your accounts with this email address and password.
+                    </p>
+
+                    <p>
+                        <a class="btn btn-primary pull-right" href="${nextUrl}" role="button">Done</a>
+                    </p>
+                </div>
+            </div>
         </div>
-        <div style="clear: both"></div>
     </div>
-    <br/>
-    <p>
-        You will sign in to your accounts with this email address and password.
-    </p>
 
-    <div style="text-align: right; margin-top: 15px">
-        <c:if test="${not empty appUrl}">
-            <a class="btn btn-primary" href="${appUrl}">Done</a>
-        </c:if>
-        <c:if test="${empty appUrl}">
-            <a class="btn btn-primary" href="${centralUrl}">Done</a>
-        </c:if>
-    </div>
+
 </div>
 
 </body>

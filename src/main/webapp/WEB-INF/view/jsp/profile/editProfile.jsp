@@ -6,59 +6,56 @@
 
 <%@ page contentType="text/html; charset=UTF-8" %>
 
-<meta name="decorator" content="central"/>
-
 <c:url var="centralUrl" value="/app/central/home"/>
 
+<html>
+<head>
+    <meta name="decorator" content="central"/>
+    <title><spring:message code="editprofile.title.label"/></title>
+</head>
 
-<style type="text/css">
-
-    .form-horizontal .control-label {
-        width: 120px;
-    }
-
-    .form-horizontal .controls {
-        margin-left: 135px;
-    }
-
-</style>
-
-<h2 class="apps">
-    Edit Your Profile
-</h2>
-
+<body>
 <p>
     Edit the information that you use to sign into all of your accounts.
 </p>
 
-<form id="editProfileForm" action="updateProfile" method="post" class="form-horizontal">
-    <fieldset>
-        <div class="control-group">
-            <label class="control-label">Infusionsoft ID</label>
+<form id="editProfileForm" action="updateProfile" method="post" class="form-horizontal" role="form">
+    <div class="form-group">
+        <label class="col-sm-2 control-label">Infusionsoft ID</label>
 
-            <div class="controls">
-                <span class="uneditable-input">${fn:escapeXml(user != null ? user.username : '')}</span>
-                <span class="help-inline"><a href="/app/profile/changePassword">Change Password</a></span>
+        <div class="col-sm-4">
+            <p class="form-control-static">
+                ${fn:escapeXml(user != null ? user.username : '')}
+                <span class="help-block"><a href="/app/profile/changePassword">Change Password</a></span>
+            </p>
+        </div>
+
+    </div>
+    <div class="form-group">
+        <label class="col-sm-2 control-label" for="firstName">First Name</label>
+
+        <div class="col-sm-4">
+            <input class="form-control" id="firstName" name="firstName" value="${fn:escapeXml(user != null ? user.firstName : '')}" type="text"/>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-2 control-label" for="lastName">Last Name</label>
+
+        <div class="col-sm-4">
+            <input class="form-control" id="lastName" name="lastName" value="${fn:escapeXml(user != null ? user.lastName : '')}" type="text"/>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <div class="col-sm-6">
+            <div class="pull-right">
+                <a class="btn btn-default" href="${centralUrl}">
+                    <spring:message code="button.cancel"/>
+                </a>
+                <button type="submit" class="btn btn-primary "><spring:message code="button.save"/></button>
             </div>
         </div>
-        <div class="control-group">
-            <label class="control-label" for="firstName">First Name</label>
-
-            <div class="controls">
-                <input id="firstName" name="firstName" value="${fn:escapeXml(user != null ? user.firstName : '')}" type="text"/>
-            </div>
-        </div>
-        <div class="control-group">
-            <label class="control-label" for="lastName">Last Name</label>
-
-            <div class="controls">
-                <input id="lastName" name="lastName" value="${fn:escapeXml(user != null ? user.lastName : '')}" type="text"/>
-            </div>
-        </div>
-    </fieldset>
-
-    <div class="buttonbar">
-        <input type="submit" value="Save" class="btn btn-primary"/>
-        <a class="btn" href="${centralUrl}">Cancel</a>
     </div>
 </form>
+</body>
+</html>

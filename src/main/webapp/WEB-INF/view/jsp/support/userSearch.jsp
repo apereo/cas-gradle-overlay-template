@@ -10,7 +10,7 @@
     <meta name="decorator" content="central"/>
     <script type="text/javascript">
         var userSearch = {
-            getAppsGrantedAccessToAccount : function (userId, accountId){
+            getAppsGrantedAccessToAccount: function (userId, accountId) {
                 var appsGrantedAccessToAccountInput = new Object();
                 appsGrantedAccessToAccountInput.afterSuccess = this.appsGrantedAccessToAccountAfterSuccess;
                 appsGrantedAccessToAccountInput.afterError = this.appsGrantedAccessToAccountAfterError;
@@ -19,14 +19,18 @@
 
                 manageAppAccess.getAppsGrantedAccessToAccount(appsGrantedAccessToAccountInput);
             },
-            appsGrantedAccessToAccountAfterSuccess : function(inputObject, response) {
-                $(".displayManageAccountsMarker").each(function () {$(this).hide()});
+            appsGrantedAccessToAccountAfterSuccess: function (inputObject, response) {
+                $(".displayManageAccountsMarker").each(function () {
+                    $(this).hide()
+                });
                 $("#displayManageAccountsContent-" + inputObject.accountId).html(response);
                 $("#displayManageAccountsWrapper-" + inputObject.accountId).slideDown(500);
-                $(".open-marker").each(function () {$(this).removeClass('open')});
+                $(".open-marker").each(function () {
+                    $(this).removeClass('open')
+                });
                 $("#accountAnchor-" + inputObject.accountId).addClass("open");
             },
-            appsGrantedAccessToAccountAfterError : function(inputObject, response) {
+            appsGrantedAccessToAccountAfterError: function (inputObject, response) {
 
             }
         }
@@ -34,8 +38,8 @@
 
 </head>
 <body>
-<div class="text-center">
-    <table class="table table-bordered table-striped dataTable" id="userTable">
+<div class="table-responsive">
+    <table class="table table-bordered table-striped" id="userTable">
         <thead>
         <tr>
             <th>
@@ -78,18 +82,25 @@
                         <a href="/app/support/unlockUser?id=${user.id}"><spring:message code="unlock.label"/></a>
                     </td>
                     <td class="account-list">
-                        <table class="table table-bordered table-striped dataTable">
+                        <ul class="list-group">
                             <c:forEach var="account" items="${user.accounts}">
-                                <tr>
-                                    <td>
-                                        <span><a id="accountAnchor-${account.id}" class="open-marker" onclick="userSearch.getAppsGrantedAccessToAccount('${user.id}', '${account.id}'); return false;">${account.appName}.${crmDomain}</a></span>
-                                    </td>
-                                </tr>
-                                <tr id="displayManageAccountsWrapper-${account.id}" class="displayManageAccountsMarker" style="display: none">
-                                    <td id="displayManageAccountsContent-${account.id}"></td>
-                                </tr>
+                                <li class="list-group-item">
+                                    <span><a id="accountAnchor-${account.id}" class="open-marker" onclick="userSearch.getAppsGrantedAccessToAccount('${user.id}', '${account.id}'); return false;">${account.appName}.${crmDomain}</a></span>
+                                </li>
                             </c:forEach>
-                        </table>
+                        </ul>
+                            <%--<table class="table table-bordered table-striped dataTable">--%>
+                            <%--<c:forEach var="account" items="${user.accounts}">--%>
+                            <%--<tr>--%>
+                            <%--<td>--%>
+                            <%--<span><a id="accountAnchor-${account.id}" class="open-marker" onclick="userSearch.getAppsGrantedAccessToAccount('${user.id}', '${account.id}'); return false;">${account.appName}.${crmDomain}</a></span>--%>
+                            <%--</td>--%>
+                            <%--</tr>--%>
+                            <%--<tr id="displayManageAccountsWrapper-${account.id}" class="displayManageAccountsMarker" style="display: none">--%>
+                            <%--<td id="displayManageAccountsContent-${account.id}"></td>--%>
+                            <%--</tr>--%>
+                            <%--</c:forEach>--%>
+                            <%--</table>--%>
                     </td>
                 </tr>
             </c:forEach>
@@ -97,57 +108,55 @@
         </tbody>
     </table>
     <c:if test="${users.totalPages > 1}">
-        <div class="pagination pagination-centered">
-                <%--Pages are 0 based--%>
-            <c:url var="searchUrl" value="/app/support/userSearch?"/>
-            <c:set var="pagesHalfRange" value="${4}"/>
-            <ul>
-                    <%--Previous--%>
-                <c:if test="${users.firstPage}">
-                    <li class="disabled"><span>&laquo;</span></li>
-                </c:if>
-                <c:if test="${!users.firstPage}">
-                    <li><a href="${searchUrl}page=${users.number - 1}&searchUsername=${searchUsername}">&laquo;</a></li>
-                </c:if>
+        <%--Pages are 0 based--%>
+        <c:url var="searchUrl" value="/app/support/userSearch?"/>
+        <c:set var="pagesHalfRange" value="${4}"/>
+        <ul class="pagination">
+                <%--Previous--%>
+            <c:if test="${users.firstPage}">
+                <li class="disabled"><span>&laquo;</span></li>
+            </c:if>
+            <c:if test="${!users.firstPage}">
+                <li><a href="${searchUrl}page=${users.number - 1}&searchUsername=${searchUsername}">&laquo;</a></li>
+            </c:if>
 
-                    <%--Pages--%>
-                <c:choose>
-                    <c:when test="${users.number < 4}">
-                        <c:set var="begin" value="${0}"/>
-                    </c:when>
-                    <c:otherwise>
-                        <c:set var="begin" value="${users.number - 4}"/>
-                    </c:otherwise>
-                </c:choose>
+                <%--Pages--%>
+            <c:choose>
+                <c:when test="${users.number < 4}">
+                    <c:set var="begin" value="${0}"/>
+                </c:when>
+                <c:otherwise>
+                    <c:set var="begin" value="${users.number - 4}"/>
+                </c:otherwise>
+            </c:choose>
 
 
-                <c:choose>
-                    <c:when test="${begin + 8  < users.totalPages}">
-                        <c:set var="end" value="${begin + 8}"/>
-                    </c:when>
-                    <c:otherwise>
-                        <c:set var="end" value="${users.totalPages - 1}"/>
+            <c:choose>
+                <c:when test="${begin + 8  < users.totalPages}">
+                    <c:set var="end" value="${begin + 8}"/>
+                </c:when>
+                <c:otherwise>
+                    <c:set var="end" value="${users.totalPages - 1}"/>
 
-                        <c:if test="${end - 8 >= 0}">
-                            <c:set var="begin" value="${end - 8}"/>
-                        </c:if>
-                    </c:otherwise>
-                </c:choose>
+                    <c:if test="${end - 8 >= 0}">
+                        <c:set var="begin" value="${end - 8}"/>
+                    </c:if>
+                </c:otherwise>
+            </c:choose>
 
-                <c:forEach var="page" begin="${begin}" end="${end}">
-                    <c:set var="pageClass" value="${users.number == page ? 'active' : ''}"/>
-                    <li class="${pageClass}"><a href="${searchUrl}page=${page}&searchUsername=${searchUsername}">${page + 1}</a></li>
-                </c:forEach>
+            <c:forEach var="page" begin="${begin}" end="${end}">
+                <c:set var="pageClass" value="${users.number == page ? 'active' : ''}"/>
+                <li class="${pageClass}"><a href="${searchUrl}page=${page}&searchUsername=${searchUsername}">${page + 1}</a></li>
+            </c:forEach>
 
-                    <%--Next--%>
-                <c:if test="${users.lastPage}">
-                    <li class="disabled"><span>&raquo;</span></li>
-                </c:if>
-                <c:if test="${!users.lastPage}">
-                    <li><a href="${searchUrl}page=${users.number + 1}&searchUsername=${searchUsername}">&raquo;</a></li>
-                </c:if>
-            </ul>
-        </div>
+                <%--Next--%>
+            <c:if test="${users.lastPage}">
+                <li class="disabled"><span>&raquo;</span></li>
+            </c:if>
+            <c:if test="${!users.lastPage}">
+                <li><a href="${searchUrl}page=${users.number + 1}&searchUsername=${searchUsername}">&raquo;</a></li>
+            </c:if>
+        </ul>
     </c:if>
 </div>
 </body>

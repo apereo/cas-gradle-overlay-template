@@ -9,7 +9,7 @@
 
 <head>
 
-    <meta name="decorator" content="green-header-minimal" />
+    <meta name="decorator" content="black-header-minimal" />
 
     <meta name="robots" content="noindex">
 

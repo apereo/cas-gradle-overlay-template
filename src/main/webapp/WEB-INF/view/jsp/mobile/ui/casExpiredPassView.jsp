@@ -8,7 +8,7 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 
 <head>
-    <meta name="decorator" content="base-bootstrap3"/>
+    <meta name="decorator" content="login"/>
     <meta name="robots" content="noindex">
     <title>Your Password Expired</title>
 </head>

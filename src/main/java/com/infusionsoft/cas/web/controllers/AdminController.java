@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import javax.persistence.RollbackException;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
+import java.util.ArrayList;
 import java.util.List;
 
 @Controller
@@ -72,7 +73,17 @@ public class AdminController {
                 cause = cause.getCause();
             }
             if (cause != null) {
-                model.addAttribute("error", cause.getMessage());
+                if(cause instanceof ConstraintViolationException) {
+                    ConstraintViolationException validationException = (ConstraintViolationException) cause;
+
+                    List<String> errors = new ArrayList<String>();
+                    for(ConstraintViolation constraintViolation : validationException.getConstraintViolations()) {
+                        errors.add(constraintViolation.getMessage());
+                    }
+                    model.addAttribute("errors", errors);
+                } else {
+                    model.addAttribute("error", cause.getMessage());
+                }
             } else {
                 model.addAttribute("error", e.getMessage());
             }

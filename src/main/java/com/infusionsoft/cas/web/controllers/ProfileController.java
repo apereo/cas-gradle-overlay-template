@@ -70,15 +70,13 @@ public class ProfileController {
      * Updates the user profile.
      */
     @RequestMapping
-    public ModelAndView updateProfile(String firstName, String lastName) throws IOException {
-        Map<String, Object> model = new HashMap<String, Object>();
-
+    public String updateProfile(String firstName, String lastName, Model model) throws IOException {
         User user = userService.loadUser(SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString());
 
         try {
 
-            if (model.containsKey("error")) {
-                log.info("couldn't update user account for user " + user.getId() + ": " + model.get("error"));
+            if (model.containsAttribute("error")) {
+                log.info("couldn't update user account for user " + user.getId() + ": " + model.asMap().get("error"));
             } else {
                 user.setFirstName(firstName);
                 user.setLastName(lastName);
@@ -86,19 +84,20 @@ public class ProfileController {
             }
         } catch (InfusionsoftValidationException e) {
             log.error("Failed to create user account", e);
-            model.put("error", e.getErrorMessageCode());
+            model.addAttribute("error", e.getErrorMessageCode());
         } catch (Exception e) {
             log.error("Failed to update user account", e);
-            model.put("error", "editprofile.error.exception");
+            model.addAttribute("error", "editprofile.error.exception");
         }
 
-        model.put("user", user);
+        model.addAttribute("user", user);
+        model.addAttribute("editProfileLinkSelected", "selected");
 
-        if (model.containsKey("error")) {
-            return new ModelAndView("profile/editProfile", model);
-        } else {
-            return new ModelAndView("redirect:/central/home");
+        if (!model.containsAttribute("error")) {
+            model.addAttribute("success", "Updated Profile Successfully");
         }
+
+        return "profile/editProfile";
     }
 
 

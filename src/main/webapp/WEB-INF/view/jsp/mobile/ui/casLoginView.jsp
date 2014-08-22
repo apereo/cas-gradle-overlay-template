@@ -7,8 +7,15 @@
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 
+<%--@elvariable id="desktopImageSrcUrl" type="java.lang.String"--%>
+<%--@elvariable id="mobileImageSrcUrl" type="java.lang.String"--%>
+<%--@elvariable id="enableAds" type="java.lang.Boolean"--%>
+<%--@elvariable id="appType" type="com.infusionsoft.cas.domain.AppType"--%>
+<%--@elvariable id="appUrl" type="java.lang.String"--%>
+
 <c:url var="getLogoImageUrl" value="/app/registration/getLogoImageUrl"/>
 <c:url var="forgotPasswordUrl" value="/app/registration/forgot"/>
+
 <c:url var="adDesktopImageUrl" value="${desktopImageSrcUrl}"/>
 <c:url var="adMobileImageUrl" value="${mobileImageSrcUrl}"/>
 
@@ -27,7 +34,7 @@
 
 <html>
 <head>
-    <meta name="decorator" content="base-bootstrap3"/>
+    <meta name="decorator" content="login"/>
     <link type="text/css" rel="stylesheet" href="https://infusionmedia.s3.amazonaws.com/app/login-screen/cas-holiday.css">
     <title>Sign in to Infusionsoft</title>
 </head>
@@ -39,7 +46,7 @@
 
 
         <c:if test="${enableAds}">
-            <div class="col-md-6 " >
+            <div class="col-md-6 ">
                 <img src="${adDesktopImageUrl}" class="iconAd img-responsive">
             </div>
         </c:if>
@@ -75,7 +82,7 @@
                 </div>
                 <div class="form-group">
                     <div class="col-md-10">
-                        <button class="btn btn-success btn-block" type="submit">Log In</button>
+                        <button class="btn btn-primary btn-block" type="submit">Log In</button>
                     </div>
                 </div>
             </form:form>
@@ -92,7 +99,14 @@
     <div class="row">
         <div class="col-md-12 login-footer ${adClass}">
             <p>Need Help? Call <strong>${supportPhoneNumber}</strong>.</p>
+
+            <c:if test="${not empty appUrl && appType == 'CRM'}">
+                <p>
+                    <a href="${appUrl}/Affiliate/">Referral Partner Sign-in</a>
+                </p>
+            </c:if>
         </div>
+
     </div>
     <c:if test="${enableAds}">
         <div class="navbar navbar-default navbar-fixed-bottom">

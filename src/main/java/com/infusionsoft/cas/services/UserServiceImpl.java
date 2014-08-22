@@ -15,12 +15,15 @@ import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.servlet.LocaleResolver;
 
 import java.util.*;
 
@@ -44,6 +47,9 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private MailService mailService;
+
+    @Autowired
+    private MessageSource messageSource;
 
     @Autowired
     private PasswordService passwordService;
@@ -232,9 +238,13 @@ public class UserServiceImpl implements UserService {
     public List<UserAccount> findSortedUserAccounts(User user) {
         List<UserAccount> accounts = new ArrayList<UserAccount>();
 
+        UserAccount marketplaceUserAccount = new UserAccount();
+        marketplaceUserAccount.setAppType(AppType.MARKETPLACE);
+
         accounts.addAll(userAccountDAO.findByUserAndAppTypeAndDisabledOrderByAppNameAsc(user, AppType.CRM, false));
-        accounts.addAll(userAccountDAO.findByUserAndAppTypeAndDisabledOrderByAppNameAsc(user, AppType.COMMUNITY, false));
         accounts.addAll(userAccountDAO.findByUserAndAppTypeAndDisabledOrderByAppNameAsc(user, AppType.CUSTOMERHUB, false));
+        accounts.addAll(userAccountDAO.findByUserAndAppTypeAndDisabledOrderByAppNameAsc(user, AppType.COMMUNITY, false));
+        accounts.add(marketplaceUserAccount);
 
         return accounts;
     }

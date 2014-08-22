@@ -6,6 +6,7 @@ body {
     font-family: "Open Sans", Arial, Helvetica, Verdana, sans-serif;
     color: #5E5E5E;
 }
+
 a {
     color: #51A3DC;
 }
@@ -56,11 +57,11 @@ h2 {
     margin-top: 15px;
     text-align: center;
     color: #5E5E5E;
+    background: url(../img/divider.png) top center no-repeat;
 }
 .login-footer p {
     margin: 0 auto;
     padding-top: 10px;
-    background: url(../img/divider.png) top center no-repeat;
 }
 input[type="email"],
 input[type="password"] {
@@ -103,14 +104,15 @@ input.form-control {
     font-size: 16px;
 }
 .btn-success {
-    background-color: #68B243;
-    border-color: #479923;
+    background-color: #51A3DC;
+    /*background-color: #68B243;*/
+    border-color: #125079;
     height: 40px;
     font-size: 16px;
 }
 .btn-success:hover {
-    background-color: #77CC4E;
-    border-color: #68B243;
+    background-color: #4492c8;
+    border-color: #125079;
 }
 .login-form {
     text-align: center;
@@ -118,12 +120,12 @@ input.form-control {
 
 }
 .is-icon {
-    position: relative;
-    top: 1px;
-    display: inline-block;
-    line-height: 1;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
+    /*position: relative;*/
+    /*top: 1px;*/
+    /*display: inline-block;*/
+    /*line-height: 1;*/
+    /*-webkit-font-smoothing: antialiased;*/
+    /*-moz-osx-font-smoothing: grayscale;*/
 }
 
 .is-icon.is-icon-ok.form-control-feedback {
@@ -602,7 +604,11 @@ select.form-control {
         margin: 0;
         padding: 0;
     }
-    .col-md-12.login-footer.noImage p {
+    .col-md-12.login-footer.noImage {
         background: none;
     }
+}
+
+.footer-text {
+    margin: 0 30px;
 }
