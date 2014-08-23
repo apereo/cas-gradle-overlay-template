@@ -1,5 +1,6 @@
 package com.infusionsoft.cas.api.domain;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.infusionsoft.cas.domain.AppType;
 import com.infusionsoft.cas.domain.Authority;
 import com.infusionsoft.cas.domain.User;
