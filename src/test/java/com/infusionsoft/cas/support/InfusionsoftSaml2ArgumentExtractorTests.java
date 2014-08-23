@@ -1,6 +1,5 @@
-package com.infusiontest.cas;
+package com.infusionsoft.cas.support;
 
-import com.infusionsoft.cas.support.InfusionsoftSaml2ArgumentExtractor;
 import org.jasig.cas.util.PrivateKeyFactoryBean;
 import org.jasig.cas.util.PublicKeyFactoryBean;
 import org.springframework.core.io.ClassPathResource;

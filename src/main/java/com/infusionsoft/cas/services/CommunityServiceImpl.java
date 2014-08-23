@@ -28,16 +28,24 @@ public class CommunityServiceImpl implements CommunityService {
     private static final Logger log = Logger.getLogger(CommunityServiceImpl.class);
 
     @Autowired
-    UserService userService;
+    private UserService userService;
 
     @Autowired
-    CommunityAccountDetailsDAO communityAccountDetailsDAO;
+    private CommunityAccountDetailsDAO communityAccountDetailsDAO;
+
+    private String communityBaseUrl;
+
+    private String communityApiKey;
 
     @Value("${infusionsoft.community.baseurl}")
-    String communityBaseUrl;
+    public void setCommunityBaseUrl(String communityBaseUrl) {
+        this.communityBaseUrl = communityBaseUrl;
+    }
 
     @Value("${infusionsoft.community.apikey}")
-    String communityApiKey;
+    public void setCommunityApiKey(String communityApiKey) {
+        this.communityApiKey = communityApiKey;
+    }
 
     /**
      * Builds a URL to the Community for purposes of redirecting.
