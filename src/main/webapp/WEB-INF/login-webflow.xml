@@ -28,6 +28,7 @@
 
     <on-start>
         <evaluate expression="initialFlowSetupAction"/>
+        <evaluate result="flowScope.supportPhoneNumber" expression="infusionsoftAuthenticationService.getSupportPhoneNumber()"/>
     </on-start>
 
     <decision-state id="ticketGrantingTicketExistsCheck">
@@ -128,7 +129,6 @@
             <evaluate result="viewScope.appName" expression="infusionsoftAuthenticationService.guessAppName(viewScope.service)"/>
             <evaluate result="viewScope.appType" expression="infusionsoftAuthenticationService.guessAppType(viewScope.service)"/>
             <evaluate result="viewScope.appUrl" expression="appHelper.buildAppUrl(viewScope.appType, viewScope.appName)"/>
-            <evaluate result="viewScope.supportPhoneNumber" expression="infusionsoftAuthenticationService.getSupportPhoneNumber()"/>
             <evaluate result="viewScope.href" expression="marketingOptionsService.fetch().href"/>
             <evaluate result="viewScope.mobileImageSrcUrl" expression="marketingOptionsService.fetch().mobileImageSrcUrl"/>
             <evaluate result="viewScope.desktopImageSrcUrl" expression="marketingOptionsService.fetch().desktopImageSrcUrl"/>
