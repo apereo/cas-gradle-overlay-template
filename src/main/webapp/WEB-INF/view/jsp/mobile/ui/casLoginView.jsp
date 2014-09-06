@@ -7,8 +7,9 @@
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 
-<%--@elvariable id="desktopImageSrcUrl" type="java.lang.String"--%>
-<%--@elvariable id="mobileImageSrcUrl" type="java.lang.String"--%>
+<%--@elvariable id="adLinkUrl" type="java.lang.String"--%>
+<%--@elvariable id="adDesktopImageSrcUrl" type="java.lang.String"--%>
+<%--@elvariable id="adMobileImageSrcUrl" type="java.lang.String"--%>
 <%--@elvariable id="enableAds" type="java.lang.Boolean"--%>
 <%--@elvariable id="appType" type="com.infusionsoft.cas.domain.AppType"--%>
 <%--@elvariable id="appUrl" type="java.lang.String"--%>
@@ -16,8 +17,9 @@
 <c:url var="getLogoImageUrl" value="/app/registration/getLogoImageUrl"/>
 <c:url var="forgotPasswordUrl" value="/app/registration/forgot"/>
 
-<c:url var="adDesktopImageUrl" value="${desktopImageSrcUrl}"/>
-<c:url var="adMobileImageUrl" value="${mobileImageSrcUrl}"/>
+<c:url var="adLinkHref" value="${adLinkUrl}"/>
+<c:url var="adDesktopImageUrl" value="${adDesktopImageSrcUrl}"/>
+<c:url var="adMobileImageUrl" value="${adMobileImageSrcUrl}"/>
 
 <c:set var="adClass" value="${enableAds ? '' : 'noImage'}"/>
 
@@ -47,7 +49,9 @@
 
         <c:if test="${enableAds}">
             <div class="col-md-6 ">
-                <img src="${adDesktopImageUrl}" class="iconAd img-responsive">
+                <a href="${adLinkHref}">
+                    <img src="${adDesktopImageUrl}" class="iconAd img-responsive">
+                </a>
             </div>
         </c:if>
         <div class="col-md-6 login-form ${adClass}">
@@ -110,7 +114,9 @@
     </div>
     <c:if test="${enableAds}">
         <div class="navbar navbar-default navbar-fixed-bottom">
-            <img src="${adMobileImageUrl}" class="iconAdSm img-responsive">
+            <a href="${adLinkHref}">
+                <img src="${adMobileImageUrl}" class="iconAdSm img-responsive">
+            </a>
         </div>
     </c:if>
 </div>
