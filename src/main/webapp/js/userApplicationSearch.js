@@ -9,7 +9,7 @@ var userAccounts = new Bloodhound({
     queryTokenizer: Bloodhound.tokenizers.whitespace,
     limit: 20,
     remote: {
-        url: '/app/admin/infusionsoftIdSearch.json?query=%QUERY',
+        url: '/app/support/infusionsoftIdSearch.json?query=%QUERY',
         filter: function (list) {
             console.log(list);
             return list.userAccounts;

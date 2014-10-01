@@ -96,7 +96,7 @@
                 <ul class="nav navbar-nav">
                     <li class="${!empty homeLinkSelected ? 'active' : ''}"><a href="${homeLink}">Your Accounts</a></li>
                     <li class="${!empty editProfileLinkSelected ? 'active' : ''}"><a href="${editProfileLink}">Edit Your Profile</a></li>
-                    <sec:authorize access="hasRole('ROLE_CAS_ADMIN')">
+                    <sec:authorize access="hasRole('ROLE_CAS_SUPPORT_TIER_2')">
                         <li><a href="${serviceLink}">Services</a></li>
                         <li class="${!empty oauthLinkSelected ? 'active' : ''}"><a href="${masheryLink}">OAuth 2.0</a></li>
                     </sec:authorize>
