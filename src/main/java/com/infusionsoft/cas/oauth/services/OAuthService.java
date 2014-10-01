@@ -113,12 +113,6 @@ public class OAuthService implements ApplicationListener<UserAccountRemovedEvent
         return masheryApiClientService.revokeAccessToken(serviceKey, clientId, accessToken);
     }
 
-    public OAuthAccessToken fetchAccessToken(String serviceKey, String accessToken) throws OAuthException {
-        MasheryAccessToken masheryAccessToken = masheryApiClientService.fetchAccessToken(serviceKey, accessToken);
-
-        return new OAuthAccessToken(masheryAccessToken.getToken(), masheryAccessToken.getToken_type(), masheryAccessToken.getExpires(), null, masheryAccessToken.getScope());
-    }
-
     public Set<OAuthUserApplication> fetchUserApplicationsByUserAccount(String serviceKey, UserAccount userAccount) throws OAuthException {
         Set<OAuthUserApplication> retVal = new HashSet<OAuthUserApplication>();
 
@@ -126,16 +120,10 @@ public class OAuthService implements ApplicationListener<UserAccountRemovedEvent
             User user = userAccount.getUser();
             if (user != null) {
                 String userContext = user.getId() + "|" + crmService.buildCrmHostName(userAccount.getAppName());
-                Set<MasheryUserApplication> masheryUserApplications = masheryApiClientService.fetchUserApplicationsByUserContext(serviceKey, userContext, TokenStatus.Active);
+                Set<MasheryUserApplication> masheryUserApplications = masheryApiClientService.fetchUserApplicationsByUserContext(serviceKey, userContext);
 
                 for (MasheryUserApplication masheryUserApplication : masheryUserApplications) {
-                    Set<OAuthAccessToken> accessTokens = new HashSet<OAuthAccessToken>();
-
-                    for (MasheryAccessToken masheryAccessToken : masheryUserApplication.getTokens()) {
-                        accessTokens.add(new OAuthAccessToken(masheryAccessToken.getToken(), masheryAccessToken.getToken_type(), masheryAccessToken.getExpires(), null, masheryAccessToken.getScope()));
-                    }
-
-                    OAuthUserApplication oAuthUserApplication = new OAuthUserApplication(masheryUserApplication.getId(), masheryUserApplication.getName(), masheryUserApplication.getClient_id(), accessTokens);
+                    OAuthUserApplication oAuthUserApplication = new OAuthUserApplication(masheryUserApplication.getId(), masheryUserApplication.getName(), masheryUserApplication.getClient_id(), masheryUserApplication.getAccessTokens());
                     retVal.add(oAuthUserApplication);
                 }
 
@@ -150,9 +138,9 @@ public class OAuthService implements ApplicationListener<UserAccountRemovedEvent
 
         Set<OAuthUserApplication> masheryUserApplications = this.fetchUserApplicationsByUserAccount(serviceKey, account);
         for (OAuthUserApplication masheryUserApplication : masheryUserApplications) {
-            for (OAuthAccessToken token : masheryUserApplication.getAccessTokens()) {
+            for (String token : masheryUserApplication.getAccessTokens()) {
                 try {
-                    revokeSuccessful = masheryApiClientService.revokeAccessToken(serviceKey, masheryUserApplication.getClientId(), token.getAccessToken()) && revokeSuccessful;
+                    revokeSuccessful = masheryApiClientService.revokeAccessToken(serviceKey, masheryUserApplication.getClientId(), token) && revokeSuccessful;
                 } catch (RestClientException e) {
                     log.error("Unable to revoke access token for app=" + account.getAppName() + " clientId=" + masheryUserApplication.getClientId() + " token=" + token, e);
                     revokeSuccessful = false;
@@ -169,9 +157,9 @@ public class OAuthService implements ApplicationListener<UserAccountRemovedEvent
         Set<OAuthUserApplication> oAuthUserApplications = this.fetchUserApplicationsByUserAccount(serviceKey, account);
         for (OAuthUserApplication oAuthUserApplication : oAuthUserApplications) {
             if (applicationId.equals(oAuthUserApplication.getId())) {
-                for (OAuthAccessToken token : oAuthUserApplication.getAccessTokens()) {
+                for (String token : oAuthUserApplication.getAccessTokens()) {
                     try {
-                        revokeSuccessful = masheryApiClientService.revokeAccessToken(serviceKey, oAuthUserApplication.getClientId(), token.getAccessToken()) && revokeSuccessful;
+                        revokeSuccessful = masheryApiClientService.revokeAccessToken(serviceKey, oAuthUserApplication.getClientId(), token) && revokeSuccessful;
                     } catch (RestClientException e) {
                         log.error("Unable to revoke access token for app=" + account.getAppName() + " clientId=" + oAuthUserApplication.getClientId() + " token=" + token, e);
                         revokeSuccessful = false;

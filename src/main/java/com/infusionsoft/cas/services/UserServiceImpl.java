@@ -100,6 +100,27 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public Page<UserAccount> findUserAccountsByUsernameLikeOrAppNameLikeAndAppType(String username, String appName, AppType appType, Pageable pageable) {
+        if (StringUtils.isEmpty(username)) {
+            username = "%";
+        } else if (StringUtils.contains(username, "*") || StringUtils.contains(username, "%")) {
+            username = username.replace("*", "%");
+        } else {
+            username = "%" + username + "%";
+        }
+
+        if (StringUtils.isEmpty(appName)) {
+            appName = "%";
+        } else if (StringUtils.contains(appName, "*") || StringUtils.contains(appName, "%")) {
+            appName = appName.replace("*", "%");
+        } else {
+            appName = "%" + appName + "%";
+        }
+
+        return userAccountDAO.findByUser_UsernameLikeOrAppNameLikeAndAppType(username, appName, appType, pageable);
+    }
+
+    @Override
     public User saveUser(User user) throws InfusionsoftValidationException {
         boolean beingAdded = (user.getId() == null);
         if (beingAdded) {

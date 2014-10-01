@@ -6,7 +6,6 @@ import com.infusionsoft.cas.domain.User;
 import com.infusionsoft.cas.domain.UserAccount;
 import com.infusionsoft.cas.oauth.dto.OAuthAccessToken;
 import com.infusionsoft.cas.oauth.dto.OAuthGrantType;
-import com.infusionsoft.cas.oauth.dto.OAuthUserApplication;
 import com.infusionsoft.cas.oauth.exceptions.*;
 import com.infusionsoft.cas.oauth.services.OAuthService;
 import com.infusionsoft.cas.services.CrmService;
@@ -28,7 +27,10 @@ import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 /**
  * Controller that provides the required Authorization Server endpoints for OAuth 2.0 Grants
@@ -195,42 +197,4 @@ public class OAuthController {
         UserAccount ua = userService.findUserAccount(user, infusionsoftAccountId);
         oauthService.revokeAccessTokensByUserAccount(crmServiceKey, ua, masheryAppId);
     }
-
-    /**
-     * Admin Level User Application Searching
-     *
-     * @throws OAuthException
-     */
-    @RequestMapping
-    public String userApplicationSearch(Model model, String username, String appName) throws OAuthException {
-        if (StringUtils.isNotBlank(username) && StringUtils.isNotBlank(appName)) {
-            UserAccount userAccount = userService.findUserAccountByInfusionsoftId(appName, AppType.CRM, username);
-            Set<OAuthUserApplication> userApplications = oauthService.fetchUserApplicationsByUserAccount(crmServiceKey, userAccount);
-
-            model.addAttribute("userApplications", userApplications);
-            model.addAttribute("username", username);
-            model.addAttribute("appName", appName);
-        }
-
-        model.addAttribute("oauthLinkSelected", "selected");
-
-        return "oauth/userApplicationSearch";
-    }
-
-    /**
-     * Admin Level Access Token Searching
-     *
-     * @throws OAuthException
-     */
-    @RequestMapping
-    public String viewAccessToken(Model model, String accessToken) throws OAuthException {
-        if (StringUtils.isNotBlank(accessToken)) {
-            OAuthAccessToken masheryAccessToken = oauthService.fetchAccessToken(crmServiceKey, accessToken);
-
-            model.addAttribute("masheryAccessToken", masheryAccessToken);
-        }
-
-        return "oauth/viewAccessToken";
-    }
-
 }

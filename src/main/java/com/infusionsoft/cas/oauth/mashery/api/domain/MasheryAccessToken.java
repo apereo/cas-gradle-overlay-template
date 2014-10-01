@@ -1,17 +1,19 @@
 package com.infusionsoft.cas.oauth.mashery.api.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import org.joda.time.DateTime;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class MasheryAccessToken {
 
     private String token;
-    private String client_id;
-    private String token_type;
-    private String grant_type;
-    private Integer expires;
+    private String clientId;
+    private String tokenType;
+    private String grantType;
+    private DateTime expires;
     private String scope;
-    private String user_context;
+    private String userContext;
     private String extended;
 
     public String getToken() {
@@ -22,35 +24,38 @@ public class MasheryAccessToken {
         this.token = token;
     }
 
-    public String getClient_id() {
-        return client_id;
+    public String getClientId() {
+        return clientId;
     }
 
-    public void setClient_id(String client_id) {
-        this.client_id = client_id;
+    @JsonProperty("client_id")
+    public void setClientId(String clientId) {
+        this.clientId = clientId;
     }
 
-    public String getToken_type() {
-        return token_type;
+    public String getTokenType() {
+        return tokenType;
     }
 
-    public void setToken_type(String token_type) {
-        this.token_type = token_type;
+    @JsonProperty("token_type")
+    public void setTokenType(String tokenType) {
+        this.tokenType = tokenType;
     }
 
-    public String getGrant_type() {
-        return grant_type;
+    public String getGrantType() {
+        return grantType;
     }
 
-    public void setGrant_type(String grant_type) {
-        this.grant_type = grant_type;
+    @JsonProperty("grant_type")
+    public void setGrantType(String grantType) {
+        this.grantType = grantType;
     }
 
-    public Integer getExpires() {
+    public DateTime getExpires() {
         return expires;
     }
 
-    public void setExpires(Integer expires) {
+    public void setExpires(DateTime expires) {
         this.expires = expires;
     }
 
@@ -62,12 +67,13 @@ public class MasheryAccessToken {
         this.scope = scope;
     }
 
-    public String getUser_context() {
-        return user_context;
+    public String getUserContext() {
+        return userContext;
     }
 
-    public void setUser_context(String user_context) {
-        this.user_context = user_context;
+    @JsonProperty("user_context")
+    public void setUserContext(String userContext) {
+        this.userContext = userContext;
     }
 
     public String getExtended() {

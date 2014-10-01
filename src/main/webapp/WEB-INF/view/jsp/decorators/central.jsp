@@ -28,7 +28,7 @@
 <c:url var="homeLink" value="/app/central/home"/>
 <c:url var="editProfileLink" value="/app/profile/editProfile"/>
 <c:url var="serviceLink" value="/services/manage.html"/>
-<c:url var="masheryLink" value="/app/oauth/userApplicationSearch"/>
+<c:url var="masheryLink" value="/app/mashery/userApplicationSearch"/>
 <c:url var="marketingOptionsLink" value="/app/marketingoptions/show"/>
 <c:url var="userSearchUrl" value="/app/support/userSearch"/>
 
@@ -84,6 +84,8 @@
     <html lang="en">
     <head>
         <title><decorator:title/></title>
+        <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+
         <decorator:head/>
     </head>
     <body>

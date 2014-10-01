@@ -79,7 +79,7 @@ public class MasheryApiClientServiceTest {
         accessTokens.add(TOKEN_1);
         accessTokens.add(TOKEN_2);
         accessTokens.add(TOKEN_3);
-        app.setAccess_tokens(accessTokens);
+        app.setAccessTokens(accessTokens);
 
         userApps.add(app);
 
@@ -90,7 +90,7 @@ public class MasheryApiClientServiceTest {
     public void testFetchUserApplicationsByUserContext() throws Exception {
         when(restTemplate.postForObject(anyString(), anyObject(), any(Class.class))).thenReturn(wrappedMasheryUserApplication);
 
-        Set<MasheryUserApplication> oauthApps = masheryServiceToTest.fetchUserApplicationsByUserContext(SERVICE_KEY, USER_CONTEXT, TokenStatus.Active);
+        Set<MasheryUserApplication> oauthApps = masheryServiceToTest.fetchUserApplicationsByUserContext(SERVICE_KEY, USER_CONTEXT);
 
         // verify result
         Assert.assertNotNull(oauthApps.iterator().next());
@@ -132,7 +132,7 @@ public class MasheryApiClientServiceTest {
         doThrow(testException).when(restTemplate).postForObject(anyString(), anyObject(), any(Class.class));
         // Make sure the call doesn't mask the exception, and that it gets logged
         try {
-            masheryServiceToTest.fetchUserApplicationsByUserContext(SERVICE_KEY, USER_CONTEXT, TokenStatus.Active);
+            masheryServiceToTest.fetchUserApplicationsByUserContext(SERVICE_KEY, USER_CONTEXT);
             Assert.fail();
         } catch (OAuthServerErrorException e) {
             Assert.assertEquals(e.getCause(), testException);

@@ -81,4 +81,6 @@ public interface UserService {
     Authority findAuthorityByName(String authorityName);
 
     boolean validateUserApplication(String application) throws AccessDeniedException;
+
+    Page<UserAccount> findUserAccountsByUsernameLikeOrAppNameLikeAndAppType(String username, String appName, AppType appType, Pageable pageable);
 }

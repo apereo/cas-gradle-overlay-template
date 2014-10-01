@@ -7,9 +7,9 @@ public class OAuthUserApplication {
     private String id;
     private String name;
     private String clientId;
-    private Set<OAuthAccessToken> accessTokens;
+    private Set<String> accessTokens;
 
-    public OAuthUserApplication(String id, String name, String clientId, Set<OAuthAccessToken> accessTokens) {
+    public OAuthUserApplication(String id, String name, String clientId, Set<String> accessTokens) {
         this.id = id;
         this.name = name;
         this.clientId = clientId;
@@ -40,11 +40,11 @@ public class OAuthUserApplication {
         this.clientId = clientId;
     }
 
-    public Set<OAuthAccessToken> getAccessTokens() {
+    public Set<String> getAccessTokens() {
         return accessTokens;
     }
 
-    public void setAccessTokens(Set<OAuthAccessToken> accessTokens) {
+    public void setAccessTokens(Set<String> accessTokens) {
         this.accessTokens = accessTokens;
     }
 }

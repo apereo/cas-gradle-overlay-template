@@ -5,10 +5,12 @@ import com.infusionsoft.cas.oauth.exceptions.OAuthServerErrorException;
 import com.infusionsoft.cas.oauth.exceptions.OAuthUnauthorizedClientException;
 import com.infusionsoft.cas.oauth.mashery.api.domain.*;
 import com.infusionsoft.cas.oauth.mashery.api.wrappers.*;
+import com.infusionsoft.cas.support.InfusionsoftObjectMapper;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -47,6 +49,9 @@ public class MasheryApiClientService {
     @Value("${mashery.site.id}")
     private String siteId;
 
+    @Autowired
+    InfusionsoftObjectMapper infusionsoftObjectMapper;
+
     private RestTemplate restTemplate;
 
     @PostConstruct
@@ -54,7 +59,11 @@ public class MasheryApiClientService {
         restTemplate = new RestTemplate();
 
         List<HttpMessageConverter<?>> httpMessageConverters = new ArrayList<HttpMessageConverter<?>>();
-        httpMessageConverters.add(new MappingJackson2HttpMessageConverter());
+
+        MappingJackson2HttpMessageConverter converter = new MappingJackson2HttpMessageConverter();
+        converter.setObjectMapper(infusionsoftObjectMapper);
+
+        httpMessageConverters.add(converter);
 
         restTemplate.setMessageConverters(httpMessageConverters);
         restTemplate.setErrorHandler(new MasheryRestErrorHandler());
@@ -71,14 +80,13 @@ public class MasheryApiClientService {
         return StringUtils.join(apiUrl, "/", siteId, "?apikey=", apiKey, "&sig=", signature);
     }
 
-    @Cacheable("masheryUserApplications")
-    public Set<MasheryUserApplication> fetchUserApplicationsByUserContext(String serviceKey, String userContext, TokenStatus tokenStatus) throws OAuthException {
+    public Set<MasheryUserApplication> fetchUserApplicationsByUserContext(String serviceKey, String userContext) throws OAuthException {
         MasheryJsonRpcRequest masheryJsonRpcRequest = new MasheryJsonRpcRequest();
         masheryJsonRpcRequest.setMethod("oauth2.fetchUserApplications");
 
         masheryJsonRpcRequest.getParams().add(serviceKey);
         masheryJsonRpcRequest.getParams().add(userContext);
-        masheryJsonRpcRequest.getParams().add(tokenStatus.getValue());
+        masheryJsonRpcRequest.getParams().add(TokenStatus.Active.getValue());
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -95,7 +103,6 @@ public class MasheryApiClientService {
         return wrappedMasheryUserApplication.getResult();
     }
 
-    @Caching(evict = {@CacheEvict("masheryUserApplications"), @CacheEvict(value = "masheryAccessTokens", key = "#accessToken")})
     public Boolean revokeAccessToken(String serviceKey, String clientId, String accessToken) throws OAuthException {
         MasheryJsonRpcRequest masheryJsonRpcRequest = new MasheryJsonRpcRequest();
         masheryJsonRpcRequest.setMethod("oauth2.revokeAccessToken");
@@ -248,7 +255,6 @@ public class MasheryApiClientService {
         return wrappedMasheryCreateAccessTokenResponse != null ? wrappedMasheryCreateAccessTokenResponse.getResult() : null;
     }
 
-    @Cacheable(value = "masheryAccessTokens")
     public MasheryAccessToken fetchAccessToken(String serviceKey, String accessToken) throws OAuthException {
         MasheryJsonRpcRequest masheryJsonRpcRequest = new MasheryJsonRpcRequest();
         masheryJsonRpcRequest.setMethod("oauth2.fetchAccessToken");
@@ -297,7 +303,7 @@ public class MasheryApiClientService {
         return wrappedMasheryAuthorizationCode != null ? wrappedMasheryAuthorizationCode.getResult() : null;
     }
 
-    @CacheEvict(value = {"masheryOAuthApplications", "masheryApplications", "masheryMembers", "masheryMembersByClientId", "masheryUserApplications", "masheryAccessTokens"}, allEntries = true)
+    @CacheEvict(value = {"masheryOAuthApplications", "masheryApplications", "masheryMembers", "masheryMembersByClientId"}, allEntries = true)
     public void clearCaches() {
         //The annotation will cause the caches to clear
     }

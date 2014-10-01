@@ -1,6 +1,7 @@
 package com.infusionsoft.cas.oauth.mashery.api.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.Set;
 
@@ -10,8 +11,7 @@ public class MasheryUserApplication {
     private String id;
     private String name;
     private String client_id;
-    private Set<String> access_tokens;
-    private Set<MasheryAccessToken> tokens;
+    private Set<String> accessTokens;
 
     public String getId() {
         return id;
@@ -37,19 +37,12 @@ public class MasheryUserApplication {
         this.client_id = client_id;
     }
 
-    public Set<String> getAccess_tokens() {
-        return access_tokens;
+    public Set<String> getAccessTokens() {
+        return accessTokens;
     }
 
-    public void setAccess_tokens(Set<String> access_tokens) {
-        this.access_tokens = access_tokens;
-    }
-
-    public Set<MasheryAccessToken> getTokens() {
-        return tokens;
-    }
-
-    public void setTokens(Set<MasheryAccessToken> tokens) {
-        this.tokens = tokens;
+    @JsonProperty("access_tokens")
+    public void setAccessTokens(Set<String> accessTokens) {
+        this.accessTokens = accessTokens;
     }
 }

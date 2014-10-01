@@ -50,10 +50,10 @@ public class OAuthControllerTest {
     private Set<OAuthUserApplication> createUserApplication() {
         Set<OAuthUserApplication> userApps = new HashSet<OAuthUserApplication>();
 
-        Set<OAuthAccessToken> accessTokens = new HashSet<OAuthAccessToken>();
-        accessTokens.add(new OAuthAccessToken("token1", null, null, null, null));
-        accessTokens.add(new OAuthAccessToken("token2", null, null, null, null));
-        accessTokens.add(new OAuthAccessToken("token3", null, null, null, null));
+        Set<String> accessTokens = new HashSet<String>();
+        accessTokens.add("token1");
+        accessTokens.add("token2");
+        accessTokens.add("token3");
 
         OAuthUserApplication app = new OAuthUserApplication("id", "ACME", "client_id", accessTokens);
 //        app.setAccessTokens(accessTokens);
