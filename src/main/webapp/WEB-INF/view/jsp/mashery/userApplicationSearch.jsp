@@ -57,7 +57,7 @@
                 <c:forEach var="userApplication" items="${userApplications}">
                     <tr>
                         <td>
-                            <a href="#" class="applicationName" data-toggle="popover" data-trigger="focus" data-placement="bottom" title="Access Tokens">
+                            <a href="#" rel="popover" data-toggle="popover" data-trigger="focus" data-placement="bottom" title="Access Tokens">
                                     ${userApplication.name}
                             </a>
 

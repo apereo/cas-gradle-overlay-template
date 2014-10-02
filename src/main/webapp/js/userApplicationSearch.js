@@ -43,9 +43,11 @@ $('.typeahead').typeahead({
     }
 );
 
-$(".applicationName").popover({
+$("body").popover({
     html: true,
-    content: function() {
+    selector: '[rel=popover]',
+    content: function () {
+        console.log("content");
         var $this = $(this);
         return $this.next("div").html();
     }
