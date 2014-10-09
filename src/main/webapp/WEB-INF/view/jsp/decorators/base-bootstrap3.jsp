@@ -10,17 +10,14 @@
 
 <c:url var="bootstrapChoosenCss" value="/bootstrap-chosen/bootstrap-chosen.css"/>
 <c:url var="bootstrapTypeaheadCss" value="/css/typeahead-bootstrap-fix.css"/>
-<c:url var="xeditEditableCss" value="/bootstrap3-editable/css/bootstrap-editable.css"/>
 
 <c:url var="jqueryJs" value="/js/jquery-1.11.0/jquery-1.11.0.min.js"/>
 <c:url var="bootstrapJs" value="/bootstrap-3.2.0-dist/js/bootstrap.min.js"/>
-<c:url var="xeditableJs" value="/bootstrap3-editable/js/bootstrap-editable.min.js"/>
 <c:url var="placeholderJs" value="/js/jquery-plugins/placeholder-0.2.4/jquery.placeholder.js"/>
 <c:url var="chosenJs" value="/js/jquery-plugins/chosen-1.1.0/chosen.jquery.min.js"/>
 <c:url var="validateJs" value="/js/jquery-plugins/validate-1.11.1/jquery.validate.min.js"/>
 <c:url var="handlebarsJs" value="/js/handlerbars-2.0.0/handlebars-v2.0.0.js"/>
 <c:url var="typeAheadJs" value="/js/typeahead-0.10.5/typeahead.bundle.js"/>
-<%--<c:url var="typeAheadBootstrap3Js" value="/js/typeahead-0.10.5/bootstrap3-typeahead.js"/>--%>
 
 <c:url var="infusionsoftChosenConfig" value="/js/infusionsoft-chosen.js"/>
 
@@ -44,7 +41,6 @@
     <link type="text/css" rel="stylesheet" href="${bootstrapCss}"/>
     <link type="text/css" rel="stylesheet" href="${bootstrapChoosenCss}"/>
     <link type="text/css" rel="stylesheet" href="${bootstrapTypeaheadCss}"/>
-    <link type="text/css" rel="stylesheet" href="${xeditEditableCss}"/>
     <link type="text/css" rel="stylesheet" href="${bootstrapOverrideCss}"/>
 
     <script type="text/javascript">
@@ -74,11 +70,9 @@
 <script type="text/javascript" src="${placeholderJs}"></script>
 <script type="text/javascript" src="${chosenJs}"></script>
 <script type="text/javascript" src="${validateJs}"></script>
-<script type="text/javascript" src="${xeditableJs}"></script>
 <script type="text/javascript" src="${infusionsoftChosenConfig}"></script>
 <script type="text/javascript" src="${handlebarsJs}"></script>
 <script type="text/javascript" src="${typeAheadJs}"></script>
-<%--<script type="text/javascript" src="${typeAheadBootstrap3Js}"></script>--%>
 
 <!-- local javascript files -->
 <decorator:getProperty property="page.local_script"/>

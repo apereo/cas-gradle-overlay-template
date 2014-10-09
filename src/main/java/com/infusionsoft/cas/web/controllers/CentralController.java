@@ -8,6 +8,10 @@ import com.infusionsoft.cas.exceptions.AppCredentialsExpiredException;
 import com.infusionsoft.cas.exceptions.AppCredentialsInvalidException;
 import com.infusionsoft.cas.exceptions.CommunityUsernameTakenException;
 import com.infusionsoft.cas.exceptions.DuplicateAccountException;
+import com.infusionsoft.cas.oauth.dto.OAuthUserApplication;
+import com.infusionsoft.cas.oauth.exceptions.OAuthAccessDeniedException;
+import com.infusionsoft.cas.oauth.exceptions.OAuthException;
+import com.infusionsoft.cas.oauth.services.OAuthService;
 import com.infusionsoft.cas.services.*;
 import com.infusionsoft.cas.support.AppHelper;
 import com.infusionsoft.cas.web.ValidationUtils;
@@ -26,10 +30,10 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Controller that powers the central "hub" along with account association and profile management.
@@ -59,11 +63,17 @@ public class CentralController {
     @Autowired
     AutoLoginService autoLoginService;
 
+    @Autowired
+    private OAuthService oAuthService;
+
     @Value("${infusionsoft.cas.connect.account.community.enabled}")
     boolean connectAccountCommunityEnabled = false;
 
     @Value("${infusionsoft.cas.connect.account.customerhub.enabled}")
     boolean connectAccountCustomerHubEnabled = false;
+
+    @Value("${mashery.api.crm.service.key}")
+    private String crmServiceKey;
 
     @Value("${server.prefix}")
     String serverPrefix;
@@ -108,13 +118,10 @@ public class CentralController {
         model.addAttribute("marketplaceDomain", marketplaceDomain);
         model.addAttribute("marketplaceUrl", marketplaceLoginUrl);
 
-        List<UserAccount> userAccountList = userService.findSortedUserAccounts(user);
-
+        Map<AppType, List<UserAccount>> userAccountList = userService.findSortedUserAccounts(user);
         model.addAttribute("accounts", userAccountList);
         model.addAttribute("connectAccountCommunityEnabled", connectAccountCommunityEnabled);
         model.addAttribute("connectAccountCustomerHubEnabled", connectAccountCustomerHubEnabled);
-
-        //logUserAccountInfoToSplunk(userAccountList, user);
 
         return "central/home";
     }
@@ -264,17 +271,63 @@ public class CentralController {
     }
 
     /**
+     * Called from the AJAX Configure Account
+     *
+     * @throws com.infusionsoft.cas.oauth.exceptions.OAuthException
+     */
+    @RequestMapping
+    public String loggedInUserOAuthApplications(Model model, long accountId) throws OAuthException, IOException {
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        UserAccount userAccount = userService.findUserAccount(user, accountId);
+        Set<OAuthUserApplication> userApplications = oAuthService.fetchUserApplicationsByUserAccount(crmServiceKey, userAccount);
+
+        model.addAttribute("accountId", accountId);
+        model.addAttribute("userApplications", userApplications);
+
+        return "central/loggedInUserOAuthApplications";
+    }
+
+    @RequestMapping
+    public void revokeAccessToken(Model model, HttpServletResponse response, long accountId, String clientId) throws IOException {
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        if (StringUtils.isNotBlank(clientId)) {
+            UserAccount userAccount = userService.findUserAccount(user, accountId);
+
+            try {
+                Set<OAuthUserApplication> userApplications = oAuthService.fetchUserApplicationsByUserAccount(crmServiceKey, userAccount);
+
+                for (OAuthUserApplication oAuthUserApplication : userApplications) {
+                    if (StringUtils.isBlank(clientId) || clientId.equals(oAuthUserApplication.getClientId())) {
+                        for (String accessToken : oAuthUserApplication.getAccessTokens()) {
+                            oAuthService.revokeAccessToken(crmServiceKey, clientId, accessToken);
+                        }
+                    }
+                }
+
+                model.addAttribute("success", "Access tokens revoked");
+            } catch (OAuthException e) {
+                response.sendError(500);
+                model.addAttribute("error", e.getErrorDescription());
+            }
+        }
+    }
+
+    /**
      * Called from the AJAX quick edit to rename an account alias.
      */
     @RequestMapping
-    public ModelAndView renameAccount(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        Long accountId = new Long(request.getParameter("pk"));
-        String alias = ValidationUtils.sanitizeAppAlias(request.getParameter("value"));
+    public ModelAndView renameAccount(Long accountId, String alias, HttpServletResponse response) throws IOException {
+        String sanitizeAppAlias = ValidationUtils.sanitizeAppAlias(alias);
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         UserAccount account = userService.findUserAccount(user, accountId);
 
+        if(true) {
+            throw new IOException();
+        }
+
         try {
-            account.setAlias(alias);
+            account.setAlias(sanitizeAppAlias);
             userService.saveUserAccount(account);
 
             response.setContentType("text/plain");

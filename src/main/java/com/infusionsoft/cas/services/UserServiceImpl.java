@@ -256,18 +256,21 @@ public class UserServiceImpl implements UserService {
      * Returns a user's accounts, sorted by type and name for consistency.
      */
     @Override
-    public List<UserAccount> findSortedUserAccounts(User user) {
-        List<UserAccount> accounts = new ArrayList<UserAccount>();
+    public Map<AppType, List<UserAccount>> findSortedUserAccounts(User user) {
+        Map<AppType, List<UserAccount>> retVal = new LinkedHashMap<AppType, List<UserAccount>>();
 
         UserAccount marketplaceUserAccount = new UserAccount();
         marketplaceUserAccount.setAppType(AppType.MARKETPLACE);
 
-        accounts.addAll(userAccountDAO.findByUserAndAppTypeAndDisabledOrderByAppNameAsc(user, AppType.CRM, false));
-        accounts.addAll(userAccountDAO.findByUserAndAppTypeAndDisabledOrderByAppNameAsc(user, AppType.CUSTOMERHUB, false));
-        accounts.addAll(userAccountDAO.findByUserAndAppTypeAndDisabledOrderByAppNameAsc(user, AppType.COMMUNITY, false));
-        accounts.add(marketplaceUserAccount);
+        List<UserAccount> marketplaceList = new ArrayList<UserAccount>();
+        marketplaceList.add(marketplaceUserAccount);
 
-        return accounts;
+        retVal.put(AppType.CRM, userAccountDAO.findByUserAndAppTypeAndDisabledOrderByAppNameAsc(user, AppType.CRM, false));
+        retVal.put(AppType.CUSTOMERHUB, userAccountDAO.findByUserAndAppTypeAndDisabledOrderByAppNameAsc(user, AppType.CUSTOMERHUB, false));
+        retVal.put(AppType.COMMUNITY, userAccountDAO.findByUserAndAppTypeAndDisabledOrderByAppNameAsc(user, AppType.COMMUNITY, false));
+        retVal.put(AppType.MARKETPLACE, marketplaceList);
+
+        return retVal;
     }
 
     /**

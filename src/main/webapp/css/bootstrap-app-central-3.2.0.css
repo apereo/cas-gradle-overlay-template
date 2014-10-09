@@ -273,8 +273,12 @@ p.text-error object {
     }
 }
 
-.page-header {
+div.container > .page-header {
     border-bottom: none;
+}
+
+div.popover-content > .page-header {
+    margin: 20px 0 20px
 }
 
 .btn .btn-primary {
@@ -444,3 +448,28 @@ p.text-error object {
 .panel-body {
     padding: 20px;
 }
+
+.user-applications .list-group-item {
+    border: none;
+    margin: 5px 0;
+}
+
+.user-applications .list-group-item-info {
+    background-color: #f5f5f5;
+}
+
+.tooltip {
+    font-weight: 700;
+}
+
+.tooltip.in {
+    filter: alpha(opacity=100);
+    opacity: 1;
+}
+
+.tooltip-inner {
+    background-color: #303442;
+    padding: 13px 13px;
+}
+
+

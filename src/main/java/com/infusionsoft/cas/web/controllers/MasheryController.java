@@ -77,6 +77,7 @@ public class MasheryController {
 
         return "mashery/userApplicationSearch";
     }
+
     /**
      * Admin Level Access Token Searching
      *

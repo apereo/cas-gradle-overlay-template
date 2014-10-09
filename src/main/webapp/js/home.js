@@ -1,107 +1,171 @@
-$(document).on("click", ".list-group-item", function() {
-
-    $this = $(this);
-
-    // Check that the xeditable popup is not open
-    if($this.find("[editable-active]").length === 0) { // means that editable popup is not open so we can do the stuff
-        window.location = $this.data('url');
-    }
-});
-
 $(document).ready(function () {
-    $.fn.editable.defaults.mode = 'inline';
-    $('.aliasable').each(function() {
-        $this = $(this);
 
-        console.log($this);
+    // Update alias functionality
+    $('.updateAlias').on('submit', function () {
+        var $form = $(this);
+        console.log($form);
 
-        $this.editable();
+        var accountId = $form.data('account-id');
 
-        $this.on('shown', function(e, reason) {
-            $("#divApplicationImage").addClass("hidden-xs");
-            $("#divChevron").addClass("hidden-xs");
-            return $(this).attr("editable-active", true);
+        var $modal = $('#configure-modal-' + accountId);
+        console.log($modal);
+
+        var $aliasInput = $form.find('input:text');
+
+        $.ajax({
+            type: "POST",
+            url: $form.attr('action'),
+            data: $form.serialize(), // serializes the form's elements.
+            cache: true,
+            success: function (data) {
+                $aliasInput.data('original-title', data);
+                $modal.prev('.list-group-item-heading').find('.accountName').text(data);
+                $modal.modal('hide');
+            },
+            error: function () {
+                $('<div class="alert alert-danger" role="alert">Unable to rename account.</div>').prependTo($form);
+            }
         });
 
-        $this.on('hidden', function(e, reason) {
-            $("#divApplicationImage").removeClass("hidden-xs");
-            $("#divChevron").removeClass("hidden-xs");
-            return $(this).removeAttr("editable-active");
-        });
+        return false;
     });
 
-    $('.accessTokensAllowed').each(function() {
-        $this = $(this);
-
-        console.log($this);
-
-        $this.collapse();
-
-        $this.on('shown.bs.collapse', function(e) {
-            e.stopPropagation();
-        });
-
-        $this.on('hidden.bs.collapse', function(e) {
-            e.stopPropagation();
-        });
-    });
-
-//    centralHome.attachOnClicks();
-});
-
-var centralHome = {
-    getAppsGrantedAccessToAccount: function (userId, accountId) {
-        var displayIsClosed = $("#displayManageAccountsWrapper-" + accountId).is(':visible') ? false : true;
-        manageAppAccess.closeManageAppAccessDisplay(accountId);
-        if (displayIsClosed) {
-            var preSpinnerReplacedContent = $("#spinner-content-" + accountId).html();
-            $("#spinner-content-" + accountId).removeClass('app-access');
-            window.global.showSpinner({id: "spinner-content-" + accountId});
-
-            var appsGrantedAccessToAccountInput = new Object();
-            appsGrantedAccessToAccountInput.afterSuccess = centralHome.appsGrantedAccessToAccountAfterSuccess;
-            appsGrantedAccessToAccountInput.afterError = centralHome.appsGrantedAccessToAccountAfterError
-            appsGrantedAccessToAccountInput.useSpinner = true;
-            appsGrantedAccessToAccountInput.preSpinnerReplacedContent = preSpinnerReplacedContent;
-            appsGrantedAccessToAccountInput.userId = userId;
-            appsGrantedAccessToAccountInput.accountId = accountId;
-            manageAppAccess.getAppsGrantedAccessToAccount(appsGrantedAccessToAccountInput);
-        }
-    },
-    appsGrantedAccessToAccountAfterSuccess: function (inputObject, response) {
-        $(".crm-account").each(function () {
-            $(this).removeClass('expanded-apps expanded-apps-crm')
-        });
-        $(".crm-account-" + inputObject.accountId).addClass('expanded-apps expanded-apps-crm');
-        $(".displayManageAccountsMarker").each(function () {
-            $(this).hide()
-        });
-        $("#displayManageAccountsContent-" + inputObject.accountId).html(response);
-        $("#displayManageAccountsWrapper-" + inputObject.accountId).slideDown(500);
-        if (inputObject.preSpinnerReplacedContent) {
-            $("#spinner-content-" + inputObject.accountId).html(inputObject.preSpinnerReplacedContent);
-            $("#manageAccounts-" + inputObject.accountId).click(centralHome.reattachOnClicksAfterSpinnerRefresh);
-            $("#spinner-content-" + inputObject.accountId).addClass('app-access');  //to restore "key" background image on "Manage App Access span"
-        }
-    },
-    appsGrantedAccessToAccountAfterError: function (inputObject, response) {
-        $("#spinner-content-" + inputObject.accountId).html(inputObject.preSpinnerReplacedContent);
-        $("#manageAccounts-" + inputObject.accountId).click(centralHome.reattachOnClicksAfterSpinnerRefresh);
-    },
-    attachOnClicks: function () {
-        $(".manageAccounts").each(function () {
-            $(this).click(function (event) {
-                event.stopPropagation();
-                var userId = $(event.target).attr("userId");
-                var accountId = $(event.target).attr("accountId");
-                centralHome.getAppsGrantedAccessToAccount(userId, accountId);
-            });
-        });
-    },
-    reattachOnClicksAfterSpinnerRefresh: function (event) {
+    //Configure button tooltip and click to show modal
+    $('.configure').tooltip({
+        title: 'Click to configure account',
+        trigger: 'hover'
+    }).click(function (event) {
+        console.log('configure button click');
         event.stopPropagation();
-        var userId = $(event.target).attr("userId");
-        var accountId = $(event.target).attr("accountId");
-        centralHome.getAppsGrantedAccessToAccount(userId, accountId);
-    }
-};
+
+        var $this = $(this);
+        console.log($this);
+
+        var accountId = $this.data('account-id');
+        console.log(accountId);
+
+        var $modal = $('#configure-modal-' + accountId);
+        console.log($modal);
+
+        $modal.modal('show');
+        console.log('modal shown');
+        return false;
+    });
+
+    $('.modal').modal({
+        show: false
+    }).on('show.bs.modal', function () {
+        console.log('modal show');
+
+        var $modal = $(this);
+        console.log($modal);
+
+        var $form = $modal.find('form');
+        console.log($form);
+
+        $form.find('.alert').remove();
+
+        var $aliasInput = $form.find('input:text');
+        $aliasInput.val($aliasInput.data('original-title'));
+
+        var accountId = $form.find('input:hidden').val();
+
+        $modal.find('.user-applications').load('/app/central/loggedInUserOAuthApplications?accountId=' + accountId, function (responseText, textStatus) {
+            if (textStatus == 'success') {
+                console.log('ajax load');
+
+                $modal.find('a.disconnect-user-application').on('click', function () {
+                    console.log('disconnect click');
+
+                    var $this = $(this);
+                    var accountId = $this.data('account-id');
+                    var userApplicationId = $this.data('user-application-id');
+                    console.log(accountId);
+                    console.log(userApplicationId);
+
+                    $('#user-applications-ul-' + accountId).addClass("hide");
+                    $('#disconnect-confirm-' + userApplicationId).removeClass("hide");
+                });
+
+                $modal.find('button.disconnect-cancel').on('click', function () {
+                    console.log('disconnect cancel click');
+
+                    var $this = $(this);
+                    var accountId = $this.data('account-id');
+                    var userApplicationId = $this.data('user-application-id');
+
+                    $('#user-applications-ul-' + accountId).removeClass("hide");
+                    $('#disconnect-confirm-' + userApplicationId).addClass("hide");
+                });
+
+                $modal.find('button.disconnect').on('click', function () {
+                    console.log('disconnect confirm click');
+
+                    var $this = $(this);
+                    var accountId = $this.data('account-id');
+                    var clientId = $this.data('client-id');
+                    var userApplicationId = $this.data('user-application-id');
+                    var $form = $('#disconnect-confirm-form-' + userApplicationId);
+
+                    $.ajax({
+                        type: "POST",
+                        url: '/app/central/revokeAccessToken?accountId=' + accountId + '&clientId=' + clientId,
+                        cache: false,
+                        success: function () {
+                            $('#disconnect-list-item-' + userApplicationId).remove();
+                            $('#user-applications-ul-' + accountId).removeClass("hide");
+                            $('#disconnect-confirm-' + userApplicationId).addClass("hide");
+                        },
+                        error: function () {
+                            $('<div class="alert alert-danger" role="alert">Unable to disconnect application. Please try again later.</div>').prependTo($form);
+                        }
+                    });
+                });
+
+                $modal.find('a.disconnect-all-applications').on('click', function () {
+                    console.log('disconnect all click');
+
+                    var $this = $(this);
+                    var accountId = $this.data('account-id');
+                    console.log(accountId);
+
+                    $('#user-applications-ul-' + accountId).addClass("hide");
+                    $('#disconnect-confirm-all').removeClass("hide");
+                });
+
+                $modal.find('button.disconnect-all-cancel').on('click', function () {
+                    console.log('disconnect all cancel click');
+
+                    var $this = $(this);
+                    var accountId = $this.data('account-id');
+
+                    $('#user-applications-ul-' + accountId).removeClass("hide");
+                    $('#disconnect-confirm-all').addClass("hide");
+                });
+
+                $modal.find('button.disconnect-all').on('click', function () {
+                    console.log('disconnect all confirm click');
+
+                    var $this = $(this);
+                    var accountId = $this.data('account-id');
+
+                    $.ajax({
+                        type: "POST",
+                        url: '/app/central/revokeAccessToken?accountId=' + accountId,
+                        success: function () {
+                            $('#user-applications-form-group-' + accountId).remove();
+                            $('#disconnect-confirm-all').addClass("hide");
+                        },
+                        error: function () {
+                            $('<div class="alert alert-danger" role="alert">Unable to disconnect applications. Please try again later.</div>').prependTo('#disconnect-confirm-form-all');
+                        }
+                    });
+                });
+            } else {
+                var html = '<div class="alert alert-danger" role="alert">Unable to load applications</div>';
+
+                $('#user-applications-' + accountId).html(html);
+            }
+        });
+    })
+});

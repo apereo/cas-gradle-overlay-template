@@ -8,6 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
 
 import java.util.List;
+import java.util.Map;
 
 public interface UserService {
     User saveUser(User user) throws InfusionsoftValidationException;
@@ -28,7 +29,7 @@ public interface UserService {
 
     UserAccount findUserAccount(User user, String appName, AppType appType);
 
-    List<UserAccount> findSortedUserAccounts(User user);
+    Map<AppType, List<UserAccount>> findSortedUserAccounts(User user);
 
     List<UserAccount> findSortedUserAccountsByAppType(User user, AppType appType);
 
