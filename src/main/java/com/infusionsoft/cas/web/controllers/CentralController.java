@@ -322,10 +322,6 @@ public class CentralController {
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         UserAccount account = userService.findUserAccount(user, accountId);
 
-        if(true) {
-            throw new IOException();
-        }
-
         try {
             account.setAlias(sanitizeAppAlias);
             userService.saveUserAccount(account);
