@@ -23,7 +23,9 @@ $(document).ready(function () {
                 $modal.modal('hide');
             },
             error: function () {
-                $('<div class="alert alert-danger" role="alert">Unable to rename account.</div>').prependTo($form);
+                if (!$form.find('.alert').length) {
+                    $('<div class="alert alert-danger" role="alert">Unable to rename account.</div>').prependTo($form);
+                }
             }
         });
 
@@ -83,8 +85,11 @@ $(document).ready(function () {
                     console.log(accountId);
                     console.log(userApplicationId);
 
+                    var $disconnectForm = $('#disconnect-confirm-' + userApplicationId);
+
                     $('#user-applications-ul-' + accountId).addClass("hide");
-                    $('#disconnect-confirm-' + userApplicationId).removeClass("hide");
+                    $disconnectForm.removeClass("hide");
+                    $disconnectForm.find('.alert').remove();
                 });
 
                 $modal.find('button.disconnect-cancel').on('click', function () {
@@ -117,7 +122,9 @@ $(document).ready(function () {
                             $('#disconnect-confirm-' + userApplicationId).addClass("hide");
                         },
                         error: function () {
-                            $('<div class="alert alert-danger" role="alert">Unable to disconnect application. Please try again later.</div>').prependTo($form);
+                            if (!$form.find('.alert').length) {
+                                $('<div class="alert alert-danger" role="alert">Unable to disconnect application. Please try again later.</div>').prependTo($form);
+                            }
                         }
                     });
                 });
@@ -129,8 +136,11 @@ $(document).ready(function () {
                     var accountId = $this.data('account-id');
                     console.log(accountId);
 
+                    var $disconnectAllForm = $('#disconnect-confirm-all');
+
                     $('#user-applications-ul-' + accountId).addClass("hide");
-                    $('#disconnect-confirm-all').removeClass("hide");
+                    $disconnectAllForm.removeClass("hide");
+                    $disconnectAllForm.find('.alert').remove();
                 });
 
                 $modal.find('button.disconnect-all-cancel').on('click', function () {
@@ -157,7 +167,9 @@ $(document).ready(function () {
                             $('#disconnect-confirm-all').addClass("hide");
                         },
                         error: function () {
-                            $('<div class="alert alert-danger" role="alert">Unable to disconnect applications. Please try again later.</div>').prependTo('#disconnect-confirm-form-all');
+                            if (!$form.find('.alert').length) {
+                                $('<div class="alert alert-danger" role="alert">Unable to disconnect applications. Please try again later.</div>').prependTo('#disconnect-confirm-form-all');
+                            }
                         }
                     });
                 });

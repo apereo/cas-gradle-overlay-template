@@ -46,6 +46,7 @@ $('.typeahead').typeahead({
 $("body").popover({
     html: true,
     selector: '[rel=popover]',
+    trigger: 'focus',
     content: function () {
         console.log("content");
         var $this = $(this);
