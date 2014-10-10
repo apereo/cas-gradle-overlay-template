@@ -19,7 +19,7 @@ $(document).ready(function () {
             cache: true,
             success: function (data) {
                 $aliasInput.data('original-title', data);
-                $modal.prev('.list-group-item-heading').find('.accountName').text(data);
+                $('#account-name-' + accountId).text(data);
                 $modal.modal('hide');
             },
             error: function () {

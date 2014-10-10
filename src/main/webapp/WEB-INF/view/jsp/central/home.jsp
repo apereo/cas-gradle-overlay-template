@@ -75,7 +75,7 @@
 
                     <div class="col-xs-10 col-xs-height col-middle">
                         <h4 class="list-group-item-heading">
-                            <span class="accountName">
+                            <span id="account-name-${account.id}" class="accountName">
                                     ${accountTitle}
                             </span>
 
