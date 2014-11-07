@@ -54,4 +54,9 @@ $("body").popover({
     }
 });
 
+$("[rel=popover]").click(function (e) {
+    e.preventDefault();
+    $(this).focus();
+});
+
 $("#username").focus();
