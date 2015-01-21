@@ -5,6 +5,7 @@ import com.infusionsoft.cas.domain.AppType;
 import com.infusionsoft.cas.domain.User;
 import com.infusionsoft.cas.exceptions.AppCredentialsExpiredException;
 import com.infusionsoft.cas.exceptions.AppCredentialsInvalidException;
+import org.jasig.cas.ticket.TicketGrantingTicket;
 
 import javax.servlet.http.HttpServletRequest;
 import java.net.MalformedURLException;
@@ -30,6 +31,8 @@ public interface InfusionsoftAuthenticationService {
     void verifyAppCredentials(AppType appType, String appName, String appUsername, String appPassword) throws AppCredentialsInvalidException, AppCredentialsExpiredException;
 
     User getCurrentUser(HttpServletRequest request);
+
+    TicketGrantingTicket getTicketGrantingTicket(HttpServletRequest request);
 
     boolean hasCommunityAccount(User user);
 

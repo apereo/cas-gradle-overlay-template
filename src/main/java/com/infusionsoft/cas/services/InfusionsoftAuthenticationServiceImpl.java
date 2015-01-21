@@ -11,10 +11,12 @@ import org.jasig.cas.authentication.principal.Principal;
 import org.jasig.cas.ticket.Ticket;
 import org.jasig.cas.ticket.TicketGrantingTicket;
 import org.jasig.cas.ticket.registry.TicketRegistry;
+import org.jasig.cas.web.support.CookieRetrievingCookieGenerator;
 import org.joda.time.DateTime;
 import org.joda.time.Minutes;
 import org.joda.time.base.BaseSingleFieldPeriod;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -61,6 +63,10 @@ public class InfusionsoftAuthenticationServiceImpl implements InfusionsoftAuthen
 
     @Autowired
     private PasswordService passwordService;
+
+    @Autowired
+    @Qualifier("ticketGrantingTicketCookieGenerator")
+    private CookieRetrievingCookieGenerator tgtCookieGenerator;
 
     @Value("${server.prefix}")
     private String serverPrefix;
@@ -357,42 +363,50 @@ public class InfusionsoftAuthenticationServiceImpl implements InfusionsoftAuthen
     @Override
     public User getCurrentUser(HttpServletRequest request) {
         User retVal = null;
+        TicketGrantingTicket tgt = getTicketGrantingTicket(request);
+        Principal principal = tgt.getAuthentication().getPrincipal();
+        User user = userService.loadUser(principal.getId());
+
+        if (user != null) {
+            retVal = user;
+
+            log.info("resolved user id=" + retVal.getId() + " for ticket " + tgt);
+        } else {
+            log.warn("couldn't find a user for ticket " + tgt);
+        }
+        return retVal;
+    }
+
+    @Override
+    public TicketGrantingTicket getTicketGrantingTicket(HttpServletRequest request) {
+        TicketGrantingTicket tgt = null;
 
         if (request.getCookies() == null) {
             return null;
         }
 
+        String tgtCookieName = tgtCookieGenerator.getCookieName();
         for (Cookie cookie : request.getCookies()) {
-            if (cookie.getName().equals("CASTGC")) {
-                log.debug("found a valid CASTGC cookie with value " + cookie.getValue());
+            if (cookie.getName().equals(tgtCookieName)) {
+                log.debug("found a valid " + tgtCookieName + " cookie with value " + cookie.getValue());
 
                 Ticket ticket = ticketRegistry.getTicket(cookie.getValue());
-                TicketGrantingTicket tgt = null;
 
                 if (ticket == null) {
-                    log.warn("found a CASTGC cookie, but it doesn't match any known ticket!");
+                    log.warn("found a " + tgtCookieName + " cookie, but it doesn't match any known ticket!");
                 } else if (ticket instanceof TicketGrantingTicket) {
                     tgt = (TicketGrantingTicket) ticket;
                 } else {
                     tgt = ticket.getGrantingTicket();
                 }
 
-                if (tgt != null) {
-                    Principal principal = tgt.getAuthentication().getPrincipal();
-                    User user = userService.loadUser(principal.getId());
-
-                    if (user != null) {
-                        retVal = user;
-
-                        log.info("resolved user id=" + retVal.getId() + " for ticket " + tgt);
-                    } else {
-                        log.warn("couldn't find a user for ticket " + tgt);
-                    }
+                if (tgt != null && tgt.isExpired()) {
+                    tgt = null;
                 }
             }
         }
 
-        return retVal;
+        return tgt;
     }
 
     /**
