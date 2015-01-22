@@ -45,7 +45,7 @@
     <sec:http entry-point-ref="casProcessingFilterEntryPoint" auto-config="true" use-expressions="true">
         <sec:logout success-handler-ref="infusionsoftLogoutSuccessHandler"/>
         <sec:custom-filter ref="OAuthResourceOwnerAuthenticationFilter" before="FORM_LOGIN_FILTER"/>
-        <sec:custom-filter ref="OAuthTrustedGrantAuthenticationFilter" before="BASIC_AUTH_FILTER"/>
+        <sec:custom-filter ref="OAuthTrustedGrantAuthenticationFilter" after="CONCURRENT_SESSION_FILTER"/>
         <sec:custom-filter ref="OAuthTicketGrantingTicketAuthenticationFilter" before="BASIC_AUTH_FILTER"/>
         <sec:custom-filter ref="casProcessingFilter" after="CAS_FILTER"/>
         <sec:custom-filter ref="singleLogoutFilter" before="CAS_FILTER"/>
