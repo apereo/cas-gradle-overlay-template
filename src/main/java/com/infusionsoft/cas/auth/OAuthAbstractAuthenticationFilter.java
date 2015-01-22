@@ -6,40 +6,56 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.codec.Base64;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.web.filter.GenericFilterBean;
 
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 
 public abstract class OAuthAbstractAuthenticationFilter extends GenericFilterBean {
 
-    protected String credentialsCharset = "UTF-8";
+    private static final String credentialsCharset = "UTF-8";
 
-    protected String scope;
-    protected String application;
-    protected String grantType;
-
-    protected String clientId;
-    protected String clientSecret;
-
-    protected String passedScopeUnSplit;
-    protected String[] passedScope;
-
-    protected AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource = new WebAuthenticationDetailsSource();
+    private AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource = new WebAuthenticationDetailsSource();
 
     @Autowired
     @Qualifier("casAuthenticationManager")
-    protected AuthenticationManager authenticationManager;
+    private AuthenticationManager authenticationManager;
 
-    protected void extractRequestData(HttpServletRequest request) throws IOException {
-        grantType = StringUtils.defaultString(request.getParameter("grant_type"));
-        clientId = StringUtils.defaultString(request.getParameter("client_id"));
-        clientSecret = StringUtils.defaultString(request.getParameter("client_secret"));
-        passedScopeUnSplit = StringUtils.defaultString(request.getParameter("scope"));
-        passedScope = StringUtils.split(passedScopeUnSplit, "|");
+    @Override
+    public void doFilter(ServletRequest req, ServletResponse response, FilterChain chain) throws IOException, ServletException {
+        final HttpServletRequest request = (HttpServletRequest) req;
 
+        OAuthAuthenticationToken authenticationToken = createAuthenticationToken(request);
+        if (authenticationToken == null) {
+            chain.doFilter(request, response);
+            return;
+        }
+
+        authenticationToken.setDetails(authenticationDetailsSource.buildDetails(request));
+        Authentication authResult = authenticationManager.authenticate(authenticationToken);
+
+        SecurityContextHolder.getContext().setAuthentication(authResult);
+
+        chain.doFilter(request, response);
+    }
+
+    private OAuthAuthenticationToken createAuthenticationToken(HttpServletRequest request) throws IOException {
+        String grantType = StringUtils.defaultString(request.getParameter("grant_type"));
+        String clientId = StringUtils.defaultString(request.getParameter("client_id"));
+        String clientSecret = StringUtils.defaultString(request.getParameter("client_secret"));
+        String passedScopeUnSplit = StringUtils.defaultString(request.getParameter("scope"));
+        String[] passedScope = StringUtils.split(passedScopeUnSplit, "|");
+
+        String scope = null;
+        String application = null;
         if (passedScope.length > 1) {
             scope = passedScope[0];
             application = passedScope[1];
@@ -54,7 +70,10 @@ public abstract class OAuthAbstractAuthenticationFilter extends GenericFilterBea
             clientId = clientCredentials[0];
             clientSecret = clientCredentials[1];
         }
+        return createAuthenticationToken(request, scope, application, grantType, clientId, clientSecret);
     }
+
+    protected abstract OAuthAuthenticationToken createAuthenticationToken(HttpServletRequest request, String scope, String application, String grantType, String clientId, String clientSecret);
 
     /**
      * Decodes the header into a username and password.

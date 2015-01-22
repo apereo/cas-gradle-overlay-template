@@ -141,14 +141,20 @@ public class OAuthController {
     @ResponseBody
     @RequestMapping("/oauth/service/{serviceKey}/token")
     public OAuthAccessToken token(@PathVariable String serviceKey) throws Exception {
-        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Long userId;
+        if (principal == OAuthAuthenticationToken.ANONYMOUS_USER) {
+            userId = null;
+        } else {
+            userId = ((User) principal).getId();
+        }
         OAuthAuthenticationToken oAuthAuthenticationToken = (OAuthAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
 
         if (oAuthAuthenticationToken != null) {
             /**
              * The scope is the application for these grant type
              */
-            return oauthService.createAccessToken(serviceKey, oAuthAuthenticationToken.getClientId(), oAuthAuthenticationToken.getClientSecret(), oAuthAuthenticationToken.getGrantType(), oAuthAuthenticationToken.getScope(), oAuthAuthenticationToken.getApplication(), user.getId());
+            return oauthService.createAccessToken(serviceKey, oAuthAuthenticationToken.getClientId(), oAuthAuthenticationToken.getClientSecret(), oAuthAuthenticationToken.getGrantType(), oAuthAuthenticationToken.getScope(), oAuthAuthenticationToken.getApplication(), userId);
         } else {
             throw new OAuthInvalidRequestException();
         }

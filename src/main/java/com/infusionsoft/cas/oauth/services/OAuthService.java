@@ -27,7 +27,8 @@ import java.util.Set;
 public class OAuthService implements ApplicationListener<UserAccountRemovedEvent> {
 
     private static final Logger log = Logger.getLogger(OAuthService.class);
-    private static final String EXTENDED_GRANT_TYPE_URN = "urn:infusionsoft:params:oauth:grant-type:trusted";
+    private static final String EXTENDED_GRANT_TYPE_TRUSTED_URN = "urn:infusionsoft:params:oauth:grant-type:trusted";
+    private static final String EXTENDED_GRANT_TYPE_TICKET_GRANTING_TICKET_URN = "urn:infusionsoft:params:oauth:grant-type:ticket-granting-ticket";
     private static final String TRUSTED_INTERNAL_SYSTEM_ROLE = "Trusted Internal System";
 
     @Autowired
@@ -85,13 +86,13 @@ public class OAuthService implements ApplicationListener<UserAccountRemovedEvent
      * @param clientSecret   The OAuth client_secret
      * @param grantType      The OAuth grant_type
      * @param requestedScope The request scope which should be the application, i.e. myapp.infusionsoft.com
-     * @param globalUserId   The globalUserId of the logged in user
+     * @param globalUserId   The globalUserId of the user to put in the user context, or null for an anonymous access token
      * @return The created access token or throws exception
      * @throws OAuthException
      */
     public OAuthAccessToken createAccessToken(String providedServiceKey, String clientId, String clientSecret, String grantType, String requestedScope, String application, Long globalUserId) throws OAuthException {
         String scope = StringUtils.defaultString(requestedScope) + "|" + application;
-        String userContext = globalUserId + "|" + application;
+        String userContext = globalUserId == null ? null : globalUserId + "|" + application;
 
         if(!userService.validateUserApplication(application) ) {
             throw new OAuthAccessDeniedException();
@@ -172,7 +173,15 @@ public class OAuthService implements ApplicationListener<UserAccountRemovedEvent
     }
 
     public boolean isExtendedGrantType(String grantType) {
-        return EXTENDED_GRANT_TYPE_URN.equals(grantType);
+        return isTrustedGrantType(grantType) || isTicketGrantingTicketGrantType(grantType);
+    }
+
+    public boolean isTrustedGrantType(String grantType) {
+        return EXTENDED_GRANT_TYPE_TRUSTED_URN.equals(grantType);
+    }
+
+    public boolean isTicketGrantingTicketGrantType(String grantType) {
+        return EXTENDED_GRANT_TYPE_TICKET_GRANTING_TICKET_URN.equals(grantType);
     }
 
     public boolean isClientAuthorizedForExtendedGrantType(String clientId) throws OAuthException {

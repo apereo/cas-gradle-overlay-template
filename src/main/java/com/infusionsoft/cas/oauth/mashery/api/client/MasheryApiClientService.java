@@ -238,6 +238,7 @@ public class MasheryApiClientService {
         masheryJsonRpcRequest.getParams().add(new MasheryClient(clientId, clientSecret));
         masheryJsonRpcRequest.getParams().add(new MasheryTokenData(grant_type, scope, null, null, null));
         masheryJsonRpcRequest.getParams().add(new MasheryUri());
+        // TODO: ACCESS_TOKEN_TODO: if (userContext != null) ????
         masheryJsonRpcRequest.getParams().add(userContext);
 
         HttpHeaders headers = new HttpHeaders();

@@ -25,6 +25,8 @@ public class OAuthAuthenticationToken extends AbstractAuthenticationToken {
     protected final String application;
     protected Object credentials;
 
+    public static final String ANONYMOUS_USER = "anonymousUser";
+
     /**
      * This constructor can be safely used by any code that wishes to create a
      * <code>OAuthAuthenticationToken</code>, as the {@link
