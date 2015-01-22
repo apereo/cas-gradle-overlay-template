@@ -17,8 +17,8 @@ public class OAuthTicketGrantingTicketAuthenticationToken extends OAuthAuthentic
      * <code>OAuthTicketGrantingTicketAuthenticationToken</code>, as the {@link
      * #isAuthenticated()} will return <code>false</code>.
      */
-    public OAuthTicketGrantingTicketAuthenticationToken(Object principal, Object credentials, String clientId, String clientSecret, String scope, String grantType, String application, TicketGrantingTicket ticketGrantingTicket) {
-        super(principal, credentials, clientId, clientSecret, scope, grantType, application);
+    public OAuthTicketGrantingTicketAuthenticationToken(Object principal, Object credentials, String clientId, String clientSecret, String scope, String grantType, String application, String trackingUUID, TicketGrantingTicket ticketGrantingTicket) {
+        super(principal, credentials, clientId, clientSecret, scope, grantType, application, trackingUUID);
         this.ticketGrantingTicket = ticketGrantingTicket;
     }
 
@@ -27,8 +27,8 @@ public class OAuthTicketGrantingTicketAuthenticationToken extends OAuthAuthentic
      * implementations that are satisfied with producing a trusted (i.e. {@link #isAuthenticated()} = <code>true</code>)
      * authentication token.
      */
-    public OAuthTicketGrantingTicketAuthenticationToken(Object principal, Object credentials, String clientId, String clientSecret, String scope, String grantType, String application, TicketGrantingTicket ticketGrantingTicket, Collection<? extends GrantedAuthority> authorities) {
-        super(principal, credentials, clientId, clientSecret, scope, grantType, application, authorities);
+    public OAuthTicketGrantingTicketAuthenticationToken(Object principal, Object credentials, String clientId, String clientSecret, String scope, String grantType, String application, String trackingUUID, TicketGrantingTicket ticketGrantingTicket, Collection<? extends GrantedAuthority> authorities) {
+        super(principal, credentials, clientId, clientSecret, scope, grantType, application, trackingUUID, authorities);
         this.ticketGrantingTicket = ticketGrantingTicket;
     }
 

@@ -142,15 +142,17 @@ public class OAuthController {
     @RequestMapping("/oauth/service/{serviceKey}/token")
     public OAuthAccessToken token(@PathVariable String serviceKey) throws Exception {
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        Long userId;
-        if (principal == OAuthAuthenticationToken.ANONYMOUS_USER) {
-            userId = null;
-        } else {
-            userId = ((User) principal).getId();
-        }
         OAuthAuthenticationToken oAuthAuthenticationToken = (OAuthAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
-
         if (oAuthAuthenticationToken != null) {
+            String userId = null;
+            if (principal != null) {
+                if (principal instanceof User) {
+                    userId = ((User) principal).getId().toString();
+                } else {
+                    userId = principal.toString();
+                }
+            }
+
             /**
              * The scope is the application for these grant type
              */

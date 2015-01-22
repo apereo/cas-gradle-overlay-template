@@ -6,7 +6,9 @@ package com.infusionsoft.cas.oauth.dto;
 public enum OAuthGrantType {
 
     AUTHORIZATION_CODE("code"),
-    RESOURCE_OWNER_CREDENTIALS("password");
+    RESOURCE_OWNER_CREDENTIALS("password"),
+    EXTENDED_TRUSTED("urn:infusionsoft:params:oauth:grant-type:trusted"),
+    EXTENDED_TICKET_GRANTING_TICKET("urn:infusionsoft:params:oauth:grant-type:ticket-granting-ticket");
 
     private final String value;
 
@@ -27,4 +29,9 @@ public enum OAuthGrantType {
 
         return null;
     }
+
+    public boolean isValueEqual(String value) {
+        return this.value.equals(value);
+    }
+
 }

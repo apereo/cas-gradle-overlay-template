@@ -5,6 +5,7 @@ import com.infusionsoft.cas.domain.UserAccount;
 import com.infusionsoft.cas.events.UserAccountRemovedEvent;
 import com.infusionsoft.cas.oauth.dto.OAuthAccessToken;
 import com.infusionsoft.cas.oauth.dto.OAuthApplication;
+import com.infusionsoft.cas.oauth.dto.OAuthGrantType;
 import com.infusionsoft.cas.oauth.dto.OAuthUserApplication;
 import com.infusionsoft.cas.oauth.exceptions.OAuthAccessDeniedException;
 import com.infusionsoft.cas.oauth.exceptions.OAuthException;
@@ -27,8 +28,6 @@ import java.util.Set;
 public class OAuthService implements ApplicationListener<UserAccountRemovedEvent> {
 
     private static final Logger log = Logger.getLogger(OAuthService.class);
-    private static final String EXTENDED_GRANT_TYPE_TRUSTED_URN = "urn:infusionsoft:params:oauth:grant-type:trusted";
-    private static final String EXTENDED_GRANT_TYPE_TICKET_GRANTING_TICKET_URN = "urn:infusionsoft:params:oauth:grant-type:ticket-granting-ticket";
     private static final String TRUSTED_INTERNAL_SYSTEM_ROLE = "Trusted Internal System";
 
     @Autowired
@@ -86,13 +85,13 @@ public class OAuthService implements ApplicationListener<UserAccountRemovedEvent
      * @param clientSecret   The OAuth client_secret
      * @param grantType      The OAuth grant_type
      * @param requestedScope The request scope which should be the application, i.e. myapp.infusionsoft.com
-     * @param globalUserId   The globalUserId of the user to put in the user context, or null for an anonymous access token
+     * @param userId         The user identifier, which is either a globalUserId or the anonymous-UUID tracking code
      * @return The created access token or throws exception
      * @throws OAuthException
      */
-    public OAuthAccessToken createAccessToken(String providedServiceKey, String clientId, String clientSecret, String grantType, String requestedScope, String application, Long globalUserId) throws OAuthException {
+    public OAuthAccessToken createAccessToken(String providedServiceKey, String clientId, String clientSecret, String grantType, String requestedScope, String application, String userId) throws OAuthException {
         String scope = StringUtils.defaultString(requestedScope) + "|" + application;
-        String userContext = globalUserId == null ? null : globalUserId + "|" + application;
+        String userContext = userId + "|" + application;
 
         if(!userService.validateUserApplication(application) ) {
             throw new OAuthAccessDeniedException();
@@ -102,7 +101,7 @@ public class OAuthService implements ApplicationListener<UserAccountRemovedEvent
          * Mashery does not support extend grants, so we are faking it by using a password
          */
         if(isExtendedGrantType(grantType)) {
-            grantType = "password";
+            grantType = OAuthGrantType.RESOURCE_OWNER_CREDENTIALS.getValue();
         }
 
         MasheryCreateAccessTokenResponse masheryCreateAccessTokenResponse = masheryApiClientService.createAccessToken(providedServiceKey, clientId, clientSecret, grantType, scope, userContext);
@@ -173,15 +172,7 @@ public class OAuthService implements ApplicationListener<UserAccountRemovedEvent
     }
 
     public boolean isExtendedGrantType(String grantType) {
-        return isTrustedGrantType(grantType) || isTicketGrantingTicketGrantType(grantType);
-    }
-
-    public boolean isTrustedGrantType(String grantType) {
-        return EXTENDED_GRANT_TYPE_TRUSTED_URN.equals(grantType);
-    }
-
-    public boolean isTicketGrantingTicketGrantType(String grantType) {
-        return EXTENDED_GRANT_TYPE_TICKET_GRANTING_TICKET_URN.equals(grantType);
+        return OAuthGrantType.EXTENDED_TRUSTED.isValueEqual(grantType) || OAuthGrantType.EXTENDED_TICKET_GRANTING_TICKET.isValueEqual(grantType);
     }
 
     public boolean isClientAuthorizedForExtendedGrantType(String clientId) throws OAuthException {

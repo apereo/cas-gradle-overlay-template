@@ -14,7 +14,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 
 @Component
-public class OAuthExtendedGrantAuthenticationProvider implements AuthenticationProvider {
+public class OAuthTrustedGrantAuthenticationProvider implements AuthenticationProvider {
 
     @Autowired
     InfusionsoftAuthenticationService infusionsoftAuthenticationService;
@@ -27,17 +27,17 @@ public class OAuthExtendedGrantAuthenticationProvider implements AuthenticationP
 
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-        OAuthExtendedGrantAuthenticationToken retVal = null;
-        OAuthExtendedGrantAuthenticationToken oAuthExtendedGrantAuthenticationToken = (OAuthExtendedGrantAuthenticationToken) authentication;
+        OAuthTrustedGrantAuthenticationToken retVal = null;
+        OAuthTrustedGrantAuthenticationToken oAuthTrustedGrantAuthenticationToken = (OAuthTrustedGrantAuthenticationToken) authentication;
 
         try {
-            if (oAuthExtendedGrantAuthenticationToken != null) {
+            if (oAuthTrustedGrantAuthenticationToken != null) {
 
-                if (oAuthService.isClientAuthorizedForExtendedGrantType(oAuthExtendedGrantAuthenticationToken.getClientId())) {
-                    User user = userService.loadUser(oAuthExtendedGrantAuthenticationToken.getGlobalUserId());
+                if (oAuthService.isClientAuthorizedForExtendedGrantType(oAuthTrustedGrantAuthenticationToken.getClientId())) {
+                    User user = userService.loadUser(oAuthTrustedGrantAuthenticationToken.getGlobalUserId());
 
                     if(user != null) {
-                        retVal = new OAuthExtendedGrantAuthenticationToken(user, null, oAuthExtendedGrantAuthenticationToken.getClientId(), oAuthExtendedGrantAuthenticationToken.getClientSecret(), oAuthExtendedGrantAuthenticationToken.getScope(), oAuthExtendedGrantAuthenticationToken.getGrantType(), oAuthExtendedGrantAuthenticationToken.getApplication(), oAuthExtendedGrantAuthenticationToken.getGlobalUserId(), user.getAuthorities());
+                        retVal = new OAuthTrustedGrantAuthenticationToken(user, null, oAuthTrustedGrantAuthenticationToken.getClientId(), oAuthTrustedGrantAuthenticationToken.getClientSecret(), oAuthTrustedGrantAuthenticationToken.getScope(), oAuthTrustedGrantAuthenticationToken.getGrantType(), oAuthTrustedGrantAuthenticationToken.getApplication(), oAuthTrustedGrantAuthenticationToken.getGlobalUserId(), user.getAuthorities());
                     } else {
                         throw new UsernameNotFoundException("Unable to find user");
                     }
@@ -54,6 +54,6 @@ public class OAuthExtendedGrantAuthenticationProvider implements AuthenticationP
 
     @Override
     public boolean supports(Class<?> authentication) {
-        return authentication.isAssignableFrom(OAuthExtendedGrantAuthenticationToken.class);
+        return authentication.isAssignableFrom(OAuthTrustedGrantAuthenticationToken.class);
     }
 }

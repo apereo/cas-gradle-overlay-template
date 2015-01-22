@@ -23,9 +23,8 @@ public class OAuthAuthenticationToken extends AbstractAuthenticationToken {
     protected final String scope;
     protected final String grantType;
     protected final String application;
+    protected final String trackingUUID;
     protected Object credentials;
-
-    public static final String ANONYMOUS_USER = "anonymousUser";
 
     /**
      * This constructor can be safely used by any code that wishes to create a
@@ -33,7 +32,7 @@ public class OAuthAuthenticationToken extends AbstractAuthenticationToken {
      * #isAuthenticated()} will return <code>false</code>.
      *
      */
-    public OAuthAuthenticationToken(Object principal, Object credentials, String clientId, String clientSecret, String scope, String grantType, String application) {
+    public OAuthAuthenticationToken(Object principal, Object credentials, String clientId, String clientSecret, String scope, String grantType, String application, String trackingUUID) {
         super(null);
         this.principal = principal;
         this.credentials = credentials;
@@ -42,6 +41,7 @@ public class OAuthAuthenticationToken extends AbstractAuthenticationToken {
         this.scope = scope;
         this.grantType = grantType;
         this.application = application;
+        this.trackingUUID = trackingUUID;
         setAuthenticated(false);
     }
 
@@ -56,7 +56,7 @@ public class OAuthAuthenticationToken extends AbstractAuthenticationToken {
      * @param clientSecret
      * @param authorities
      */
-    public OAuthAuthenticationToken(Object principal, Object credentials, String clientId, String clientSecret, String scope, String grantType, String application, Collection<? extends GrantedAuthority> authorities) {
+    public OAuthAuthenticationToken(Object principal, Object credentials, String clientId, String clientSecret, String scope, String grantType, String application, String trackingUUID, Collection<? extends GrantedAuthority> authorities) {
         super(authorities);
         this.principal = principal;
         this.credentials = credentials;
@@ -65,6 +65,7 @@ public class OAuthAuthenticationToken extends AbstractAuthenticationToken {
         this.scope = scope;
         this.grantType = grantType;
         this.application = application;
+        this.trackingUUID = trackingUUID;
         super.setAuthenticated(true); // must use super, as we override
     }
 
@@ -90,6 +91,10 @@ public class OAuthAuthenticationToken extends AbstractAuthenticationToken {
 
     public String getApplication() {
         return application;
+    }
+
+    public String getTrackingUUID() {
+        return trackingUUID;
     }
 
     public String getGrantType() {

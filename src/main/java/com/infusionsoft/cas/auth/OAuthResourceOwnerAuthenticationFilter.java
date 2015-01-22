@@ -1,9 +1,11 @@
 package com.infusionsoft.cas.auth;
 
+import com.infusionsoft.cas.oauth.dto.OAuthGrantType;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * A Spring Security Filter that is responsible for extracting client credentials and user credentials
@@ -15,11 +17,11 @@ import javax.servlet.http.HttpServletRequest;
 public class OAuthResourceOwnerAuthenticationFilter extends OAuthAbstractAuthenticationFilter {
 
     @Override
-    protected OAuthAuthenticationToken createAuthenticationToken(HttpServletRequest request, String scope, String application, String grantType, String clientId, String clientSecret) {
+    protected OAuthAuthenticationToken createAuthenticationToken(HttpServletRequest request, HttpServletResponse response, String scope, String application, String grantType, String clientId, String clientSecret) {
         String username = StringUtils.defaultString(request.getParameter("username")).trim();
         String password = StringUtils.defaultString(request.getParameter("password"));
 
-        if (!grantType.equals("password") || clientId == null || clientSecret == null) {
+        if (!OAuthGrantType.RESOURCE_OWNER_CREDENTIALS.isValueEqual(grantType) || clientId == null || clientSecret == null) {
             return null;
         }
 

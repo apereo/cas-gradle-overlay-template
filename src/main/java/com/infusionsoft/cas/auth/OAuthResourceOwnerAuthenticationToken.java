@@ -16,7 +16,7 @@ public class OAuthResourceOwnerAuthenticationToken extends OAuthAuthenticationTo
      *
      */
     public OAuthResourceOwnerAuthenticationToken(Object principal, Object credentials, String clientId, String clientSecret, String scope, String grantType, String application) {
-        super(principal, credentials, clientId, clientSecret, scope, grantType, application);
+        super(principal, credentials, clientId, clientSecret, scope, grantType, application, null);
     }
 
     /**
@@ -25,7 +25,7 @@ public class OAuthResourceOwnerAuthenticationToken extends OAuthAuthenticationTo
      * authentication token.
      */
     public OAuthResourceOwnerAuthenticationToken(Object principal, Object credentials, String clientId, String clientSecret, String scope, String grantType, String application, Collection<? extends GrantedAuthority> authorities) {
-        super(principal, credentials, clientId, clientSecret, scope, grantType, application, authorities);
+        super(principal, credentials, clientId, clientSecret, scope, grantType, application, null, authorities);
     }
 
 }

@@ -17,6 +17,7 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 public abstract class OAuthAbstractAuthenticationFilter extends GenericFilterBean {
@@ -33,7 +34,7 @@ public abstract class OAuthAbstractAuthenticationFilter extends GenericFilterBea
     public void doFilter(ServletRequest req, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         final HttpServletRequest request = (HttpServletRequest) req;
 
-        OAuthAuthenticationToken authenticationToken = createAuthenticationToken(request);
+        OAuthAuthenticationToken authenticationToken = createAuthenticationToken(request, (HttpServletResponse) response);
         if (authenticationToken == null) {
             chain.doFilter(request, response);
             return;
@@ -47,7 +48,7 @@ public abstract class OAuthAbstractAuthenticationFilter extends GenericFilterBea
         chain.doFilter(request, response);
     }
 
-    private OAuthAuthenticationToken createAuthenticationToken(HttpServletRequest request) throws IOException {
+    private OAuthAuthenticationToken createAuthenticationToken(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String grantType = StringUtils.defaultString(request.getParameter("grant_type"));
         String clientId = StringUtils.defaultString(request.getParameter("client_id"));
         String clientSecret = StringUtils.defaultString(request.getParameter("client_secret"));
@@ -70,10 +71,10 @@ public abstract class OAuthAbstractAuthenticationFilter extends GenericFilterBea
             clientId = clientCredentials[0];
             clientSecret = clientCredentials[1];
         }
-        return createAuthenticationToken(request, scope, application, grantType, clientId, clientSecret);
+        return createAuthenticationToken(request, response, scope, application, grantType, clientId, clientSecret);
     }
 
-    protected abstract OAuthAuthenticationToken createAuthenticationToken(HttpServletRequest request, String scope, String application, String grantType, String clientId, String clientSecret);
+    protected abstract OAuthAuthenticationToken createAuthenticationToken(HttpServletRequest request, HttpServletResponse response, String scope, String application, String grantType, String clientId, String clientSecret);
 
     /**
      * Decodes the header into a username and password.

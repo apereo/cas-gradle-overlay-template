@@ -49,12 +49,12 @@ public class OAuthTicketGrantingTicketAuthenticationProvider implements Authenti
                 throw new AccessDeniedException("No valid ticket granting ticket found and anonymous access disabled");
             }
             // Create an anonymous authentication token
-            return new OAuthTicketGrantingTicketAuthenticationToken(OAuthAuthenticationToken.ANONYMOUS_USER, null, clientId, clientSecret, token.getScope(), token.getGrantType(), token.getApplication(), ticketGrantingTicket, Collections.singletonList(new SimpleGrantedAuthority("ROLE_ANONYMOUS")));
+            return new OAuthTicketGrantingTicketAuthenticationToken("anonymous-" + token.getTrackingUUID(), null, clientId, clientSecret, token.getScope(), token.getGrantType(), token.getApplication(), token.getTrackingUUID(), ticketGrantingTicket, Collections.singletonList(new SimpleGrantedAuthority("ROLE_ANONYMOUS")));
         } else {
             // Create authentication token for a particular user
             Principal principal = ticketGrantingTicket.getAuthentication().getPrincipal();
             User user = userService.loadUser(principal.getId());
-            return new OAuthTicketGrantingTicketAuthenticationToken(user, null, clientId, clientSecret, token.getScope(), token.getGrantType(), token.getApplication(), ticketGrantingTicket, user.getAuthorities());
+            return new OAuthTicketGrantingTicketAuthenticationToken(user, null, clientId, clientSecret, token.getScope(), token.getGrantType(), token.getApplication(), token.getTrackingUUID(), ticketGrantingTicket, user.getAuthorities());
         }
     }
 

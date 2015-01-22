@@ -7,17 +7,17 @@ import java.util.Collection;
 /**
  * An Authentication Token that is specific to the Extended Grant
  */
-public class OAuthExtendedGrantAuthenticationToken extends OAuthAuthenticationToken {
+public class OAuthTrustedGrantAuthenticationToken extends OAuthAuthenticationToken {
 
     private final Long globalUserId;
 
     /**
      * This constructor can be safely used by any code that wishes to create a
-     * <code>OAuthExtendedGrantAuthenticationToken</code>, as the {@link
+     * <code>OAuthTrustedGrantAuthenticationToken</code>, as the {@link
      * #isAuthenticated()} will return <code>false</code>.
      */
-    public OAuthExtendedGrantAuthenticationToken(Object principal, Object credentials, String clientId, String clientSecret, String scope, String grantType, String application, Long globalUserId) {
-        super(principal, credentials, clientId, clientSecret, scope, grantType, application);
+    public OAuthTrustedGrantAuthenticationToken(Object principal, Object credentials, String clientId, String clientSecret, String scope, String grantType, String application, Long globalUserId) {
+        super(principal, credentials, clientId, clientSecret, scope, grantType, application, null);
         this.globalUserId = globalUserId;
     }
 
@@ -26,8 +26,8 @@ public class OAuthExtendedGrantAuthenticationToken extends OAuthAuthenticationTo
      * implementations that are satisfied with producing a trusted (i.e. {@link #isAuthenticated()} = <code>true</code>)
      * authentication token.
      */
-    public OAuthExtendedGrantAuthenticationToken(Object principal, Object credentials, String clientId, String clientSecret, String scope, String grantType, String application, Long globalUserId, Collection<? extends GrantedAuthority> authorities) {
-        super(principal, credentials, clientId, clientSecret, scope, grantType, application, authorities);
+    public OAuthTrustedGrantAuthenticationToken(Object principal, Object credentials, String clientId, String clientSecret, String scope, String grantType, String application, Long globalUserId, Collection<? extends GrantedAuthority> authorities) {
+        super(principal, credentials, clientId, clientSecret, scope, grantType, application, null, authorities);
         this.globalUserId = globalUserId;
     }
 

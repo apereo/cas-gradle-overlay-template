@@ -5,6 +5,7 @@ import com.infusionsoft.cas.dao.LoginAttemptDAO;
 import com.infusionsoft.cas.domain.*;
 import com.infusionsoft.cas.exceptions.AppCredentialsExpiredException;
 import com.infusionsoft.cas.exceptions.AppCredentialsInvalidException;
+import com.infusionsoft.cas.web.CookieUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.jasig.cas.authentication.principal.Principal;
@@ -386,23 +387,22 @@ public class InfusionsoftAuthenticationServiceImpl implements InfusionsoftAuthen
         }
 
         String tgtCookieName = tgtCookieGenerator.getCookieName();
-        for (Cookie cookie : request.getCookies()) {
-            if (cookie.getName().equals(tgtCookieName)) {
-                log.debug("found a valid " + tgtCookieName + " cookie with value " + cookie.getValue());
+        Cookie cookie = CookieUtil.extractCookie(request, tgtCookieName);
+        if (cookie != null) {
+            log.debug("found a valid " + tgtCookieName + " cookie with value " + cookie.getValue());
 
-                Ticket ticket = ticketRegistry.getTicket(cookie.getValue());
+            Ticket ticket = ticketRegistry.getTicket(cookie.getValue());
 
-                if (ticket == null) {
-                    log.warn("found a " + tgtCookieName + " cookie, but it doesn't match any known ticket!");
-                } else if (ticket instanceof TicketGrantingTicket) {
-                    tgt = (TicketGrantingTicket) ticket;
-                } else {
-                    tgt = ticket.getGrantingTicket();
-                }
+            if (ticket == null) {
+                log.warn("found a " + tgtCookieName + " cookie, but it doesn't match any known ticket!");
+            } else if (ticket instanceof TicketGrantingTicket) {
+                tgt = (TicketGrantingTicket) ticket;
+            } else {
+                tgt = ticket.getGrantingTicket();
+            }
 
-                if (tgt != null && tgt.isExpired()) {
-                    tgt = null;
-                }
+            if (tgt != null && tgt.isExpired()) {
+                tgt = null;
             }
         }
 

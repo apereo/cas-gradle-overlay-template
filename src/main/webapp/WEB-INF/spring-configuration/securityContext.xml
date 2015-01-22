@@ -45,7 +45,8 @@
     <sec:http entry-point-ref="casProcessingFilterEntryPoint" auto-config="true" use-expressions="true">
         <sec:logout success-handler-ref="infusionsoftLogoutSuccessHandler"/>
         <sec:custom-filter ref="OAuthResourceOwnerAuthenticationFilter" before="FORM_LOGIN_FILTER"/>
-        <sec:custom-filter ref="OAuthExtendedGrantAuthenticationFilter" before="BASIC_AUTH_FILTER"/>
+        <sec:custom-filter ref="OAuthTrustedGrantAuthenticationFilter" before="BASIC_AUTH_FILTER"/>
+        <sec:custom-filter ref="OAuthTicketGrantingTicketAuthenticationFilter" before="BASIC_AUTH_FILTER"/>
         <sec:custom-filter ref="casProcessingFilter" after="CAS_FILTER"/>
         <sec:custom-filter ref="singleLogoutFilter" before="CAS_FILTER"/>
         <sec:intercept-url pattern="/app/registration/linkToExisting*" access="isAuthenticated()"/>
@@ -61,7 +62,8 @@
     </sec:http>
 
     <sec:authentication-manager alias="casAuthenticationManager">
-        <sec:authentication-provider ref="OAuthExtendedGrantAuthenticationProvider"/>
+        <sec:authentication-provider ref="OAuthTicketGrantingTicketAuthenticationProvider"/>
+        <sec:authentication-provider ref="OAuthTrustedGrantAuthenticationProvider"/>
         <sec:authentication-provider ref="OAuthResourceOwnerAuthenticationProvider"/>
         <sec:authentication-provider ref="casAuthenticationProvider"/>
     </sec:authentication-manager>
