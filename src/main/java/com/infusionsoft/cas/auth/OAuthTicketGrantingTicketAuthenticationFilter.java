@@ -26,7 +26,7 @@ public class OAuthTicketGrantingTicketAuthenticationFilter extends OAuthAbstract
     @Autowired
     private OAuthClientService oAuthClientService;
 
-    private static String USER_TRACKING_COOKIE_NAME = "userUUID";
+    private static final String USER_TRACKING_COOKIE_NAME = "userUUID";
 
     @Override
     protected OAuthAuthenticationToken createAuthenticationToken(HttpServletRequest request, HttpServletResponse response, String scope, String application, String grantType, String clientId, String clientSecret) {
@@ -37,16 +37,16 @@ public class OAuthTicketGrantingTicketAuthenticationFilter extends OAuthAbstract
         }
 
         OAuthClient oAuthClient = oAuthClientService.loadOAuthClient(clientId);
-        if(oAuthClient == null) {
+        if (oAuthClient == null) {
             throw new BadCredentialsException("Invalid Client Id");
         }
 
-        String originHeader = request.getHeader("ORIGIN");
-        if(StringUtils.isBlank(originHeader)) {
+        String originHeader = request.getHeader("Origin");
+        if (StringUtils.isBlank(originHeader)) {
             throw new BadRequestException("No Origin Headers Attached");
         }
 
-        if(!oAuthClientService.doesServiceMatchHeader(oAuthClient, originHeader)){
+        if (!oAuthClientService.isOriginAllowedByOAuthClient(oAuthClient, originHeader)) {
             throw new AccessDeniedException("Origin not allowed for Client Id");
         }
 
@@ -58,7 +58,9 @@ public class OAuthTicketGrantingTicketAuthenticationFilter extends OAuthAbstract
 
         response.setHeader("Access-Control-Allow-Origin", originHeader);
         response.setHeader("Access-Control-Allow-Credentials", "true");
-        response.setHeader("Access-Control-Request-Method", "POST");
+        response.setHeader("Access-Control-Allow-Methods", "POST");
+        response.setHeader("Access-Control-Allow-Headers", "Content-Type, Authentication");
+        // Disable caching, since whether the request is allowed or not depends on the client_id passed in, not just the URL
         response.setHeader("Access-Control-Max-Age", "0");
 
         return new OAuthTicketGrantingTicketAuthenticationToken(null, null, clientId, oAuthClient.getClientSecret(), scope, grantType, application, userTrackingCookieValue, ticketGrantingTicket);
