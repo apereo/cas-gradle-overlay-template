@@ -2,13 +2,16 @@ package com.infusionsoft.cas.web.controllers;
 
 import com.infusionsoft.cas.auth.OAuthAuthenticationToken;
 import com.infusionsoft.cas.domain.AppType;
+import com.infusionsoft.cas.domain.OAuthServiceConfig;
 import com.infusionsoft.cas.domain.User;
 import com.infusionsoft.cas.domain.UserAccount;
+import com.infusionsoft.cas.exceptions.ResourceNotFoundException;
 import com.infusionsoft.cas.oauth.dto.OAuthAccessToken;
 import com.infusionsoft.cas.oauth.dto.OAuthGrantType;
 import com.infusionsoft.cas.oauth.exceptions.*;
 import com.infusionsoft.cas.oauth.services.OAuthService;
 import com.infusionsoft.cas.services.CrmService;
+import com.infusionsoft.cas.services.OAuthServiceConfigService;
 import com.infusionsoft.cas.services.UserService;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -16,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -59,6 +63,9 @@ public class OAuthController {
 
     @Autowired
     UserService userService;
+
+    @Autowired
+    OAuthServiceConfigService oAuthServiceConfigService;
 
     @Value("${mashery.api.crm.service.key}")
     private String crmServiceKey;
@@ -145,18 +152,25 @@ public class OAuthController {
         OAuthAuthenticationToken oAuthAuthenticationToken = (OAuthAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
         if (oAuthAuthenticationToken != null) {
             String userId = null;
-            if (principal != null) {
-                if (principal instanceof User) {
-                    userId = ((User) principal).getId().toString();
-                } else {
-                    userId = principal.toString();
+
+            OAuthServiceConfig oAuthServiceConfig = oAuthServiceConfigService.loadOAuthServiceConfig(serviceKey);
+            if(oAuthServiceConfig == null){
+                throw new ResourceNotFoundException("Service Key Not Found");
+            }
+
+            if (principal != null && principal instanceof User) {
+                userId = ((User) principal).getId().toString();
+            } else {
+                if (!oAuthServiceConfig.getAllowAnonymous()) {
+                    throw new AccessDeniedException("No User found and anonymous access disabled.");
                 }
+                userId = (principal == null ? null : principal.toString());
             }
 
             /**
              * The scope is the application for these grant type
              */
-            return oauthService.createAccessToken(serviceKey, oAuthAuthenticationToken.getClientId(), oAuthAuthenticationToken.getClientSecret(), oAuthAuthenticationToken.getGrantType(), oAuthAuthenticationToken.getScope(), oAuthAuthenticationToken.getApplication(), userId);
+            return oauthService.createAccessToken(oAuthServiceConfig.getServiceKey(), oAuthAuthenticationToken.getClientId(), oAuthAuthenticationToken.getClientSecret(), oAuthAuthenticationToken.getGrantType(), oAuthAuthenticationToken.getScope(), oAuthAuthenticationToken.getApplication(), userId);
         } else {
             throw new OAuthInvalidRequestException();
         }
