@@ -1,5 +1,6 @@
 package com.infusionsoft.cas.auth;
 
+import com.infusionsoft.cas.domain.OAuthServiceConfig;
 import org.springframework.security.core.GrantedAuthority;
 
 import java.util.Collection;
@@ -15,8 +16,8 @@ public class OAuthResourceOwnerAuthenticationToken extends OAuthAuthenticationTo
      * #isAuthenticated()} will return <code>false</code>.
      *
      */
-    public OAuthResourceOwnerAuthenticationToken(Object principal, Object credentials, String clientId, String clientSecret, String scope, String grantType, String application) {
-        super(principal, credentials, clientId, clientSecret, scope, grantType, application, null);
+    public OAuthResourceOwnerAuthenticationToken(Object principal, Object credentials, OAuthServiceConfig oAuthServiceConfig, String clientId, String clientSecret, String scope, String grantType, String application) {
+        super(principal, credentials, oAuthServiceConfig, clientId, clientSecret, scope, grantType, application, null);
     }
 
     /**
@@ -24,8 +25,8 @@ public class OAuthResourceOwnerAuthenticationToken extends OAuthAuthenticationTo
      * implementations that are satisfied with producing a trusted (i.e. {@link #isAuthenticated()} = <code>true</code>)
      * authentication token.
      */
-    public OAuthResourceOwnerAuthenticationToken(Object principal, Object credentials, String clientId, String clientSecret, String scope, String grantType, String application, Collection<? extends GrantedAuthority> authorities) {
-        super(principal, credentials, clientId, clientSecret, scope, grantType, application, null, authorities);
+    public OAuthResourceOwnerAuthenticationToken(Object principal, Object credentials, OAuthServiceConfig oAuthServiceConfig, String clientId, String clientSecret, String scope, String grantType, String application, Collection<? extends GrantedAuthority> authorities) {
+        super(principal, credentials, oAuthServiceConfig, clientId, clientSecret, scope, grantType, application, null, authorities);
     }
 
 }

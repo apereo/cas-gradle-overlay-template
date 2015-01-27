@@ -1,5 +1,7 @@
 package com.infusionsoft.cas.auth;
 
+import com.infusionsoft.cas.domain.OAuthServiceConfig;
+import com.infusionsoft.cas.services.OAuthServiceConfigService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -30,6 +32,9 @@ public abstract class OAuthAbstractAuthenticationFilter extends GenericFilterBea
     @Qualifier("casAuthenticationManager")
     private AuthenticationManager authenticationManager;
 
+    @Autowired
+    private OAuthServiceConfigService oAuthServiceConfigService;
+
     @Override
     public void doFilter(ServletRequest req, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         final HttpServletRequest request = (HttpServletRequest) req;
@@ -50,6 +55,7 @@ public abstract class OAuthAbstractAuthenticationFilter extends GenericFilterBea
 
     private OAuthAuthenticationToken createAuthenticationToken(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String grantType = StringUtils.defaultString(request.getParameter("grant_type"));
+        String serviceName = StringUtils.defaultString(request.getParameter("service_name"));
         String clientId = StringUtils.defaultString(request.getParameter("client_id"));
         String clientSecret = StringUtils.defaultString(request.getParameter("client_secret"));
         String passedScopeUnSplit = StringUtils.defaultString(request.getParameter("scope"));
@@ -71,10 +77,13 @@ public abstract class OAuthAbstractAuthenticationFilter extends GenericFilterBea
             clientId = clientCredentials[0];
             clientSecret = clientCredentials[1];
         }
-        return createAuthenticationToken(request, response, scope, application, grantType, clientId, clientSecret);
+
+        OAuthServiceConfig oAuthServiceConfig = oAuthServiceConfigService.loadOAuthServiceConfig(serviceName);
+
+        return createAuthenticationToken(request, response, scope, application, grantType, oAuthServiceConfig, clientId, clientSecret);
     }
 
-    protected abstract OAuthAuthenticationToken createAuthenticationToken(HttpServletRequest request, HttpServletResponse response, String scope, String application, String grantType, String clientId, String clientSecret);
+    protected abstract OAuthAuthenticationToken createAuthenticationToken(HttpServletRequest request, HttpServletResponse response, String scope, String application, String grantType, OAuthServiceConfig oAuthServiceConfig, String clientId, String clientSecret);
 
     /**
      * Decodes the header into a username and password.

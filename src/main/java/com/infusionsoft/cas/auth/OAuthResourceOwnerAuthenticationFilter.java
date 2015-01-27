@@ -1,5 +1,6 @@
 package com.infusionsoft.cas.auth;
 
+import com.infusionsoft.cas.domain.OAuthServiceConfig;
 import com.infusionsoft.cas.oauth.dto.OAuthGrantType;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
@@ -17,7 +18,7 @@ import javax.servlet.http.HttpServletResponse;
 public class OAuthResourceOwnerAuthenticationFilter extends OAuthAbstractAuthenticationFilter {
 
     @Override
-    protected OAuthAuthenticationToken createAuthenticationToken(HttpServletRequest request, HttpServletResponse response, String scope, String application, String grantType, String clientId, String clientSecret) {
+    protected OAuthAuthenticationToken createAuthenticationToken(HttpServletRequest request, HttpServletResponse response, String scope, String application, String grantType, OAuthServiceConfig oAuthServiceConfig, String clientId, String clientSecret) {
         String username = StringUtils.defaultString(request.getParameter("username")).trim();
         String password = StringUtils.defaultString(request.getParameter("password"));
 
@@ -25,6 +26,6 @@ public class OAuthResourceOwnerAuthenticationFilter extends OAuthAbstractAuthent
             return null;
         }
 
-        return new OAuthResourceOwnerAuthenticationToken(username, password, clientId, clientSecret, scope, grantType, application);
+        return new OAuthResourceOwnerAuthenticationToken(username, password, oAuthServiceConfig, clientId, clientSecret, scope, grantType, application);
     }
 }

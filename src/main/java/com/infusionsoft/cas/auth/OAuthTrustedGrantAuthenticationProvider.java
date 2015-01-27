@@ -33,11 +33,11 @@ public class OAuthTrustedGrantAuthenticationProvider implements AuthenticationPr
         try {
             if (oAuthTrustedGrantAuthenticationToken != null) {
 
-                if (oAuthService.isClientAuthorizedForExtendedGrantType(oAuthTrustedGrantAuthenticationToken.getClientId())) {
+                if (oAuthService.isClientAuthorizedForTrustedGrantType(oAuthTrustedGrantAuthenticationToken.getClientId())) {
                     User user = userService.loadUser(oAuthTrustedGrantAuthenticationToken.getGlobalUserId());
 
                     if(user != null) {
-                        retVal = new OAuthTrustedGrantAuthenticationToken(user, null, oAuthTrustedGrantAuthenticationToken.getClientId(), oAuthTrustedGrantAuthenticationToken.getClientSecret(), oAuthTrustedGrantAuthenticationToken.getScope(), oAuthTrustedGrantAuthenticationToken.getGrantType(), oAuthTrustedGrantAuthenticationToken.getApplication(), oAuthTrustedGrantAuthenticationToken.getGlobalUserId(), user.getAuthorities());
+                        retVal = new OAuthTrustedGrantAuthenticationToken(user, null, oAuthTrustedGrantAuthenticationToken.getServiceConfig(), oAuthTrustedGrantAuthenticationToken.getClientId(), oAuthTrustedGrantAuthenticationToken.getClientSecret(), oAuthTrustedGrantAuthenticationToken.getScope(), oAuthTrustedGrantAuthenticationToken.getGrantType(), oAuthTrustedGrantAuthenticationToken.getApplication(), oAuthTrustedGrantAuthenticationToken.getGlobalUserId(), user.getAuthorities());
                     } else {
                         throw new UsernameNotFoundException("Unable to find user");
                     }

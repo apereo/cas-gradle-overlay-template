@@ -93,10 +93,6 @@ public class OAuthService implements ApplicationListener<UserAccountRemovedEvent
         String scope = StringUtils.defaultString(requestedScope) + "|" + application;
         String userContext = userId + "|" + application;
 
-        if(!userService.validateUserApplication(application) ) {
-            throw new OAuthAccessDeniedException();
-        }
-
         /**
          * Mashery does not support extend grants, so we are faking it by using a password
          */
@@ -175,7 +171,7 @@ public class OAuthService implements ApplicationListener<UserAccountRemovedEvent
         return OAuthGrantType.EXTENDED_TRUSTED.isValueEqual(grantType) || OAuthGrantType.EXTENDED_TICKET_GRANTING_TICKET.isValueEqual(grantType);
     }
 
-    public boolean isClientAuthorizedForExtendedGrantType(String clientId) throws OAuthException {
+    public boolean isClientAuthorizedForTrustedGrantType(String clientId) throws OAuthException {
         MasheryMember masheryMember = masheryApiClientService.fetchMemberByClientId(clientId);
         for(MasheryRole masheryRole : masheryMember.getRoles()) {
             if(TRUSTED_INTERNAL_SYSTEM_ROLE.equals(masheryRole.getName())) {

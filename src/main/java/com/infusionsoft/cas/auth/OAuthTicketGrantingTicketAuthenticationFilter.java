@@ -1,6 +1,7 @@
 package com.infusionsoft.cas.auth;
 
 import com.infusionsoft.cas.domain.OAuthClient;
+import com.infusionsoft.cas.domain.OAuthServiceConfig;
 import com.infusionsoft.cas.exceptions.BadRequestException;
 import com.infusionsoft.cas.oauth.dto.OAuthGrantType;
 import com.infusionsoft.cas.services.InfusionsoftAuthenticationService;
@@ -29,7 +30,7 @@ public class OAuthTicketGrantingTicketAuthenticationFilter extends OAuthAbstract
     private static final String USER_TRACKING_COOKIE_NAME = "userUUID";
 
     @Override
-    protected OAuthAuthenticationToken createAuthenticationToken(HttpServletRequest request, HttpServletResponse response, String scope, String application, String grantType, String clientId, String clientSecret) {
+    protected OAuthAuthenticationToken createAuthenticationToken(HttpServletRequest request, HttpServletResponse response, String scope, String application, String grantType, OAuthServiceConfig oAuthServiceConfig, String clientId, String clientSecret) {
         TicketGrantingTicket ticketGrantingTicket = infusionsoftAuthenticationService.getTicketGrantingTicket(request);
 
         if (!OAuthGrantType.EXTENDED_TICKET_GRANTING_TICKET.isValueEqual(grantType) || clientId == null) {
@@ -63,7 +64,7 @@ public class OAuthTicketGrantingTicketAuthenticationFilter extends OAuthAbstract
         // Disable caching, since whether the request is allowed or not depends on the client_id passed in, not just the URL
         response.setHeader("Access-Control-Max-Age", "0");
 
-        return new OAuthTicketGrantingTicketAuthenticationToken(null, null, clientId, oAuthClient.getClientSecret(), scope, grantType, application, userTrackingCookieValue, ticketGrantingTicket);
+        return new OAuthTicketGrantingTicketAuthenticationToken(null, null, oAuthServiceConfig, clientId, oAuthClient.getClientSecret(), scope, grantType, application, userTrackingCookieValue, ticketGrantingTicket);
     }
 
 }

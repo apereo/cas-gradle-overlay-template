@@ -1,5 +1,6 @@
 package com.infusionsoft.cas.auth;
 
+import com.infusionsoft.cas.domain.OAuthServiceConfig;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.SpringSecurityCoreVersion;
@@ -18,6 +19,7 @@ import java.util.Collection;
 public class OAuthAuthenticationToken extends AbstractAuthenticationToken {
     private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
     protected final Object principal;
+    protected final OAuthServiceConfig serviceConfig;
     protected final String clientId;
     protected final String clientSecret;
     protected final String scope;
@@ -32,10 +34,11 @@ public class OAuthAuthenticationToken extends AbstractAuthenticationToken {
      * #isAuthenticated()} will return <code>false</code>.
      *
      */
-    public OAuthAuthenticationToken(Object principal, Object credentials, String clientId, String clientSecret, String scope, String grantType, String application, String trackingUUID) {
+    public OAuthAuthenticationToken(Object principal, Object credentials, OAuthServiceConfig serviceConfig, String clientId, String clientSecret, String scope, String grantType, String application, String trackingUUID) {
         super(null);
         this.principal = principal;
         this.credentials = credentials;
+        this.serviceConfig = serviceConfig;
         this.clientId = clientId;
         this.clientSecret = clientSecret;
         this.scope = scope;
@@ -49,17 +52,12 @@ public class OAuthAuthenticationToken extends AbstractAuthenticationToken {
      * This constructor should only be used by <code>AuthenticationManager</code> or <code>AuthenticationProvider</code>
      * implementations that are satisfied with producing a trusted (i.e. {@link #isAuthenticated()} = <code>true</code>)
      * authentication token.
-     *
-     * @param principal
-     * @param credentials
-     * @param clientId
-     * @param clientSecret
-     * @param authorities
      */
-    public OAuthAuthenticationToken(Object principal, Object credentials, String clientId, String clientSecret, String scope, String grantType, String application, String trackingUUID, Collection<? extends GrantedAuthority> authorities) {
+    public OAuthAuthenticationToken(Object principal, Object credentials, OAuthServiceConfig serviceConfig, String clientId, String clientSecret, String scope, String grantType, String application, String trackingUUID, Collection<? extends GrantedAuthority> authorities) {
         super(authorities);
         this.principal = principal;
         this.credentials = credentials;
+        this.serviceConfig = serviceConfig;
         this.clientId = clientId;
         this.clientSecret = clientSecret;
         this.scope = scope;
@@ -75,6 +73,10 @@ public class OAuthAuthenticationToken extends AbstractAuthenticationToken {
 
     public Object getPrincipal() {
         return this.principal;
+    }
+
+    public OAuthServiceConfig getServiceConfig() {
+        return serviceConfig;
     }
 
     public String getClientId() {

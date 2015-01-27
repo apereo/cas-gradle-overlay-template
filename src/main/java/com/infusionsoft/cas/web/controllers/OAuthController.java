@@ -2,10 +2,8 @@ package com.infusionsoft.cas.web.controllers;
 
 import com.infusionsoft.cas.auth.OAuthAuthenticationToken;
 import com.infusionsoft.cas.domain.AppType;
-import com.infusionsoft.cas.domain.OAuthServiceConfig;
 import com.infusionsoft.cas.domain.User;
 import com.infusionsoft.cas.domain.UserAccount;
-import com.infusionsoft.cas.exceptions.ResourceNotFoundException;
 import com.infusionsoft.cas.oauth.dto.OAuthAccessToken;
 import com.infusionsoft.cas.oauth.dto.OAuthGrantType;
 import com.infusionsoft.cas.oauth.exceptions.*;
@@ -19,7 +17,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -143,34 +140,50 @@ public class OAuthController {
     }
 
     /**
-     * Token generation for Resource Grant Type
+     * Token generation for Legacy Resource Owner Credential Grant Type
      */
     @ResponseBody
     @RequestMapping("/oauth/service/{serviceKey}/token")
     public OAuthAccessToken token(@PathVariable String serviceKey) throws Exception {
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        OAuthAuthenticationToken oAuthAuthenticationToken = (OAuthAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
+
+        if (oAuthAuthenticationToken != null) {
+            if(!userService.validateUserApplication(oAuthAuthenticationToken.getApplication()) ) {
+                throw new OAuthAccessDeniedException();
+            }
+
+            /**
+             * The scope is the application for these grant type
+             */
+            return oauthService.createAccessToken(serviceKey, oAuthAuthenticationToken.getClientId(), oAuthAuthenticationToken.getClientSecret(), oAuthAuthenticationToken.getGrantType(), oAuthAuthenticationToken.getScope(), oAuthAuthenticationToken.getApplication(), user.getId().toString());
+        } else {
+            throw new OAuthInvalidRequestException();
+        }
+    }
+
+    /**
+     * Token generation for Extended Grant Types
+     */
+    @ResponseBody
+    @RequestMapping("/oauth/token")
+    public OAuthAccessToken token() throws Exception {
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         OAuthAuthenticationToken oAuthAuthenticationToken = (OAuthAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
-        if (oAuthAuthenticationToken != null) {
-            String userId = null;
 
-            OAuthServiceConfig oAuthServiceConfig = oAuthServiceConfigService.loadOAuthServiceConfig(serviceKey);
-            if(oAuthServiceConfig == null){
-                throw new ResourceNotFoundException("Service Key Not Found");
-            }
+        if (oAuthAuthenticationToken != null) {
+            String userId;
 
             if (principal != null && principal instanceof User) {
                 userId = ((User) principal).getId().toString();
             } else {
-                if (!oAuthServiceConfig.getAllowAnonymous()) {
-                    throw new AccessDeniedException("No User found and anonymous access disabled.");
-                }
                 userId = (principal == null ? null : principal.toString());
             }
 
             /**
              * The scope is the application for these grant type
              */
-            return oauthService.createAccessToken(oAuthServiceConfig.getServiceKey(), oAuthAuthenticationToken.getClientId(), oAuthAuthenticationToken.getClientSecret(), oAuthAuthenticationToken.getGrantType(), oAuthAuthenticationToken.getScope(), oAuthAuthenticationToken.getApplication(), userId);
+            return oauthService.createAccessToken(oAuthAuthenticationToken.getServiceConfig().getServiceKey(), oAuthAuthenticationToken.getClientId(), oAuthAuthenticationToken.getClientSecret(), oAuthAuthenticationToken.getGrantType(), oAuthAuthenticationToken.getScope(), oAuthAuthenticationToken.getApplication(), userId);
         } else {
             throw new OAuthInvalidRequestException();
         }

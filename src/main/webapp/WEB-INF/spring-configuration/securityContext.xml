@@ -42,11 +42,19 @@
         <sec:intercept-url pattern="/status" access="hasIpAddress('${cas.securityContext.status.allowedSubnet}')"/>
     </sec:http>
 
+    <sec:http pattern="/app/oauth/service/*/token" entry-point-ref="notAuthorizedEntryPoint" use-expressions="true">
+        <sec:custom-filter ref="OAuthResourceOwnerAuthenticationFilter" before="ANONYMOUS_FILTER"/>
+    </sec:http>
+
+    <sec:http pattern="/app/oauth/token" entry-point-ref="notAuthorizedEntryPoint" use-expressions="true">
+        <sec:custom-filter ref="corsPreflightFilter" after="FIRST"/>
+        <!--<sec:custom-filter ref="OAuthResourceOwnerAuthenticationFilter" before="ANONYMOUS_FILTER"/>-->
+        <sec:custom-filter ref="OAuthTrustedGrantAuthenticationFilter" before="ANONYMOUS_FILTER"/>
+        <sec:custom-filter ref="OAuthTicketGrantingTicketAuthenticationFilter" after="ANONYMOUS_FILTER"/>
+    </sec:http>
+
     <sec:http entry-point-ref="casProcessingFilterEntryPoint" auto-config="true" use-expressions="true">
         <sec:logout success-handler-ref="infusionsoftLogoutSuccessHandler"/>
-        <sec:custom-filter ref="OAuthResourceOwnerAuthenticationFilter" before="FORM_LOGIN_FILTER"/>
-        <sec:custom-filter ref="OAuthTrustedGrantAuthenticationFilter" after="CONCURRENT_SESSION_FILTER"/>
-        <sec:custom-filter ref="OAuthTicketGrantingTicketAuthenticationFilter" before="BASIC_AUTH_FILTER"/>
         <sec:custom-filter ref="casProcessingFilter" after="CAS_FILTER"/>
         <sec:custom-filter ref="singleLogoutFilter" before="CAS_FILTER"/>
         <sec:intercept-url pattern="/app/registration/linkToExisting*" access="isAuthenticated()"/>
