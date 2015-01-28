@@ -45,6 +45,7 @@
     <sec:http pattern="/app/oauth/service/*/token" authentication-manager-ref="oauthAuthenticationManager" entry-point-ref="oAuthAuthenticationEntryPoint" use-expressions="true">
         <sec:custom-filter ref="OAuthResourceOwnerAuthenticationFilter" before="ANONYMOUS_FILTER"/>
         <sec:custom-filter ref="OAuthRefreshAuthenticationFilter" after="REMEMBER_ME_FILTER"/>
+        <sec:intercept-url pattern="/app/oauth/service/*/token" access="isAuthenticated()"/>
     </sec:http>
 
     <sec:http pattern="/app/oauth/token" authentication-manager-ref="oauthAuthenticationManager" entry-point-ref="oAuthAuthenticationEntryPoint" use-expressions="true" security-context-repository-ref="nullSecurityContextRepository">
@@ -52,6 +53,7 @@
         <sec:custom-filter ref="OAuthTrustedGrantAuthenticationFilter" before="ANONYMOUS_FILTER"/>
         <sec:custom-filter ref="OAuthTicketGrantingTicketAuthenticationFilter" after="ANONYMOUS_FILTER"/>
         <sec:custom-filter ref="OAuthRefreshAuthenticationFilter" after="REMEMBER_ME_FILTER"/>
+        <sec:intercept-url pattern="/app/oauth/token" access="isAuthenticated()"/>
     </sec:http>
 
     <sec:http authentication-manager-ref="casAuthenticationManager" entry-point-ref="casProcessingFilterEntryPoint" auto-config="true" use-expressions="true">
