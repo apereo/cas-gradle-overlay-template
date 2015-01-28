@@ -1,12 +1,12 @@
 package com.infusionsoft.cas.auth;
 
 import com.infusionsoft.cas.domain.User;
-import com.infusionsoft.cas.exceptions.ResourceNotFoundException;
+import com.infusionsoft.cas.oauth.exceptions.OAuthAccessDeniedException;
+import com.infusionsoft.cas.oauth.exceptions.OAuthInvalidRequestException;
 import com.infusionsoft.cas.services.UserService;
 import org.jasig.cas.authentication.principal.Principal;
 import org.jasig.cas.ticket.TicketGrantingTicket;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -27,14 +27,14 @@ public class OAuthTicketGrantingTicketAuthenticationProvider implements Authenti
         String clientId = token.getClientId();
 
         if (token.getServiceConfig() == null) {
-            throw new ResourceNotFoundException("Service Key Not Found");
+            throw new OAuthInvalidRequestException("oauth.exception.service.key.not.found");
         }
 
         TicketGrantingTicket ticketGrantingTicket = token.getTicketGrantingTicket();
         if ((ticketGrantingTicket == null || ticketGrantingTicket.isExpired())) {
 
             if (!token.getServiceConfig().getAllowAnonymous()) {
-                throw new AccessDeniedException("No User found and anonymous access disabled.");
+                throw new OAuthAccessDeniedException("oauth.exception.anonymous.not.allowed");
             }
 
             // Create an anonymous authentication token

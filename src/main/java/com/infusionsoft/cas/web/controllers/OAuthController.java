@@ -1,6 +1,8 @@
 package com.infusionsoft.cas.web.controllers;
 
 import com.infusionsoft.cas.auth.OAuthAuthenticationToken;
+import com.infusionsoft.cas.auth.OAuthExceptionHandler;
+import com.infusionsoft.cas.auth.OAuthRefreshAuthenticationToken;
 import com.infusionsoft.cas.domain.AppType;
 import com.infusionsoft.cas.domain.User;
 import com.infusionsoft.cas.domain.UserAccount;
@@ -12,8 +14,6 @@ import com.infusionsoft.cas.services.CrmService;
 import com.infusionsoft.cas.services.OAuthServiceConfigService;
 import com.infusionsoft.cas.services.UserService;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
@@ -30,7 +30,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -39,15 +38,6 @@ import java.util.Map;
  */
 @Controller
 public class OAuthController {
-
-    private Logger logger = LoggerFactory.getLogger(OAuthController.class);
-
-    private final static String ERROR_PARAMETER = "error";
-    private final static String ERROR__DESCRIPTION_PARAMETER = "error_description";
-    private final static String ERROR__URI_PARAMETER = "error_uri";
-    private final static String RESPONSE_TYPE_PARAMETER = "response_type";
-    private final static String REDIRECT_URI_PARAMETER = "redirect_uri";
-    private final static String STATE_PARAMETER = "state";
 
     @Autowired
     CrmService crmService;
@@ -64,6 +54,9 @@ public class OAuthController {
     @Autowired
     OAuthServiceConfigService oAuthServiceConfigService;
 
+    @Autowired
+    OAuthExceptionHandler oAuthExceptionHandler;
+
     @Value("${mashery.api.crm.service.key}")
     private String crmServiceKey;
 
@@ -75,34 +68,8 @@ public class OAuthController {
     }
 
     @ExceptionHandler(OAuthException.class)
-    public ModelAndView handleOAuthException(OAuthException e, HttpServletRequest request, HttpServletResponse response, Locale locale) {
-        ModelAndView modelAndView = new ModelAndView();
-        Map<String, String> model = new HashMap<String, String>();
-
-        logger.info("Unhandled OAuthException", e.getMessage());
-
-        model.put(ERROR_PARAMETER, e.getErrorCode());
-
-        if (StringUtils.isNotBlank(e.getErrorDescription())) {
-            model.put(ERROR__DESCRIPTION_PARAMETER, messageSource.getMessage(e.getErrorDescription(), null, locale));
-        }
-
-        if (StringUtils.isNotBlank(e.getErrorUri())) {
-            model.put(ERROR__URI_PARAMETER, e.getErrorUri());
-        }
-
-        OAuthGrantType grantType = OAuthGrantType.fromValue(request.getParameter(RESPONSE_TYPE_PARAMETER));
-
-        if (OAuthGrantType.AUTHORIZATION_CODE.equals(grantType)) {
-            model.put(STATE_PARAMETER, request.getParameter(STATE_PARAMETER));
-            modelAndView.setViewName("redirect:" + request.getParameter(REDIRECT_URI_PARAMETER));
-        } else {
-            response.setStatus(e.getHttpStatus().value());
-        }
-
-        modelAndView.addAllObjects(model);
-
-        return modelAndView;
+    public ModelAndView handleOAuthException(OAuthException e, HttpServletRequest request, HttpServletResponse response) {
+        return oAuthExceptionHandler.resolveException(request, response, null, e);
     }
 
     /**
@@ -149,6 +116,11 @@ public class OAuthController {
         OAuthAuthenticationToken oAuthAuthenticationToken = (OAuthAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
 
         if (oAuthAuthenticationToken != null) {
+            String refreshToken = null;
+            if(oAuthAuthenticationToken instanceof OAuthRefreshAuthenticationToken) {
+                refreshToken = ((OAuthRefreshAuthenticationToken) oAuthAuthenticationToken).getRefreshToken();
+            }
+
             if(!userService.validateUserApplication(oAuthAuthenticationToken.getApplication()) ) {
                 throw new OAuthAccessDeniedException();
             }
@@ -156,7 +128,7 @@ public class OAuthController {
             /**
              * The scope is the application for these grant type
              */
-            return oauthService.createAccessToken(serviceKey, oAuthAuthenticationToken.getClientId(), oAuthAuthenticationToken.getClientSecret(), oAuthAuthenticationToken.getGrantType(), oAuthAuthenticationToken.getScope(), oAuthAuthenticationToken.getApplication(), user.getId().toString());
+            return oauthService.createAccessToken(serviceKey, oAuthAuthenticationToken.getClientId(), oAuthAuthenticationToken.getClientSecret(), oAuthAuthenticationToken.getGrantType(), oAuthAuthenticationToken.getScope(), oAuthAuthenticationToken.getApplication(), user.getId().toString(), refreshToken);
         } else {
             throw new OAuthInvalidRequestException();
         }
@@ -173,6 +145,11 @@ public class OAuthController {
 
         if (oAuthAuthenticationToken != null) {
             String userId;
+            String refreshToken = null;
+
+            if(oAuthAuthenticationToken instanceof OAuthRefreshAuthenticationToken) {
+                refreshToken = ((OAuthRefreshAuthenticationToken) oAuthAuthenticationToken).getRefreshToken();
+            }
 
             if (principal != null && principal instanceof User) {
                 userId = ((User) principal).getId().toString();
@@ -183,7 +160,7 @@ public class OAuthController {
             /**
              * The scope is the application for these grant type
              */
-            return oauthService.createAccessToken(oAuthAuthenticationToken.getServiceConfig().getServiceKey(), oAuthAuthenticationToken.getClientId(), oAuthAuthenticationToken.getClientSecret(), oAuthAuthenticationToken.getGrantType(), oAuthAuthenticationToken.getScope(), oAuthAuthenticationToken.getApplication(), userId);
+            return oauthService.createAccessToken(oAuthAuthenticationToken.getServiceConfig().getServiceKey(), oAuthAuthenticationToken.getClientId(), oAuthAuthenticationToken.getClientSecret(), oAuthAuthenticationToken.getGrantType(), oAuthAuthenticationToken.getScope(), oAuthAuthenticationToken.getApplication(), userId, refreshToken);
         } else {
             throw new OAuthInvalidRequestException();
         }

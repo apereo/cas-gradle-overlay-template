@@ -2,16 +2,16 @@ package com.infusionsoft.cas.auth;
 
 import com.infusionsoft.cas.domain.OAuthClient;
 import com.infusionsoft.cas.domain.OAuthServiceConfig;
-import com.infusionsoft.cas.exceptions.BadRequestException;
 import com.infusionsoft.cas.oauth.dto.OAuthGrantType;
+import com.infusionsoft.cas.oauth.exceptions.OAuthAccessDeniedException;
+import com.infusionsoft.cas.oauth.exceptions.OAuthInvalidClientException;
+import com.infusionsoft.cas.oauth.exceptions.OAuthInvalidRequestException;
 import com.infusionsoft.cas.services.InfusionsoftAuthenticationService;
 import com.infusionsoft.cas.services.OAuthClientService;
 import com.infusionsoft.cas.web.CookieUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.jasig.cas.ticket.TicketGrantingTicket;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
@@ -39,16 +39,16 @@ public class OAuthTicketGrantingTicketAuthenticationFilter extends OAuthAbstract
 
         OAuthClient oAuthClient = oAuthClientService.loadOAuthClient(clientId);
         if (oAuthClient == null) {
-            throw new BadCredentialsException("Invalid Client Id");
+            throw new OAuthInvalidClientException();
         }
 
         String originHeader = request.getHeader("Origin");
         if (StringUtils.isBlank(originHeader)) {
-            throw new BadRequestException("No Origin Headers Attached");
+            throw new OAuthInvalidRequestException("oauth.exception.origin.missing");
         }
 
         if (!oAuthClientService.isOriginAllowedByOAuthClient(oAuthClient, originHeader)) {
-            throw new AccessDeniedException("Origin not allowed for Client Id");
+            throw new OAuthAccessDeniedException("oauth.exception.origin.not.authorized");
         }
 
         String userTrackingCookieValue = CookieUtil.extractCookieValue(request, USER_TRACKING_COOKIE_NAME);

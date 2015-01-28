@@ -14,7 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.cache.annotation.Caching;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -230,13 +229,13 @@ public class MasheryApiClientService {
         }
     }
 
-    public MasheryCreateAccessTokenResponse createAccessToken(String serviceKey, String clientId, String clientSecret, String grant_type, String scope, String userContext) throws OAuthException {
+    public MasheryCreateAccessTokenResponse createAccessToken(String serviceKey, String clientId, String clientSecret, String grant_type, String scope, String userContext, String refreshToken) throws OAuthException {
         MasheryJsonRpcRequest masheryJsonRpcRequest = new MasheryJsonRpcRequest();
         masheryJsonRpcRequest.setMethod("oauth2.createAccessToken");
 
         masheryJsonRpcRequest.getParams().add(serviceKey);
         masheryJsonRpcRequest.getParams().add(new MasheryClient(clientId, clientSecret));
-        masheryJsonRpcRequest.getParams().add(new MasheryTokenData(grant_type, scope, null, null, null));
+        masheryJsonRpcRequest.getParams().add(new MasheryTokenData(grant_type, scope, null, null, refreshToken));
         masheryJsonRpcRequest.getParams().add(new MasheryUri());
         masheryJsonRpcRequest.getParams().add(userContext);
 
@@ -318,7 +317,7 @@ public class MasheryApiClientService {
 
             switch (errorCode) {
                 case MASHERY_BAD_CLIENT_ID:
-                    return new OAuthUnauthorizedClientException();
+                    return new OAuthUnauthorizedClientException("oauth.exception.unable.to.create.access.token");
 
                 default:
                     return new OAuthServerErrorException(e);

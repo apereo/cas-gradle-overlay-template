@@ -9,6 +9,7 @@ import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.codec.Base64;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
@@ -29,26 +30,35 @@ public abstract class OAuthAbstractAuthenticationFilter extends GenericFilterBea
     private AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource = new WebAuthenticationDetailsSource();
 
     @Autowired
-    @Qualifier("casAuthenticationManager")
+    @Qualifier("oauthAuthenticationManager")
     private AuthenticationManager authenticationManager;
+
+    @Autowired
+    OAuthAuthenticationEntryPoint oAuthAuthenticationEntryPoint;
 
     @Autowired
     private OAuthServiceConfigService oAuthServiceConfigService;
 
     @Override
-    public void doFilter(ServletRequest req, ServletResponse response, FilterChain chain) throws IOException, ServletException {
+    public void doFilter(ServletRequest req, ServletResponse resp, FilterChain chain) throws IOException, ServletException {
         final HttpServletRequest request = (HttpServletRequest) req;
+        final HttpServletResponse response = (HttpServletResponse) resp;
 
-        OAuthAuthenticationToken authenticationToken = createAuthenticationToken(request, (HttpServletResponse) response);
-        if (authenticationToken == null) {
-            chain.doFilter(request, response);
+        try {
+            OAuthAuthenticationToken authenticationToken = createAuthenticationToken(request, response);
+            if (authenticationToken == null) {
+                chain.doFilter(request, response);
+                return;
+            }
+
+            authenticationToken.setDetails(authenticationDetailsSource.buildDetails(request));
+            Authentication authResult = authenticationManager.authenticate(authenticationToken);
+            SecurityContextHolder.getContext().setAuthentication(authResult);
+        } catch (AuthenticationException failed) {
+            SecurityContextHolder.clearContext();
+            oAuthAuthenticationEntryPoint.commence(request, response, failed);
             return;
         }
-
-        authenticationToken.setDetails(authenticationDetailsSource.buildDetails(request));
-        Authentication authResult = authenticationManager.authenticate(authenticationToken);
-
-        SecurityContextHolder.getContext().setAuthentication(authResult);
 
         chain.doFilter(request, response);
     }

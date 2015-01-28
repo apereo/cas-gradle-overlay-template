@@ -7,6 +7,7 @@ public enum OAuthGrantType {
 
     AUTHORIZATION_CODE("code"),
     RESOURCE_OWNER_CREDENTIALS("password"),
+    REFRESH("refresh_token"),
     EXTENDED_TRUSTED("urn:infusionsoft:params:oauth:grant-type:trusted"),
     EXTENDED_TICKET_GRANTING_TICKET("urn:infusionsoft:params:oauth:grant-type:ticket-granting-ticket");
 

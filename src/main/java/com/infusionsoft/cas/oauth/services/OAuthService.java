@@ -89,9 +89,9 @@ public class OAuthService implements ApplicationListener<UserAccountRemovedEvent
      * @return The created access token or throws exception
      * @throws OAuthException
      */
-    public OAuthAccessToken createAccessToken(String providedServiceKey, String clientId, String clientSecret, String grantType, String requestedScope, String application, String userId) throws OAuthException {
-        String scope = StringUtils.defaultString(requestedScope) + "|" + application;
-        String userContext = userId + "|" + application;
+    public OAuthAccessToken createAccessToken(String providedServiceKey, String clientId, String clientSecret, String grantType, String requestedScope, String application, String userId, String refreshToken) throws OAuthException {
+        String scope = StringUtils.isBlank(requestedScope) || StringUtils.isBlank(application) ? "" : StringUtils.defaultString(requestedScope) + "|" + StringUtils.defaultString(application);
+        String userContext = StringUtils.isBlank(userId) || StringUtils.isBlank(application) ? "" : StringUtils.defaultString(userId) + "|" + StringUtils.defaultString(application);
 
         /**
          * Mashery does not support extend grants, so we are faking it by using a password
@@ -100,7 +100,7 @@ public class OAuthService implements ApplicationListener<UserAccountRemovedEvent
             grantType = OAuthGrantType.RESOURCE_OWNER_CREDENTIALS.getValue();
         }
 
-        MasheryCreateAccessTokenResponse masheryCreateAccessTokenResponse = masheryApiClientService.createAccessToken(providedServiceKey, clientId, clientSecret, grantType, scope, userContext);
+        MasheryCreateAccessTokenResponse masheryCreateAccessTokenResponse = masheryApiClientService.createAccessToken(providedServiceKey, clientId, clientSecret, grantType, scope, userContext, refreshToken);
 
         return new OAuthAccessToken(masheryCreateAccessTokenResponse.getAccess_token(), masheryCreateAccessTokenResponse.getToken_type(), masheryCreateAccessTokenResponse.getExpires_in(), masheryCreateAccessTokenResponse.getRefresh_token(), masheryCreateAccessTokenResponse.getScope());
     }
