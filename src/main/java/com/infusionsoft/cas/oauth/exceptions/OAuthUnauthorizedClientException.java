@@ -13,4 +13,8 @@ public class OAuthUnauthorizedClientException extends OAuthException {
         super("unauthorized_client", HttpStatus.BAD_REQUEST, "oauth.exception.unauthorized.client");
     }
 
+    public OAuthUnauthorizedClientException(String messageCode) {
+        super("unauthorized_client", HttpStatus.BAD_REQUEST, messageCode);
+    }
+
 }

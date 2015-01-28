@@ -5,6 +5,7 @@ import com.infusionsoft.cas.domain.UserAccount;
 import com.infusionsoft.cas.events.UserAccountRemovedEvent;
 import com.infusionsoft.cas.oauth.dto.OAuthAccessToken;
 import com.infusionsoft.cas.oauth.dto.OAuthApplication;
+import com.infusionsoft.cas.oauth.dto.OAuthGrantType;
 import com.infusionsoft.cas.oauth.dto.OAuthUserApplication;
 import com.infusionsoft.cas.oauth.exceptions.OAuthAccessDeniedException;
 import com.infusionsoft.cas.oauth.exceptions.OAuthException;
@@ -27,7 +28,6 @@ import java.util.Set;
 public class OAuthService implements ApplicationListener<UserAccountRemovedEvent> {
 
     private static final Logger log = Logger.getLogger(OAuthService.class);
-    private static final String EXTENDED_GRANT_TYPE_URN = "urn:infusionsoft:params:oauth:grant-type:trusted";
     private static final String TRUSTED_INTERNAL_SYSTEM_ROLE = "Trusted Internal System";
 
     @Autowired
@@ -85,26 +85,22 @@ public class OAuthService implements ApplicationListener<UserAccountRemovedEvent
      * @param clientSecret   The OAuth client_secret
      * @param grantType      The OAuth grant_type
      * @param requestedScope The request scope which should be the application, i.e. myapp.infusionsoft.com
-     * @param globalUserId   The globalUserId of the logged in user
+     * @param userId         The user identifier, which is either a globalUserId or the anonymous-UUID tracking code
      * @return The created access token or throws exception
      * @throws OAuthException
      */
-    public OAuthAccessToken createAccessToken(String providedServiceKey, String clientId, String clientSecret, String grantType, String requestedScope, String application, Long globalUserId) throws OAuthException {
-        String scope = StringUtils.defaultString(requestedScope) + "|" + application;
-        String userContext = globalUserId + "|" + application;
-
-        if(!userService.validateUserApplication(application) ) {
-            throw new OAuthAccessDeniedException();
-        }
+    public OAuthAccessToken createAccessToken(String providedServiceKey, String clientId, String clientSecret, String grantType, String requestedScope, String application, String userId, String refreshToken) throws OAuthException {
+        String scope = StringUtils.isBlank(requestedScope) || StringUtils.isBlank(application) ? "" : StringUtils.defaultString(requestedScope) + "|" + StringUtils.defaultString(application);
+        String userContext = StringUtils.isBlank(userId) || StringUtils.isBlank(application) ? "" : StringUtils.defaultString(userId) + "|" + StringUtils.defaultString(application);
 
         /**
          * Mashery does not support extend grants, so we are faking it by using a password
          */
         if(isExtendedGrantType(grantType)) {
-            grantType = "password";
+            grantType = OAuthGrantType.RESOURCE_OWNER_CREDENTIALS.getValue();
         }
 
-        MasheryCreateAccessTokenResponse masheryCreateAccessTokenResponse = masheryApiClientService.createAccessToken(providedServiceKey, clientId, clientSecret, grantType, scope, userContext);
+        MasheryCreateAccessTokenResponse masheryCreateAccessTokenResponse = masheryApiClientService.createAccessToken(providedServiceKey, clientId, clientSecret, grantType, scope, userContext, refreshToken);
 
         return new OAuthAccessToken(masheryCreateAccessTokenResponse.getAccess_token(), masheryCreateAccessTokenResponse.getToken_type(), masheryCreateAccessTokenResponse.getExpires_in(), masheryCreateAccessTokenResponse.getRefresh_token(), masheryCreateAccessTokenResponse.getScope());
     }
@@ -172,10 +168,10 @@ public class OAuthService implements ApplicationListener<UserAccountRemovedEvent
     }
 
     public boolean isExtendedGrantType(String grantType) {
-        return EXTENDED_GRANT_TYPE_URN.equals(grantType);
+        return OAuthGrantType.EXTENDED_TRUSTED.isValueEqual(grantType) || OAuthGrantType.EXTENDED_TICKET_GRANTING_TICKET.isValueEqual(grantType);
     }
 
-    public boolean isClientAuthorizedForExtendedGrantType(String clientId) throws OAuthException {
+    public boolean isClientAuthorizedForTrustedGrantType(String clientId) throws OAuthException {
         MasheryMember masheryMember = masheryApiClientService.fetchMemberByClientId(clientId);
         for(MasheryRole masheryRole : masheryMember.getRoles()) {
             if(TRUSTED_INTERNAL_SYSTEM_ROLE.equals(masheryRole.getName())) {

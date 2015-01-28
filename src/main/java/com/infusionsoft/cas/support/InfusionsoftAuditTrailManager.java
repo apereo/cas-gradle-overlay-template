@@ -6,12 +6,11 @@ import com.infusionsoft.cas.domain.AuditEntry;
 import com.infusionsoft.cas.domain.AuditEntryType;
 import com.infusionsoft.cas.domain.User;
 import com.infusionsoft.cas.services.AuditService;
+import com.infusionsoft.cas.services.CasRegisteredServiceService;
 import com.infusionsoft.cas.services.UserService;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
-import org.jasig.cas.authentication.principal.SimpleWebApplicationServiceImpl;
 import org.jasig.cas.services.RegisteredService;
-import org.jasig.cas.services.ServicesManager;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +31,7 @@ public class InfusionsoftAuditTrailManager implements AuditTrailManager {
     private UserService userService;
 
     @Autowired
-    private ServicesManager servicesManager;
+    private CasRegisteredServiceService registeredServiceService;
 
     /**
      * Handles an Inspektr audit action, logging it to our database if relevant.
@@ -107,7 +106,7 @@ public class InfusionsoftAuditTrailManager implements AuditTrailManager {
 
                 entry.setServiceBaseUrl(baseUrl.toString());
 
-                RegisteredService registeredService = servicesManager.findServiceBy(new SimpleWebApplicationServiceImpl(chunks[2]));
+                RegisteredService registeredService = registeredServiceService.getRegisteredServiceByUrl(chunks[2]);
 
                 if (registeredService != null) {
                     entry.setServiceId(registeredService.getId());

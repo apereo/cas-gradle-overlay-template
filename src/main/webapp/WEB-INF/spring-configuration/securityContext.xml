@@ -38,14 +38,26 @@
     <sec:http pattern="/app/error/**" security="none"/>
     <sec:http pattern="/img/**" security="none"/>
 
-    <sec:http pattern="/status/**" entry-point-ref="notAuthorizedEntryPoint" use-expressions="true" auto-config="true">
+    <sec:http pattern="/status/**" authentication-manager-ref="casAuthenticationManager" entry-point-ref="notAuthorizedEntryPoint" use-expressions="true" auto-config="true">
         <sec:intercept-url pattern="/status" access="hasIpAddress('${cas.securityContext.status.allowedSubnet}')"/>
     </sec:http>
 
-    <sec:http entry-point-ref="casProcessingFilterEntryPoint" auto-config="true" use-expressions="true">
+    <sec:http pattern="/app/oauth/service/*/token" authentication-manager-ref="oauthAuthenticationManager" entry-point-ref="oAuthAuthenticationEntryPoint" use-expressions="true">
+        <sec:custom-filter ref="OAuthResourceOwnerAuthenticationFilter" before="ANONYMOUS_FILTER"/>
+        <sec:custom-filter ref="OAuthRefreshAuthenticationFilter" after="REMEMBER_ME_FILTER"/>
+        <sec:intercept-url pattern="/app/oauth/service/*/token" access="isAuthenticated()"/>
+    </sec:http>
+
+    <sec:http pattern="/app/oauth/token" authentication-manager-ref="oauthAuthenticationManager" entry-point-ref="oAuthAuthenticationEntryPoint" use-expressions="true" security-context-repository-ref="nullSecurityContextRepository">
+        <sec:custom-filter ref="corsPreflightFilter" after="FIRST"/>
+        <sec:custom-filter ref="OAuthTrustedGrantAuthenticationFilter" before="ANONYMOUS_FILTER"/>
+        <sec:custom-filter ref="OAuthTicketGrantingTicketAuthenticationFilter" after="ANONYMOUS_FILTER"/>
+        <sec:custom-filter ref="OAuthRefreshAuthenticationFilter" after="REMEMBER_ME_FILTER"/>
+        <sec:intercept-url pattern="/app/oauth/token" access="isAuthenticated()"/>
+    </sec:http>
+
+    <sec:http authentication-manager-ref="casAuthenticationManager" entry-point-ref="casProcessingFilterEntryPoint" auto-config="true" use-expressions="true">
         <sec:logout success-handler-ref="infusionsoftLogoutSuccessHandler"/>
-        <sec:custom-filter ref="OAuthResourceOwnerAuthenticationFilter" before="FORM_LOGIN_FILTER"/>
-        <sec:custom-filter ref="OAuthExtendedGrantAuthenticationFilter" before="BASIC_AUTH_FILTER"/>
         <sec:custom-filter ref="casProcessingFilter" after="CAS_FILTER"/>
         <sec:custom-filter ref="singleLogoutFilter" before="CAS_FILTER"/>
         <sec:intercept-url pattern="/app/registration/linkToExisting*" access="isAuthenticated()"/>
@@ -60,9 +72,14 @@
         <sec:intercept-url pattern="/services/**" access="hasRole('ROLE_CAS_ADMIN')"/>
     </sec:http>
 
-    <sec:authentication-manager alias="casAuthenticationManager">
-        <sec:authentication-provider ref="OAuthExtendedGrantAuthenticationProvider"/>
+    <sec:authentication-manager id="oauthAuthenticationManager">
+        <sec:authentication-provider ref="OAuthTicketGrantingTicketAuthenticationProvider"/>
+        <sec:authentication-provider ref="OAuthTrustedGrantAuthenticationProvider"/>
         <sec:authentication-provider ref="OAuthResourceOwnerAuthenticationProvider"/>
+        <sec:authentication-provider ref="OAuthRefreshAuthenticationProvider"/>
+    </sec:authentication-manager>
+
+    <sec:authentication-manager id="casAuthenticationManager">
         <sec:authentication-provider ref="casAuthenticationProvider"/>
     </sec:authentication-manager>
 
@@ -92,6 +109,10 @@
           p:serviceProperties-ref="serviceProperties"/>
 
     <bean id="notAuthorizedEntryPoint" class="org.springframework.security.web.authentication.Http403ForbiddenEntryPoint"/>
+
+    <bean id="nullSecurityContextRepository" class="org.springframework.security.web.context.NullSecurityContextRepository"/>
+
+    <bean id="oAuthAuthenticationEntryPoint" class="com.infusionsoft.cas.auth.OAuthAuthenticationEntryPoint"/>
 
     <bean id="casAuthenticationProvider" class="org.springframework.security.cas.authentication.CasAuthenticationProvider"
           p:key="my_password_for_this_auth_provider_only"

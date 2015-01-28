@@ -8,4 +8,8 @@ public class OAuthAccessDeniedException extends OAuthException {
         super("access_denied", HttpStatus.FORBIDDEN, "oauth.exception.access.denied");
     }
 
+    public OAuthAccessDeniedException(String messageCode) {
+        super("access_denied", HttpStatus.FORBIDDEN, messageCode);
+    }
+
 }

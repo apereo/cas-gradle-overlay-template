@@ -14,9 +14,7 @@ import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.validator.EmailValidator;
 import org.apache.log4j.Logger;
-import org.jasig.cas.authentication.principal.SimpleWebApplicationServiceImpl;
 import org.jasig.cas.services.RegisteredService;
-import org.jasig.cas.services.ServicesManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
@@ -70,7 +68,7 @@ public class RegistrationController {
     private AutoLoginService autoLoginService;
 
     @Autowired
-    private ServicesManager servicesManager;
+    private CasRegisteredServiceService registeredServiceService;
 
     @Value("${cas.viewResolver.basename}")
     private String viewResolverBaseName;
@@ -162,14 +160,12 @@ public class RegistrationController {
         // Validate the return URL against the service whitelist
         /** Modeled after {@link org.jasig.cas.web.LogoutController#handleRequestInternal(HttpServletRequest, HttpServletResponse)} }*/
         boolean retVal = false;
-        if (StringUtils.isNotBlank(url)) {
-            final RegisteredService registeredService = this.servicesManager.findServiceBy(new SimpleWebApplicationServiceImpl(url));
-            if (registeredService != null && registeredService.isEnabled()) {
-                retVal = true;
-                log.info("URL " + parameterName + " matched registered service " + registeredService.getName() + ": " + url);
-            } else {
-                log.warn("URL " + parameterName + " did not match any active registered service (it will be ignored): " + url);
-            }
+        final RegisteredService registeredService = registeredServiceService.getEnabledRegisteredServiceByUrl(url);
+        if (registeredService != null) {
+            retVal = true;
+            log.info("URL " + parameterName + " matched registered service " + registeredService.getName() + ": " + url);
+        } else {
+            log.warn("URL " + parameterName + " did not match any active registered service (it will be ignored): " + url);
         }
         return retVal;
     }
@@ -425,14 +421,18 @@ public class RegistrationController {
     }
 
     @RequestMapping
-    public @ResponseBody boolean checkPasswordForLast4WithRecoveryCode(String recoveryCode, String password1) {
+    public
+    @ResponseBody
+    boolean checkPasswordForLast4WithRecoveryCode(String recoveryCode, String password1) {
         User user = userService.findUserByRecoveryCode(recoveryCode);
 
         return user != null && StringUtils.isNotBlank(password1) && !passwordService.lastFourPasswordsContains(user, password1);
     }
 
     @RequestMapping
-    public @ResponseBody boolean checkPasswordForLast4WithOldPassword(String username, String currentPassword, String password1) {
+    public
+    @ResponseBody
+    boolean checkPasswordForLast4WithOldPassword(String username, String currentPassword, String password1) {
         LoginResult loginResult = infusionsoftAuthenticationService.attemptLogin(username, currentPassword);
 
         return loginResult.getLoginStatus().isSuccessful() && StringUtils.isNotBlank(password1) && !passwordService.lastFourPasswordsContains(loginResult.getUser(), password1);
