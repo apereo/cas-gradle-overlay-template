@@ -41,6 +41,14 @@ public class OAuthRefreshAuthenticationFilter extends OAuthAbstractAuthenticatio
             }
         }
 
+        String originHeader = request.getHeader("Origin");
+        if (StringUtils.isNotBlank(originHeader)) {
+            response.setHeader("Access-Control-Allow-Origin", originHeader);
+            response.setHeader("Access-Control-Allow-Credentials", "true");
+            response.setHeader("Access-Control-Allow-Methods", "POST");
+            response.setHeader("Access-Control-Allow-Headers", "Content-Type, Authentication");
+            response.setHeader("Access-Control-Max-Age", "300");
+        }
 
         return new OAuthRefreshAuthenticationToken(null, null, oAuthServiceConfig, clientId, clientSecret, grantType, refreshToken);
     }
