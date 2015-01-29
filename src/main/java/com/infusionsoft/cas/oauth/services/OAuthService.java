@@ -90,8 +90,8 @@ public class OAuthService implements ApplicationListener<UserAccountRemovedEvent
      * @throws OAuthException
      */
     public OAuthAccessToken createAccessToken(String providedServiceKey, String clientId, String clientSecret, String grantType, String requestedScope, String application, String userId, String refreshToken) throws OAuthException {
-        String scope = StringUtils.isBlank(requestedScope) || StringUtils.isBlank(application) ? "" : StringUtils.defaultString(requestedScope) + "|" + StringUtils.defaultString(application);
-        String userContext = StringUtils.isBlank(userId) || StringUtils.isBlank(application) ? "" : StringUtils.defaultString(userId) + "|" + StringUtils.defaultString(application);
+        String scope = StringUtils.isBlank(requestedScope) && StringUtils.isBlank(application) ? "" : StringUtils.defaultString(requestedScope) + "|" + StringUtils.defaultString(application);
+        String userContext = StringUtils.isBlank(userId) && StringUtils.isBlank(application) ? "" : StringUtils.defaultString(userId) + "|" + StringUtils.defaultString(application);
 
         /**
          * Mashery does not support extend grants, so we are faking it by using a password
