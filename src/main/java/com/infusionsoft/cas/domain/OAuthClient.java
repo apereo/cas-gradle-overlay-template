@@ -17,6 +17,7 @@ public class OAuthClient {
     private String clientId;
     private String clientSecret;
     private RegisteredService registeredService;
+    private String description;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -59,4 +60,16 @@ public class OAuthClient {
     public void setRegisteredService(RegisteredService registeredService) {
         this.registeredService = registeredService;
     }
+
+    @Column(name = "description", length = 200)
+    @NotNull
+    @Length(min = 1, max = 200, message = "{oauth.error.client.description.length}")
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
 }
