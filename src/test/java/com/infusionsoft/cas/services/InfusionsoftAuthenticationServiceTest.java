@@ -4,12 +4,11 @@ import com.infusionsoft.cas.auth.LoginResult;
 import com.infusionsoft.cas.dao.LoginAttemptDAO;
 import com.infusionsoft.cas.domain.*;
 import com.infusionsoft.cas.support.AppHelper;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.internal.util.reflection.Whitebox;
-import org.testng.Assert;
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.BeforeTest;
-import org.testng.annotations.Test;
 
 import java.net.URL;
 import java.util.ArrayList;
@@ -35,8 +34,8 @@ public class InfusionsoftAuthenticationServiceTest {
     private LoginAttemptDAO loginAttemptDAO;
     private UserService userService;
 
-    @BeforeTest
-    public void setUp() {
+    @Before
+    public void setupForMethod() {
         CrmService crmService = new CrmService();
         crmService.setCrmDomain("infusionsoft.com");
         crmService.setCrmPort(443);
@@ -82,10 +81,7 @@ public class InfusionsoftAuthenticationServiceTest {
 
         when(passwordService.getMatchingPasswordForUser(any(User.class), anyString())).thenReturn(null);
         when(passwordService.getMatchingMD5PasswordForUser(any(User.class), anyString())).thenReturn(null);
-    }
 
-    @BeforeMethod
-    public void setupForMethod() {
         user.setId(13L);
         user.setFirstName("Test");
         user.setLastName("User");
@@ -502,25 +498,5 @@ public class InfusionsoftAuthenticationServiceTest {
         verify(loginAttemptDAO, times(1)).save(loginAttemptArgumentCaptor.capture());
         Assert.assertEquals(loginAttemptArgumentCaptor.getValue().getStatus(), LoginAttemptStatus.PasswordReset);
         Assert.assertEquals(loginAttemptArgumentCaptor.getValue().getUsername(), testUsername);
-    }
-
-    @Test(enabled = false)
-    public void testVerifyAppCredentials() throws Exception {
-        //infusionsoftAuthenticationService.verifyAppCredentials();
-    }
-
-    @Test(enabled = false)
-    public void testGetCurrentUser() throws Exception {
-        //infusionsoftAuthenticationService.getCurrentUser()
-    }
-
-    @Test(enabled = false)
-    public void testHasCommunityAccount() throws Exception {
-        //infusionsoftAuthenticationService.hasCommunityAccount()
-    }
-
-    @Test(enabled = false)
-    public void testGetSupportPhoneNumber() throws Exception {
-        //Assert.assertNotNull(infusionsoftAuthenticationService.getSupportPhoneNumber());
     }
 }

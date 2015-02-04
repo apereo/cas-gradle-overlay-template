@@ -2,7 +2,6 @@ package com.infusionsoft.cas.services;
 
 import com.infusionsoft.cas.domain.AppType;
 import com.infusionsoft.cas.domain.UserAccount;
-import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -14,7 +13,6 @@ import java.util.List;
  */
 @Service
 public class CrmService {
-    private static final Logger log = Logger.getLogger(CrmService.class);
 
     private String crmProtocol;
 
