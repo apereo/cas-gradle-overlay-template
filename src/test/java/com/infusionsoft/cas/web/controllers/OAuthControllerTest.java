@@ -2,16 +2,15 @@ package com.infusionsoft.cas.web.controllers;
 
 import com.infusionsoft.cas.domain.User;
 import com.infusionsoft.cas.domain.UserAccount;
-import com.infusionsoft.cas.oauth.dto.OAuthAccessToken;
 import com.infusionsoft.cas.oauth.dto.OAuthUserApplication;
 import com.infusionsoft.cas.oauth.services.OAuthService;
 import com.infusionsoft.cas.services.UserService;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 import org.mockito.Mockito;
 import org.mockito.internal.util.reflection.Whitebox;
 import org.springframework.web.servlet.ModelAndView;
-import org.testng.Assert;
-import org.testng.annotations.BeforeTest;
-import org.testng.annotations.Test;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -23,7 +22,7 @@ public class OAuthControllerTest {
 
     private static final String serviceKey = "serviceKey";
 
-    @BeforeTest
+    @Before
     public void beforeTest() {
         classToTest = new OAuthController();
         userService = Mockito.mock(UserService.class);
