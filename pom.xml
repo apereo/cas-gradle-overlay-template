@@ -197,12 +197,6 @@
                             <includes>
                                 <include>**/*.java</include>
                             </includes>
-                            <!--<properties>-->
-                                <!--<property>-->
-                                    <!--<name>listener</name>-->
-                                    <!--<value>com.infusionsoft.test.TestNGListener</value>-->
-                                <!--</property>-->
-                            <!--</properties>-->
                         </configuration>
                     </plugin>
                 </plugins>
@@ -211,20 +205,6 @@
     </profiles>
 
     <dependencies>
-        <!--<dependency>-->
-            <!--<groupId>org.testng</groupId>-->
-            <!--<artifactId>testng</artifactId>-->
-            <!--<version>5.14.2</version>-->
-            <!--<scope>test</scope>-->
-        <!--</dependency>-->
-
-        <!--<dependency>-->
-            <!--<groupId>com.infusionsoft</groupId>-->
-            <!--<artifactId>test-setup</artifactId>-->
-            <!--<version>1.11</version>-->
-            <!--<scope>test</scope>-->
-        <!--</dependency>-->
-
         <dependency>
             <groupId>org.jasig.cas</groupId>
             <artifactId>cas-server-webapp</artifactId>
@@ -578,13 +558,6 @@
             <version>1.6.1</version>
             <type>jar</type>
         </dependency>
-
-        <!--<dependency>-->
-            <!--<groupId>org.mockito</groupId>-->
-            <!--<artifactId>mockito-core</artifactId>-->
-            <!--<version>1.8.5</version>-->
-            <!--<scope>test</scope>-->
-        <!--</dependency>-->
 
         <dependency>
             <groupId>org.apache.xmlrpc</groupId>
