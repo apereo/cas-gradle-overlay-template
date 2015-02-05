@@ -45,24 +45,16 @@ public class MasheryApiClientServiceTest {
 
     private MasheryApiClientService masheryServiceToTest;
     private RestTemplate restTemplate;
-//    @Mock
-//    private Logger loggerMock;
-
     private WrappedMasheryUserApplication wrappedMasheryUserApplication;
 
     @Before
     public void beforeMethod() {
-
         createWrappedMasheryUserApplication();
 
         restTemplate = mock(RestTemplate.class);
 
         masheryServiceToTest = new MasheryApiClientService();
         Whitebox.setInternalState(masheryServiceToTest, "restTemplate", restTemplate);
-
-//        mockStatic(LoggerFactory.class);
-//        Logger logger = mock(Logger.class);
-//        when(LoggerFactory.getLogger(any(Class.class))).thenReturn(loggerMock);
     }
 
     private void createWrappedMasheryUserApplication() {
