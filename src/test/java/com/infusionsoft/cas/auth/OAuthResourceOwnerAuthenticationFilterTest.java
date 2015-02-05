@@ -1,20 +1,18 @@
 package com.infusionsoft.cas.auth;
 
-
-import junit.framework.Assert;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Test;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-
-public class OAuthResourceOwnerAuthenticationFilterTest   {
+public class OAuthResourceOwnerAuthenticationFilterTest {
     @Mock
     private HttpServletRequest req;
     @Mock
@@ -25,7 +23,7 @@ public class OAuthResourceOwnerAuthenticationFilterTest   {
     private Log log;
     private OAuthResourceOwnerAuthenticationFilter oAuthResourceOwnerAuthenticationFilter;
 
-    @BeforeMethod
+    @Before
     public void beforeMethod() {
         oAuthResourceOwnerAuthenticationFilter = new OAuthResourceOwnerAuthenticationFilter();
         MockitoAnnotations.initMocks(this);
