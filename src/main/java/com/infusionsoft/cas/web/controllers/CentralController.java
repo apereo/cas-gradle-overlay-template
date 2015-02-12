@@ -66,6 +66,9 @@ public class CentralController {
     @Autowired
     private OAuthService oAuthService;
 
+    @Autowired
+    private SupportContactService supportContactService;
+
     @Value("${infusionsoft.cas.connect.account.community.enabled}")
     boolean connectAccountCommunityEnabled = false;
 
@@ -161,6 +164,7 @@ public class CentralController {
         model.put("communityUrl", communityService.getBaseUrl());
         model.put("infusionsoftExperienceLevels", new int[]{1, 2, 3, 4, 5});
         model.put("details", details);
+        model.put("supportPhoneNumbers", supportContactService.getSupportPhoneNumbers());
 
         // Only process this section if at least one thing is filled out
         if (agreeToRules != null || displayName != null || infusionsoftExperience != null || timeZone != null || notificationEmailAddress != null || twitterHandle != null) {

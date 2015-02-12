@@ -13,6 +13,7 @@
 <%--@elvariable id="enableAds" type="java.lang.Boolean"--%>
 <%--@elvariable id="appType" type="com.infusionsoft.cas.domain.AppType"--%>
 <%--@elvariable id="appUrl" type="java.lang.String"--%>
+<%--@elvariable id="supportPhoneNumbers" type="java.util.List<String>"--%>
 
 <c:url var="getLogoImageUrl" value="/app/registration/getLogoImageUrl"/>
 <c:url var="forgotPasswordUrl" value="/app/registration/forgot"/>
@@ -102,7 +103,11 @@
     </div>
     <div class="row">
         <div class="col-md-12 login-footer ${adClass}">
-            <p>Need Help? Call <strong>${supportPhoneNumber}</strong>.</p>
+            <p>Need help? Call toll free:
+                <c:forEach var="supportPhoneNumber" items="${supportPhoneNumbers}">
+                    <br>${supportPhoneNumber}
+                </c:forEach>
+            </p>
 
             <c:if test="${not empty appUrl && appType == 'CRM'}">
                 <p>

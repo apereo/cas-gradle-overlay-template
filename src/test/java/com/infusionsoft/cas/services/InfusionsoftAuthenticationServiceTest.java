@@ -519,8 +519,4 @@ public class InfusionsoftAuthenticationServiceTest {
         //infusionsoftAuthenticationService.hasCommunityAccount()
     }
 
-    @Test(enabled = false)
-    public void testGetSupportPhoneNumber() throws Exception {
-        //Assert.assertNotNull(infusionsoftAuthenticationService.getSupportPhoneNumber());
-    }
 }

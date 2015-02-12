@@ -11,7 +11,9 @@
 <c:url var="centralUrl" value="/app/central/home"/>
 <c:url var="associateUrl" value="/app/central/associate"/>
 <c:url var="linkCommunityAccountUrl" value="/app/central/linkCommunityAccount"/>
+
 <%--@elvariable id="communityUrl" type="java.lang.String"--%>
+<%--@elvariable id="supportPhoneNumbers" type="java.util.List<String>"--%>
 
 <style type="text/css">
 
@@ -162,7 +164,11 @@
                 </p>
 
                 <ul>
-                    <li><strong>Liability:</strong> Infusionsoft and its affiliates/partners are not liable for any damage caused from advice or instructions given in the community. While this has never been an issue before, we just want to make that clear. It is possible advice may be incorrect. For critical/major support issues, please contact Infusionsoft directly at 1-866-800-0004 for assistance. </li>
+                    <li><strong>Liability:</strong> Infusionsoft and its affiliates/partners are not liable for any damage caused from advice or instructions given in the community. While this has never been an issue before, we just want to make that clear. It is possible advice may be incorrect. For critical/major support issues, please contact Infusionsoft directly for assistance.  Call toll free:
+                        <c:forEach var="supportPhoneNumber" items="${supportPhoneNumbers}">
+                            <br>${supportPhoneNumber}
+                        </c:forEach>
+                    </li>
                     <li><strong>Moderation &amp; Enforcement:</strong> Infusionsoft does not have a duty to review, edit or change any information posted to its forums by other users. Users may report objectionable content via the “Report” link next to an offending post and staff may review and take action on it later. Escalations can be made via email to community@infusionsoft.com. </li>
                     <li><strong>Privacy:</strong> Infusionsoft will not disclose any user information to third-parties as explained in the Privacy Policy. However, any information you post to the community will be available publicly unless otherwise stated. This includes your username, profile information and any discussions that you participate in. </li>
                     <li><strong>Copyright:</strong> All content posted to the Infusionsoft Community is to be considered the sole property of Infusionsoft and all activity is done with no expectations of royalties or license. When posting content (or links to it), infringing content will be removed without notice. This includes, but not limited to unlicensed images, music, videos, Torrents, “warez”, or any intellectual property belonging to someone else.</li>
