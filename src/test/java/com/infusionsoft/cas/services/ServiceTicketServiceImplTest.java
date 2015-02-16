@@ -1,12 +1,12 @@
 package com.infusionsoft.cas.services;
 
 import org.apache.log4j.Logger;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.powermock.reflect.Whitebox;
-import org.testng.Assert;
-import org.testng.annotations.BeforeTest;
-import org.testng.annotations.Test;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
@@ -32,7 +32,7 @@ public class ServiceTicketServiceImplTest {
     @Mock
     Logger logger;
 
-    @BeforeTest
+    @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
         classToTest = new ServiceTicketServiceImpl();

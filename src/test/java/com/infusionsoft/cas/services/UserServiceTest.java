@@ -8,13 +8,12 @@ import org.joda.time.DateTime;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.internal.util.reflection.Whitebox;
-import org.testng.Assert;
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Test;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 import static org.mockito.Mockito.*;
 
-@Test
 public class UserServiceTest {
 
     private UserServiceImpl serviceToTest;
@@ -41,7 +40,7 @@ public class UserServiceTest {
     private static final String testFirstName = "Test";
     private static final String testLastName = "User";
 
-    @BeforeMethod
+    @Before
     public void setupForMethod() {
         user = new User();
         user.setId(13L);

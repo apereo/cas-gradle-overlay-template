@@ -33,7 +33,7 @@ import java.util.*;
 @Service
 public class MasheryApiClientService {
 
-    private static final Logger log = LoggerFactory.getLogger(MasheryApiClientService.class);
+    private Logger log = LoggerFactory.getLogger(MasheryApiClientService.class);
     private static final int MASHERY_BAD_CLIENT_ID = -2001;
 
     @Value("${mashery.api.url}")

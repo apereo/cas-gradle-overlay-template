@@ -5,11 +5,12 @@ import org.jasig.cas.authentication.principal.Response;
 import org.jasig.cas.authentication.principal.SimplePrincipal;
 import org.jasig.cas.util.PrivateKeyFactoryBean;
 import org.jasig.cas.util.PublicKeyFactoryBean;
+import org.junit.Ignore;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.mock.web.MockHttpServletRequest;
-import org.testng.Assert;
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Test;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -49,14 +50,15 @@ public class InfusionsoftSaml2ServiceTests {
         return InfusionsoftSaml2Service.createServiceFrom(request, privateKey, publicKey, "username");
     }
 
-    @BeforeMethod
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         infusionsoftSaml2Service = getInfusionsoftSaml2Service();
         infusionsoftSaml2Service.setPrincipal(new SimplePrincipal("user"));
     }
 
 
-    @Test(enabled = false)
+    @Test
+    @Ignore
     // TODO: re-enable when we figure out JVM requirements
     public void testResponse() {
         final Response response = this.infusionsoftSaml2Service.getResponse("ticketId");

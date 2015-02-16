@@ -9,17 +9,13 @@ import com.infusionsoft.cas.oauth.mashery.api.domain.*;
 import com.infusionsoft.cas.services.CrmService;
 import com.infusionsoft.cas.services.UserService;
 import org.mockito.internal.util.reflection.Whitebox;
-import org.powermock.modules.testng.PowerMockObjectFactory;
-import org.testng.Assert;
-import org.testng.IObjectFactory;
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.ObjectFactory;
-import org.testng.annotations.Test;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.util.HashSet;
 import java.util.Set;
 
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
 @SuppressWarnings("unchecked")
@@ -48,12 +44,7 @@ public class OAuthServiceTest {
     private Set<MasheryUserApplication> testAppSet;
     private UserAccount testAccount;
 
-    @ObjectFactory
-    public IObjectFactory getObjectFactory() {
-        return new PowerMockObjectFactory();
-    }
-
-    @BeforeMethod
+    @Before
     public void beforeMethod() {
         masheryApiClientService = mock(MasheryApiClientService.class);
 
@@ -160,7 +151,7 @@ public class OAuthServiceTest {
         verify(masheryApiClientService, times(1)).createAuthorizationCode(SERVICE_KEY, CLIENT_ID, requestedScope + "|" + TEST_APP_HOST_NAME, TEST_REDIRECT_URI, TEST_USER_CONTEXT, TEST_STATE);
     }
 
-    @Test(expectedExceptions = OAuthAccessDeniedException.class)
+    @Test(expected = OAuthAccessDeniedException.class)
     public void testCreateAuthorizationCodeWithInvalidApplication() throws Exception {
         oAuthServiceToTest.createAuthorizationCode(SERVICE_KEY, CLIENT_ID, "requestedScope", TEST_INVALID_APP_HOST_NAME, TEST_REDIRECT_URI, TEST_GLOBAL_USER_ID, TEST_STATE);
     }

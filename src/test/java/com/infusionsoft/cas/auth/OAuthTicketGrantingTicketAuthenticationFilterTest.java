@@ -9,13 +9,13 @@ import com.infusionsoft.cas.services.InfusionsoftAuthenticationService;
 import com.infusionsoft.cas.services.OAuthClientService;
 import org.apache.commons.lang3.StringUtils;
 import org.jasig.cas.ticket.TicketGrantingTicket;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.testng.Assert;
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Test;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -24,7 +24,6 @@ import java.util.UUID;
 
 import static org.mockito.Mockito.*;
 
-@Test
 public class OAuthTicketGrantingTicketAuthenticationFilterTest {
 
     @InjectMocks
@@ -57,7 +56,7 @@ public class OAuthTicketGrantingTicketAuthenticationFilterTest {
     private static final Cookie[] cookies = new Cookie[]{userTrackingCookie};
     private static final String ORIGIN_HEADER = "Origin";
 
-    @BeforeMethod
+    @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
     }
@@ -152,7 +151,7 @@ public class OAuthTicketGrantingTicketAuthenticationFilterTest {
         Assert.assertNull(actualReturn);
     }
 
-    @Test(expectedExceptions = OAuthInvalidClientException.class)
+    @Test(expected = OAuthInvalidClientException.class)
     public void testCreateAuthenticationTokenFailBadClientId() throws Exception {
         doReturn(ticketGrantingTicket).when(infusionsoftAuthenticationService).getTicketGrantingTicket(request);
         doReturn(null).when(oAuthClientService).loadOAuthClient(clientId);
@@ -163,7 +162,7 @@ public class OAuthTicketGrantingTicketAuthenticationFilterTest {
         filterToTest.createAuthenticationToken(request, response, scope, application, grantType, oAuthServiceConfig, clientId, clientSecret);
     }
 
-    @Test(expectedExceptions = OAuthAccessDeniedException.class)
+    @Test(expected = OAuthAccessDeniedException.class)
     public void testCreateAuthenticationTokenFailOriginNotAllowedForClientId() throws Exception {
         doReturn(ticketGrantingTicket).when(infusionsoftAuthenticationService).getTicketGrantingTicket(request);
         doReturn(oAuthClient).when(oAuthClientService).loadOAuthClient(clientId);
@@ -174,7 +173,7 @@ public class OAuthTicketGrantingTicketAuthenticationFilterTest {
         filterToTest.createAuthenticationToken(request, response, scope, application, grantType, oAuthServiceConfig, clientId, clientSecret);
     }
 
-    @Test(expectedExceptions = OAuthInvalidRequestException.class)
+    @Test(expected = OAuthInvalidRequestException.class)
     public void testCreateAuthenticationTokenFailNoOriginHeader() throws Exception {
         doReturn(ticketGrantingTicket).when(infusionsoftAuthenticationService).getTicketGrantingTicket(request);
         doReturn(oAuthClient).when(oAuthClientService).loadOAuthClient(clientId);
@@ -185,7 +184,7 @@ public class OAuthTicketGrantingTicketAuthenticationFilterTest {
         filterToTest.createAuthenticationToken(request, response, scope, application, grantType, oAuthServiceConfig, clientId, clientSecret);
     }
 
-    @Test(expectedExceptions = OAuthInvalidRequestException.class)
+    @Test(expected = OAuthInvalidRequestException.class)
     public void testCreateAuthenticationTokenFailBlankOriginHeader() throws Exception {
         doReturn(ticketGrantingTicket).when(infusionsoftAuthenticationService).getTicketGrantingTicket(request);
         doReturn(oAuthClient).when(oAuthClientService).loadOAuthClient(clientId);
