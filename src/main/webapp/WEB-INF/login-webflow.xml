@@ -28,7 +28,7 @@
 
     <on-start>
         <evaluate expression="initialFlowSetupAction"/>
-        <evaluate result="flowScope.supportPhoneNumber" expression="infusionsoftAuthenticationService.getSupportPhoneNumber()"/>
+        <evaluate result="flowScope.supportPhoneNumbers" expression="supportContactService.getSupportPhoneNumbers()"/>
     </on-start>
 
     <decision-state id="ticketGrantingTicketExistsCheck">

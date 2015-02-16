@@ -37,6 +37,9 @@ public class MailService {
     @Autowired
     private MessageSource messageSource;
 
+    @Autowired
+    private SupportContactService supportContactService;
+
     /**
      * Utility method for making a transactional email in a "standard" manner.
      */
@@ -90,6 +93,7 @@ public class MailService {
             context.put("user", user);
             context.put("code", user.getPasswordRecoveryCode());
             context.put("serverPrefix", serverPrefix);
+            context.put("supportPhoneNumbers", supportContactService.getSupportPhoneNumbers());
 
             velocityEngine.mergeTemplate("/velocity/forgotPasswordEmail.vm", "UTF-8", context, body);
             message.setContent(body.toString(), "text/html");

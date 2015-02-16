@@ -7,6 +7,8 @@
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 
+<%--@elvariable id="supportPhoneNumbers" type="java.util.List<String>"--%>
+
 <head>
     <meta name="decorator" content="login"/>
     <meta name="robots" content="noindex">
@@ -71,7 +73,11 @@
     </div>
     <div class="row">
         <div class="need-help col-md-12">
-            <p>Need Help? Call <strong>${supportPhoneNumber}</strong>.</p>
+            <p>Need help? Call toll free:
+                <c:forEach var="supportPhoneNumber" items="${supportPhoneNumbers}">
+                    <br>${supportPhoneNumber}
+                </c:forEach>
+            </p>
         </div>
     </div>
 </div>

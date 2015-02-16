@@ -40,5 +40,4 @@ public interface InfusionsoftAuthenticationService {
 
     void completePasswordReset(User user);
 
-    String getSupportPhoneNumber();
 }

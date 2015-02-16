@@ -70,6 +70,9 @@ public class RegistrationController {
     @Autowired
     private CasRegisteredServiceService registeredServiceService;
 
+    @Autowired
+    private SupportContactService supportContactService;
+
     @Value("${cas.viewResolver.basename}")
     private String viewResolverBaseName;
 
@@ -335,7 +338,7 @@ public class RegistrationController {
     @RequestMapping
     public String forgot(Model model, @RequestParam(required = false) String username) {
         model.addAttribute("username", username);
-        model.addAttribute("supportPhoneNumber", infusionsoftAuthenticationService.getSupportPhoneNumber());
+        model.addAttribute("supportPhoneNumbers", supportContactService.getSupportPhoneNumbers());
         return "registration/" + getViewBase() + "forgot";
     }
 
@@ -347,7 +350,7 @@ public class RegistrationController {
     public String recover(Model model, String username, String recoveryCode) {
         log.info("password recovery request for email " + username);
         model.addAttribute("username", username);
-        model.addAttribute("supportPhoneNumber", infusionsoftAuthenticationService.getSupportPhoneNumber());
+        model.addAttribute("supportPhoneNumbers", supportContactService.getSupportPhoneNumbers());
         recoveryCode = StringUtils.trim(recoveryCode);
 
         if (StringUtils.isNotEmpty(recoveryCode)) {
@@ -388,7 +391,7 @@ public class RegistrationController {
      */
     @RequestMapping
     public String reset(Model model, String recoveryCode, String password1, String password2, HttpServletRequest request, HttpServletResponse response) {
-        model.addAttribute("supportPhoneNumber", infusionsoftAuthenticationService.getSupportPhoneNumber());
+        model.addAttribute("supportPhoneNumbers", supportContactService.getSupportPhoneNumbers());
 
         User user = userService.findUserByRecoveryCode(recoveryCode);
 
