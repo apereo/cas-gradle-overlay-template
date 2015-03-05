@@ -65,6 +65,7 @@
         <sec:intercept-url pattern="/app/admin/**" access="hasRole('ROLE_CAS_ADMIN')"/>
         <sec:intercept-url pattern="/app/marketingOptions/**" access="hasRole('ROLE_CAS_MARKETING_ADMIN')"/>
         <sec:intercept-url pattern="/app/mashery/***" access="hasRole('ROLE_CAS_SUPPORT_TIER_2')"/>
+        <sec:intercept-url pattern="/app/securityQuestion/**" access="hasRole('ROLE_CAS_ADMIN')"/>
         <sec:intercept-url pattern="/app/support/**" access="hasRole('ROLE_CAS_ADMIN') or hasRole('ROLE_CAS_SUPPORT_TIER_1') or hasRole('ROLE_CAS_SUPPORT_TIER_2')"/>
         <sec:intercept-url pattern="/app/profile/updatePassword" access="isAnonymous() or isAuthenticated()"/>
         <sec:intercept-url pattern="/app/profile/ajaxUpdatePassword" access="isAnonymous() or isAuthenticated()"/>

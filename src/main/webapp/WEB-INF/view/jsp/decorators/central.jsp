@@ -28,6 +28,7 @@
 <c:url var="homeLink" value="/app/central/home"/>
 <c:url var="editProfileLink" value="/app/profile/editProfile"/>
 <c:url var="serviceLink" value="/services/manage.html"/>
+<c:url var="securityQuestionLink" value="/app/securityquestion/list"/>
 <c:url var="masheryLink" value="/app/mashery/userApplicationSearch"/>
 <c:url var="marketingOptionsLink" value="/app/marketingoptions/show"/>
 <c:url var="userSearchUrl" value="/app/support/userSearch"/>
@@ -98,6 +99,7 @@
                     <li class="${!empty editProfileLinkSelected ? 'active' : ''}"><a href="${editProfileLink}">Edit Your Profile</a></li>
                     <sec:authorize access="hasRole('ROLE_CAS_ADMIN')">
                         <li><a href="${serviceLink}">Services</a></li>
+                        <li class="${!empty securityQuestionLinkSelected ? 'active' : ''}"><a href="${securityQuestionLink}">Security Questions</a></li>
                     </sec:authorize>
                     <sec:authorize access="hasRole('ROLE_CAS_SUPPORT_TIER_2')">
                         <li class="${!empty oauthLinkSelected ? 'active' : ''}"><a href="${masheryLink}">OAuth 2.0</a></li>
