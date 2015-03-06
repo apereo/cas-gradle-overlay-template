@@ -1,6 +1,10 @@
 package com.infusionsoft.cas.domain;
 
+import org.hibernate.annotations.Index;
+import org.hibernate.validator.constraints.SafeHtml;
+
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 
 @Entity(name = "SecurityQuestion")
@@ -23,6 +27,8 @@ public class SecurityQuestion implements Serializable{
     }
 
     @Column
+    @NotNull
+    @SafeHtml(whitelistType = SafeHtml.WhiteListType.NONE)
     public String getQuestion() {
         return question;
     }
@@ -41,6 +47,8 @@ public class SecurityQuestion implements Serializable{
     }
 
     @Column
+    @NotNull
+    @Index(name = "enabled_index", columnNames = { "enabled" })
     public boolean isEnabled() {
         return enabled;
     }

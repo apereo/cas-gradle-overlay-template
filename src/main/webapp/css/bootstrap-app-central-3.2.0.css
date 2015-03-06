@@ -197,12 +197,12 @@ p.text-error object {
     color: #BABABA;
 }
 
-.nav > li > a:hover, .nav > li > a:focus {
+.navbar-nav > li > a:hover, .navbar-nav > li > a:focus {
     background-color: #fff;
     border-bottom: 3px #5A922A solid;
 }
 
-.nav > li > a {
+.navbar-nav > li > a {
     border-radius: 0;
     color: #444444;
     font-size: 13px;
@@ -470,6 +470,10 @@ div.popover-content > .page-header {
 .tooltip-inner {
     background-color: #303442;
     padding: 13px 13px;
+}
+
+.tab-content {
+    margin-top: 15px;
 }
 
 

@@ -1,7 +1,10 @@
 package com.infusionsoft.cas.services;
 
 import com.infusionsoft.cas.dao.SecurityQuestionDAO;
+import com.infusionsoft.cas.dao.SecurityQuestionResponseDAO;
 import com.infusionsoft.cas.domain.SecurityQuestion;
+import com.infusionsoft.cas.domain.SecurityQuestionResponse;
+import com.infusionsoft.cas.domain.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,9 +19,17 @@ public class SecurityQuestionServiceImpl implements SecurityQuestionService {
     @Autowired
     private SecurityQuestionDAO securityQuestionDAO;
 
+    @Autowired
+    private SecurityQuestionResponseDAO securityQuestionResponseDAO;
+
     @Override
     public SecurityQuestion save(SecurityQuestion securityQuestion) {
         return securityQuestionDAO.save(securityQuestion);
+    }
+
+    @Override
+    public SecurityQuestionResponse save(SecurityQuestionResponse securityQuestionResponse) {
+        return securityQuestionResponseDAO.save(securityQuestionResponse);
     }
 
     @Override
@@ -41,5 +52,27 @@ public class SecurityQuestionServiceImpl implements SecurityQuestionService {
         }
 
         return retVal;
+    }
+
+    @Override
+    public List<SecurityQuestion> fetchAllEnabled() {
+        Iterable<SecurityQuestion> securityQuestions = securityQuestionDAO.findAll();
+        List<SecurityQuestion> retVal = new ArrayList<SecurityQuestion>();
+
+        for (SecurityQuestion securityQuestion : securityQuestions) {
+            retVal.add(securityQuestion);
+        }
+
+        return retVal;
+    }
+
+    @Override
+    public SecurityQuestionResponse findAllResponsesById(Long id) {
+        return securityQuestionResponseDAO.findOne(id);
+    }
+
+    @Override
+    public List<SecurityQuestionResponse> findAllResponsesByUser(User user) {
+        return securityQuestionResponseDAO.findAllByUser(user);
     }
 }

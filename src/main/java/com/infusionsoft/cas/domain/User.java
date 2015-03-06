@@ -1,5 +1,7 @@
 package com.infusionsoft.cas.domain;
 
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
 import org.hibernate.annotations.Type;
 import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.Length;
@@ -29,6 +31,7 @@ public class User implements Serializable, UserDetails {
     private Set<Authority> authorities = new HashSet<Authority>();
     private Set<UserAccount> accounts = new HashSet<UserAccount>();
     private List<UserPassword> passwords = new ArrayList<UserPassword>();
+    private List<SecurityQuestionResponse> securityQuestionResponses = new ArrayList<SecurityQuestionResponse>();
 
     //Spring Security UserDetails fields
     private String password;
@@ -139,6 +142,16 @@ public class User implements Serializable, UserDetails {
 
     public void setPasswords(List<UserPassword> passwords) {
         this.passwords = passwords;
+    }
+
+    @OneToMany(targetEntity = SecurityQuestionResponse.class, cascade = CascadeType.ALL, mappedBy = "user")
+    @LazyCollection(LazyCollectionOption.FALSE)
+    public List<SecurityQuestionResponse> getSecurityQuestionResponses() {
+        return securityQuestionResponses;
+    }
+
+    public void setSecurityQuestionResponses(List<SecurityQuestionResponse> securityQuestionResponses) {
+        this.securityQuestionResponses = securityQuestionResponses;
     }
 
     @Override
