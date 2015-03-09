@@ -93,6 +93,13 @@ public class InfusionsoftAuthenticationServiceImpl implements InfusionsoftAuthen
     @Value("${infusionsoft.marketplace.loginurl}")
     private String marketplaceLoginUrl;
 
+    @Value("${infusionsoft.cas.security.questions.force.answer}")
+    private boolean forceSecurityQuestion;
+
+    @Value("${infusionsoft.cas.security.questions.number.required}")
+    private int securityQuestionRequiredResponseCount;
+
+
     /**
      * Guesses an app name from a URL, or null if there isn't one to be found.
      */
@@ -213,7 +220,7 @@ public class InfusionsoftAuthenticationServiceImpl implements InfusionsoftAuthen
                 loginResult = LoginResult.OldPassword(user);
                 incrementFailedLoginCount = false;  // Bad logins that used an old password don't increment the failure count
             } else {
-                loginResult = LoginResult.Success(user);
+                loginResult = processSecurityQuestionCheck(user);
                 incrementFailedLoginCount = false;
             }
         }
@@ -240,6 +247,21 @@ public class InfusionsoftAuthenticationServiceImpl implements InfusionsoftAuthen
         recordLoginAttempt(loginResult.getLoginStatus(), username);
 
         return loginResult;
+    }
+
+    private LoginResult processSecurityQuestionCheck(User user) {
+        LoginResult retVal;
+        boolean userHasAnsweredQuestions = user.getSecurityQuestionResponses().size() >= securityQuestionRequiredResponseCount;
+
+        if(userHasAnsweredQuestions) {
+            retVal = LoginResult.Success(user);
+        } else if(forceSecurityQuestion) {
+            retVal = LoginResult.SecurityQuestionRequired(user);
+        } else {
+            retVal = LoginResult.SecurityQuestionOptional(user);
+        }
+
+        return retVal;
     }
 
     /**

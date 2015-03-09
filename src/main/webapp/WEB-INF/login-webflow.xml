@@ -106,6 +106,7 @@
     </end-state>
     <end-state id="pwdWarningPostView" view="casWarnPassView" parent="#pwdWarningAbstractView"/>
     <end-state id="casExpiredPassView" view="casExpiredPassView" parent="#pwdWarningAbstractView"/>
+    <end-state id="casSetSecurityQuestionsView" view="casSetSecurityQuestionsView" parent="#pwdWarningAbstractView"/>
     <end-state id="casMustChangePassView" view="casMustChangePassView" parent="#pwdWarningAbstractView"/>
     <end-state id="casAccountDisabledView" view="casAccountDisabledView"/>
     <end-state id="casAccountLockedView" view="casAccountLockedView"/>
@@ -164,6 +165,8 @@
         <transition on="badHours" to="casBadHoursView"/>
         <transition on="badWorkstation" to="casBadWorkstationView"/>
         <transition on="passwordExpired" to="casExpiredPassView"/>
+        <transition on="securityQuestionOptional" to="casSetSecurityQuestionsView"/>
+        <transition on="securityQuestionRequired" to="casSetSecurityQuestionsView"/>
     </action-state>
 
     <action-state id="sendTicketGrantingTicket">

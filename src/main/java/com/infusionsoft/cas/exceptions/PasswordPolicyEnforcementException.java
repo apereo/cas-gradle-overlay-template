@@ -1,4 +1,4 @@
-package com.infusionsoft.cas.auth;
+package com.infusionsoft.cas.exceptions;
 
 import org.jasig.cas.authentication.handler.AuthenticationException;
 

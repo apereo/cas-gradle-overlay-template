@@ -1,5 +1,7 @@
 package com.infusionsoft.cas.auth;
 
+import com.infusionsoft.cas.exceptions.PasswordPolicyEnforcementException;
+import com.infusionsoft.cas.exceptions.SecurityQuestionException;
 import com.infusionsoft.cas.services.InfusionsoftAuthenticationService;
 import org.jasig.cas.authentication.handler.AuthenticationException;
 import org.jasig.cas.authentication.handler.BadUsernameOrPasswordAuthenticationException;
@@ -47,6 +49,10 @@ public class InfusionsoftAuthenticationHandler extends AbstractUsernamePasswordA
                     throw new BadUsernameOrPasswordAuthenticationException(error);
                 case PasswordExpired:
                     throw new PasswordPolicyEnforcementException("login.passwordExpired", "login.passwordExpired", "passwordExpired");
+                case SecurityQuestionsOptional:
+                    throw new SecurityQuestionException("login.security.questions.optional", "login.security.questions.optional", "securityQuestionOptional");
+                case SecurityQuestionsRequired:
+                    throw new SecurityQuestionException("login.security.questions.required", "login.security.questions.required", "securityQuestionRequired");
                 case Success:
                     return true;
                 default:
