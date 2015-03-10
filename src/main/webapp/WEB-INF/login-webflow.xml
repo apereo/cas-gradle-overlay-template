@@ -106,12 +106,17 @@
     </end-state>
     <end-state id="pwdWarningPostView" view="casWarnPassView" parent="#pwdWarningAbstractView"/>
     <end-state id="casExpiredPassView" view="casExpiredPassView" parent="#pwdWarningAbstractView"/>
-    <end-state id="casSetSecurityQuestionsView" view="casSetSecurityQuestionsView" parent="#pwdWarningAbstractView"/>
     <end-state id="casMustChangePassView" view="casMustChangePassView" parent="#pwdWarningAbstractView"/>
     <end-state id="casAccountDisabledView" view="casAccountDisabledView"/>
     <end-state id="casAccountLockedView" view="casAccountLockedView"/>
     <end-state id="casBadHoursView" view="casBadHoursView"/>
     <end-state id="casBadWorkstationView" view="casBadWorkstationView"/>
+    <!--<end-state id="casSetSecurityQuestionsView" view="casSetSecurityQuestionsView">-->
+        <!--<on-entry>-->
+            <!--<evaluate result="viewScope.numSecurityQuestionsRequired" expression="securityQuestionService.getNumSecurityQuestionsRequired()"/>-->
+            <!--<evaluate result="viewScope.securityQuestions" expression="securityQuestionService.fetchAllEnabled()"/>-->
+        <!--</on-entry>-->
+    <!--</end-state>-->
     <!-- LPPE transitions end here... -->
 
     <action-state id="generateLoginTicket">
@@ -165,8 +170,30 @@
         <transition on="badHours" to="casBadHoursView"/>
         <transition on="badWorkstation" to="casBadWorkstationView"/>
         <transition on="passwordExpired" to="casExpiredPassView"/>
-        <transition on="securityQuestionOptional" to="casSetSecurityQuestionsView"/>
-        <transition on="securityQuestionRequired" to="casSetSecurityQuestionsView"/>
+        <transition on="securityQuestionOptional" to="securityQuestionForm"/>
+        <transition on="securityQuestionRequired" to="securityQuestionForm"/>
+    </action-state>
+
+    <view-state id="securityQuestionForm" model="securityQuestionResponses" view="casSetSecurityQuestionsView">
+        <!--<binder>-->
+            <!--<binding property="user_id"/>-->
+            <!--<binding property="security_question_id"/>-->
+            <!--<binding property="reponse"/>-->
+        <!--</binder>-->
+        <on-entry>
+            <evaluate result="viewScope.numSecurityQuestionsRequired" expression="securityQuestionService.getNumSecurityQuestionsRequired()"/>
+            <evaluate result="viewScope.securityQuestions" expression="securityQuestionService.fetchAllEnabled()"/>
+        </on-entry>
+        <transition on="submit" bind="true" validate="true" to="realSecurityQuestionSubmit">
+            <evaluate expression="infusionsoftSecurityQuestionsActionForm.doBind(flowRequestContext, flowScope.securityQuestionResponses)"/>
+        </transition>
+    </view-state>
+
+    <action-state id="realSecurityQuestionSubmit">
+        <evaluate expression="infusionsoftSecurityQuestionsActionForm.submit(flowRequestContext, flowScope.securityQuestionResponses, messageContext)"/>
+        <transition on="success" to="sendTicketGrantingTicket"/>
+        <transition on="error" to="securityQuestionForm"/>
+        <transition on="skip" to="sendTicketGrantingTicket"/>
     </action-state>
 
     <action-state id="sendTicketGrantingTicket">

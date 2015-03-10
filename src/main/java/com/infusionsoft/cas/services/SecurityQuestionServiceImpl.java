@@ -6,6 +6,7 @@ import com.infusionsoft.cas.domain.SecurityQuestion;
 import com.infusionsoft.cas.domain.SecurityQuestionResponse;
 import com.infusionsoft.cas.domain.User;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,6 +16,9 @@ import java.util.List;
 @Service("securityQuestionService")
 @Transactional
 public class SecurityQuestionServiceImpl implements SecurityQuestionService {
+
+    @Value("${infusionsoft.cas.security.questions.number.required}")
+    int numSecurityQuestionsRequired;
 
     @Autowired
     private SecurityQuestionDAO securityQuestionDAO;
@@ -74,5 +78,10 @@ public class SecurityQuestionServiceImpl implements SecurityQuestionService {
     @Override
     public List<SecurityQuestionResponse> findAllResponsesByUser(User user) {
         return securityQuestionResponseDAO.findAllByUser(user);
+    }
+
+    @Override
+    public int getNumSecurityQuestionsRequired() {
+        return numSecurityQuestionsRequired;
     }
 }

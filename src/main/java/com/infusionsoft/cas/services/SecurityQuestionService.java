@@ -21,4 +21,6 @@ public interface SecurityQuestionService {
     SecurityQuestionResponse findAllResponsesById(Long id);
 
     List<SecurityQuestionResponse> findAllResponsesByUser(User user);
+
+    int getNumSecurityQuestionsRequired();
 }

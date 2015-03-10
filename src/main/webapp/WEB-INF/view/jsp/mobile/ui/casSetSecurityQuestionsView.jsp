@@ -7,55 +7,62 @@
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 
+<c:url var="cs_select_css" value="/css/cs-select.css"/>
+<c:url var="cs_skin_slide_css" value="/css/cs-skin-slide.css"/>
+<c:url var="loginUrl" value="/login"/>
+
 <%--@elvariable id="supportPhoneNumbers" type="java.util.List<String>"--%>
 
 <head>
     <meta name="decorator" content="login"/>
     <meta name="robots" content="noindex">
-    <title>Security Questions</title>
+    <title><spring:message code="security.question.title.label"/></title>
+
+    <link type="text/css" rel="stylesheet" href="${cs_select_css}"/>
+    <link type="text/css" rel="stylesheet" href="${cs_skin_slide_css}"/>
 </head>
 <body>
 
 <div class="container">
     <div class="rounded-box-wide">
         <div class="row">
-            <div class="col-sm-8">
+            <div class="col-xs-12">
                 <object type="image/svg+xml" tabindex="-1" data="/img/is_logo.svg" width="159" height="26" class="logo">Infusionsoft</object>
 
-                <h2>You need to set some security questions</h2>
+                <h2><spring:message code="security.question.title.label"/></h2>
 
                 <p class="text-info">
                     <object type="image/svg+xml" tabindex="-1" data="/img/ic-message-info.svg" width="16" height="16"></object>
                     <spring:message code="security.question.not.set.page.instructions"/>
                 </p>
 
-                <%--<form id="resetPasswordForm" class="form-horizontal">--%>
+                <form class="form-horizontal">
+                    <input id="service" name="service" value="${service}" type="hidden"/>
+                    <c:forEach var="i" varStatus="status" begin="${fn:length(user.securityQuestionResponses)}" end="${numSecurityQuestionsRequired-1}">
+                        <div class="form-group">
+                            <div class="col-sm-12">
+                                <select class="cs-select cs-skin-slide" name="securityQuestionResponses[${i}].securityQuestion.id">
+                                    <c:forEach items="${securityQuestions}" var="securityQuestion">
+                                        <option value="${securityQuestion.id}">${securityQuestion.question}</option>
+                                    </c:forEach>
+                                </select>
+                            </div>
 
-                    <%--<input id="username" name="username" type="hidden" value="${credentials.username}"/>--%>
-                    <%--<input id="currentPassword" name="currentPassword" type="hidden" value="${credentials.password}"/>--%>
-                    <%--<input id="redirectFrom" name="redirectFrom" value="expirePassword" type="hidden"/>--%>
-                    <%--<input id="service" name="service" value="${service}" type="hidden"/>--%>
+                            <div class="col-sm-12">
+                                <input class="form-control" id="response" name="securityQuestionResponses[${status.index}].response" type="text"/>
+                            </div>
+                        </div>
+                    </c:forEach>
 
-                    <%--<div class="form-group">--%>
-                        <%--<div class="col-md-12">--%>
-                            <%--<span class="ic-lock"></span>--%>
-                            <%--<input id="password1" class="form-control" name="password1" value="" type="password" placeholder="new password" autocomplete="off"/>--%>
-                        <%--</div>--%>
-                    <%--</div>--%>
+                    <div class="form-group">
+                        <div class="col-xs-12">
+                            <div class="pull-right">
+                                <button type="submit" class="btn btn-primary "><spring:message code="button.save"/></button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
 
-                    <%--<div class="form-group">--%>
-                        <%--<div class="col-md-12">--%>
-                            <%--<span class="ic-lock"></span>--%>
-                            <%--<input id="password2" class="form-control" name="password2" value="" type="password" placeholder="retype new password" autocomplete="off"/>--%>
-                        <%--</div>--%>
-                    <%--</div>--%>
-                    <%--<div class="form-group">--%>
-                        <%--<div class="col-md-12">--%>
-                            <%--<button class="btn btn-success btn-block" type="submit">Change Password</button>--%>
-                        <%--</div>--%>
-                    <%--</div>--%>
-                <%--</form>--%>
-                <c:url var="loginUrl" value="/login"/>
                 <a href="${loginUrl}">Back to Sign In</a>
             </div>
         </div>
@@ -72,8 +79,9 @@
 </div>
 
 <content tag="local_script">
-    <%--<script type="text/javascript" src="<c:url value="/js/password-utils.js"/>"></script>--%>
-    <%--<script type="text/javascript" src="<c:url value="/js/password-expired.js"/>"></script>--%>
+    <script type="text/javascript" src="<c:url value="/js/classie.js"/>"></script>
+    <script type="text/javascript" src="<c:url value="/js/selectFx.js"/>"></script>
+    <script type="text/javascript" src="<c:url value="/js/securityQuestions.js"/>"></script>
 </content>
 
 </body>
