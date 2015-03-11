@@ -19,12 +19,18 @@
     under the License.
 
 -->
+
+<!--
+    Infusionsoft Modifications
+    - 3/10/15: Added security questions actions and changed sendTicketGrantingTicket success to security check
+-->
 <flow xmlns="http://www.springframework.org/schema/webflow"
       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
       xsi:schemaLocation="http://www.springframework.org/schema/webflow
                           http://www.springframework.org/schema/webflow/spring-webflow-2.0.xsd">
 
     <var name="credentials" class="org.jasig.cas.authentication.principal.UsernamePasswordCredentials"/>
+    <var name="securityQuestionsForm" class="com.infusionsoft.cas.web.controllers.commands.SetSecurityQuestionsForm"/>
 
     <on-start>
         <evaluate expression="initialFlowSetupAction"/>
@@ -170,35 +176,37 @@
         <transition on="badHours" to="casBadHoursView"/>
         <transition on="badWorkstation" to="casBadWorkstationView"/>
         <transition on="passwordExpired" to="casExpiredPassView"/>
-        <transition on="securityQuestionOptional" to="securityQuestionForm"/>
-        <transition on="securityQuestionRequired" to="securityQuestionForm"/>
     </action-state>
 
-    <view-state id="securityQuestionForm" model="securityQuestionResponses" view="casSetSecurityQuestionsView">
-        <!--<binder>-->
-            <!--<binding property="user_id"/>-->
-            <!--<binding property="security_question_id"/>-->
-            <!--<binding property="reponse"/>-->
-        <!--</binder>-->
+    <action-state id="checkSecurityQuestions">
+        <evaluate expression="checkSecurityQuestionsAction"/>
+        <transition on="success" to="serviceCheck"/>
+        <transition on="error" to="securityQuestionForm"/>
+    </action-state>
+
+    <view-state id="securityQuestionForm" model="securityQuestionsForm" view="casSetSecurityQuestionsView">
+        <binder>
+            <binding property="securityQuestionId" />
+            <binding property="response"/>
+            <binding property="skip"/>
+        </binder>
         <on-entry>
-            <evaluate result="viewScope.numSecurityQuestionsRequired" expression="securityQuestionService.getNumSecurityQuestionsRequired()"/>
             <evaluate result="viewScope.securityQuestions" expression="securityQuestionService.fetchAllEnabled()"/>
+            <evaluate result="viewScope.securityQuestionsRequired" expression="securityQuestionService.isForceSecurityQuestion()"/>
+            <set name="viewScope.commandName" value="'securityQuestionsForm'"/>
         </on-entry>
-        <transition on="submit" bind="true" validate="true" to="realSecurityQuestionSubmit">
-            <evaluate expression="infusionsoftSecurityQuestionsActionForm.doBind(flowRequestContext, flowScope.securityQuestionResponses)"/>
-        </transition>
+        <transition on="submit" bind="true" validate="true" to="realSecurityQuestionSubmit"/>
     </view-state>
 
     <action-state id="realSecurityQuestionSubmit">
-        <evaluate expression="infusionsoftSecurityQuestionsActionForm.submit(flowRequestContext, flowScope.securityQuestionResponses, messageContext)"/>
-        <transition on="success" to="sendTicketGrantingTicket"/>
+        <evaluate expression="infusionsoftSecurityQuestionsActionForm.submit(flowScope.credentials, flowScope.securityQuestionsForm)"/>
+        <transition on="success" to="serviceCheck"/>
         <transition on="error" to="securityQuestionForm"/>
-        <transition on="skip" to="sendTicketGrantingTicket"/>
     </action-state>
 
     <action-state id="sendTicketGrantingTicket">
         <evaluate expression="sendTicketGrantingTicketAction"/>
-        <transition to="serviceCheck"/>
+        <transition to="checkSecurityQuestions"/>
     </action-state>
 
     <decision-state id="serviceCheck">

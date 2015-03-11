@@ -49,10 +49,6 @@ public class InfusionsoftAuthenticationHandler extends AbstractUsernamePasswordA
                     throw new BadUsernameOrPasswordAuthenticationException(error);
                 case PasswordExpired:
                     throw new PasswordPolicyEnforcementException("login.passwordExpired", "login.passwordExpired", "passwordExpired");
-                case SecurityQuestionsOptional:
-                    throw new SecurityQuestionException("login.security.questions.optional", "login.security.questions.optional", "securityQuestionOptional");
-                case SecurityQuestionsRequired:
-                    throw new SecurityQuestionException("login.security.questions.required", "login.security.questions.required", "securityQuestionRequired");
                 case Success:
                     return true;
                 default:

@@ -45,14 +45,6 @@ public class LoginResult {
         return new LoginResult(user, LoginAttemptStatus.PasswordExpired);
     }
 
-    public static LoginResult SecurityQuestionOptional(User user) {
-        return new LoginResult(user, LoginAttemptStatus.SecurityQuestionsOptional);
-    }
-
-    public static LoginResult SecurityQuestionRequired(User user) {
-        return new LoginResult(user, LoginAttemptStatus.SecurityQuestionsRequired);
-    }
-
     public static LoginResult Success(User user) {
         return new LoginResult(user, LoginAttemptStatus.Success);
     }

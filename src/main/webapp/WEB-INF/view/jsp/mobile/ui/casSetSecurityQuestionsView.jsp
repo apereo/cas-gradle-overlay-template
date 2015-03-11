@@ -9,9 +9,12 @@
 
 <c:url var="cs_select_css" value="/css/cs-select.css"/>
 <c:url var="cs_skin_slide_css" value="/css/cs-skin-slide.css"/>
-<c:url var="loginUrl" value="/login"/>
 
 <%--@elvariable id="supportPhoneNumbers" type="java.util.List<String>"--%>
+<%--@elvariable id="securityQuestions" type="java.util.List<com.infusionsoft.cas.domain.SecurityQuestion>"--%>
+<%--@elvariable id="commandName" type="java.lang.String"--%>
+<%--@elvariable id="flowExecutionKey" type="java.lang.String"--%>
+<%--@elvariable id="securityQuestionsRequired" type="java.lang.Boolean"--%>
 
 <head>
     <meta name="decorator" content="login"/>
@@ -36,34 +39,40 @@
                     <spring:message code="security.question.not.set.page.instructions"/>
                 </p>
 
-                <form class="form-horizontal">
-                    <input id="service" name="service" value="${service}" type="hidden"/>
-                    <c:forEach var="i" varStatus="status" begin="${fn:length(user.securityQuestionResponses)}" end="${numSecurityQuestionsRequired-1}">
-                        <div class="form-group">
-                            <div class="col-sm-12">
-                                <select class="cs-select cs-skin-slide" name="securityQuestionResponses[${i}].securityQuestion.id">
-                                    <c:forEach items="${securityQuestions}" var="securityQuestion">
-                                        <option value="${securityQuestion.id}">${securityQuestion.question}</option>
-                                    </c:forEach>
-                                </select>
-                            </div>
+                <form:form cssClass="form-horizontal" commandName="${commandName}" method="post">
+                    <form:errors path="*" id="msg" cssClass="text-error" element="p">
+                        <p class="text-error">
+                            <object type="image/svg+xml" tabindex="-1" data="/img/ic-exclamation-circle.svg" width="16" height="16"></object>
+                            <c:forEach var="error" items="${messages}">
+                                ${error}
+                            </c:forEach>
+                        </p>
+                    </form:errors>
 
-                            <div class="col-sm-12">
-                                <input class="form-control" id="response" name="securityQuestionResponses[${status.index}].response" type="text"/>
-                            </div>
+                    <input type="hidden" name="execution" value="${flowExecutionKey}"/>
+                    <input type="hidden" name="_eventId" value="submit"/>
+
+                    <div class="form-group">
+                        <div class="col-sm-12">
+                            <form:select path="securityQuestionId" cssClass="cs-select cs-skin-slide" items="${securityQuestions}" itemLabel="question" itemValue="id"/>
                         </div>
-                    </c:forEach>
+
+                        <div class="col-sm-12">
+                            <form:input cssCclass="form-control" id="response" path="response" type="text"/>
+                        </div>
+                    </div>
 
                     <div class="form-group">
                         <div class="col-xs-12">
                             <div class="pull-right">
+                                <c:if test="${!securityQuestionsRequired}">
+                                    <button type="submit" name="skip" class="btn btn-link" value="true">Skip</button>
+                                </c:if>
                                 <button type="submit" class="btn btn-primary "><spring:message code="button.save"/></button>
                             </div>
                         </div>
                     </div>
-                </form>
-
-                <a href="${loginUrl}">Back to Sign In</a>
+                </form:form>
             </div>
         </div>
     </div>

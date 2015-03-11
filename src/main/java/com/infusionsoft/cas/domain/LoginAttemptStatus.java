@@ -11,8 +11,6 @@ public enum LoginAttemptStatus {
     OldPassword,
     PasswordExpired(true),
     PasswordReset(true),
-    SecurityQuestionsOptional(true),
-    SecurityQuestionsRequired(true),
     Success(true),
     UnlockedByAdmin(true);
 

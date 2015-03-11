@@ -51,9 +51,6 @@ public class InfusionsoftAuthenticationServiceImpl implements InfusionsoftAuthen
     private CommunityService communityService;
 
     @Autowired
-    private CrmService crmService;
-
-    @Autowired
     private TicketRegistry ticketRegistry;
 
     @Autowired
@@ -220,7 +217,7 @@ public class InfusionsoftAuthenticationServiceImpl implements InfusionsoftAuthen
                 loginResult = LoginResult.OldPassword(user);
                 incrementFailedLoginCount = false;  // Bad logins that used an old password don't increment the failure count
             } else {
-                loginResult = processSecurityQuestionCheck(user);
+                loginResult = LoginResult.Success(user);
                 incrementFailedLoginCount = false;
             }
         }
@@ -247,21 +244,6 @@ public class InfusionsoftAuthenticationServiceImpl implements InfusionsoftAuthen
         recordLoginAttempt(loginResult.getLoginStatus(), username);
 
         return loginResult;
-    }
-
-    private LoginResult processSecurityQuestionCheck(User user) {
-        LoginResult retVal;
-        boolean userHasAnsweredQuestions = user.getSecurityQuestionResponses().size() >= securityQuestionRequiredResponseCount;
-
-        if(userHasAnsweredQuestions) {
-            retVal = LoginResult.Success(user);
-        } else if(forceSecurityQuestion) {
-            retVal = LoginResult.SecurityQuestionRequired(user);
-        } else {
-            retVal = LoginResult.SecurityQuestionOptional(user);
-        }
-
-        return retVal;
     }
 
     /**

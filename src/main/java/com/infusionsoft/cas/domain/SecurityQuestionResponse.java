@@ -1,6 +1,6 @@
 package com.infusionsoft.cas.domain;
 
-import org.hibernate.annotations.Index;
+import org.hibernate.validator.constraints.NotBlank;
 import org.hibernate.validator.constraints.SafeHtml;
 
 import javax.persistence.*;
@@ -49,7 +49,7 @@ public class SecurityQuestionResponse implements Serializable{
     }
 
     @Column
-    @NotNull
+    @NotBlank
     @SafeHtml(whitelistType = SafeHtml.WhiteListType.NONE)
     public String getResponse() {
         return response;

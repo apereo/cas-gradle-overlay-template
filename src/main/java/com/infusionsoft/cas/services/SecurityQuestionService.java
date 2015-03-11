@@ -23,4 +23,6 @@ public interface SecurityQuestionService {
     List<SecurityQuestionResponse> findAllResponsesByUser(User user);
 
     int getNumSecurityQuestionsRequired();
+
+    boolean isForceSecurityQuestion();
 }

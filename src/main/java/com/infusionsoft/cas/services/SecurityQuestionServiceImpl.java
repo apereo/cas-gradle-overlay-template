@@ -17,6 +17,9 @@ import java.util.List;
 @Transactional
 public class SecurityQuestionServiceImpl implements SecurityQuestionService {
 
+    @Value("${infusionsoft.cas.security.questions.force.answer}")
+    private boolean forceSecurityQuestion;
+
     @Value("${infusionsoft.cas.security.questions.number.required}")
     int numSecurityQuestionsRequired;
 
@@ -83,5 +86,10 @@ public class SecurityQuestionServiceImpl implements SecurityQuestionService {
     @Override
     public int getNumSecurityQuestionsRequired() {
         return numSecurityQuestionsRequired;
+    }
+
+    @Override
+    public boolean isForceSecurityQuestion() {
+        return forceSecurityQuestion;
     }
 }
