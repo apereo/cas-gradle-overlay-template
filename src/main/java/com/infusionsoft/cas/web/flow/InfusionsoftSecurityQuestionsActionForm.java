@@ -11,6 +11,8 @@ import org.jasig.cas.authentication.principal.UsernamePasswordCredentials;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.binding.message.MessageBuilder;
+import org.springframework.binding.message.MessageContext;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -24,7 +26,7 @@ public class InfusionsoftSecurityQuestionsActionForm {
 
     protected Logger logger = LoggerFactory.getLogger(getClass());
 
-    public final String submit(final Credentials credentials, final SetSecurityQuestionsForm securityQuestionsForm) throws Exception {
+    public final String submit(final Credentials credentials, final SetSecurityQuestionsForm securityQuestionsForm, final MessageContext messageContext) throws Exception {
         String retVal;
 
         if (securityQuestionService.isForceSecurityQuestion() || !securityQuestionsForm.isSkip()) {
@@ -43,6 +45,8 @@ public class InfusionsoftSecurityQuestionsActionForm {
                 retVal = "success";
             } catch (Exception e) {
                 logger.error("Error saving security question response", e);
+                messageContext.addMessage(new MessageBuilder().error().code("security.question.response.save.error").defaultText("Unable to save response").build());
+
                 retVal = "error";
             }
         } else {

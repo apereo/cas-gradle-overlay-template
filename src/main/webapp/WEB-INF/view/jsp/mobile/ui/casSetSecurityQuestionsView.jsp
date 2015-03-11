@@ -9,6 +9,7 @@
 
 <c:url var="cs_select_css" value="/css/cs-select.css"/>
 <c:url var="cs_skin_slide_css" value="/css/cs-skin-slide.css"/>
+<c:url var="security_questions_js" value="/js/securityQuestions.js"/>
 
 <%--@elvariable id="supportPhoneNumbers" type="java.util.List<String>"--%>
 <%--@elvariable id="securityQuestions" type="java.util.List<com.infusionsoft.cas.domain.SecurityQuestion>"--%>
@@ -21,13 +22,14 @@
     <meta name="robots" content="noindex">
     <title><spring:message code="security.question.title.label"/></title>
 
-    <link type="text/css" rel="stylesheet" href="${cs_select_css}"/>
-    <link type="text/css" rel="stylesheet" href="${cs_skin_slide_css}"/>
+    <link type="text/css" rel="stylesheet" href="${animo_css}"/>
+    <%--<link type="text/css" rel="stylesheet" href="${cs_select_css}"/>--%>
+    <%--<link type="text/css" rel="stylesheet" href="${cs_skin_slide_css}"/>--%>
 </head>
 <body>
 
 <div class="container">
-    <div class="rounded-box-wide">
+    <div class="rounded-box-wide ">
         <div class="row">
             <div class="col-xs-12">
                 <object type="image/svg+xml" tabindex="-1" data="/img/is_logo.svg" width="159" height="26" class="logo">Infusionsoft</object>
@@ -51,27 +53,51 @@
 
                     <input type="hidden" name="execution" value="${flowExecutionKey}"/>
                     <input type="hidden" name="_eventId" value="submit"/>
+                    <input type="hidden" id="securityQuestionId" name="securityQuestionId" value="0"/>
+                    <input type="hidden" id="skipInput" name="skip" value="false"/>
 
-                    <div class="form-group">
-                        <div class="col-sm-12">
-                            <form:select path="securityQuestionId" cssClass="cs-select cs-skin-slide" items="${securityQuestions}" itemLabel="question" itemValue="id"/>
+                    <div class="animationHolder">
+                        <div class="form-group">
+                            <div class="col-sm-12">
+                                <div class="list-group">
+                                    <c:forEach var="securityQuestion" items="${securityQuestions}">
+                                        <a href="#" class="question list-group-item" data-question-id="${securityQuestion.id}">
+                                            <div class="text-center">
+                                                <i class="fa ${securityQuestion.iconPath}"></i>
+                                                <span class="text-center question-text">${securityQuestion.question}</span>
+                                            </div>
+                                        </a>
+                                    </c:forEach>
+                                </div>
+                            </div>
                         </div>
 
-                        <div class="col-sm-12">
-                            <form:input cssCclass="form-control" id="response" path="response" type="text"/>
-                        </div>
-                    </div>
 
-                    <div class="form-group">
-                        <div class="col-xs-12">
-                            <div class="pull-right">
-                                <c:if test="${!securityQuestionsRequired}">
-                                    <button type="submit" name="skip" class="btn btn-link" value="true">Skip</button>
-                                </c:if>
-                                <button type="submit" class="btn btn-primary "><spring:message code="button.save"/></button>
+                        <div class="answer">
+                            <div class="form-group">
+                                <div class="col-sm-12">
+                                    <div class="well">
+                                        <span class="text-center question-text"></span>
+                                        <i class="fa fa-caret-down pull-right"></i>
+                                    </div>
+                                </div>
+                                <div class="col-sm-12">
+                                    <input type="text" name="response" class="form-control input-lg" placeholder="Answer" autocomplete="off">
+                                </div>
+                                <div class="col-sm-12">
+                                    <button type="submit" class="btn btn-primary "><spring:message code="button.save"/></button>
+                                </div>
                             </div>
                         </div>
                     </div>
+
+                    <c:if test="${!securityQuestionsRequired}">
+                        <div class="form-group">
+                            <div class="col-sm-12 text-center">
+                                or <a href="#" class="skip">skip this for now</a>
+                            </div>
+                        </div>
+                    </c:if>
                 </form:form>
             </div>
         </div>
@@ -88,9 +114,10 @@
 </div>
 
 <content tag="local_script">
-    <script type="text/javascript" src="<c:url value="/js/classie.js"/>"></script>
-    <script type="text/javascript" src="<c:url value="/js/selectFx.js"/>"></script>
-    <script type="text/javascript" src="<c:url value="/js/securityQuestions.js"/>"></script>
+    <%--<script type="text/javascript" src="<c:url value="/js/classie.js"/>"></script>--%>
+    <%--<script type="text/javascript" src="<c:url value="/js/selectFx.js"/>"></script>--%>
+
+    <script type="text/javascript" src="${security_questions_js}"></script>
 </content>
 
 </body>

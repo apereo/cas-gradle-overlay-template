@@ -476,4 +476,9 @@ div.popover-content > .page-header {
     margin-top: 15px;
 }
 
+a.list-group-item:hover, a.list-group-item:active {
+    color: #5A922A;
+    background-color: #fff;
+}
+
 

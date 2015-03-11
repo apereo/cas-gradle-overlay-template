@@ -190,25 +190,25 @@ input.form-control {
 .has-error {
     color: #E34825;
 }
-.well {
-    min-height: 0;
-    padding: 0;
-    margin: 30px 0 0 0;
-    background-color: transparent;
-    border: none;
-    border-radius: 0;
-    -webkit-box-shadow: none;
-    box-shadow: none;
-}
-.well .btn {
-    width: 48%;
-}
-.well .btn.btn-default {
-    float: left;
-}
-.well .btn.btn-success {
-    float: right;
-}
+/*.well {*/
+    /*min-height: 0;*/
+    /*padding: 0;*/
+    /*margin: 30px 0 0 0;*/
+    /*background-color: transparent;*/
+    /*border: none;*/
+    /*border-radius: 0;*/
+    /*-webkit-box-shadow: none;*/
+    /*box-shadow: none;*/
+/*}*/
+/*.well .btn {*/
+    /*width: 48%;*/
+/*}*/
+/*.well .btn.btn-default {*/
+    /*float: left;*/
+/*}*/
+/*.well .btn.btn-success {*/
+    /*float: right;*/
+/*}*/
 select.form-control {
     margin-top: 15px;
 }
@@ -424,25 +424,25 @@ select.form-control {
     .navbar.navbar-default.navbar-fixed-bottom {
         display: none;
     }
-    .well {
-        min-height: 0;
-        padding: 30px 0 0 0;
-        margin: 30px 0 0 0;
-        background-color: transparent;
-        border-top: 1px solid #DDD;
-        border-radius: 0;
-        -webkit-box-shadow: none;
-        box-shadow: none;
-    }
-    .well .btn {
-        width: 48%;
-    }
-    .well .btn.btn-default {
-        float: left;
-    }
-    .well .btn.btn-success {
-        float: right;
-    }
+    /*.well {*/
+        /*min-height: 0;*/
+        /*padding: 30px 0 0 0;*/
+        /*margin: 30px 0 0 0;*/
+        /*background-color: transparent;*/
+        /*border-top: 1px solid #DDD;*/
+        /*border-radius: 0;*/
+        /*-webkit-box-shadow: none;*/
+        /*box-shadow: none;*/
+    /*}*/
+    /*.well .btn {*/
+        /*width: 48%;*/
+    /*}*/
+    /*.well .btn.btn-default {*/
+        /*float: left;*/
+    /*}*/
+    /*.well .btn.btn-success {*/
+        /*float: right;*/
+    /*}*/
     select.form-control {
         margin-top: 15px;
     }
@@ -565,25 +565,25 @@ select.form-control {
     .navbar.navbar-default.navbar-fixed-bottom {
         display: none;
     }
-    .well {
-        min-height: 0;
-        padding: 30px 0 0 0;
-        margin: 30px 0 0 0;
-        background-color: transparent;
-        border-top: 1px solid #DDD;
-        border-radius: 0;
-        -webkit-box-shadow: none;
-        box-shadow: none;
-    }
-    .well .btn {
-        width: 48%;
-    }
-    .well .btn.btn-default {
-        float: left;
-    }
-    .well .btn.btn-success {
-        float: right;
-    }
+    /*.well {*/
+        /*min-height: 0;*/
+        /*padding: 30px 0 0 0;*/
+        /*margin: 30px 0 0 0;*/
+        /*background-color: transparent;*/
+        /*border-top: 1px solid #DDD;*/
+        /*border-radius: 0;*/
+        /*-webkit-box-shadow: none;*/
+        /*box-shadow: none;*/
+    /*}*/
+    /*.well .btn {*/
+        /*width: 48%;*/
+    /*}*/
+    /*.well .btn.btn-default {*/
+        /*float: left;*/
+    /*}*/
+    /*.well .btn.btn-success {*/
+        /*float: right;*/
+    /*}*/
     select.form-control {
         margin-top: 15px;
     }

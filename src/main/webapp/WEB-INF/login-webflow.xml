@@ -107,7 +107,7 @@
 
     <end-state id="pwdWarningAbstractView">
         <!--<on-entry>-->
-            <!--<set name="flowScope.passwordPolicyUrl" value="passwordPolicyAction.getPasswordPolicyUrl()"/>-->
+        <!--<set name="flowScope.passwordPolicyUrl" value="passwordPolicyAction.getPasswordPolicyUrl()"/>-->
         <!--</on-entry>-->
     </end-state>
     <end-state id="pwdWarningPostView" view="casWarnPassView" parent="#pwdWarningAbstractView"/>
@@ -118,10 +118,10 @@
     <end-state id="casBadHoursView" view="casBadHoursView"/>
     <end-state id="casBadWorkstationView" view="casBadWorkstationView"/>
     <!--<end-state id="casSetSecurityQuestionsView" view="casSetSecurityQuestionsView">-->
-        <!--<on-entry>-->
-            <!--<evaluate result="viewScope.numSecurityQuestionsRequired" expression="securityQuestionService.getNumSecurityQuestionsRequired()"/>-->
-            <!--<evaluate result="viewScope.securityQuestions" expression="securityQuestionService.fetchAllEnabled()"/>-->
-        <!--</on-entry>-->
+    <!--<on-entry>-->
+    <!--<evaluate result="viewScope.numSecurityQuestionsRequired" expression="securityQuestionService.getNumSecurityQuestionsRequired()"/>-->
+    <!--<evaluate result="viewScope.securityQuestions" expression="securityQuestionService.fetchAllEnabled()"/>-->
+    <!--</on-entry>-->
     <!--</end-state>-->
     <!-- LPPE transitions end here... -->
 
@@ -186,9 +186,9 @@
 
     <view-state id="securityQuestionForm" model="securityQuestionsForm" view="casSetSecurityQuestionsView">
         <binder>
-            <binding property="securityQuestionId" />
+            <binding property="securityQuestionId"/>
             <binding property="response"/>
-            <binding property="skip"/>
+            <binding property="skip" required="false"/>
         </binder>
         <on-entry>
             <evaluate result="viewScope.securityQuestions" expression="securityQuestionService.fetchAllEnabled()"/>
@@ -199,7 +199,7 @@
     </view-state>
 
     <action-state id="realSecurityQuestionSubmit">
-        <evaluate expression="infusionsoftSecurityQuestionsActionForm.submit(flowScope.credentials, flowScope.securityQuestionsForm)"/>
+        <evaluate expression="infusionsoftSecurityQuestionsActionForm.submit(flowScope.credentials, flowScope.securityQuestionsForm, messageContext)"/>
         <transition on="success" to="serviceCheck"/>
         <transition on="error" to="securityQuestionForm"/>
     </action-state>
