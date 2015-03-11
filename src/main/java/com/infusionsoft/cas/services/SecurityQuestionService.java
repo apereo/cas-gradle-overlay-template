@@ -12,6 +12,8 @@ public interface SecurityQuestionService {
 
     void delete(Long id);
 
+    void deleteResponses(User user);
+
     SecurityQuestion fetch(Long id);
 
     List<SecurityQuestion> fetchAll();

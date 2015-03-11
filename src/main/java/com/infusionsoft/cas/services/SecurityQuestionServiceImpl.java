@@ -45,6 +45,12 @@ public class SecurityQuestionServiceImpl implements SecurityQuestionService {
     }
 
     @Override
+    public void deleteResponses(User user) {
+        List<SecurityQuestionResponse> securityQuestionResponses = securityQuestionResponseDAO.findAllByUser(user);
+        securityQuestionResponseDAO.delete(securityQuestionResponses);
+    }
+
+    @Override
     public SecurityQuestion fetch(Long id) {
         return securityQuestionDAO.findOne(id);
     }

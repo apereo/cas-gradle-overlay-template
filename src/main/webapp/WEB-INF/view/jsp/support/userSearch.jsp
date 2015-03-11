@@ -4,38 +4,21 @@
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+
+<c:url var="editUserUrl" value="/app/admin/editUser/"/>
+<c:url var="unlockUserUrl" value="/app/support/unlockUser?id="/>
+<c:url var="resetPasswordUrl" value="/app/support/resetPassword?id="/>
+<c:url var="resetSecurityQuestionUrl" value="/app/support/resetSecurityQuestion?id="/>
+
+<%--@elvariable id="users" type="org.springframework.data.domain.Page<User>"--%>
+<%--@elvariable id="searchUsername" type="java.lang.String"--%>
+<%--@elvariable id="crmDomain" type="java.lang.String"--%>
+<%--@elvariable id="crmPort" type="java.lang.Integer"--%>
+
 <html>
 <head>
     <title><spring:message code="search.infusionsoft.id.label"/></title>
     <meta name="decorator" content="central"/>
-    <script type="text/javascript">
-        var userSearch = {
-            getAppsGrantedAccessToAccount: function (userId, accountId) {
-                var appsGrantedAccessToAccountInput = new Object();
-                appsGrantedAccessToAccountInput.afterSuccess = this.appsGrantedAccessToAccountAfterSuccess;
-                appsGrantedAccessToAccountInput.afterError = this.appsGrantedAccessToAccountAfterError;
-                appsGrantedAccessToAccountInput.userId = userId;
-                appsGrantedAccessToAccountInput.accountId = accountId;
-
-                manageAppAccess.getAppsGrantedAccessToAccount(appsGrantedAccessToAccountInput);
-            },
-            appsGrantedAccessToAccountAfterSuccess: function (inputObject, response) {
-                $(".displayManageAccountsMarker").each(function () {
-                    $(this).hide()
-                });
-                $("#displayManageAccountsContent-" + inputObject.accountId).html(response);
-                $("#displayManageAccountsWrapper-" + inputObject.accountId).slideDown(500);
-                $(".open-marker").each(function () {
-                    $(this).removeClass('open')
-                });
-                $("#accountAnchor-" + inputObject.accountId).addClass("open");
-            },
-            appsGrantedAccessToAccountAfterError: function (inputObject, response) {
-
-            }
-        }
-    </script>
-
 </head>
 <body>
 <div class="table-responsive">
@@ -49,11 +32,13 @@
                 <spring:message code="user.full.name.label"/>
             </th>
             <th>
-                <spring:message code="reset.password.label"/>
+                <spring:message code="securityQuestion.label"/>
             </th>
-            <th>
-                <spring:message code="unlock.label"/>
-            </th>
+            <sec:authorize url="${unlockUserUrl}">
+                <th>
+                    <spring:message code="supportTools.label"/>
+                </th>
+            </sec:authorize>
             <th>
                 <spring:message code="accounts.label"/>
             </th>
@@ -64,11 +49,11 @@
             <c:forEach var="user" items="${users.content}">
                 <tr>
                     <td>
-                        <sec:authorize access="hasRole('ROLE_CAS_ADMIN')">
-                        <a href="/app/admin/editUser/${user.id}">
+                        <sec:authorize url="${editUserUrl}${user.id}">
+                        <a href="${editUserUrl}${user.id}">
                             </sec:authorize>
                                 ${user.username}
-                            <sec:authorize access="hasRole('ROLE_CAS_ADMIN')">
+                            <sec:authorize url="${editUserUrl}${user.id}">
                         </a>
                         </sec:authorize>
                     </td>
@@ -76,37 +61,41 @@
                         <span>${user.firstName} ${user.lastName}</span>
                     </td>
                     <td>
-                        <a href="/app/support/resetPassword?id=${user.id}"><spring:message code="reset.password.label"/></a>
+                        <c:forEach var="securityQuestionResponse" items="${user.securityQuestionResponses}">
+                            <div>${securityQuestionResponse.securityQuestion.question}</div>
+                            <a href="#" class="showAnswer"
+                               data-trigger="focus"
+                               data-toggle="popover"
+                               data-placement="bottom"
+                               data-content="${securityQuestionResponse.response}">
+                                <spring:message code="showAnswer.label"/>
+                            </a>
+                        </c:forEach>
                     </td>
-                    <td>
-                        <a href="/app/support/unlockUser?id=${user.id}"><spring:message code="unlock.label"/></a>
-                    </td>
+                    <sec:authorize url="${unlockUserUrl}${user.id}">
+                        <td>
+                            <ul>
+                                <li><a href="${unlockUserUrl}${user.id}"><spring:message code="unlock.label"/></a><br/></li>
+                                <li><a href="${resetPasswordUrl}${user.id}"><spring:message code="reset.password.label"/></a><br/></li>
+                                <li><a href="${resetSecurityQuestionUrl}${user.id}"><spring:message code="reset.securityQuestion.label"/></a></li>
+                            </ul>
+                        </td>
+                    </sec:authorize>
                     <td class="account-list">
                         <ul class="list-group">
                             <c:forEach var="account" items="${user.accounts}">
                                 <li class="list-group-item">
-                                    <span><a id="accountAnchor-${account.id}" class="open-marker" onclick="userSearch.getAppsGrantedAccessToAccount('${user.id}', '${account.id}'); return false;">${account.appName}.${crmDomain}</a></span>
+                                    <span><a href="https://${account.appName}.${crmDomain}:${crmPort}">${account.appName}.${crmDomain}</a></span>
                                 </li>
                             </c:forEach>
                         </ul>
-                            <%--<table class="table table-bordered table-striped dataTable">--%>
-                            <%--<c:forEach var="account" items="${user.accounts}">--%>
-                            <%--<tr>--%>
-                            <%--<td>--%>
-                            <%--<span><a id="accountAnchor-${account.id}" class="open-marker" onclick="userSearch.getAppsGrantedAccessToAccount('${user.id}', '${account.id}'); return false;">${account.appName}.${crmDomain}</a></span>--%>
-                            <%--</td>--%>
-                            <%--</tr>--%>
-                            <%--<tr id="displayManageAccountsWrapper-${account.id}" class="displayManageAccountsMarker" style="display: none">--%>
-                            <%--<td id="displayManageAccountsContent-${account.id}"></td>--%>
-                            <%--</tr>--%>
-                            <%--</c:forEach>--%>
-                            <%--</table>--%>
                     </td>
                 </tr>
             </c:forEach>
         </c:if>
         </tbody>
     </table>
+
     <c:if test="${users.totalPages > 1}">
         <%--Pages are 0 based--%>
         <c:url var="searchUrl" value="/app/support/userSearch?"/>
@@ -159,5 +148,10 @@
         </ul>
     </c:if>
 </div>
+
+<content tag="local_script">
+    <script type="text/javascript" src="<c:url value="/js/userSearch.js"/>"></script>
+</content>
+
 </body>
 </html>

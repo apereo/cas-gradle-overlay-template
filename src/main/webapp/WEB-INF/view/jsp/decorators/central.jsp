@@ -2,6 +2,7 @@
 <%--@elvariable id="editProfileLinkSelected" type="java.lang.String"--%>
 <%--@elvariable id="oauthLinkSelected" type="java.lang.String"--%>
 <%--@elvariable id="marketingOptionsLinkSelected" type="java.lang.String"--%>
+<%--@elvariable id="securityQuestionLinkSelected" type="java.lang.String"--%>
 <%--@elvariable id="alertTitle" type="java.lang.String"--%>
 <%--@elvariable id="error" type="java.lang.String"--%>
 <%--@elvariable id="info" type="java.lang.String"--%>
@@ -97,19 +98,18 @@
                 <ul class="nav navbar-nav">
                     <li class="${!empty homeLinkSelected ? 'active' : ''}"><a href="${homeLink}">Your Accounts</a></li>
                     <li class="${!empty editProfileLinkSelected ? 'active' : ''}"><a href="${editProfileLink}">Edit Your Profile</a></li>
-                    <sec:authorize access="hasRole('ROLE_CAS_ADMIN')">
+                    <sec:authorize url="${serviceLink}">
                         <li><a href="${serviceLink}">Services</a></li>
                         <li class="${!empty securityQuestionLinkSelected ? 'active' : ''}"><a href="${securityQuestionLink}">Security Questions</a></li>
                     </sec:authorize>
-                    <sec:authorize access="hasRole('ROLE_CAS_SUPPORT_TIER_2')">
+                    <sec:authorize url="${masheryLink}">
                         <li class="${!empty oauthLinkSelected ? 'active' : ''}"><a href="${masheryLink}">OAuth 2.0</a></li>
                     </sec:authorize>
-
-                    <sec:authorize access="hasRole('ROLE_CAS_MARKETING_ADMIN')">
+                    <sec:authorize url="${marketingOptionsLink}">
                         <li class="${!empty marketingOptionsLinkSelected ? 'active' : ''}"><a href="${marketingOptionsLink}">Marketing</a></li>
                     </sec:authorize>
                 </ul>
-                <sec:authorize access="hasRole('ROLE_CAS_ADMIN') or hasRole('ROLE_CAS_SUPPORT_TIER_1')">
+                <sec:authorize url="${userSearchUrl}">
                     <form class="navbar-form navbar-right" action="${userSearchUrl}" role="search">
                         <div class="form-group">
                             <div class="input-group">
