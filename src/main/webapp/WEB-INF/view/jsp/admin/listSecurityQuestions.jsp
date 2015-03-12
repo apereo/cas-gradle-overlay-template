@@ -18,8 +18,6 @@
 </head>
 <body>
 
-<h1 style="display: block" class="bounce animated">Animate Me</h1>
-
 <div>
     <form:errors path="*" cssClass="errors"/>
     <div class="panel panel-default">
@@ -42,7 +40,7 @@
                     <c:forEach var="securityQuestion" items="${securityQuestions}">
                         <tr>
                             <td>
-                                <i class="fa ${securityQuestion.iconPath}"></i>
+                                <i class="ic ${securityQuestion.iconPath}"></i>
                                 <%--<object type="image/svg+xml" tabindex="-1" data="${securityQuestion.iconPath}" width="16" height="16"></object>--%>
                                     ${securityQuestion.question}
                             </td>

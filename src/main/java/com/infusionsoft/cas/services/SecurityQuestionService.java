@@ -3,6 +3,7 @@ package com.infusionsoft.cas.services;
 import com.infusionsoft.cas.domain.SecurityQuestion;
 import com.infusionsoft.cas.domain.SecurityQuestionResponse;
 import com.infusionsoft.cas.domain.User;
+import com.infusionsoft.cas.exceptions.InfusionsoftValidationException;
 
 import java.util.List;
 
@@ -12,7 +13,7 @@ public interface SecurityQuestionService {
 
     void delete(Long id);
 
-    void deleteResponses(User user);
+    void deleteResponses(User user) throws InfusionsoftValidationException;
 
     SecurityQuestion fetch(Long id);
 

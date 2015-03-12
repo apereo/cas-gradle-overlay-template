@@ -5,6 +5,7 @@ import com.infusionsoft.cas.dao.SecurityQuestionResponseDAO;
 import com.infusionsoft.cas.domain.SecurityQuestion;
 import com.infusionsoft.cas.domain.SecurityQuestionResponse;
 import com.infusionsoft.cas.domain.User;
+import com.infusionsoft.cas.exceptions.InfusionsoftValidationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -29,6 +30,9 @@ public class SecurityQuestionServiceImpl implements SecurityQuestionService {
     @Autowired
     private SecurityQuestionResponseDAO securityQuestionResponseDAO;
 
+    @Autowired
+    UserService userService;
+
     @Override
     public SecurityQuestion save(SecurityQuestion securityQuestion) {
         return securityQuestionDAO.save(securityQuestion);
@@ -45,8 +49,10 @@ public class SecurityQuestionServiceImpl implements SecurityQuestionService {
     }
 
     @Override
-    public void deleteResponses(User user) {
+    public void deleteResponses(User user) throws InfusionsoftValidationException {
         List<SecurityQuestionResponse> securityQuestionResponses = securityQuestionResponseDAO.findAllByUser(user);
+        user.getSecurityQuestionResponses().clear();
+        userService.saveUser(user);
         securityQuestionResponseDAO.delete(securityQuestionResponses);
     }
 

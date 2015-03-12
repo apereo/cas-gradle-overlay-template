@@ -3,6 +3,7 @@ package com.infusionsoft.cas.web.controllers;
 import com.infusionsoft.cas.domain.AppType;
 import com.infusionsoft.cas.domain.User;
 import com.infusionsoft.cas.domain.UserAccount;
+import com.infusionsoft.cas.exceptions.InfusionsoftValidationException;
 import com.infusionsoft.cas.services.CrmService;
 import com.infusionsoft.cas.services.InfusionsoftAuthenticationService;
 import com.infusionsoft.cas.services.SecurityQuestionService;
@@ -74,7 +75,7 @@ public class SupportController {
     }
 
     @RequestMapping
-    public String resetSecurityQuestion(Long id, Model model) {
+    public String resetSecurityQuestion(Long id, Model model) throws InfusionsoftValidationException {
         User user = userService.loadUser(id);
         securityQuestionService.deleteResponses(user);
 

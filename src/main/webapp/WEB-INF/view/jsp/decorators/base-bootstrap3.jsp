@@ -22,9 +22,10 @@
 
 <c:url var="infusionsoftChosenConfig" value="/js/infusionsoft-chosen.js"/>
 
-<%--<c:url var="animo_css" value="/css/animate.css"/>--%>
 <c:url var="animo_css" value="/js/animo/animate-animo.min.css"/>
 <c:url var="animo_js" value="/js/animo/animo.min.js"/>
+
+<c:url var="infusionsoft_icon_css" value="/infusionsoft-icon/style.css"/>
 
 <!DOCTYPE html>
 
@@ -44,6 +45,7 @@
 
     <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
     <link type="text/css" rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700,800"/>
+    <link type="text/css" rel="stylesheet" href="${infusionsoft_icon_css}"/>
     <link type="text/css" rel="stylesheet" href="${animo_css}"/>
     <link type="text/css" rel="stylesheet" href="${bootstrapCss}"/>
     <link type="text/css" rel="stylesheet" href="${bootstrapChoosenCss}"/>

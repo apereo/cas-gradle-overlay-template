@@ -86,7 +86,7 @@
     <html lang="en">
     <head>
         <title><decorator:title/></title>
-        <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+        <%--<link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">--%>
 
         <decorator:head/>
     </head>

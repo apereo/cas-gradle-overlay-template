@@ -13,7 +13,7 @@ $(document).ready(function() {
     var questionsTransitionOut = "fadeOutRight";
     var duration = 0.3;
 
-    $listGroup.animo({animation: "bounce"});
+    $listGroup.find(".list-group-item").animo({animation: "infBounceIn", duration: .5});
 
     $(".skip").on("click", function(e) {
         e.preventDefault();
