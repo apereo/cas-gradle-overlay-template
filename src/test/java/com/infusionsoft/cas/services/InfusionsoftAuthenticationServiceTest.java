@@ -61,7 +61,6 @@ public class InfusionsoftAuthenticationServiceTest {
         Whitebox.setInternalState(infusionsoftAuthenticationService, "crmPort", "443");
         Whitebox.setInternalState(infusionsoftAuthenticationService, "customerHubDomain", "customerhub.net");
         Whitebox.setInternalState(infusionsoftAuthenticationService, "customerHubService", customerHubService);
-        Whitebox.setInternalState(infusionsoftAuthenticationService, "crmService", crmService);
         Whitebox.setInternalState(infusionsoftAuthenticationService, "communityService", communityService);
         Whitebox.setInternalState(infusionsoftAuthenticationService, "communityDomain", "community.infusionsoft.com");
         userService = mock(UserService.class);
