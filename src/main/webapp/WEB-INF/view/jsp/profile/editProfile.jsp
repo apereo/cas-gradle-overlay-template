@@ -7,6 +7,9 @@
 <%@ page contentType="text/html; charset=UTF-8" %>
 
 <c:url var="centralUrl" value="/app/central/home"/>
+<c:url var="changePasswordUrl" value="/app/profile/changePassword"/>
+
+<%--@elvariable id="user" type="com.infusionsoft.cas.domain.User"--%>
 
 <html>
 <head>
@@ -19,14 +22,14 @@
     Edit the information that you use to sign into all of your accounts.
 </p>
 
-<form id="editProfileForm" action="updateProfile" method="post" class="form-horizontal" role="form">
+<form:form id="editProfileForm" action="updateProfile" method="post" class="form-horizontal" role="form" modelAttribute="editProfileForm">
     <div class="form-group">
         <label class="col-sm-2 control-label">Infusionsoft ID</label>
 
         <div class="col-sm-4">
             <p class="form-control-static">
-                ${fn:escapeXml(user != null ? user.username : '')}
-                <span class="help-block"><a href="/app/profile/changePassword">Change Password</a></span>
+                    ${fn:escapeXml(user != null ? user.username : '')}
+                <span class="help-block"><a href="${changePasswordUrl}">Change Password</a></span>
             </p>
         </div>
 
@@ -45,7 +48,6 @@
             <input class="form-control" id="lastName" name="lastName" value="${fn:escapeXml(user != null ? user.lastName : '')}" type="text"/>
         </div>
     </div>
-
     <div class="form-group">
         <div class="col-sm-6">
             <div class="pull-right">
@@ -56,6 +58,7 @@
             </div>
         </div>
     </div>
-</form>
+
+</form:form>
 </body>
 </html>

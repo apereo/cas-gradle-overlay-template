@@ -51,9 +51,6 @@ public class InfusionsoftAuthenticationServiceImpl implements InfusionsoftAuthen
     private CommunityService communityService;
 
     @Autowired
-    private CrmService crmService;
-
-    @Autowired
     private TicketRegistry ticketRegistry;
 
     @Autowired
@@ -92,6 +89,13 @@ public class InfusionsoftAuthenticationServiceImpl implements InfusionsoftAuthen
 
     @Value("${infusionsoft.marketplace.loginurl}")
     private String marketplaceLoginUrl;
+
+    @Value("${infusionsoft.cas.security.questions.force.answer}")
+    private boolean forceSecurityQuestion;
+
+    @Value("${infusionsoft.cas.security.questions.number.required}")
+    private int securityQuestionRequiredResponseCount;
+
 
     /**
      * Guesses an app name from a URL, or null if there isn't one to be found.

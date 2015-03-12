@@ -39,14 +39,12 @@
             </div>
         </div>
         <div class="form-group">
-            <label class="col-sm-2 control-label">
-                <spring:message code="marketing.enable.adds.label"/>
-            </label>
-
-            <div class="col-sm-4">
-                <label>
-                    <form:checkbox cssClass="form-control" path="enableAds" value="enableAdds"/>
-                </label>
+            <div class="col-sm-offset-2 col-sm-4">
+                <div class="checkbox">
+                    <label>
+                        <form:checkbox path="enableAds" value="enableAdds"/> <spring:message code="marketing.enable.adds.label"/>
+                    </label>
+                </div>
             </div>
         </div>
         <div class="form-group">

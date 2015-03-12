@@ -6,6 +6,7 @@ import com.infusionsoft.cas.services.AutoLoginService;
 import com.infusionsoft.cas.services.PasswordService;
 import com.infusionsoft.cas.services.UserService;
 import com.infusionsoft.cas.web.ValidationUtils;
+import com.infusionsoft.cas.web.controllers.commands.EditProfileForm;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,14 +17,12 @@ import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 
 @Controller
 public class ProfileController {
@@ -49,20 +48,19 @@ public class ProfileController {
      * Brings up the form to edit the user profile.
      */
     @RequestMapping
-    public ModelAndView editProfile() throws IOException {
+    public String editProfile(Model model) throws IOException {
         try {
-            HashMap<String, Object> model = new HashMap<String, Object>();
             User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
             user = userService.loadUser(user.getUsername());
 
-            model.put("user", user);
-            model.put("editProfileLinkSelected", "selected");
+            model.addAttribute("user", user);
+            model.addAttribute("editProfileLinkSelected", "selected");
 
-            return new ModelAndView("profile/editProfile", model);
+            return "profile/editProfile";
         } catch (Exception e) {
             log.error("unable to load user for current request!", e);
 
-            return new ModelAndView("redirect:/central/home");
+            return "redirect:/central/home";
         }
     }
 
@@ -70,7 +68,7 @@ public class ProfileController {
      * Updates the user profile.
      */
     @RequestMapping
-    public String updateProfile(String firstName, String lastName, Model model) throws IOException {
+    public String updateProfile(@ModelAttribute("editProfileForm") EditProfileForm editProfileForm, Model model) throws IOException {
         User user = userService.loadUser(SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString());
 
         try {
@@ -78,9 +76,9 @@ public class ProfileController {
             if (model.containsAttribute("error")) {
                 log.info("couldn't update user account for user " + user.getId() + ": " + model.asMap().get("error"));
             } else {
-                user.setFirstName(firstName);
-                user.setLastName(lastName);
-                userService.saveUser(user);
+                user.setFirstName(editProfileForm.getFirstName());
+                user.setLastName(editProfileForm.getLastName());
+                user = userService.saveUser(user);
             }
         } catch (InfusionsoftValidationException e) {
             log.error("Failed to create user account", e);

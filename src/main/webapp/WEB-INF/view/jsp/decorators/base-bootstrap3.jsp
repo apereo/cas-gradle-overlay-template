@@ -11,7 +11,8 @@
 <c:url var="bootstrapChoosenCss" value="/bootstrap-chosen/bootstrap-chosen.css"/>
 <c:url var="bootstrapTypeaheadCss" value="/css/typeahead-bootstrap-fix.css"/>
 
-<c:url var="jqueryJs" value="/js/jquery-1.11.0/jquery-1.11.0.min.js"/>
+<c:url var="jqueryJs" value="/js/jquery-2.1.3/jquery-2.1.3.min.js"/>
+<%--<c:url var="jqueryJs" value="/js/jquery-1.11.0/jquery-1.11.0.min.js"/>--%>
 <c:url var="bootstrapJs" value="/bootstrap-3.2.0-dist/js/bootstrap.min.js"/>
 <c:url var="placeholderJs" value="/js/jquery-plugins/placeholder-0.2.4/jquery.placeholder.js"/>
 <c:url var="chosenJs" value="/js/jquery-plugins/chosen-1.1.0/chosen.jquery.min.js"/>
@@ -20,6 +21,11 @@
 <c:url var="typeAheadJs" value="/js/typeahead-0.10.5/typeahead.bundle.js"/>
 
 <c:url var="infusionsoftChosenConfig" value="/js/infusionsoft-chosen.js"/>
+
+<c:url var="animo_css" value="/js/animo/animate-animo.min.css"/>
+<c:url var="animo_js" value="/js/animo/animo.min.js"/>
+
+<c:url var="infusionsoft_icon_css" value="/infusionsoft-icon/style.css"/>
 
 <!DOCTYPE html>
 
@@ -37,7 +43,10 @@
         <decorator:title/>
     </title>
 
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
     <link type="text/css" rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700,800"/>
+    <link type="text/css" rel="stylesheet" href="${infusionsoft_icon_css}"/>
+    <link type="text/css" rel="stylesheet" href="${animo_css}"/>
     <link type="text/css" rel="stylesheet" href="${bootstrapCss}"/>
     <link type="text/css" rel="stylesheet" href="${bootstrapChoosenCss}"/>
     <link type="text/css" rel="stylesheet" href="${bootstrapTypeaheadCss}"/>
@@ -66,6 +75,7 @@
 
 <!-- global java script files -->
 <script type="text/javascript" src="${jqueryJs}"></script>
+<script type="text/javascript" src="${animo_js}"></script>
 <script type="text/javascript" src="${bootstrapJs}"></script>
 <script type="text/javascript" src="${placeholderJs}"></script>
 <script type="text/javascript" src="${chosenJs}"></script>

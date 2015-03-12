@@ -197,12 +197,12 @@ p.text-error object {
     color: #BABABA;
 }
 
-.nav > li > a:hover, .nav > li > a:focus {
+.navbar-nav > li > a:hover, .navbar-nav > li > a:focus {
     background-color: #fff;
     border-bottom: 3px #5A922A solid;
 }
 
-.nav > li > a {
+.navbar-nav > li > a {
     border-radius: 0;
     color: #444444;
     font-size: 13px;
@@ -273,11 +273,11 @@ p.text-error object {
     }
 }
 
-div.container > .page-header {
+div.container .page-header {
     border-bottom: none;
 }
 
-div.popover-content > .page-header {
+div.popover-content .page-header {
     margin: 20px 0 20px
 }
 
@@ -472,4 +472,127 @@ div.popover-content > .page-header {
     padding: 13px 13px;
 }
 
+.tab-content {
+    margin-top: 15px;
+}
 
+a.list-group-item:hover, a.list-group-item:active {
+    color: #5A922A;
+    background-color: #fff;
+}
+
+.list-group.security-question-list {
+    font-size: 16px;
+    border: solid 1px #ddd;
+    border-radius: 4px;
+    background-color: #f3f3f3;
+    /*padding: 20px 0*/
+}
+
+.security-question-list .list-group-item, .security-question-list .list-group-item:hover {
+    background-color: transparent;
+    border: solid #ddd;
+    border-width: 0 0 1px 0;
+    margin: 10px 40px;
+}
+
+.security-question-list .list-group-item:last-child {
+    border: none;
+}
+
+.security-question-list .ic {
+    font-size: 24px;
+}
+
+.vcenter {
+    display: inline-block;
+    vertical-align: middle;
+    float: none;
+}
+
+@-webkit-keyframes infBounceIn {
+    0% {
+        opacity: 0;
+        -webkit-transform: scale(.6);
+    }
+
+    50% {
+        opacity: 1;
+        -webkit-transform: scale(1.05);
+    }
+
+    70% {
+        -webkit-transform: scale(.9);
+    }
+
+    100% {
+        -webkit-transform: scale(1);
+    }
+}
+
+@-moz-keyframes infBounceIn {
+    0% {
+        opacity: 0;
+        -moz-transform: scale(.6);
+    }
+
+    50% {
+        opacity: 1;
+        -moz-transform: scale(1.05);
+    }
+
+    70% {
+        -moz-transform: scale(.9);
+    }
+
+    100% {
+        -moz-transform: scale(1);
+    }
+}
+
+@-o-keyframes infBounceIn {
+    0% {
+        opacity: 0;
+        -o-transform: scale(.6);
+    }
+
+    50% {
+        opacity: 1;
+        -o-transform: scale(1.05);
+    }
+
+    70% {
+        -o-transform: scale(.9);
+    }
+
+    100% {
+        -o-transform: scale(1);
+    }
+}
+
+@keyframes infBounceIn {
+    0% {
+        opacity: 0;
+        transform: scale(.6);
+    }
+
+    50% {
+        opacity: 1;
+        transform: scale(1.05);
+    }
+
+    70% {
+        transform: scale(.9);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+.animated.infBounceIn {
+    -webkit-animation-name: infBounceIn;
+    -moz-animation-name: infBounceIn;
+    -o-animation-name: infBounceIn;
+    animation-name: infBounceIn;
+}

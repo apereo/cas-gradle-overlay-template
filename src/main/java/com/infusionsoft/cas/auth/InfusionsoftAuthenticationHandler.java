@@ -1,5 +1,7 @@
 package com.infusionsoft.cas.auth;
 
+import com.infusionsoft.cas.exceptions.PasswordPolicyEnforcementException;
+import com.infusionsoft.cas.exceptions.SecurityQuestionException;
 import com.infusionsoft.cas.services.InfusionsoftAuthenticationService;
 import org.jasig.cas.authentication.handler.AuthenticationException;
 import org.jasig.cas.authentication.handler.BadUsernameOrPasswordAuthenticationException;

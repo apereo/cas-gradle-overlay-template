@@ -3,8 +3,10 @@ package com.infusionsoft.cas.web.controllers;
 import com.infusionsoft.cas.domain.AppType;
 import com.infusionsoft.cas.domain.User;
 import com.infusionsoft.cas.domain.UserAccount;
+import com.infusionsoft.cas.exceptions.InfusionsoftValidationException;
 import com.infusionsoft.cas.services.CrmService;
 import com.infusionsoft.cas.services.InfusionsoftAuthenticationService;
+import com.infusionsoft.cas.services.SecurityQuestionService;
 import com.infusionsoft.cas.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -29,10 +31,16 @@ public class SupportController {
     InfusionsoftAuthenticationService infusionsoftAuthenticationService;
 
     @Autowired
+    SecurityQuestionService securityQuestionService;
+
+    @Autowired
     UserService userService;
 
     @Value("${infusionsoft.crm.domain}")
     private String crmDomain;
+
+    @Value("${infusionsoft.crm.port}")
+    private int crmPort;
 
     @RequestMapping
     public String userSearch(Model model, String searchUsername, Integer page) {
@@ -41,6 +49,7 @@ public class SupportController {
         model.addAttribute("userList", users.getContent());
         model.addAttribute("searchUsername", searchUsername);
         model.addAttribute("crmDomain", crmDomain);
+        model.addAttribute("crmPort", crmPort);
 
         return "support/userSearch";
     }
@@ -61,6 +70,16 @@ public class SupportController {
         infusionsoftAuthenticationService.unlockUser(user.getUsername());
 
         model.addAttribute("success", "Unlocked " + user.getUsername());
+
+        return userSearch(model, null, 0);
+    }
+
+    @RequestMapping
+    public String resetSecurityQuestion(Long id, Model model) throws InfusionsoftValidationException {
+        User user = userService.loadUser(id);
+        securityQuestionService.deleteResponses(user);
+
+        model.addAttribute("success", "Deleted security question responses for " + user.getUsername());
 
         return userSearch(model, null, 0);
     }
