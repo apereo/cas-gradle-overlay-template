@@ -12,6 +12,7 @@
 <%--@elvariable id="skipWelcomeEmail" type="java.lang.Boolean"--%>
 <%--@elvariable id="error" type="java.lang.String"--%>
 <%--@elvariable id="user" type="com.infusionsoft.cas.domain.User"--%>
+<%--@elvariable id="securityQuestions" type="java.util.List<SecurityQuestion>"--%>
 
 <c:url var="createInfusionsoftIdJs" value="/js/createInfusionsoftId.js"/>
 
@@ -127,6 +128,19 @@
                             </div>
                         </div>
 
+                        <div class="form-group">
+                            <label><spring:message code='registration.form.security.question'/></label>
+                            <form:select path="" value="" cssClass="form-control" id="securityQuestionId" name="securityQuestionId" >
+                                <option value="" disabled selected><spring:message code='registration.form.security.question.placeholder'/></option>
+                                <form:options items="${securityQuestions}" itemValue="id" itemLabel="question" tabindex="7"/>
+                            </form:select>
+                        </div>
+
+                        <div class="form-group">
+                            <label><spring:message code='registration.form.security.answer'/></label>
+                            <form:input class="form-control" path="" id="securityQuestionAnswer" name="securityQuestionAnswer" tabindex="7"/>
+                        </div>
+
                         <div class="row">
                             <div class="col-xs-12 text-center">
                                 <div class="form-group">
@@ -235,6 +249,12 @@
                         password: false,
                         equalTo: "#password1"
                     },
+                    securityQuestionId: {
+                        required: true
+                    },
+                    securityQuestionAnswer: {
+                        required: true
+                    },
                     eula: {
                         required: true
                     }
@@ -258,6 +278,8 @@
                         required: "<spring:message code='password.error.blank'/>",
                         equalTo: "<spring:message code='password.error.passwords.dont.match'/>"
                     },
+                    securityQuestion: "<spring:message code='user.error.security.question.blank'/>",
+                    securityQuestionAnswer: "<spring:message code='user.error.security.question.answer.blank'/>",
                     eula: "<spring:message code='registration.error.eula'/>"
 
                 },

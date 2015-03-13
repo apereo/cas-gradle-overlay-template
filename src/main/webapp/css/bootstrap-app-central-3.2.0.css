@@ -482,11 +482,19 @@ a.list-group-item:hover, a.list-group-item:active {
 }
 
 .list-group.security-question-list {
-    font-size: 16px;
+    /*font-size: 16px;*/
     border: solid 1px #ddd;
     border-radius: 4px;
     background-color: #f3f3f3;
     /*padding: 20px 0*/
+}
+
+.subtitle {
+    font-size: 16px;
+}
+
+.question-text {
+    font-size: 16px;
 }
 
 .security-question-list .list-group-item, .security-question-list .list-group-item:hover {
@@ -500,7 +508,15 @@ a.list-group-item:hover, a.list-group-item:active {
     border: none;
 }
 
-.security-question-list .ic {
+.answer .well {
+    cursor: pointer;
+}
+
+.answer .question:hover {
+    color: #5A922A;
+}
+
+.security-question-list .ic, .answer .ic {
     font-size: 24px;
 }
 

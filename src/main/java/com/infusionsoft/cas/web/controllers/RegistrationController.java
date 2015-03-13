@@ -1,10 +1,7 @@
 package com.infusionsoft.cas.web.controllers;
 
 import com.infusionsoft.cas.auth.LoginResult;
-import com.infusionsoft.cas.domain.AppType;
-import com.infusionsoft.cas.domain.PendingUserAccount;
-import com.infusionsoft.cas.domain.User;
-import com.infusionsoft.cas.domain.UserAccount;
+import com.infusionsoft.cas.domain.*;
 import com.infusionsoft.cas.exceptions.AccountException;
 import com.infusionsoft.cas.exceptions.InfusionsoftValidationException;
 import com.infusionsoft.cas.services.*;
@@ -60,6 +57,9 @@ public class RegistrationController {
 
     @Autowired
     private MailService mailService;
+
+    @Autowired
+    SecurityQuestionService securityQuestionService;
 
     @Autowired
     private UserService userService;
@@ -152,6 +152,7 @@ public class RegistrationController {
         }
         model.addAttribute("userToken", userToken);
         model.addAttribute("user", user);
+        model.addAttribute("securityQuestions", securityQuestionService.fetchAllEnabled());
         model.addAttribute("registrationCode", registrationCode);
         model.addAttribute("skipWelcomeEmail", skipWelcomeEmail);
     }
@@ -232,7 +233,7 @@ public class RegistrationController {
      * Registers a new user account.
      */
     @RequestMapping
-    public String register(Model model, String firstName, String lastName, String username, String username2, String password1, String password2, String eula, String registrationCode, String returnUrl, String skipUrl, String userToken, @RequestParam(defaultValue = "false") boolean skipWelcomeEmail, HttpServletRequest request, HttpServletResponse response) {
+    public String register(Model model, String firstName, String lastName, String username, String username2, String password1, String password2, String eula, String registrationCode, String returnUrl, String skipUrl, String userToken, @RequestParam(defaultValue = "false") boolean skipWelcomeEmail, Long securityQuestionId, String securityQuestionAnswer, HttpServletRequest request, HttpServletResponse response) {
         boolean eulaChecked = StringUtils.equals(eula, "agreed");
         User user = new User();
 
@@ -260,6 +261,10 @@ public class RegistrationController {
                 model.addAttribute("error", "user.error.email.inUse.with.link");
             } else if (!eulaChecked) {
                 model.addAttribute("error", "registration.error.eula");
+            }else if(StringUtils.isBlank(securityQuestionAnswer)) {
+                model.addAttribute("error", "registration.error.security.question.answer");
+            } else if (securityQuestionId == null) {
+                model.addAttribute("error", "registration.error.security.question");
             } else {
                 String passwordError = passwordService.validatePassword(user, password1);
                 if (passwordError != null) {
@@ -271,7 +276,19 @@ public class RegistrationController {
                 log.warn("couldn't create new user account: " + model.asMap().get("error"));
             } else {
 
+
+
                 user = userService.createUser(user, password1);
+
+                SecurityQuestion securityQuestion = securityQuestionService.fetch(securityQuestionId);
+                SecurityQuestionResponse securityQuestionResponse = new SecurityQuestionResponse();
+                securityQuestionResponse.setUser(user);
+                securityQuestionResponse.setSecurityQuestion(securityQuestion);
+                securityQuestionResponse.setResponse(securityQuestionAnswer);
+                securityQuestionService.save(securityQuestionResponse);
+
+                user.getSecurityQuestionResponses().add(securityQuestionResponse);
+
                 model.addAttribute("user", user);
 
                 if (StringUtils.isNotEmpty(registrationCode)) {

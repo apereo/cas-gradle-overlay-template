@@ -7,10 +7,10 @@ $(document).ready(function() {
     var $tempListGroup;
     var $tempAnswer = $answer.detach();
 
-    var answerTransitionIn = "fadeInRight";
-    var answerTransitionOut = "fadeOutLeft";
-    var questionsTransitionIn = "fadeInLeft";
-    var questionsTransitionOut = "fadeOutRight";
+    var answerTransitionIn = "fadeInUp";
+    var answerTransitionOut = "fadeOutDown";
+    var questionsTransitionIn = "fadeInUp";
+    var questionsTransitionOut = "fadeOutDown";
     var duration = 0.3;
 
     $listGroup.find(".list-group-item").animo({animation: "infBounceIn", duration: .5});
@@ -31,9 +31,11 @@ $(document).ready(function() {
         var $securityQuestionId = $("#securityQuestionId");
 
         var id = $this.data("question-id");
+        var icon = $this.data("question-icon");
         var questionText = $this.find(".question-text").text();
 
         $securityQuestionId.val(id);
+        $answer.find("#question-icon").removeClass().addClass("ic").addClass("vcenter").addClass("hidden-xs").addClass(icon);
         $answer.find(".question-text").text(questionText);
 
         $listGroup.animo({animation: questionsTransitionOut, duration: duration}, function() {

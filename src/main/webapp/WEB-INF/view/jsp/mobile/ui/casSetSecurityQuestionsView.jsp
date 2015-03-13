@@ -30,15 +30,24 @@
 
 <div class="container">
     <%--<div class="rounded-box-wide">--%>
-    <div class="row">
-        <div class="col-xs-12 col-sm-8 col-sm-offset-2 text-center">
-            <div class="page-header">
+    <div class="page-header">
+        <div class="row">
+            <div class="col-xs-12 col-sm-8 col-sm-offset-2 text-center">
                 <h2>
                     <spring:message code="security.question.title.label"/>
                 </h2>
+
+                <div class="row">
+                    <div class="col-xs-12 col-sm-8 col-sm-offset-2">
+                        <p class="subtitle">
+                            <spring:message code="security.question.sub.title.label"/>
+                        </p>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
+
     <div class="row">
         <div class="col-xs-12 col-sm-6 col-sm-offset-3">
             <form:form cssClass="form-horizontal" commandName="${commandName}" method="post">
@@ -61,9 +70,9 @@
                         <div class="col-xs-12">
                             <div class="list-group security-question-list">
                                 <c:forEach var="securityQuestion" items="${securityQuestions}">
-                                    <a href="#" class="question list-group-item" data-question-id="${securityQuestion.id}">
+                                    <a href="#" class="question list-group-item" data-question-id="${securityQuestion.id}" data-question-icon="${securityQuestion.iconPath}">
                                         <div class="text-center">
-                                            <i class="ic ${securityQuestion.iconPath} vcenter hidden-xs"></i>
+                                            <i class="ic ${securityQuestion.iconPath} hidden-xs vcenter"></i>
                                             <span class="text-center question-text vcenter">${securityQuestion.question}</span>
                                         </div>
                                     </a>
@@ -74,18 +83,21 @@
 
                     <div class="answer">
                         <div class="form-group">
-                            <div class="col-xs-12 col-sm-8 col-sm-offset-2">
-                                <div class="well">
-                                    <span class="text-center question-text"></span>
-                                    <i class="fa fa-caret-down pull-right"></i>
+                            <div class="col-xs-12 col-sm-10 col-sm-offset-1">
+                                <div class="well text-center">
+                                    <span class="question">
+                                        <i id="question-icon"></i>
+                                        <span class="text-center question-text vcenter"></span>
+                                    </span>
+                                    <i class="fa fa-caret-down pull-right vcenter"></i>
                                 </div>
                             </div>
-                            <div class="col-xs-12 col-sm-8 col-sm-offset-2">
+                            <div class="col-xs-12 col-sm-10 col-sm-offset-1">
                                 <input type="text" name="response" class="form-control input-lg" placeholder="Answer" autocomplete="off">
                             </div>
                         </div>
                         <div class="form-group">
-                            <div class="col-xs-12 col-sm-8 col-sm-offset-2">
+                            <div class="col-xs-12 col-sm-10 col-sm-offset-1">
                                 <button type="submit" class="btn btn-primary btn-block"><spring:message code="button.save"/></button>
                             </div>
                         </div>
