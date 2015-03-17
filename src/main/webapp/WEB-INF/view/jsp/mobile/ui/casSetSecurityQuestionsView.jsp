@@ -7,8 +7,6 @@
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 
-<c:url var="cs_select_css" value="/css/cs-select.css"/>
-<c:url var="cs_skin_slide_css" value="/css/cs-skin-slide.css"/>
 <c:url var="security_questions_js" value="/js/securityQuestions.js"/>
 
 <%--@elvariable id="supportPhoneNumbers" type="java.util.List<String>"--%>
@@ -21,15 +19,10 @@
     <meta name="decorator" content="black-header-minimal"/>
     <meta name="robots" content="noindex">
     <title><spring:message code="security.question.title.label"/></title>
-
-    <link type="text/css" rel="stylesheet" href="${animo_css}"/>
-    <%--<link type="text/css" rel="stylesheet" href="${cs_select_css}"/>--%>
-    <%--<link type="text/css" rel="stylesheet" href="${cs_skin_slide_css}"/>--%>
 </head>
 <body>
 
 <div class="container">
-    <%--<div class="rounded-box-wide">--%>
     <div class="page-header">
         <div class="row">
             <div class="col-xs-12 col-sm-8 col-sm-offset-2 text-center">
@@ -61,9 +54,7 @@
                 </form:errors>
 
                 <input type="hidden" name="execution" value="${flowExecutionKey}"/>
-                <input type="hidden" name="_eventId" value="submit"/>
                 <input type="hidden" id="securityQuestionId" name="securityQuestionId" value="0"/>
-                <input type="hidden" id="skipInput" name="skip" value="false"/>
 
                 <div class="animationHolder">
                     <div class="form-group">
@@ -87,18 +78,18 @@
                                 <div class="well text-center">
                                     <span class="question">
                                         <i id="question-icon"></i>
-                                        <span class="text-center question-text vcenter"></span>
+                                        <span class="text-center question-text"></span>
+                                        <i id="caret" class="fa fa-caret-down pull-right"></i>
                                     </span>
-                                    <i class="fa fa-caret-down pull-right vcenter"></i>
                                 </div>
                             </div>
                             <div class="col-xs-12 col-sm-10 col-sm-offset-1">
-                                <input type="text" name="response" class="form-control input-lg" placeholder="Answer" autocomplete="off">
+                                <input type="text" name="response" class="form-control" placeholder="Answer" autocomplete="off">
                             </div>
                         </div>
                         <div class="form-group">
                             <div class="col-xs-12 col-sm-10 col-sm-offset-1">
-                                <button type="submit" class="btn btn-primary btn-block"><spring:message code="button.save"/></button>
+                                <button type="submit" name="_eventId_submit" value="submit" class="btn btn-primary btn-block"><spring:message code="button.save"/></button>
                             </div>
                         </div>
                     </div>
@@ -107,7 +98,7 @@
                 <c:if test="${!securityQuestionsRequired}">
                     <div class="form-group">
                         <div class="col-sm-12 text-center">
-                            or <a href="#" class="skip">skip this for now</a>
+                            <button type="submit" name="_eventId_skip" class="btn btn-link skip" value="skip">skip this for now</button>
                         </div>
                     </div>
                 </c:if>
@@ -125,12 +116,7 @@
     </div>
 </div>
 
-<%--</div>--%>
-
 <content tag="local_script">
-    <%--<script type="text/javascript" src="<c:url value="/js/classie.js"/>"></script>--%>
-    <%--<script type="text/javascript" src="<c:url value="/js/selectFx.js"/>"></script>--%>
-
     <script type="text/javascript" src="${security_questions_js}"></script>
 </content>
 

@@ -1,5 +1,5 @@
 $(document).ready(function () {
-    var $form = $("form");
+    //var $form = $("form");
     var $listGroup = $(".list-group");
     var $answer = $(".answer");
     var $answerInput = $answer.find("input");
@@ -15,14 +15,6 @@ $(document).ready(function () {
     var duration = 0.3;
 
     $listGroup.find(".list-group-item").animo({animation: "infBounceIn", duration: .5});
-
-    $(".skip").on("click", function (e) {
-        e.preventDefault();
-        e.stopPropagation();
-
-        $("#skipInput").val("true");
-        $form.submit();
-    });
 
     $listGroup.on("click", ".list-group-item", function (e) {
         e.preventDefault();

@@ -612,3 +612,156 @@ a.list-group-item:hover, a.list-group-item:active {
     -o-animation-name: infBounceIn;
     animation-name: infBounceIn;
 }
+
+@-webkit-keyframes zoomIn {
+    0% {
+        opacity: 0;
+        transform: scale3d(.3, .3, .3);
+    }
+
+    50% {
+        opacity: 1;
+    }
+}
+
+@-moz-keyframes zoomIn {
+    0% {
+        opacity: 0;
+        transform: scale3d(.3, .3, .3);
+    }
+
+    50% {
+        opacity: 1;
+    }
+}
+
+@-o-keyframes zoomIn {
+    0% {
+        opacity: 0;
+        transform: scale3d(.3, .3, .3);
+    }
+
+    50% {
+        opacity: 1;
+    }
+}
+
+@keyframes zoomIn {
+    0% {
+        opacity: 0;
+        transform: scale3d(.3, .3, .3);
+    }
+
+    50% {
+        opacity: 1;
+    }
+}
+
+.animated.zoomIn {
+    -webkit-animation-name: zoomIn;
+    -moz-animation-name: zoomIn;
+    -o-animation-name: zoomIn;
+    animation-name: zoomIn;
+}
+
+@-webkit-keyframes zoomOut {
+    0% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0;
+        transform: scale3d(.3, .3, .3);
+    }
+
+    100% {
+        opacity: 0;
+    }
+}
+
+@-moz-keyframes zoomOut {
+    0% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0;
+        transform: scale3d(.3, .3, .3);
+    }
+
+    100% {
+        opacity: 0;
+    }
+}
+
+@-o-keyframes zoomOut {
+    0% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0;
+        transform: scale3d(.3, .3, .3);
+    }
+
+    100% {
+        opacity: 0;
+    }
+}
+
+@keyframes zoomOut {
+    0% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0;
+        transform: scale3d(.3, .3, .3);
+    }
+
+    100% {
+        opacity: 0;
+    }
+}
+
+.animated.zoomOut {
+    -webkit-animation-name: zoomOut;
+    -moz-animation-name: zoomOut;
+    -o-animation-name: zoomOut;
+    animation-name: zoomOut;
+}
+
+.skip:focus {
+    outline: none;
+}
+
+.confirm-success {
+    height: 80px;
+    width: 80px;
+}
+
+input.form-control {
+    height: 40px;
+    font-size: 16px;
+    margin-bottom: 5px;
+}
+.btn-default {
+    height: 40px;
+    font-size: 16px;
+}
+.btn-success {
+    background-color: #51A3DC;
+    border-color: #125079;
+    height: 40px;
+    font-size: 16px;
+}
+
+.btn-success:hover {
+    background-color: #4492c8;
+    border-color: #125079;
+}
+
+#caret {
+    font-size: 16px;
+    line-height: 1.42857143;
+}

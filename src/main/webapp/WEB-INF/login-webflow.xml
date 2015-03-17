@@ -117,12 +117,6 @@
     <end-state id="casAccountLockedView" view="casAccountLockedView"/>
     <end-state id="casBadHoursView" view="casBadHoursView"/>
     <end-state id="casBadWorkstationView" view="casBadWorkstationView"/>
-    <!--<end-state id="casSetSecurityQuestionsView" view="casSetSecurityQuestionsView">-->
-    <!--<on-entry>-->
-    <!--<evaluate result="viewScope.numSecurityQuestionsRequired" expression="securityQuestionService.getNumSecurityQuestionsRequired()"/>-->
-    <!--<evaluate result="viewScope.securityQuestions" expression="securityQuestionService.fetchAllEnabled()"/>-->
-    <!--</on-entry>-->
-    <!--</end-state>-->
     <!-- LPPE transitions end here... -->
 
     <action-state id="generateLoginTicket">
@@ -178,6 +172,16 @@
         <transition on="passwordExpired" to="casExpiredPassView"/>
     </action-state>
 
+    <action-state id="sendTicketGrantingTicket">
+        <evaluate expression="sendTicketGrantingTicketAction"/>
+        <transition to="addTicketGrantingTicketToFlowScope"/>
+    </action-state>
+
+    <action-state id="addTicketGrantingTicketToFlowScope">
+        <evaluate expression="addTicketGrantingTicketToFlowScopeAction"/>
+        <transition to="checkSecurityQuestions"/>
+    </action-state>
+
     <action-state id="checkSecurityQuestions">
         <evaluate expression="checkSecurityQuestionsAction"/>
         <transition on="success" to="serviceCheck"/>
@@ -188,7 +192,6 @@
         <binder>
             <binding property="securityQuestionId"/>
             <binding property="response"/>
-            <binding property="skip" required="false"/>
         </binder>
         <on-entry>
             <evaluate result="viewScope.securityQuestions" expression="securityQuestionService.fetchAllEnabled()"/>
@@ -196,18 +199,22 @@
             <set name="viewScope.commandName" value="'securityQuestionsForm'"/>
         </on-entry>
         <transition on="submit" bind="true" validate="true" to="realSecurityQuestionSubmit"/>
+        <transition on="skip" to="skipSecurityQuestions"/>
     </view-state>
 
     <action-state id="realSecurityQuestionSubmit">
         <evaluate expression="infusionsoftSecurityQuestionsActionForm.submit(flowScope.credentials, flowScope.securityQuestionsForm, messageContext)"/>
-        <transition on="success" to="serviceCheck"/>
+        <transition on="success" to="securityQuestionsConfirm"/>
         <transition on="error" to="securityQuestionForm"/>
     </action-state>
 
-    <action-state id="sendTicketGrantingTicket">
-        <evaluate expression="sendTicketGrantingTicketAction"/>
-        <transition to="checkSecurityQuestions"/>
-    </action-state>
+    <decision-state id="skipSecurityQuestions">
+        <if test="securityQuestionService.isForceSecurityQuestion()" then="securityQuestionForm" else="serviceCheck"/>
+    </decision-state>
+
+    <view-state id="securityQuestionsConfirm" view="casSetSecurityQuestionsConfirmView">
+        <transition on="success" to="serviceCheck"/>
+    </view-state>
 
     <decision-state id="serviceCheck">
         <if test="flowScope.service != null" then="generateServiceTicket" else="viewGenericLoginSuccess"/>

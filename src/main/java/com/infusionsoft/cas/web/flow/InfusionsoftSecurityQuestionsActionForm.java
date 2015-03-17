@@ -27,30 +27,25 @@ public class InfusionsoftSecurityQuestionsActionForm {
     protected Logger logger = LoggerFactory.getLogger(getClass());
 
     public final String submit(final Credentials credentials, final SetSecurityQuestionsForm securityQuestionsForm, final MessageContext messageContext) throws Exception {
-        String retVal;
+        String retVal = "success";
 
-        if (securityQuestionService.isForceSecurityQuestion() || !securityQuestionsForm.isSkip()) {
-            try {
-                SecurityQuestion securityQuestion = securityQuestionService.fetch(securityQuestionsForm.getSecurityQuestionId());
-                UsernamePasswordCredentials usernamePasswordCredentials = (UsernamePasswordCredentials) credentials;
-                User user = userService.loadUser(usernamePasswordCredentials.getUsername());
+//        if (securityQuestionService.isForceSecurityQuestion() || !securityQuestionsForm.isSkip()) {
+        try {
+            SecurityQuestion securityQuestion = securityQuestionService.fetch(securityQuestionsForm.getSecurityQuestionId());
+            UsernamePasswordCredentials usernamePasswordCredentials = (UsernamePasswordCredentials) credentials;
+            User user = userService.loadUser(usernamePasswordCredentials.getUsername());
 
-                SecurityQuestionResponse securityQuestionResponse = new SecurityQuestionResponse();
-                securityQuestionResponse.setResponse(securityQuestionsForm.getResponse());
-                securityQuestionResponse.setUser(user);
-                securityQuestionResponse.setSecurityQuestion(securityQuestion);
+            SecurityQuestionResponse securityQuestionResponse = new SecurityQuestionResponse();
+            securityQuestionResponse.setResponse(securityQuestionsForm.getResponse());
+            securityQuestionResponse.setUser(user);
+            securityQuestionResponse.setSecurityQuestion(securityQuestion);
 
-                securityQuestionService.save(securityQuestionResponse);
+            securityQuestionService.save(securityQuestionResponse);
+        } catch (Exception e) {
+            logger.error("Error saving security question response", e);
+            messageContext.addMessage(new MessageBuilder().error().code("security.question.response.save.error").defaultText("Unable to save response").build());
 
-                retVal = "success";
-            } catch (Exception e) {
-                logger.error("Error saving security question response", e);
-                messageContext.addMessage(new MessageBuilder().error().code("security.question.response.save.error").defaultText("Unable to save response").build());
-
-                retVal = "error";
-            }
-        } else {
-            retVal = "success";
+            retVal = "error";
         }
 
         return retVal;
