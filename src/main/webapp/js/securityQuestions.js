@@ -41,6 +41,7 @@ $(document).ready(function() {
         $listGroup.animo({animation: questionsTransitionOut, duration: duration}, function() {
             $tempAnswer.appendTo($animationHolder).animo({animation: answerTransitionIn, duration: duration});
             $tempListGroup = $listGroup.detach();
+            $answer.find("input").focus();
         });
     });
 
