@@ -1,0 +1,3 @@
+INSERT INTO RegisteredServiceImpl (allowedToProxy, anonymousAccess, name, enabled, evaluation_order, ignoreAttributes, description, serviceId, ssoEnabled, theme, expression_type, username_attr)
+VALUES (0, 0, 'DeveloperCenter', 1, 12000, 1, 'Developer Center', 'https://developer\\.infusion(soft|test)\\.com.*', 1, NULL, 'regex', 'id')
+ON DUPLICATE KEY UPDATE name = 'DeveloperCenter', description = 'Developer Center', serviceId = 'https://developer\\.infusion(soft|test)\\.com.*';
