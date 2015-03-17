@@ -1,7 +1,8 @@
-$(document).ready(function() {
+$(document).ready(function () {
     var $form = $("form");
     var $listGroup = $(".list-group");
     var $answer = $(".answer");
+    var $answerInput = $answer.find("input");
     var $animationHolder = $(".animationHolder");
 
     var $tempListGroup;
@@ -15,7 +16,7 @@ $(document).ready(function() {
 
     $listGroup.find(".list-group-item").animo({animation: "infBounceIn", duration: .5});
 
-    $(".skip").on("click", function(e) {
+    $(".skip").on("click", function (e) {
         e.preventDefault();
         e.stopPropagation();
 
@@ -23,7 +24,7 @@ $(document).ready(function() {
         $form.submit();
     });
 
-    $listGroup.on("click", ".list-group-item", function(e) {
+    $listGroup.on("click", ".list-group-item", function (e) {
         e.preventDefault();
         e.stopPropagation();
 
@@ -38,18 +39,19 @@ $(document).ready(function() {
         $answer.find("#question-icon").removeClass().addClass("ic").addClass("vcenter").addClass("hidden-xs").addClass(icon);
         $answer.find(".question-text").text(questionText);
 
-        $listGroup.animo({animation: questionsTransitionOut, duration: duration}, function() {
+        $listGroup.animo({animation: questionsTransitionOut, duration: duration}, function () {
             $tempAnswer.appendTo($animationHolder).animo({animation: answerTransitionIn, duration: duration});
             $tempListGroup = $listGroup.detach();
-            $answer.find("input").focus();
+            $answerInput.val("");
+            $answerInput.focus();
         });
     });
 
-    $answer.find(".well").on("click", function(e) {
+    $answer.find(".well").on("click", function (e) {
         e.preventDefault();
         e.stopPropagation();
 
-        $answer.animo({animation: answerTransitionOut, duration: duration}, function() {
+        $answer.animo({animation: answerTransitionOut, duration: duration}, function () {
             $listGroup.appendTo($animationHolder).animo({animation: questionsTransitionIn, duration: duration});
             $tempAnswer = $answer.detach();
         });
