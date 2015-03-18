@@ -8,10 +8,10 @@ $(document).ready(function () {
     var $tempListGroup;
     var $tempAnswer = $answer.detach();
 
-    var answerTransitionIn = "fadeInUp";
+    var answerTransitionIn = "fadeInDown";
     var answerTransitionOut = "fadeOutDown";
     var questionsTransitionIn = "fadeInUp";
-    var questionsTransitionOut = "fadeOutDown";
+    var questionsTransitionOut = "fadeOutUp";
     var duration = 0.3;
 
     $listGroup.find(".list-group-item").animo({animation: "infBounceIn", duration: .5});

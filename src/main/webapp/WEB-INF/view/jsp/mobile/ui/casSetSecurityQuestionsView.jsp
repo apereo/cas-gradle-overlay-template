@@ -78,7 +78,7 @@
                                 <div class="well text-center">
                                     <span class="question">
                                         <i id="question-icon"></i>
-                                        <span class="text-center question-text"></span>
+                                        <span class="text-center question-text vcenter"></span>
                                         <i id="caret" class="fa fa-caret-down pull-right"></i>
                                     </span>
                                 </div>
