@@ -34,7 +34,7 @@
             <th>
                 <spring:message code="securityQuestion.label"/>
             </th>
-            <sec:authorize url="${unlockUserUrl}">
+            <sec:authorize access="hasRole('ROLE_CAS_ADMIN') or hasRole('ROLE_CAS_SUPPORT_TIER_1') or hasRole('ROLE_CAS_SUPPORT_TIER_2')">
                 <th>
                     <spring:message code="supportTools.label"/>
                 </th>
@@ -49,11 +49,11 @@
             <c:forEach var="user" items="${users.content}">
                 <tr>
                     <td>
-                        <sec:authorize url="${editUserUrl}${user.id}">
+                        <sec:authorize access="hasRole('ROLE_CAS_ADMIN')">
                         <a href="${editUserUrl}${user.id}">
                             </sec:authorize>
                                 ${user.username}
-                            <sec:authorize url="${editUserUrl}${user.id}">
+                            <sec:authorize access="hasRole('ROLE_CAS_ADMIN')">
                         </a>
                         </sec:authorize>
                     </td>
@@ -72,7 +72,7 @@
                             </a>
                         </c:forEach>
                     </td>
-                    <sec:authorize url="${unlockUserUrl}${user.id}">
+                    <sec:authorize access="hasRole('ROLE_CAS_ADMIN') or hasRole('ROLE_CAS_SUPPORT_TIER_1') or hasRole('ROLE_CAS_SUPPORT_TIER_2')">
                         <td>
                             <ul>
                                 <li><a href="${unlockUserUrl}${user.id}"><spring:message code="unlock.label"/></a><br/></li>

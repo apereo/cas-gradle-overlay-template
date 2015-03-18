@@ -98,18 +98,18 @@
                 <ul class="nav navbar-nav">
                     <li class="${!empty homeLinkSelected ? 'active' : ''}"><a href="${homeLink}">Your Accounts</a></li>
                     <li class="${!empty editProfileLinkSelected ? 'active' : ''}"><a href="${editProfileLink}">Edit Your Profile</a></li>
-                    <sec:authorize url="${serviceLink}">
+                    <sec:authorize access="hasRole('ROLE_CAS_ADMIN')">
                         <li><a href="${serviceLink}">Services</a></li>
                         <li class="${!empty securityQuestionLinkSelected ? 'active' : ''}"><a href="${securityQuestionLink}">Security Questions</a></li>
                     </sec:authorize>
-                    <sec:authorize url="${masheryLink}">
+                    <sec:authorize access="hasRole('ROLE_CAS_SUPPORT_TIER_2')">
                         <li class="${!empty oauthLinkSelected ? 'active' : ''}"><a href="${masheryLink}">OAuth 2.0</a></li>
                     </sec:authorize>
-                    <sec:authorize url="${marketingOptionsLink}">
+                    <sec:authorize access="hasRole('ROLE_CAS_MARKETING_ADMIN')">
                         <li class="${!empty marketingOptionsLinkSelected ? 'active' : ''}"><a href="${marketingOptionsLink}">Marketing</a></li>
                     </sec:authorize>
                 </ul>
-                <sec:authorize url="${userSearchUrl}">
+                <sec:authorize access="hasRole('ROLE_CAS_ADMIN') or hasRole('ROLE_CAS_SUPPORT_TIER_1') or hasRole('ROLE_CAS_SUPPORT_TIER_2') or hasRole('ROLE_CAS_VIEW_SECURITY_QUESTIONS')">
                     <form class="navbar-form navbar-right" action="${userSearchUrl}" role="search">
                         <div class="form-group">
                             <div class="input-group">
