@@ -130,9 +130,9 @@
 
                         <div class="form-group">
                             <label><spring:message code='registration.form.security.question'/></label>
-                            <form:select path="" value="" cssClass="form-control" id="securityQuestionId" name="securityQuestionId" >
+                            <form:select path="" value="" cssClass="form-control" id="securityQuestionId" name="securityQuestionId" tabindex="7">
                                 <option value="" disabled selected><spring:message code='registration.form.security.question.placeholder'/></option>
-                                <form:options items="${securityQuestions}" itemValue="id" itemLabel="question" tabindex="7"/>
+                                <form:options items="${securityQuestions}" itemValue="id" itemLabel="question" />
                             </form:select>
                         </div>
 
