@@ -45,7 +45,15 @@ public class SecurityQuestionServiceImpl implements SecurityQuestionService {
 
     @Override
     public void delete(Long id) {
-        securityQuestionDAO.delete(id);
+        SecurityQuestion securityQuestion = fetch(id);
+        List<SecurityQuestionResponse> responses = securityQuestionResponseDAO.findAllBySecurityQuestion(securityQuestion);
+
+        if(responses.size() > 0) {
+            securityQuestion.setEnabled(false);
+            securityQuestionDAO.save(securityQuestion);
+        } else {
+            securityQuestionDAO.delete(id);
+        }
     }
 
     @Override
