@@ -6,7 +6,7 @@
 
 <c:url var="choosenCss" value="/css/chosen.min.css"/>
 <c:url var="bootstrapCss" value="/bootstrap-3.2.0-dist/css/bootstrap.min.css"/>
-<c:url var="bootstrapOverrideCss" value="/css/bootstrap-app-central-3.2.0.css"/>
+<c:url var="bootstrapOverrideCss" value="/css/bootstrap-app-central-3.2.0.1.css"/>
 
 <c:url var="bootstrapChoosenCss" value="/bootstrap-chosen/bootstrap-chosen.css"/>
 <c:url var="bootstrapTypeaheadCss" value="/css/typeahead-bootstrap-fix.css"/>
