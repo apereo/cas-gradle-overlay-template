@@ -15,12 +15,12 @@
 <%--@elvariable id="appUrl" type="java.lang.String"--%>
 <%--@elvariable id="supportPhoneNumbers" type="java.util.List<String>"--%>
 
-<c:url var="getLogoImageUrl" value="/app/registration/getLogoImageUrl"/>
-<c:url var="forgotPasswordUrl" value="/app/registration/forgot"/>
+<c:set var="getLogoImageUrl" value="${pageContext.request.contextPath}/app/registration/getLogoImageUrl"/>
+<c:set var="forgotPasswordUrl" value="${pageContext.request.contextPath}/app/registration/forgot"/>
 
-<c:url var="adLinkHref" value="${adLinkUrl}"/>
-<c:url var="adDesktopImageUrl" value="${adDesktopImageSrcUrl}"/>
-<c:url var="adMobileImageUrl" value="${adMobileImageSrcUrl}"/>
+<c:set var="adLinkHref" value="${adLinkUrl}"/>
+<c:set var="adDesktopImageUrl" value="${adDesktopImageSrcUrl}"/>
+<c:set var="adMobileImageUrl" value="${adMobileImageSrcUrl}"/>
 
 <c:set var="adClass" value="${enableAds ? '' : 'noImage'}"/>
 
@@ -28,10 +28,10 @@
 <c:choose>
     <c:when test="${appType == 'CRM'}">
         <c:set var="loginMessage"><spring:message code="login.redirect.message"/></c:set>
-        <c:url var="registrationUrl" value="${appUrl}/app/authentication/login?msg=${loginMessage}"/>
+        <c:set var="registrationUrl" value="${appUrl}/app/authentication/login?msg=${loginMessage}"/>
     </c:when>
     <c:otherwise>
-        <c:url var="registrationUrl" value="/app/registration/createInfusionsoftId"/>
+        <c:set var="registrationUrl" value="${pageContext.request.contextPath}/app/registration/createInfusionsoftId"/>
     </c:otherwise>
 </c:choose>
 
@@ -127,7 +127,7 @@
 </div>
 
 <content tag="local_script">
-    <script type="text/javascript" src="<c:url value="/js/login.js"/>"></script>
+    <script type="text/javascript" src="${pageContext.request.contextPath}/js/login.js"></script>
 </content>
 
 </body>

@@ -20,7 +20,7 @@
 
 </style>
 
-<c:url var="centralUrl" value="/app/central/home"/>
+<c:set var="centralUrl" value="${pageContext.request.contextPath}/app/central/home"/>
 
 <h2 class="apps">
     Edit Your Community Profile

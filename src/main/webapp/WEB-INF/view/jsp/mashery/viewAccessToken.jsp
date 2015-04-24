@@ -8,8 +8,8 @@
 
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 
-<c:url var="oauthSearchUrl" value="/app/mashery/userApplicationSearch?username=${username}&appName=${appName}"/>
-<c:url var="viewAccessTokenJs" value="/js/viewAccessToken.js"/>
+<c:set var="oauthSearchUrl" value="${pageContext.request.contextPath}/app/mashery/userApplicationSearch?username=${username}&appName=${appName}"/>
+<c:set var="viewAccessTokenJs" value="${pageContext.request.contextPath}/js/viewAccessToken.js"/>
 
 <html>
 <head>

@@ -10,7 +10,7 @@
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 <%@ taglib prefix="page" uri="http://www.opensymphony.com/sitemesh/page" %>
 
-<c:url var="bootstrapOverrideCss" value="/css/bootstrap-infusionsoft-3.1.1.0.css"/>
+<c:set var="bootstrapOverrideCss" value="${pageContext.request.contextPath}/css/bootstrap-infusionsoft-3.1.1.0.css"/>
 
 <page:applyDecorator name="base-bootstrap3">
     <!DOCTYPE html>

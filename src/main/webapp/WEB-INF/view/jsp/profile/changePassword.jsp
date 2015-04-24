@@ -7,8 +7,8 @@
 
 <%@ page contentType="text/html; charset=UTF-8" %>
 
-<c:url var="editProfileUrl" value="/app/profile/editProfile"/>
-<c:url var="alertImage" value="/img/ic-message-danger.png"/>
+<c:set var="editProfileUrl" value="${pageContext.request.contextPath}/app/profile/editProfile"/>
+<c:set var="alertImage" value="${pageContext.request.contextPath}/img/ic-message-danger.png"/>
 
 <html>
 <head>

@@ -15,16 +15,16 @@
 
 <%@ page contentType="text/html; charset=UTF-8" %>
 
-<c:url var="linkCustomerHubAccount" value="/app/central/linkCustomerHubAccount"/>
-<c:url var="linkCommunityAccount" value="/app/central/linkCommunityAccount"/>
-<c:url var="createCommunityAccount" value="/app/central/createCommunityAccount"/>
-<c:url var="editCommunityAccount" value="/app/central/editCommunityAccount"/>
-<c:url var="renameAccount" value="/app/central/renameAccount"/>
+<c:set var="linkCustomerHubAccount" value="${pageContext.request.contextPath}/app/central/linkCustomerHubAccount"/>
+<c:set var="linkCommunityAccount" value="${pageContext.request.contextPath}/app/central/linkCommunityAccount"/>
+<c:set var="createCommunityAccount" value="${pageContext.request.contextPath}/app/central/createCommunityAccount"/>
+<c:set var="editCommunityAccount" value="${pageContext.request.contextPath}/app/central/editCommunityAccount"/>
+<c:set var="renameAccount" value="${pageContext.request.contextPath}/app/central/renameAccount"/>
 
-<c:url var="homeJs" value="/js/home.js"/>
+<c:set var="homeJs" value="${pageContext.request.contextPath}/js/home.js"/>
 
-<c:url var="arrowImage" value="/img/ic-arrow-circle.svg"/>
-<c:url var="cogImage" value="/img/ic-cog.svg"/>
+<c:set var="arrowImage" value="${pageContext.request.contextPath}/img/ic-arrow-circle.svg"/>
+<c:set var="cogImage" value="${pageContext.request.contextPath}/img/ic-cog.svg"/>
 
 <html>
 <head>

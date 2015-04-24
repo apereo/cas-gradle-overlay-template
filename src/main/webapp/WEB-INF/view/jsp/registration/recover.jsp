@@ -99,7 +99,7 @@
 </div>
 
 <div id="back-to-signin">
-    <c:url var="loginUrl" value="/login"/>
+    <c:set var="loginUrl" value="${pageContext.request.contextPath}/login"/>
     <a href="${loginUrl}">Back to Sign In</a>
 </div>
 

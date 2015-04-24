@@ -9,7 +9,7 @@
 <html>
 <head>
     <title>Logout Successful</title>
-    <meta http-equiv='REFRESH' content="0;url=<c:url value="/app/central/home"/>"/>
+    <meta http-equiv='REFRESH' content="0;url=${pageContext.request.contextPath}/app/central/home"/>
 </head>
 <body>
 </body>

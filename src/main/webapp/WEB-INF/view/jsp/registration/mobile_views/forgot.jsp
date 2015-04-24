@@ -46,7 +46,7 @@
                     </div>
                 </div>
             </form>
-            <c:url var="loginUrl" value="/login"/>
+            <c:set var="loginUrl" value="${pageContext.request.contextPath}/login"/>
             <a href="${loginUrl}">Back to Sign In</a>
         </div>
     </div>
@@ -62,7 +62,7 @@
 </div>
 
 <content tag="local_script">
-    <script type="text/javascript" src="<c:url value="/js/password-forgot.js"/>"></script>
+    <script type="text/javascript" src="${pageContext.request.contextPath}/js/password-forgot.js"></script>
 </content>
 
 </body>

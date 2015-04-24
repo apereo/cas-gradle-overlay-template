@@ -10,9 +10,9 @@
 <%@ taglib prefix="page" uri="http://www.opensymphony.com/sitemesh/page" %>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 
-<c:url var="cornerstoneImage" value="/img/is_cornerstone.svg"/>
-<c:url var="homeLink" value="/app/central/home"/>
-<c:url var="logoutUrl" value="/j_spring_security_logout"/>
+<c:set var="cornerstoneImage" value="${pageContext.request.contextPath}/img/is_cornerstone.svg"/>
+<c:set var="homeLink" value="${pageContext.request.contextPath}/app/central/home"/>
+<c:set var="logoutUrl" value="${pageContext.request.contextPath}/j_spring_security_logout"/>
 
 <page:applyDecorator name="base-bootstrap3">
     <!DOCTYPE html>

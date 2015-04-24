@@ -34,14 +34,11 @@
              <meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=0;" />
              <meta name="apple-mobile-web-app-capable" content="yes" />
              <meta name="apple-mobile-web-app-status-bar-style" content="black" />
-             <!--<link type="text/css" rel="stylesheet" media="screen" href="<c:url value="/css/fss-framework-1.1.2.css" />" />
-             <link type="text/css" rel="stylesheet" href="<c:url value="/css/fss-mobile-${requestScope['browserType']}-layout.css" />" />
-             <link type="text/css" rel="stylesheet" href="${mobileCss}" />-->
         </c:if>
 		<spring:theme code="standard.custom.css.file" var="customCssFile" />
-        <link type="text/css" rel="stylesheet" href="<c:url value="${customCssFile}" />" />
+        <link type="text/css" rel="stylesheet" href="${customCssFile}" />
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-	    <link rel="icon" href="<c:url value="/favicon.ico" />" type="image/x-icon" />
+	    <link rel="icon" href="${pageContext.request.contextPath}/favicon.ico" type="image/x-icon" />
 	</head>
 	<body id="cas" class="fl-theme-iphone">
     <div class="flc-screenNavigator-view-container">

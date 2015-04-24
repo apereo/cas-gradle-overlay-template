@@ -7,8 +7,8 @@
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 
-<c:url var="security_questions_confirm_js" value="/js/securityQuestionsConfirm.js"/>
-<c:url var="succes_image_url" value="/img/ic-check-with-background.svg"/>
+<c:set var="security_questions_confirm_js" value="${pageContext.request.contextPath}/js/securityQuestionsConfirm.js"/>
+<c:set var="succes_image_url" value="${pageContext.request.contextPath}/img/ic-check-with-background.svg"/>
 
 <%--@elvariable id="flowExecutionKey" type="java.lang.String"--%>
 

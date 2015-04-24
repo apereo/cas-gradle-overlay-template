@@ -4,28 +4,27 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jstl/core_rt" %>
 <%@ taglib prefix="decorator" uri="http://www.opensymphony.com/sitemesh/decorator" %>
 
-<c:url var="choosenCss" value="/css/chosen.min.css"/>
-<c:url var="bootstrapCss" value="/bootstrap-3.2.0-dist/css/bootstrap.min.css"/>
-<c:url var="bootstrapOverrideCss" value="/css/bootstrap-app-central-3.2.0.1.css"/>
+<c:set var="choosenCss" value="${pageContext.request.contextPath}/css/chosen.min.css"/>
+<c:set var="bootstrapCss" value="${pageContext.request.contextPath}/bootstrap-3.2.0-dist/css/bootstrap.min.css"/>
+<c:set var="bootstrapOverrideCss" value="${pageContext.request.contextPath}/css/bootstrap-app-central-3.2.0.1.css"/>
 
-<c:url var="bootstrapChoosenCss" value="/bootstrap-chosen/bootstrap-chosen.css"/>
-<c:url var="bootstrapTypeaheadCss" value="/css/typeahead-bootstrap-fix.css"/>
+<c:set var="bootstrapChoosenCss" value="${pageContext.request.contextPath}/bootstrap-chosen/bootstrap-chosen.css"/>
+<c:set var="bootstrapTypeaheadCss" value="${pageContext.request.contextPath}/css/typeahead-bootstrap-fix.css"/>
 
-<c:url var="jqueryJs" value="/js/jquery-2.1.3/jquery-2.1.3.min.js"/>
-<%--<c:url var="jqueryJs" value="/js/jquery-1.11.0/jquery-1.11.0.min.js"/>--%>
-<c:url var="bootstrapJs" value="/bootstrap-3.2.0-dist/js/bootstrap.min.js"/>
-<c:url var="placeholderJs" value="/js/jquery-plugins/placeholder-0.2.4/jquery.placeholder.js"/>
-<c:url var="chosenJs" value="/js/jquery-plugins/chosen-1.1.0/chosen.jquery.min.js"/>
-<c:url var="validateJs" value="/js/jquery-plugins/validate-1.11.1/jquery.validate.min.js"/>
-<c:url var="handlebarsJs" value="/js/handlerbars-2.0.0/handlebars-v2.0.0.js"/>
-<c:url var="typeAheadJs" value="/js/typeahead-0.10.5/typeahead.bundle.js"/>
+<c:set var="jqueryJs" value="${pageContext.request.contextPath}/js/jquery-2.1.3/jquery-2.1.3.min.js"/>
+<c:set var="bootstrapJs" value="${pageContext.request.contextPath}/bootstrap-3.2.0-dist/js/bootstrap.min.js"/>
+<c:set var="placeholderJs" value="${pageContext.request.contextPath}/js/jquery-plugins/placeholder-0.2.4/jquery.placeholder.js"/>
+<c:set var="chosenJs" value="${pageContext.request.contextPath}/js/jquery-plugins/chosen-1.1.0/chosen.jquery.min.js"/>
+<c:set var="validateJs" value="${pageContext.request.contextPath}/js/jquery-plugins/validate-1.11.1/jquery.validate.min.js"/>
+<c:set var="handlebarsJs" value="${pageContext.request.contextPath}/js/handlerbars-2.0.0/handlebars-v2.0.0.js"/>
+<c:set var="typeAheadJs" value="${pageContext.request.contextPath}/js/typeahead-0.10.5/typeahead.bundle.js"/>
 
-<c:url var="infusionsoftChosenConfig" value="/js/infusionsoft-chosen.js"/>
+<c:set var="infusionsoftChosenConfig" value="${pageContext.request.contextPath}/js/infusionsoft-chosen.js"/>
 
-<c:url var="animo_css" value="/js/animo/animate-animo.min.css"/>
-<c:url var="animo_js" value="/js/animo/animo.min.js"/>
+<c:set var="animo_css" value="${pageContext.request.contextPath}/js/animo/animate-animo.min.css"/>
+<c:set var="animo_js" value="${pageContext.request.contextPath}/js/animo/animo.min.js"/>
 
-<c:url var="infusionsoft_icon_css" value="/infusionsoft-icon/style.css"/>
+<c:set var="infusionsoft_icon_css" value="${pageContext.request.contextPath}/infusionsoft-icon/style.css"/>
 
 <!DOCTYPE html>
 

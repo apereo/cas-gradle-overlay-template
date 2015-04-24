@@ -3,9 +3,9 @@
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 
-<c:url var="newSecurityQuestionUrl" value="/app/securityquestion/create"/>
-<c:url var="editSecurityQuestionUrl" value="/app/securityquestion/edit"/>
-<c:url var="deleteSecurityQuestionUrl" value="/app/securityquestion/delete"/>
+<c:set var="newSecurityQuestionUrl" value="${pageContext.request.contextPath}/app/securityquestion/create"/>
+<c:set var="editSecurityQuestionUrl" value="${pageContext.request.contextPath}/app/securityquestion/edit"/>
+<c:set var="deleteSecurityQuestionUrl" value="${pageContext.request.contextPath}/app/securityquestion/delete"/>
 
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 

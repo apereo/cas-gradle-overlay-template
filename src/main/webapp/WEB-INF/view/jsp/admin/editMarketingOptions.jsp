@@ -3,7 +3,7 @@
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 
-<c:url var="marketingOptionShow" value="/app/marketingoptions/show"/>
+<c:set var="marketingOptionShow" value="${pageContext.request.contextPath}/app/marketingoptions/show"/>
 
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <html>

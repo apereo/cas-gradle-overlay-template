@@ -23,16 +23,16 @@
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 <%@ taglib prefix="page" uri="http://www.opensymphony.com/sitemesh/page" %>
 
-<c:url var="searchImage" value="/img/ic-magnifying-glass.svg"/>
-<c:url var="xImage" value="/img/x.png"/>
+<c:set var="searchImage" value="${pageContext.request.contextPath}/img/ic-magnifying-glass.svg"/>
+<c:set var="xImage" value="${pageContext.request.contextPath}/img/x.png"/>
 
-<c:url var="homeLink" value="/app/central/home"/>
-<c:url var="editProfileLink" value="/app/profile/editProfile"/>
-<c:url var="serviceLink" value="/services/manage.html"/>
-<c:url var="securityQuestionLink" value="/app/securityquestion/list"/>
-<c:url var="masheryLink" value="/app/mashery/userApplicationSearch"/>
-<c:url var="marketingOptionsLink" value="/app/marketingoptions/show"/>
-<c:url var="userSearchUrl" value="/app/support/userSearch"/>
+<c:set var="homeLink" value="${pageContext.request.contextPath}/app/central/home"/>
+<c:set var="editProfileLink" value="${pageContext.request.contextPath}/app/profile/editProfile"/>
+<c:set var="serviceLink" value="${pageContext.request.contextPath}/services/manage.html"/>
+<c:set var="securityQuestionLink" value="${pageContext.request.contextPath}/app/securityquestion/list"/>
+<c:set var="masheryLink" value="${pageContext.request.contextPath}/app/mashery/userApplicationSearch"/>
+<c:set var="marketingOptionsLink" value="${pageContext.request.contextPath}/app/marketingoptions/show"/>
+<c:set var="userSearchUrl" value="${pageContext.request.contextPath}/app/support/userSearch"/>
 
 <c:set var="searchLabel">
     <spring:message code="search.infusionsoft.id.label"/>
@@ -47,7 +47,7 @@
         <c:set var="alertAvailable" value="${true}"/>
         <c:set var="alertTitle" value="${not empty alertTitle ? alertTitle : 'Error'}"/>
         <c:set var="alertClass" value="alert-danger"/>
-        <c:url var="alertImage" value="/img/ic-message-danger.png"/>
+        <c:set var="alertImage" value="${pageContext.request.contextPath}/img/ic-message-danger.png"/>
         <c:choose>
             <c:when test="${not empty errors}">
                 <c:set var="alertMessages" value="${errors}"/>
@@ -61,21 +61,21 @@
         <c:set var="alertAvailable" value="${true}"/>
         <c:set var="alertTitle" value="${not empty alertTitle ? alertTitle : 'Success'}"/>
         <c:set var="alertClass" value="alert-success"/>
-        <c:url var="alertImage" value="/img/ic-message-success.png"/>
+        <c:set var="alertImage" value="${pageContext.request.contextPath}/img/ic-message-success.png"/>
         <c:set var="alertMessage" value="${success}"/>
     </c:when>
     <c:when test="${not empty info}">
         <c:set var="alertAvailable" value="${true}"/>
         <c:set var="alertTitle" value="${not empty alertTitle ? alertTitle : 'Info'}"/>
         <c:set var="alertClass" value="alert-info"/>
-        <c:url var="alertImage" value="/img/ic-message-info.png"/>
+        <c:set var="alertImage" value="${pageContext.request.contextPath}/img/ic-message-info.png"/>
         <c:set var="alertMessage" value="${info}"/>
     </c:when>
     <c:when test="${not empty warning}">
         <c:set var="alertAvailable" value="${true}"/>
         <c:set var="alertTitle" value="${not empty alertTitle ? alertTitle : 'Warning'}"/>
         <c:set var="alertClass" value="alert-warning"/>
-        <c:url var="alertImage" value="/img/ic-message-warning.png"/>
+        <c:set var="alertImage" value="${pageContext.request.contextPath}/img/ic-message-warning.png"/>
         <c:set var="alertMessage" value="${warning}"/>
     </c:when>
 </c:choose>

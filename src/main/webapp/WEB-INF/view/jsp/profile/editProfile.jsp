@@ -6,8 +6,8 @@
 
 <%@ page contentType="text/html; charset=UTF-8" %>
 
-<c:url var="centralUrl" value="/app/central/home"/>
-<c:url var="changePasswordUrl" value="/app/profile/changePassword"/>
+<c:set var="centralUrl" value="${pageContext.request.contextPath}/app/central/home"/>
+<c:set var="changePasswordUrl" value="${pageContext.request.contextPath}/app/profile/changePassword"/>
 
 <%--@elvariable id="user" type="com.infusionsoft.cas.domain.User"--%>
 

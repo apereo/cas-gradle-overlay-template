@@ -10,9 +10,9 @@
 
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 
-<c:url var="viewAccessTokenUrl" value="/app/mashery/viewAccessToken"/>
-<c:url var="revokeUrl" value="/app/mashery/revokeAccessToken"/>
-<c:url var="userApplicationSearchJs" value="/js/userApplicationSearch.js"/>
+<c:set var="viewAccessTokenUrl" value="${pageContext.request.contextPath}/app/mashery/viewAccessToken"/>
+<c:set var="revokeUrl" value="${pageContext.request.contextPath}/app/mashery/revokeAccessToken"/>
+<c:set var="userApplicationSearchJs" value="${pageContext.request.contextPath}/js/userApplicationSearch.js"/>
 
 <html>
 <head>

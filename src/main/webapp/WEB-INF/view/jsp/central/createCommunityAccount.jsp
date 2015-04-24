@@ -8,9 +8,9 @@
 
 <meta name="decorator" content="black-header-minimal"/>
 
-<c:url var="centralUrl" value="/app/central/home"/>
-<c:url var="associateUrl" value="/app/central/associate"/>
-<c:url var="linkCommunityAccountUrl" value="/app/central/linkCommunityAccount"/>
+<c:set var="centralUrl" value="${pageContext.request.contextPath}/app/central/home"/>
+<c:set var="associateUrl" value="${pageContext.request.contextPath}/app/central/associate"/>
+<c:set var="linkCommunityAccountUrl" value="${pageContext.request.contextPath}/app/central/linkCommunityAccount"/>
 
 <%--@elvariable id="communityUrl" type="java.lang.String"--%>
 <%--@elvariable id="supportPhoneNumbers" type="java.util.List<String>"--%>

@@ -15,7 +15,7 @@
 
 <%@ page contentType="text/html; charset=UTF-8" %>
 
-<c:url var="infusionsoftIdImage" value="/img/infusionsoft_Id.png"/>
+<c:set var="infusionsoftIdImage" value="${pageContext.request.contextPath}/img/infusionsoft_Id.png"/>
 
 <!doctype html>
 <html>

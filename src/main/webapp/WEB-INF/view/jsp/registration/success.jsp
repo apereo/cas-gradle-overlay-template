@@ -8,15 +8,15 @@
 <%--@elvariable id="appUrl" type="java.lang.String"--%>
 <%--@elvariable id="user" type="com.infusionsoft.cas.domain.User"--%>
 
-<c:url var="centralUrl" value="/app/central/home"/>
-<c:url var="imageUrl" value="/images/incognito.png"/>
+<c:set var="centralUrl" value="${pageContext.request.contextPath}/app/central/home"/>
+<c:set var="imageUrl" value="${pageContext.request.contextPath}/images/incognito.png"/>
 
 <c:choose>
     <c:when test="${not empty appUrl}">
-        <c:url var="nextUrl" value="${appUrl}"/>
+        <c:set var="nextUrl" value="${appUrl}"/>
     </c:when>
     <c:otherwise>
-        <c:url var="nextUrl" value="${centralUrl}"/>
+        <c:set var="nextUrl" value="${centralUrl}"/>
     </c:otherwise>
 </c:choose>
 

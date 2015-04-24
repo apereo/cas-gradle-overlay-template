@@ -14,9 +14,9 @@
 <%--@elvariable id="user" type="com.infusionsoft.cas.domain.User"--%>
 <%--@elvariable id="securityQuestions" type="java.util.List<SecurityQuestion>"--%>
 
-<c:url var="createInfusionsoftIdJs" value="/js/createInfusionsoftId.js"/>
+<c:set var="createInfusionsoftIdJs" value="${pageContext.request.contextPath}/js/createInfusionsoftId.js"/>
 
-<c:url var="infusionsoftIdImage" value="/img/infusionsoft_Id.png"/>
+<c:set var="infusionsoftIdImage" value="${pageContext.request.contextPath}/img/infusionsoft_Id.png"/>
 
 <%-- These form elements are used for both linkExisting and register --%>
 <c:set var="commonFormElements">

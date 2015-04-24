@@ -5,10 +5,10 @@
 
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 
-<c:url var="editUserUrl" value="/app/admin/editUser/"/>
-<c:url var="unlockUserUrl" value="/app/support/unlockUser?id="/>
-<c:url var="resetPasswordUrl" value="/app/support/resetPassword?id="/>
-<c:url var="resetSecurityQuestionUrl" value="/app/support/resetSecurityQuestion?id="/>
+<c:set var="editUserUrl" value="${pageContext.request.contextPath}/app/admin/editUser/"/>
+<c:set var="unlockUserUrl" value="${pageContext.request.contextPath}/app/support/unlockUser?id="/>
+<c:set var="resetPasswordUrl" value="${pageContext.request.contextPath}/app/support/resetPassword?id="/>
+<c:set var="resetSecurityQuestionUrl" value="${pageContext.request.contextPath}/app/support/resetSecurityQuestion?id="/>
 
 <%--@elvariable id="users" type="org.springframework.data.domain.Page<User>"--%>
 <%--@elvariable id="searchUsername" type="java.lang.String"--%>
@@ -98,7 +98,7 @@
 
     <c:if test="${users.totalPages > 1}">
         <%--Pages are 0 based--%>
-        <c:url var="searchUrl" value="/app/support/userSearch?"/>
+        <c:set var="searchUrl" value="${pageContext.request.contextPath}/app/support/userSearch?"/>
         <c:set var="pagesHalfRange" value="${4}"/>
         <ul class="pagination">
                 <%--Previous--%>
@@ -150,7 +150,7 @@
 </div>
 
 <content tag="local_script">
-    <script type="text/javascript" src="<c:url value="/js/userSearch.js"/>"></script>
+    <script type="text/javascript" src="${pageContext.request.contextPath}/js/userSearch.js"></script>
 </content>
 
 </body>

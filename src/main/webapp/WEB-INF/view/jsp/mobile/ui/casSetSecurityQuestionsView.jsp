@@ -7,7 +7,7 @@
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 
-<c:url var="security_questions_js" value="/js/securityQuestions.js"/>
+<c:set var="security_questions_js" value="${pageContext.request.contextPath}/js/securityQuestions.js"/>
 
 <%--@elvariable id="supportPhoneNumbers" type="java.util.List<String>"--%>
 <%--@elvariable id="securityQuestions" type="java.util.List<com.infusionsoft.cas.domain.SecurityQuestion>"--%>

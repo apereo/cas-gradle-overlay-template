@@ -3,8 +3,8 @@
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 
-<c:url var="listSecurityQuestionUrl" value="/app/securityquestion/list"/>
-<c:url var="updateSecurityQuestionUrl" value="/app/securityquestion/update"/>
+<c:set var="listSecurityQuestionUrl" value="${pageContext.request.contextPath}/app/securityquestion/list"/>
+<c:set var="updateSecurityQuestionUrl" value="${pageContext.request.contextPath}/app/securityquestion/update"/>
 
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <html>
