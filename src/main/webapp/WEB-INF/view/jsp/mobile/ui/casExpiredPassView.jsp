@@ -84,7 +84,7 @@
 
 <content tag="local_script">
     <script type="text/javascript" src="${pageContext.request.contextPath}/js/password-utils.js"></script>
-    <script type="text/javascript" src="${pageContext.request.contextPath}/js/password-expired.js"></script>
+    <script type="text/javascript" src="${pageContext.request.contextPath}/js/password-expired-1.0.1.js"></script>
 </content>
 
 </body>
