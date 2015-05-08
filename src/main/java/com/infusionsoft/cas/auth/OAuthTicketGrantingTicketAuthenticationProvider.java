@@ -42,13 +42,14 @@ public class OAuthTicketGrantingTicketAuthenticationProvider implements Authenti
         } else {
             // Create authentication token for a particular user
             Principal principal = ticketGrantingTicket.getAuthentication().getPrincipal();
-            User user = userService.loadUser(principal.getId());
+            String username = principal.getId();
+            User user = userService.loadUser(username);
             return new OAuthTicketGrantingTicketAuthenticationToken(user, null, token.getServiceConfig(), clientId, token.getClientSecret(), token.getScope(), token.getGrantType(), token.getApplication(), token.getTrackingUUID(), ticketGrantingTicket, user.getAuthorities());
         }
     }
 
     @Override
     public boolean supports(Class<?> authentication) {
-        return authentication.isAssignableFrom(OAuthTicketGrantingTicketAuthenticationToken.class);
+        return OAuthTicketGrantingTicketAuthenticationToken.class.isAssignableFrom(authentication);
     }
 }

@@ -21,7 +21,7 @@ public class OAuthResourceOwnerAuthenticationProvider implements AuthenticationP
         if (oAuthResourceOwnerAuthenticationToken != null) {
             LoginResult loginResult = infusionsoftAuthenticationService.attemptLogin(oAuthResourceOwnerAuthenticationToken.getPrincipal().toString(), oAuthResourceOwnerAuthenticationToken.getCredentials().toString());
             if (loginResult.getLoginStatus().isSuccessful()) {
-                retVal = new OAuthResourceOwnerAuthenticationToken(loginResult.getUser(), null, oAuthResourceOwnerAuthenticationToken.getServiceConfig(), oAuthResourceOwnerAuthenticationToken.getClientId(), oAuthResourceOwnerAuthenticationToken.getClientSecret(), oAuthResourceOwnerAuthenticationToken.getScope(),  oAuthResourceOwnerAuthenticationToken.getGrantType(), oAuthResourceOwnerAuthenticationToken.getApplication(), loginResult.getUser().getAuthorities());
+                retVal = new OAuthResourceOwnerAuthenticationToken(loginResult.getUser(), null, oAuthResourceOwnerAuthenticationToken.getServiceConfig(), oAuthResourceOwnerAuthenticationToken.getClientId(), oAuthResourceOwnerAuthenticationToken.getClientSecret(), oAuthResourceOwnerAuthenticationToken.getScope(), oAuthResourceOwnerAuthenticationToken.getGrantType(), oAuthResourceOwnerAuthenticationToken.getApplication(), loginResult.getUser().getAuthorities());
             }
         }
 
@@ -30,6 +30,6 @@ public class OAuthResourceOwnerAuthenticationProvider implements AuthenticationP
 
     @Override
     public boolean supports(Class<?> authentication) {
-        return authentication.isAssignableFrom(OAuthResourceOwnerAuthenticationToken.class);
+        return OAuthResourceOwnerAuthenticationToken.class.isAssignableFrom(authentication);
     }
 }

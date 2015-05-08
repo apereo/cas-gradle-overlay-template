@@ -49,6 +49,6 @@ public class OAuthTrustedGrantAuthenticationProvider implements AuthenticationPr
 
     @Override
     public boolean supports(Class<?> authentication) {
-        return authentication.isAssignableFrom(OAuthTrustedGrantAuthenticationToken.class);
+        return OAuthTrustedGrantAuthenticationToken.class.isAssignableFrom(authentication);
     }
 }

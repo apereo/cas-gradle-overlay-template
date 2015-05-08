@@ -34,6 +34,6 @@ public class OAuthRefreshAuthenticationProvider implements AuthenticationProvide
 
     @Override
     public boolean supports(Class<?> authentication) {
-        return authentication.isAssignableFrom(OAuthRefreshAuthenticationToken.class);
+        return OAuthRefreshAuthenticationToken.class.isAssignableFrom(authentication);
     }
 }
