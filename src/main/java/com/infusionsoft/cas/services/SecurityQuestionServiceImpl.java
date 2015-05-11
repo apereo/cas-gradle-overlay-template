@@ -83,7 +83,7 @@ public class SecurityQuestionServiceImpl implements SecurityQuestionService {
 
     @Override
     public List<SecurityQuestion> fetchAllEnabled() {
-        Iterable<SecurityQuestion> securityQuestions = securityQuestionDAO.findAll();
+        Iterable<SecurityQuestion> securityQuestions = securityQuestionDAO.findAllByEnabledTrue();
         List<SecurityQuestion> retVal = new ArrayList<SecurityQuestion>();
 
         for (SecurityQuestion securityQuestion : securityQuestions) {
