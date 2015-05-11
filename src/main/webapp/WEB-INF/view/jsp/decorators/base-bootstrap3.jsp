@@ -19,7 +19,7 @@
 <c:set var="handlebarsJs" value="${pageContext.request.contextPath}/js/handlerbars-2.0.0/handlebars-v2.0.0.js"/>
 <c:set var="typeAheadJs" value="${pageContext.request.contextPath}/js/typeahead-0.10.5/typeahead.bundle.js"/>
 
-<c:set var="infusionsoftChosenConfig" value="${pageContext.request.contextPath}/js/infusionsoft-chosen.js"/>
+<c:set var="infusionsoftChosenConfig" value="${pageContext.request.contextPath}/js/infusionsoft-chosen-1.0.1.js"/>
 
 <c:set var="animo_css" value="${pageContext.request.contextPath}/js/animo/animate-animo.min.css"/>
 <c:set var="animo_js" value="${pageContext.request.contextPath}/js/animo/animo.min.js"/>
