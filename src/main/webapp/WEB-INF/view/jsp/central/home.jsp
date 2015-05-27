@@ -21,7 +21,7 @@
 <c:set var="editCommunityAccount" value="${pageContext.request.contextPath}/app/central/editCommunityAccount"/>
 <c:set var="renameAccount" value="${pageContext.request.contextPath}/app/central/renameAccount"/>
 
-<c:set var="homeJs" value="${pageContext.request.contextPath}/js/home.js"/>
+<c:set var="homeJs" value="${pageContext.request.contextPath}/js/home-1.0.1.js"/>
 
 <c:set var="arrowImage" value="${pageContext.request.contextPath}/img/ic-arrow-circle.svg"/>
 <c:set var="cogImage" value="${pageContext.request.contextPath}/img/ic-cog.svg"/>

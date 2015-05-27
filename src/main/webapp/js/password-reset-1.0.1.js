@@ -60,15 +60,13 @@ $(document).ready(function () {
                         var currPass = $(element).val();
                         console.log(currPass);
 
-                        var nonMobileMessage = "Doesn't meet the criteria.";
                         var mobileMessage = '' +
                             wrapCriteriaPart(checkPasswordLength(currPass), 'At least 7 characters') + ', ' +
                             wrapCriteriaPart(checkPasswordNumber(currPass), '1 number') + ', ' +
                             wrapCriteriaPart(checkPasswordUpperCase(currPass), '1 uppercase letter') + ', ' +
                             wrapCriteriaPart(checkPasswordLowerCase(currPass), '1 lowercase letter');
 
-                        return '<span class="mob-help-block hidden-sm hidden-md hidden-lg">' + mobileMessage + '</span>' +
-                            '<span class="hidden-xs">' + nonMobileMessage + '</span>';
+                        return '<span class="mob-help-block">' + mobileMessage + '</span>';
                     },
                     remote: "Password must not match any of your last 4 passwords."
                 },
