@@ -77,7 +77,7 @@
 
 <content tag="local_script">
     <script type="text/javascript" src="${pageContext.request.contextPath}/js/password-utils.js"></script>
-    <script type="text/javascript" src="${pageContext.request.contextPath}/js/password-reset.js"></script>
+    <script type="text/javascript" src="${pageContext.request.contextPath}/js/password-reset-1.0.1.js"></script>
 </content>
 
 </body>
