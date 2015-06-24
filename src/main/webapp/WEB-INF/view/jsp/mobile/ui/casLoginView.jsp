@@ -63,7 +63,7 @@
                     <p class="text-error">
                         <object type="image/svg+xml" tabindex="-1" data="/img/ic-exclamation-circle.svg" width="16" height="16"></object>
                         <c:forEach var="error" items="${messages}">
-                            ${error}
+                            <c:out value="${error}"/>
                         </c:forEach>
                     </p>
                 </form:errors>
