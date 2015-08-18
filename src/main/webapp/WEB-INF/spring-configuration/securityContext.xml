@@ -38,17 +38,17 @@
     <sec:http pattern="/app/error/**" security="none"/>
     <sec:http pattern="/img/**" security="none"/>
 
-    <sec:http pattern="/status/**" authentication-manager-ref="casAuthenticationManager" entry-point-ref="notAuthorizedEntryPoint" use-expressions="true" auto-config="true">
+    <sec:http pattern="/status/**" authentication-manager-ref="casAuthenticationManager" entry-point-ref="notAuthorizedEntryPoint" use-expressions="true" auto-config="true" disable-url-rewriting="true">
         <sec:intercept-url pattern="/status" access="hasIpAddress('${cas.securityContext.status.allowedSubnet}')"/>
     </sec:http>
 
-    <sec:http pattern="/app/oauth/service/*/token" authentication-manager-ref="oauthAuthenticationManager" entry-point-ref="oAuthAuthenticationEntryPoint" use-expressions="true">
+    <sec:http pattern="/app/oauth/service/*/token" authentication-manager-ref="oauthAuthenticationManager" entry-point-ref="oAuthAuthenticationEntryPoint" use-expressions="true" disable-url-rewriting="true">
         <sec:custom-filter ref="OAuthResourceOwnerAuthenticationFilter" before="ANONYMOUS_FILTER"/>
         <sec:custom-filter ref="OAuthRefreshAuthenticationFilter" after="REMEMBER_ME_FILTER"/>
         <sec:intercept-url pattern="/app/oauth/service/*/token" access="isAuthenticated()"/>
     </sec:http>
 
-    <sec:http pattern="/app/oauth/token" authentication-manager-ref="oauthAuthenticationManager" entry-point-ref="oAuthAuthenticationEntryPoint" use-expressions="true" security-context-repository-ref="nullSecurityContextRepository">
+    <sec:http pattern="/app/oauth/token" authentication-manager-ref="oauthAuthenticationManager" entry-point-ref="oAuthAuthenticationEntryPoint" use-expressions="true" security-context-repository-ref="nullSecurityContextRepository" disable-url-rewriting="true">
         <sec:custom-filter ref="corsPreflightFilter" after="FIRST"/>
         <sec:custom-filter ref="OAuthTrustedGrantAuthenticationFilter" before="ANONYMOUS_FILTER"/>
         <sec:custom-filter ref="OAuthTicketGrantingTicketAuthenticationFilter" after="ANONYMOUS_FILTER"/>
@@ -56,7 +56,7 @@
         <sec:intercept-url pattern="/app/oauth/token" access="isAuthenticated()"/>
     </sec:http>
 
-    <sec:http authentication-manager-ref="casAuthenticationManager" entry-point-ref="casProcessingFilterEntryPoint" auto-config="true" use-expressions="true">
+    <sec:http authentication-manager-ref="casAuthenticationManager" entry-point-ref="casProcessingFilterEntryPoint" auto-config="true" use-expressions="true" disable-url-rewriting="true">
         <sec:logout success-handler-ref="infusionsoftLogoutSuccessHandler"/>
         <sec:custom-filter ref="casProcessingFilter" after="CAS_FILTER"/>
         <sec:custom-filter ref="singleLogoutFilter" before="CAS_FILTER"/>

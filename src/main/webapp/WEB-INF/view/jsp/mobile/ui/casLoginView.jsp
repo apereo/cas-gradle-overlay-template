@@ -58,7 +58,7 @@
         <div class="col-md-6 login-form ${adClass}">
             <object type="image/svg+xml" tabindex="-1" data="/img/is_logo.svg" width="159" height="26" class="logo">Infusionsoft</object>
 
-            <form:form method="post" id="loginForm" cssClass="form-horizontal" commandName="${commandName}" htmlEscape="true" role="form" data-toggle="validator">
+            <form:form method="post" action="/login" id="loginForm" cssClass="form-horizontal" commandName="${commandName}" htmlEscape="true" role="form" data-toggle="validator">
                 <form:errors path="*" id="msg" cssClass="text-error" element="p">
                     <p class="text-error">
                         <object type="image/svg+xml" tabindex="-1" data="/img/ic-exclamation-circle.svg" width="16" height="16"></object>
