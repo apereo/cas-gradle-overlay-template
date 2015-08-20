@@ -2,6 +2,7 @@ package com.infusionsoft.cas.web.csrf;
 
 import com.infusionsoft.cas.services.InfusionsoftAuthenticationService;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.log4j.Logger;
 import org.jasig.cas.ticket.TicketGrantingTicket;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -14,6 +15,7 @@ import javax.servlet.http.HttpServletRequest;
  */
 @Component
 public class CsrfTokenManager {
+    private static final Logger log = Logger.getLogger(CsrfTokenManager.class);
 
     @Value("${csrf.secret}")
     private String secret;
@@ -36,7 +38,7 @@ public class CsrfTokenManager {
                 return DigestUtils.sha256Hex(raw);
             }
         } catch (Exception e) {
-            throw new RuntimeException("unable to generate token for request", e);
+            log.error("unable to generate token for request", e);
         }
 
         return null;
