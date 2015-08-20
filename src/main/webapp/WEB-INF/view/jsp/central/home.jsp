@@ -121,7 +121,7 @@
                             <h4>Configure Account</h4>
                         </div>
                         <div class="modal-body">
-                            <form class="updateAlias" role="form" action="${renameAccount}" data-account-id="${account.id}">
+                            <form:form class="updateAlias" role="form" action="${renameAccount}" data-account-id="${account.id}">
                                 <input type="hidden" name="accountId" value="${account.id}">
 
                                 <c:if test="${aliasable}">
@@ -136,7 +136,7 @@
                                         </div>
                                     </div>
                                 </c:if>
-                            </form>
+                            </form:form>
 
                             <c:if test="${accessTokensAllowed}">
                                 <div id="user-applications-${account.id}" class="user-applications">
