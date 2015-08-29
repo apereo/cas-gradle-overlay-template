@@ -7,6 +7,7 @@
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
+<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 
@@ -23,14 +24,14 @@
 
 <div class="panel panel-default">
     <div class="panel-heading">
-        <form id="formSearch" class="">
+        <form:form id="formSearch" class="">
             <input type="hidden" id="appName" name="appName" class="form-control" value="${appName}">
             <input type="hidden" id="username" name="username" class="form-control" value="${username}">
 
             <div class="form-group">
                 <input type="text" id="search" name="search" class="typeahead form-control" placeholder="ISID or Account">
             </div>
-        </form>
+        </form:form>
     </div>
     <div class=" panel-body table-responsive">
         <c:if test="${!empty userApplications}">
@@ -72,13 +73,13 @@
                             </div>
                         </td>
                         <td>
-                            <form role="form" action="${revokeUrl}">
+                            <form:form role="form" action="${revokeUrl}">
                                 <input type="hidden" name="username" value="${username}">
                                 <input type="hidden" name="appName" value="${appName}">
                                 <input type="hidden" name="clientId" value="${userApplication.clientId}">
 
                                 <button type="submit" class="btn btn-sm btn-danger">Revoke</button>
-                            </form>
+                            </form:form>
                         </td>
                     </tr>
                 </c:forEach>

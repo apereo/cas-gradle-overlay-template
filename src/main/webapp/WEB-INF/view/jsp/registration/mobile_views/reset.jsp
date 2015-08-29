@@ -25,7 +25,7 @@
                 <object type="image/svg+xml" tabindex="-1" data="/img/is_logo.svg" width="159" height="26" class="logo">Infusionsoft</object>
                 <h2>Create a New Password</h2>
 
-                <form action="reset" method="post" id="resetPasswordForm" class="form-horizontal">
+                <form:form action="reset" method="post" id="resetPasswordForm" class="form-horizontal">
 
                     <input id="recoveryCode" name="recoveryCode" type="hidden" value="${fn:escapeXml(recoveryCode)}"/>
 
@@ -47,7 +47,7 @@
                             <button class="btn btn-success btn-block" type="submit">Change Password</button>
                         </div>
                     </div>
-                </form>
+                </form:form>
                 <c:set var="loginUrl" value="${pageContext.request.contextPath}/login"/>
                 <a href="${loginUrl}">Back to Sign In</a>
             </div>

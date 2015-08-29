@@ -29,7 +29,7 @@
                     <spring:message code="password.expired.page.instructions"/>
                 </p>
 
-                <form id="resetPasswordForm" class="form-horizontal">
+                <form:form id="resetPasswordForm" class="form-horizontal">
 
                     <input id="username" name="username" type="hidden" value="${credentials.username}"/>
                     <input id="currentPassword" name="currentPassword" type="hidden" value="${credentials.password}"/>
@@ -54,7 +54,7 @@
                             <button class="btn btn-success btn-block" type="submit">Change Password</button>
                         </div>
                     </div>
-                </form>
+                </form:form>
                 <c:set var="loginUrl" value="${pageContext.request.contextPath}/login"/>
                 <a href="${loginUrl}">Back to Sign In</a>
             </div>

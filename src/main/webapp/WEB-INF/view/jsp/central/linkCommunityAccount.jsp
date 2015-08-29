@@ -24,7 +24,7 @@
     </div>
 </c:if>
 
-<form id="associateForm" action="associate" method="post">
+<form:form id="associateForm" action="associate" method="post">
     <input name="appType" type="hidden" value="${appType}"/>
     <input name="appName" type="hidden" value="community"/>
     <input name="user" type="hidden" value="${user.id}"/>
@@ -54,4 +54,4 @@
         <input type="submit" value="Connect Account" class="btn btn-primary"/>
         <a href="${centralUrl}" class="btn">Cancel</a>
     </div>
-</form>
+</form:form>

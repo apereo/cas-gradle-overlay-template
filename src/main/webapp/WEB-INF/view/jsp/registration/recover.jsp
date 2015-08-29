@@ -83,7 +83,7 @@
             </div>
         </c:if>
 
-        <form action="recover" method="post" id="fm1" class="form-vertical">
+        <form:form action="recover" method="post" id="fm1" class="form-vertical">
             <div class="control-group">
                 <label for="recoveryCode" class="control-label">Recovery Code</label>
                 <div class="controls">
@@ -94,7 +94,7 @@
             <div class="control-group" style="text-align: right">
                 <input class="btn btn-primary" name="submit" accesskey="l" value="Next" tabindex="4" type="submit" />
             </div>
-        </form>
+        </form:form>
     </div>
 </div>
 

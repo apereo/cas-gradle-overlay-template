@@ -1,4 +1,5 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 
 <c:if test="${!empty userApplications}">
     <div id="user-applications-form-group-${accountId}" class="form-group">
@@ -32,7 +33,7 @@
 
         <c:forEach var="userApplication" items="${userApplications}">
             <div id="disconnect-confirm-${userApplication.id}" class="well hide">
-                <form id="disconnect-confirm-form-${userApplication.id}">
+                <form:form id="disconnect-confirm-form-${userApplication.id}">
                     <div class="form-group">
                         <div class="row">
                             <div class="col-xs-12 text-center">
@@ -53,12 +54,12 @@
                             </div>
                         </div>
                     </div>
-                </form>
+                </form:form>
             </div>
         </c:forEach>
 
         <div id="disconnect-confirm-all" class="well hide">
-            <form id="disconnect-confirm-form-all">
+            <form:form id="disconnect-confirm-form-all">
                 <div class="form-group">
                     <div class="row">
                         <div class="col-xs-12 text-center">
@@ -74,7 +75,7 @@
                         </div>
                     </div>
                 </div>
-            </form>
+            </form:form>
         </div>
     </div>
 </c:if>

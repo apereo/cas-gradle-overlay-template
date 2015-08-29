@@ -81,7 +81,7 @@
             </div>
         </c:if>
 
-        <form action="recover" method="post" id="fm1" class="form-vertical">
+        <form:form action="recover" method="post" id="fm1" class="form-vertical">
             <div class="control-group">
                 <label for="username" class="control-label">Please <c:if test="${empty username}">enter</c:if><c:if test="${!empty username}">verify</c:if> your email address</label>
                 <div class="controls">
@@ -92,7 +92,7 @@
             <div class="control-group" style="text-align: right">
                 <input class="btn btn-primary" name="submit" accesskey="l" value="Next" tabindex="4" type="submit" />
             </div>
-        </form>
+        </form:form>
     </div>
 </div>
 

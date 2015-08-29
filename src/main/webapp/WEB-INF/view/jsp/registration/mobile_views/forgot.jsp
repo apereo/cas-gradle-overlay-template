@@ -25,7 +25,7 @@
 
             <h2>Password Reset</h2>
 
-            <form action="recover" method="post" id="forgotPasswordForm" class="form-horizontal" role="form">
+            <form:form action="recover" method="post" id="forgotPasswordForm" class="form-horizontal" role="form">
 
                 <c:if test="${not empty error}">
                     <p class="text-error">
@@ -45,7 +45,7 @@
                         <button class="btn btn-success btn-block" type="submit">Next</button>
                     </div>
                 </div>
-            </form>
+            </form:form>
             <c:set var="loginUrl" value="${pageContext.request.contextPath}/login"/>
             <a href="${loginUrl}">Back to Sign In</a>
         </div>

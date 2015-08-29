@@ -32,7 +32,7 @@
     </div>
 </c:if>
 
-<form id="editForm" action="updateCommunityAccount" method="post" class="form-horizontal">
+<form:form id="editForm" action="updateCommunityAccount" method="post" class="form-horizontal">
     <input name="id" type="hidden" value="${account.id}"/>
 
     <h2>Required Information</h2>
@@ -123,4 +123,4 @@
         <input type="submit" value="Save" class="btn btn-primary"/>
         <a href="${centralUrl}" class="btn">Cancel</a>
     </div>
-</form>
+</form:form>

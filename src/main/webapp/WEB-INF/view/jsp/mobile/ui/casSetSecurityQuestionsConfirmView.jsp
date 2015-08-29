@@ -45,10 +45,10 @@
 
     <div class="row">
         <div class="col-xs-12 col-sm-2 col-sm-offset-5 text-center">
-            <form method="post">
+            <form:form method="post">
                 <input type="hidden" name="execution" value="${flowExecutionKey}"/>
                 <button type="submit" class="btn btn-primary btn-block" name="_eventId_success" value="success"><spring:message code="button.ok"/></button>
-            </form>
+            </form:form>
         </div>
     </div>
 </div>
