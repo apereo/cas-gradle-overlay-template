@@ -88,12 +88,19 @@
         </property>
     </bean>
 
+    <!-- Automatically add a CSRF token in a hidden field on all forms -->
     <bean name="requestDataValueProcessor" class="com.infusionsoft.cas.web.csrf.CsrfFormProcessor"/>
 
+    <!-- Intercept form submissions to validate the CSRF token -->
     <mvc:interceptors>
         <mvc:interceptor>
             <mvc:mapping path="/central/**"/>
             <mvc:mapping path="/profile/**"/>
+            <mvc:mapping path="/registration/**"/>
+            <mvc:mapping path="/securityquestion/**"/>
+            <mvc:mapping path="/support/**"/>
+            <mvc:mapping path="/mashery/**"/>
+            <mvc:mapping path="/marketingoptions/**"/>
             <bean class="com.infusionsoft.cas.web.csrf.CsrfInterceptor"/>
         </mvc:interceptor>
     </mvc:interceptors>
