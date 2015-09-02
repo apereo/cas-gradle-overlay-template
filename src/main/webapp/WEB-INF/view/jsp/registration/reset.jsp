@@ -119,7 +119,7 @@
             </div>
         </c:if>
 
-        <form action="reset" method="post" id="fm1" class="form-vertical">
+        <form:form action="reset" method="post" id="fm1" class="form-vertical">
 
             <div style="float:left;">
             <fieldset>
@@ -155,7 +155,7 @@
             <div class="control-group" style="text-align: right">
                 <input class="btn btn-primary" name="submit" accesskey="l" value="Change Password" tabindex="4" type="submit" />
             </div>
-        </form>
+        </form:form>
     </div>
 </div>
 

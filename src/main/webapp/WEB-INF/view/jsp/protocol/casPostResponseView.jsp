@@ -20,6 +20,7 @@
 --%>
 <%@ page language="java" session="false" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <html>
 <body>
 <script type="text/javascript">
@@ -27,7 +28,7 @@
         document.acsForm.submit();
     });
 </script>
-<form name="acsForm" action="<c:out value="${originalUrl}" />" method="post">
+<form:form name="acsForm" action="<c:out value="${originalUrl}" />" method="post">
     <c:forEach items="${parameters}" var="entry">
         <input type="hidden" name="${entry.key}" value="${entry.value}"/>
     </c:forEach>
@@ -36,6 +37,6 @@
 
         <p><input type="submit" value="Continue"/></p>
     </noscript>
-</form>
+</form:form>
 </body>
 </html>

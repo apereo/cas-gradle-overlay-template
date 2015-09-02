@@ -110,7 +110,7 @@
                     </sec:authorize>
                 </ul>
                 <sec:authorize access="hasRole('ROLE_CAS_ADMIN') or hasRole('ROLE_CAS_SUPPORT_TIER_1') or hasRole('ROLE_CAS_SUPPORT_TIER_2') or hasRole('ROLE_CAS_VIEW_SECURITY_QUESTIONS')">
-                    <form class="navbar-form navbar-right" action="${userSearchUrl}" role="search">
+                    <form:form class="navbar-form navbar-right" action="${userSearchUrl}" role="search">
                         <div class="form-group">
                             <div class="input-group">
                                 <div class="input-group-addon">
@@ -119,7 +119,7 @@
                                 <input type="search" class="form-control" name="searchUsername" placeholder="${searchLabel}" value="${fn:escapeXml(searchUsername)}"/>
                             </div>
                         </div>
-                    </form>
+                    </form:form>
                 </sec:authorize>
             </div>
         </nav>

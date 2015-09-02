@@ -56,7 +56,7 @@
         </div>
     </c:if>
 
-    <form id="createForm" action="createCommunityAccount" method="post" class="form-horizontal">
+    <form:form id="createForm" action="createCommunityAccount" method="post" class="form-horizontal">
         <h2>Required Information</h2>
         <fieldset>
             <div class="control-group">
@@ -195,5 +195,5 @@
             <input type="submit" value="Create Profile" class="btn btn-primary"/>
             <a href="${centralUrl}" class="btn">Cancel</a>
         </div>
-    </form>
+    </form:form>
 </div>

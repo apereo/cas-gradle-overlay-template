@@ -5,6 +5,7 @@
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 <%@ taglib prefix="joda" uri="http://www.joda.org/joda/time/tags" %>
+<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 
@@ -17,7 +18,7 @@
     <meta name="decorator" content="central"/>
 </head>
 <body>
-<form class="form-horizontal">
+<form:form class="form-horizontal">
     <div class="form-group">
         <label class="col-sm-2 control-label" for="token"><spring:message code="mashery.accessToken.label"/></label>
 
@@ -94,7 +95,7 @@
 
 
     <p id="testResponse" class="help-block"></p>
-</form>
+</form:form>
 
 <content tag="local_script">
     <script type="text/javascript" src="${viewAccessTokenJs}"></script>

@@ -39,7 +39,7 @@
         <div class="col-xs-12 col-sm-9 col-md-6 col-lg-5 col-centered">
             <div class="panel panel-default">
                 <div class="panel-body">
-                    <form action="processAuthorization" role="form" method="post">
+                    <form:form action="processAuthorization" role="form" method="post">
                         <input type="hidden" name="client_id" value="${fn:escapeXml(client_id)}">
                         <input type="hidden" name="redirect_uri" value="${fn:escapeXml(redirect_uri)}">
                         <input type="hidden" name="response_type" value="${fn:escapeXml(response_type)}">
@@ -89,7 +89,7 @@
                             <button name="deny" type="submit" class="btn btn-default">Deny</button>
                             <button name="allow" type="submit" class="btn btn-primary">Allow</button>
                         </div>
-                    </form>
+                    </form:form>
                 </div>
             </div>
         </div>

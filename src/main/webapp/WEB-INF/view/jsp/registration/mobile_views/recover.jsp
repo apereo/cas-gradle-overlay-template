@@ -39,7 +39,7 @@
                 </p>
             </c:if>
 
-            <form action="recover" method="post" id="recoverPasswordForm" class="form-horizontal" role="form">
+            <form:form action="recover" method="post" id="recoverPasswordForm" class="form-horizontal" role="form">
 
                 <div class="form-group">
                     <div class="col-md-12">
@@ -51,7 +51,7 @@
                         <button class="btn btn-success btn-block" type="submit">Next</button>
                     </div>
                 </div>
-            </form>
+            </form:form>
             <c:set var="loginUrl" value="${pageContext.request.contextPath}/login"/>
             <a href="${loginUrl}">Back to Sign In</a>
         </div>
