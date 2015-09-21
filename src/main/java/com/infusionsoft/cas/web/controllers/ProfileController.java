@@ -103,14 +103,14 @@ public class ProfileController {
      * Updates the user password.
      */
     @RequestMapping
-    public String changePassword(Model model, String error) throws IOException {
+    public String changePassword(Model model, String error, String success) throws IOException {
         try {
             User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
             model.addAttribute("user", user);
             model.addAttribute("changeProfileLinkSelected", "selected");
-
             model.addAttribute("error", ValidationUtils.sanitizeMessageCode(error));
+            model.addAttribute("success", ValidationUtils.sanitizeMessageCode(success));
 
             return "profile/changePassword";
         } catch (Exception e) {
@@ -141,7 +141,6 @@ public class ProfileController {
             } else {
                 try {
                     passwordService.setPasswordForUser(user, password1);
-                    model.addAttribute("success", "editprofile.success.changePassword");
                 } catch (InfusionsoftValidationException e) {
                     model.addAttribute("error", e.getErrorMessageCode());
                 }
@@ -153,11 +152,9 @@ public class ProfileController {
         } else {
             autoLoginService.autoLogin(username, request, response);
 
-            if (!(SecurityContextHolder.getContext().getAuthentication() instanceof AnonymousAuthenticationToken)) {
-                return centralController.home(model, null);
-            } else {
-                return "redirect:" + redirectView;
-            }
+            model.addAttribute("success", "editprofile.success.changePassword");
+
+            return "redirect:" + redirectView;
         }
     }
 
