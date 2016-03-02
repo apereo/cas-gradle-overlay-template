@@ -96,10 +96,10 @@ Install docker, docker-machine, docker-compose, VirtualBox
 
 
 Setup CAS Locally steps:
-mvn clean install, JDK 7
-update /etc/host file a) 127.0.0.1    devcas.infusiontest.com
-run ./bootstrap from root
-run cas server using "mvn tomcat6:run-war"
+1. mvn clean install, JDK 7
+2. run ./bootstrap from root
+4. add to /etc/hosts file: 127.0.0.1    devcas.infusiontest.com
+3. run cas server using "mvn tomcat6:run-war"
 
 
 Modify cas database: Add to user table e.g. INSERT INTO cas.user VALUES (1, 1, 'Chad', 'Cotter', null, null, 'chad.cotter@infusionsoft.com');
