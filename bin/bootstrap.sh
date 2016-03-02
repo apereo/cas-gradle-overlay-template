@@ -1,0 +1,1 @@
+mysql -ueric -peric5425 -h 127.0.0.1 < bin/baseline-db.sql

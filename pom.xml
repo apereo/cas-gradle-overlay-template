@@ -43,6 +43,16 @@
         <defaultGoal>install</defaultGoal>
         <plugins>
             <plugin>
+                <groupId>org.flywaydb</groupId>
+                <artifactId>flyway-maven-plugin</artifactId>
+                <version>4.0</version>
+                <configuration>
+                    <url>jdbc:mysql://localhost:3306/cas</url>
+                    <user>eric</user>
+                    <password>eric5425</password>
+                </configuration>
+            </plugin>
+            <plugin>
                 <groupId>org.codehaus.gmaven</groupId>
                 <artifactId>gmaven-plugin</artifactId>
                 <version>1.4</version>

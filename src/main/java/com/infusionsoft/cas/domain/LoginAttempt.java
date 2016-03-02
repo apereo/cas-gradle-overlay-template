@@ -15,6 +15,8 @@ public class LoginAttempt implements Serializable {
     private String username;
     private Date dateAttempted;
     private LoginAttemptStatus status;
+    private boolean success;
+
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -57,4 +59,14 @@ public class LoginAttempt implements Serializable {
     public void setStatus(LoginAttemptStatus loginAttemptStatus) {
         this.status = loginAttemptStatus;
     }
+
+    @Column(name = "success")
+    public boolean isSuccess() {
+        return success;
+    }
+
+    public void setSuccess(boolean success) {
+        this.success = success;
+    }
+
 }

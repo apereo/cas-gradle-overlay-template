@@ -35,7 +35,7 @@
         <beans:property name="packagesToScan" value="org.jasig.cas, com.infusionsoft.cas.domain"/>
         <beans:property name="jpaVendorAdapter">
             <beans:bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter">
-                <beans:property name="generateDdl" value="true"/>
+                <beans:property name="generateDdl" value="false"/>
                 <!--<beans:property name="showSql" value="true"/>-->
                 <beans:property name="databasePlatform" value="org.hibernate.dialect.MySQL5Dialect"/>
             </beans:bean>
