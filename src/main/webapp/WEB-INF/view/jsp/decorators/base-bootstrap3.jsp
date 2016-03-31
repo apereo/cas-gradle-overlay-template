@@ -129,7 +129,5 @@
     s.parentNode.insertBefore(walkme, s);
 })();</script>
 
-<script src="https://www.infusionsoft.com/sites/all/modules/contrib/analytics/marketo.js"></script>
-
 </body>
 </html>
