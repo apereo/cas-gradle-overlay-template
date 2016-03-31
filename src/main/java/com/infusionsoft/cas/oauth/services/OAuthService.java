@@ -42,6 +42,9 @@ public class OAuthService implements ApplicationListener<UserAccountRemovedEvent
     @Value("${mashery.api.crm.service.key}")
     private String crmServiceKey;
 
+    @Value("${mashery.dev.mode}")
+    private boolean devMode = false;
+
     @Override
     public void onApplicationEvent(UserAccountRemovedEvent userAccountRemovedEvent) {
         try {
@@ -68,7 +71,7 @@ public class OAuthService implements ApplicationListener<UserAccountRemovedEvent
         String scope = requestedScope + "|" + application;
         String userContext = globalUserId + "|" + application;
 
-        if(!userService.validateUserApplication(application) ) {
+        if (!userService.validateUserApplication(application)) {
             throw new OAuthAccessDeniedException();
         }
 
@@ -80,12 +83,12 @@ public class OAuthService implements ApplicationListener<UserAccountRemovedEvent
     /**
      * Creates an access token for the given client and grant
      *
-     * @param providedServiceKey     The Mashery Service Key
-     * @param clientId       The OAuth client_id
-     * @param clientSecret   The OAuth client_secret
-     * @param grantType      The OAuth grant_type
-     * @param requestedScope The request scope which should be the application, i.e. myapp.infusionsoft.com
-     * @param userId         The user identifier, which is either a globalUserId or the anonymous-UUID tracking code
+     * @param providedServiceKey The Mashery Service Key
+     * @param clientId           The OAuth client_id
+     * @param clientSecret       The OAuth client_secret
+     * @param grantType          The OAuth grant_type
+     * @param requestedScope     The request scope which should be the application, i.e. myapp.infusionsoft.com
+     * @param userId             The user identifier, which is either a globalUserId or the anonymous-UUID tracking code
      * @return The created access token or throws exception
      * @throws OAuthException
      */
@@ -93,16 +96,19 @@ public class OAuthService implements ApplicationListener<UserAccountRemovedEvent
         String scope = StringUtils.isBlank(requestedScope) && StringUtils.isBlank(application) ? "" : StringUtils.defaultString(requestedScope) + "|" + StringUtils.defaultString(application);
         String userContext = StringUtils.isBlank(userId) && StringUtils.isBlank(application) ? "" : StringUtils.defaultString(userId) + "|" + StringUtils.defaultString(application);
 
-        /**
-         * Mashery does not support extend grants, so we are faking it by using a password
-         */
-        if(isExtendedGrantType(grantType)) {
-            grantType = OAuthGrantType.RESOURCE_OWNER_CREDENTIALS.getValue();
+        if (devMode) {
+            return new OAuthAccessToken(userContext, "bearer", 0, null, scope);
+        } else {
+            /**
+             * Mashery does not support extend grants, so we are faking it by using a password
+             */
+            if (isExtendedGrantType(grantType)) {
+                grantType = OAuthGrantType.RESOURCE_OWNER_CREDENTIALS.getValue();
+            }
+
+            MasheryCreateAccessTokenResponse masheryCreateAccessTokenResponse = masheryApiClientService.createAccessToken(providedServiceKey, clientId, clientSecret, grantType, scope, userContext, refreshToken);
+            return new OAuthAccessToken(masheryCreateAccessTokenResponse.getAccess_token(), masheryCreateAccessTokenResponse.getToken_type(), masheryCreateAccessTokenResponse.getExpires_in(), masheryCreateAccessTokenResponse.getRefresh_token(), masheryCreateAccessTokenResponse.getScope());
         }
-
-        MasheryCreateAccessTokenResponse masheryCreateAccessTokenResponse = masheryApiClientService.createAccessToken(providedServiceKey, clientId, clientSecret, grantType, scope, userContext, refreshToken);
-
-        return new OAuthAccessToken(masheryCreateAccessTokenResponse.getAccess_token(), masheryCreateAccessTokenResponse.getToken_type(), masheryCreateAccessTokenResponse.getExpires_in(), masheryCreateAccessTokenResponse.getRefresh_token(), masheryCreateAccessTokenResponse.getScope());
     }
 
     public Boolean revokeAccessToken(String serviceKey, String clientId, String accessToken) throws OAuthException {
@@ -173,8 +179,8 @@ public class OAuthService implements ApplicationListener<UserAccountRemovedEvent
 
     public boolean isClientAuthorizedForTrustedGrantType(String clientId) throws OAuthException {
         MasheryMember masheryMember = masheryApiClientService.fetchMemberByClientId(clientId);
-        for(MasheryRole masheryRole : masheryMember.getRoles()) {
-            if(TRUSTED_INTERNAL_SYSTEM_ROLE.equals(masheryRole.getName())) {
+        for (MasheryRole masheryRole : masheryMember.getRoles()) {
+            if (TRUSTED_INTERNAL_SYSTEM_ROLE.equals(masheryRole.getName())) {
                 return true;
             }
         }
