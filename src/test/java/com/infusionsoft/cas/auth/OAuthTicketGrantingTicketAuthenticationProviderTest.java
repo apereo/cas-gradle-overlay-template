@@ -8,18 +8,17 @@ import com.infusionsoft.cas.oauth.exceptions.OAuthInvalidRequestException;
 import com.infusionsoft.cas.services.UserService;
 import org.jasig.cas.authentication.principal.Principal;
 import org.jasig.cas.ticket.TicketGrantingTicket;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.security.core.Authentication;
-import org.testng.Assert;
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Test;
 
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 
-@Test
 public class OAuthTicketGrantingTicketAuthenticationProviderTest {
 
     @InjectMocks
@@ -50,7 +49,7 @@ public class OAuthTicketGrantingTicketAuthenticationProviderTest {
     private static final String USERNAME = "username@infusiontest.com";
     private static final User user = new User();
 
-    @BeforeMethod
+    @Before
     public void setUp() throws Exception {
         user.setUsername(USERNAME);
         MockitoAnnotations.initMocks(this);
@@ -95,12 +94,12 @@ public class OAuthTicketGrantingTicketAuthenticationProviderTest {
         validateToken(actualReturn, false, token.getTicketGrantingTicket());
     }
 
-    @Test(expectedExceptions = NullPointerException.class)
+    @Test(expected = NullPointerException.class)
     public void testAuthenticateFailNullToken() throws Exception {
         providerToTest.authenticate(null);
     }
 
-    @Test(expectedExceptions = OAuthInvalidRequestException.class)
+    @Test(expected = OAuthInvalidRequestException.class)
     public void testAuthenticateFailBadService() throws Exception {
         OAuthTicketGrantingTicketAuthenticationToken token = new OAuthTicketGrantingTicketAuthenticationToken(new Object(), new Object(), null, clientId, clientSecret, scope, grantType, application, trackingUUID, ticketGrantingTicket);
         mockUser();
@@ -108,7 +107,7 @@ public class OAuthTicketGrantingTicketAuthenticationProviderTest {
         providerToTest.authenticate(token);
     }
 
-    @Test(expectedExceptions = OAuthAccessDeniedException.class)
+    @Test(expected = OAuthAccessDeniedException.class)
     public void testAuthenticateFailAnonymousNoTicketGrantingTicketAnonymousNotAllowedForService() throws Exception {
         doReturn(false).when(oAuthServiceConfig).getAllowAnonymous();
         OAuthTicketGrantingTicketAuthenticationToken token = new OAuthTicketGrantingTicketAuthenticationToken(new Object(), new Object(), oAuthServiceConfig, clientId, clientSecret, scope, grantType, application, trackingUUID, null);
@@ -117,7 +116,7 @@ public class OAuthTicketGrantingTicketAuthenticationProviderTest {
         providerToTest.authenticate(token);
     }
 
-    @Test(expectedExceptions = OAuthAccessDeniedException.class)
+    @Test(expected = OAuthAccessDeniedException.class)
     public void testAuthenticateFailAnonymousExpiredTicketGrantingTicketAnonymousNotAllowedForService() throws Exception {
         doReturn(false).when(oAuthServiceConfig).getAllowAnonymous();
         doReturn(true).when(ticketGrantingTicket).isExpired();
@@ -149,7 +148,7 @@ public class OAuthTicketGrantingTicketAuthenticationProviderTest {
         Assert.assertFalse(providerToTest.supports(Object.class));
     }
 
-    @Test(expectedExceptions = NullPointerException.class)
+    @Test(expected = NullPointerException.class)
     public void testSupportsFailNull() throws Exception {
         providerToTest.supports(null);
     }
