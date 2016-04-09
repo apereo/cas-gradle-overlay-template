@@ -9,8 +9,9 @@
 <%@ taglib prefix="decorator" uri="http://www.opensymphony.com/sitemesh/decorator" %>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 <%@ taglib prefix="page" uri="http://www.opensymphony.com/sitemesh/page" %>
+<%@ taglib prefix="versioned" tagdir="/WEB-INF/tags/common/page" %>
 
-<c:set var="bootstrapOverrideCss" value="${pageContext.request.contextPath}/css/bootstrap-infusionsoft-3.1.1.1.css"/>
+<c:set var="bootstrapOverrideCss" value="${pageContext.request.contextPath}/css/bootstrap-infusionsoft.css"/>
 
 <page:applyDecorator name="base-bootstrap3">
     <!DOCTYPE html>
@@ -21,7 +22,7 @@
 
         <meta name="decorator" content="login"/>
 
-        <link type="text/css" rel="stylesheet" href="${bootstrapOverrideCss}"/>
+        <versioned:link type="text/css" rel="stylesheet" href="${bootstrapOverrideCss}"/>
 
         <decorator:head/>
     </head>

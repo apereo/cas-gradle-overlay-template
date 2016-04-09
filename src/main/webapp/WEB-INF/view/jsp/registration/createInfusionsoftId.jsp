@@ -4,6 +4,7 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jstl/fmt_rt" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
+<%@ taglib prefix="versioned" tagdir="/WEB-INF/tags/common/page" %>
 
 <%--@elvariable id="registrationCode" type="java.lang.String"--%>
 <%--@elvariable id="returnUrl" type="java.lang.String"--%>
@@ -17,6 +18,8 @@
 <c:set var="createInfusionsoftIdJs" value="${pageContext.request.contextPath}/js/createInfusionsoftId.js"/>
 
 <c:set var="infusionsoftIdImage" value="${pageContext.request.contextPath}/img/infusionsoft_Id.png"/>
+
+<c:set var="buildVersion" value="<%=com.infusionsoft.cas.support.BuildVersion.getBuildVersion()%>"/>
 
 <%-- These form elements are used for both linkExisting and register --%>
 <c:set var="commonFormElements">
@@ -47,7 +50,7 @@
         <div class="col-xs-12 col-sm-9 col-md-6 col-lg-5 col-centered">
             <div class="panel panel-default">
                 <div class="panel-heading text-center">
-                    <img src="${infusionsoftIdImage}">
+                    <versioned:img src="${infusionsoftIdImage}"/>
 
                     <div>
                         <spring:message code='registration.cardTop.title'/>
@@ -65,7 +68,7 @@
 
                         <form:errors path="*" id="msg" cssClass="text-error" element="p">
                             <p class="text-error">
-                                <object type="image/svg+xml" tabindex="-1" data="/img/ic-exclamation-circle.svg" width="16" height="16"></object>
+                                <versioned:objectSvg type="image/svg+xml" tabindex="-1" data="/img/ic-exclamation-circle.svg" width="16" height="16" />
                                 <c:forEach var="error" items="${messages}">
                                     ${error}
                                 </c:forEach>
@@ -74,7 +77,7 @@
 
                         <c:if test="${error != null}">
                             <p class="text-error">
-                                <object type="image/svg+xml" tabindex="-1" data="/img/ic-exclamation-circle.svg" width="16" height="16"></object>
+                                <versioned:objectSvg type="image/svg+xml" tabindex="-1" data="/img/ic-exclamation-circle.svg" width="16" height="16"/>
                                 <spring:message code="${error}" text="${error}"/>
                             </p>
                         </c:if>
@@ -176,7 +179,7 @@
 </div>
 
 <content tag="local_script">
-    <script type="text/javascript" src="${createInfusionsoftIdJs}"></script>
+    <versioned:script type="text/javascript" src="${createInfusionsoftIdJs}"/>
 
     <script type="text/javascript">
         function resetCheckPassword() {
@@ -189,16 +192,16 @@
             var currPass = $('#password1').val();
             resetCheckPassword();
             if (currPass.length >= 7) {
-                $("#pw_length").css({"list-style-image": "url('/img/checkmark.png')"});
+                $("#pw_length").css({"list-style-image": "url('/img/checkmark.png?b=${buildVersion}')"});
             }
             if (/\d/.test(currPass)) {
-                $("#pw_number").css({"list-style-image": "url('/img/checkmark.png')"});
+                $("#pw_number").css({"list-style-image": "url('/img/checkmark.png?b=${buildVersion}')"});
             }
             if (/[a-z]/.test(currPass)) {
-                $("#pw_under").css({"list-style-image": "url('/img/checkmark.png')"});
+                $("#pw_under").css({"list-style-image": "url('/img/checkmark.png?b=${buildVersion}')"});
             }
             if (/[A-Z]/.test(currPass)) {
-                $("#pw_upper").css({"list-style-image": "url('/img/checkmark.png')"});
+                $("#pw_upper").css({"list-style-image": "url('/img/checkmark.png?b=${buildVersion}')"});
             }
         }
         setInterval(function () {
@@ -220,7 +223,7 @@
                     if (element.parent().is('label')) {
                         element.next().after(error);
                     } else {
-                        element.after('<span class="is-icon is-icon-error form-control-feedback"><object type="image/svg+xml" tabindex="-1" data="/img/ic-message-danger.svg" width="4" height="16"></object></span>');
+                        element.after('<span class="is-icon is-icon-error form-control-feedback"><object type="image/svg+xml" tabindex="-1" data="/img/ic-message-danger.svg?b=${buildVersion}" width="4" height="16"></object></span>');
                         element.after(error);
                     }
 

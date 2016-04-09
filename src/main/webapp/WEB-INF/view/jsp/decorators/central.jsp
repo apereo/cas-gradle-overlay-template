@@ -22,6 +22,7 @@
 <%@ taglib prefix="decorator" uri="http://www.opensymphony.com/sitemesh/decorator" %>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 <%@ taglib prefix="page" uri="http://www.opensymphony.com/sitemesh/page" %>
+<%@ taglib prefix="versioned" tagdir="/WEB-INF/tags/common/page" %>
 
 <c:set var="searchImage" value="${pageContext.request.contextPath}/img/ic-magnifying-glass.svg"/>
 <c:set var="xImage" value="${pageContext.request.contextPath}/img/x.png"/>
@@ -114,7 +115,7 @@
                         <div class="form-group">
                             <div class="input-group">
                                 <div class="input-group-addon">
-                                    <object width="12" height="12" data="${searchImage}" type="image/svg+xml"></object>
+                                    <versioned:objectSvg width="12" height="12" data="${searchImage}" type="image/svg+xml"/>
                                 </div>
                                 <input type="search" class="form-control" name="searchUsername" placeholder="${searchLabel}" value="${fn:escapeXml(searchUsername)}"/>
                             </div>
@@ -130,12 +131,12 @@
             <c:if test="${alertAvailable}">
                 <div class="alert ${alertClass} alert-dismissable fade in" role="alert">
                     <button data-dismiss="alert" aria-hidden="true" class="close" type="button">
-                        <img src="${xImage}">
+                        <versioned:img src="${xImage}" />
                     </button>
 
                     <div class="icon-holder">
                         <div class="tiny-icon">
-                            <object width="18" height="18" data="${alertImage}" type="image/svg+xml"></object>
+                            <versioned:objectSvg width="18" height="18" data="${alertImage}" type="image/svg+xml"/>
                         </div>
                     </div>
                     <div class="alert-text">

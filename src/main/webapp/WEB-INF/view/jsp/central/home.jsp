@@ -12,6 +12,7 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jstl/fmt_rt" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
+<%@ taglib prefix="versioned" tagdir="/WEB-INF/tags/common/page" %>
 
 <%@ page contentType="text/html; charset=UTF-8" %>
 
@@ -21,7 +22,7 @@
 <c:set var="editCommunityAccount" value="${pageContext.request.contextPath}/app/central/editCommunityAccount"/>
 <c:set var="renameAccount" value="${pageContext.request.contextPath}/app/central/renameAccount"/>
 
-<c:set var="homeJs" value="${pageContext.request.contextPath}/js/home-1.0.1.js"/>
+<c:set var="homeJs" value="${pageContext.request.contextPath}/js/home.js"/>
 
 <c:set var="arrowImage" value="${pageContext.request.contextPath}/img/ic-arrow-circle.svg"/>
 <c:set var="cogImage" value="${pageContext.request.contextPath}/img/ic-cog.svg"/>
@@ -69,8 +70,8 @@
             <a class="list-group-item" href="${accountLink}" data-account-link="${accountLink}">
                 <div class="row row-xs-height">
                     <div id="divApplicationImage" class="col-xs-1 col-xs-height col-middle">
-                        <img class="hidden-xs" src="../../images/app-central-${fn:toLowerCase(accountType)}.png"/>
-                        <img class="visible-xs" src="../../images/app-central-${fn:toLowerCase(accountType)}.png" width="30px" height="30px"/>
+                        <versioned:img cssClass="hidden-xs" src="../../images/app-central-${fn:toLowerCase(accountType)}.png"/>
+                        <versioned:img cssClass="visible-xs" src="../../images/app-central-${fn:toLowerCase(accountType)}.png" width="30px" height="30px"/>
                     </div>
 
                     <div class="col-xs-10 col-xs-height col-middle">
@@ -81,7 +82,7 @@
 
                             <c:if test="${aliasable || accessTokensAllowed}">
                                 <button class="configure btn btn-sm btn-link" data-account-id="${account.id}" tabindex="-1">
-                                    <img src="${cogImage}"/>
+                                    <versioned:img src="${cogImage}"/>
                                 </button>
                             </c:if>
                         </h4>
@@ -92,7 +93,7 @@
                     </div>
 
                     <div id="divChevron" class="col-xs-1 col-xs-height col-middle">
-                        <img src="${arrowImage}"/>
+                        <versioned:img src="${arrowImage}"/>
                     </div>
                 </div>
             </a>
@@ -152,7 +153,7 @@
 </c:forEach>
 
 <content tag="local_script">
-    <script type="text/javascript" src="${homeJs}"></script>
+    <versioned:script type="text/javascript" src="${homeJs}"/>
 </content>
 
 </body>

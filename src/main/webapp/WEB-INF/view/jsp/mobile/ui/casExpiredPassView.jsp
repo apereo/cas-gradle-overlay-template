@@ -6,6 +6,7 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jstl/fmt_rt" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
+<%@ taglib prefix="versioned" tagdir="/WEB-INF/tags/common/page" %>
 
 <%--@elvariable id="supportPhoneNumbers" type="java.util.List<String>"--%>
 
@@ -20,12 +21,12 @@
     <div class="rounded-box-wide">
         <div class="row">
             <div class="col-sm-8">
-                <object type="image/svg+xml" tabindex="-1" data="/img/is_logo.svg" width="159" height="26" class="logo">Infusionsoft</object>
+                <versioned:objectSvg type="image/svg+xml" tabindex="-1" data="/img/is_logo.svg" width="159" height="26" cssClass="logo">Infusionsoft</versioned:objectSvg>
 
                 <h2>Your Password Expired</h2>
 
                 <p class="text-info">
-                    <object type="image/svg+xml" tabindex="-1" data="/img/ic-message-info.svg" width="16" height="16"></object>
+                    <versioned:objectSvg type="image/svg+xml" tabindex="-1" data="/img/ic-message-info.svg" width="16" height="16"/>
                     <spring:message code="password.expired.page.instructions"/>
                 </p>
 
@@ -83,8 +84,8 @@
 </div>
 
 <content tag="local_script">
-    <script type="text/javascript" src="${pageContext.request.contextPath}/js/password-utils.js"></script>
-    <script type="text/javascript" src="${pageContext.request.contextPath}/js/password-expired-1.0.1.js"></script>
+    <versioned:script type="text/javascript" src="${pageContext.request.contextPath}/js/password-utils.js"/>
+    <versioned:script type="text/javascript" src="${pageContext.request.contextPath}/js/password-expired.js"/>
 </content>
 
 </body>

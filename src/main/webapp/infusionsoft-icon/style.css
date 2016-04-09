@@ -1,10 +1,10 @@
 @font-face {
 	font-family: 'infusionsoft-icon';
-	src:url('fonts/infusionsoft-icon.eot?-vkhk65');
-	src:url('fonts/infusionsoft-icon.eot?#iefix-vkhk65') format('embedded-opentype'),
-		url('fonts/infusionsoft-icon.woff?-vkhk65') format('woff'),
-		url('fonts/infusionsoft-icon.ttf?-vkhk65') format('truetype'),
-		url('fonts/infusionsoft-icon.svg?-vkhk65#infusionsoft-icon') format('svg');
+	src:url('fonts/infusionsoft-icon.eot?b=${version}');
+	src:url('fonts/infusionsoft-icon.eot?b=${version}') format('embedded-opentype'),
+		url('fonts/infusionsoft-icon.woff?b=${version}') format('woff'),
+		url('fonts/infusionsoft-icon.ttf?b=${version}') format('truetype'),
+		url('fonts/infusionsoft-icon.svg?b=${version}') format('svg');
 	font-weight: normal;
 	font-style: normal;
 }

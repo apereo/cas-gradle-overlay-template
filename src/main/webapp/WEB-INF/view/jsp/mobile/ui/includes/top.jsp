@@ -26,6 +26,7 @@
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<%@ taglib prefix="versioned" tagdir="/WEB-INF/tags/common/page" %>
 <spring:theme code="mobile.custom.css.file" var="mobileCss" text="" />
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
 	<head>
@@ -38,7 +39,7 @@
 		<spring:theme code="standard.custom.css.file" var="customCssFile" />
         <link type="text/css" rel="stylesheet" href="${customCssFile}" />
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-	    <link rel="icon" href="${pageContext.request.contextPath}/favicon.ico" type="image/x-icon" />
+	    <versioned:link rel="icon" href="${pageContext.request.contextPath}/favicon.ico" type="image/x-icon"/>
 	</head>
 	<body id="cas" class="fl-theme-iphone">
     <div class="flc-screenNavigator-view-container">

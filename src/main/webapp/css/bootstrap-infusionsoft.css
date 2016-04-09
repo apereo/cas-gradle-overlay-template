@@ -1,5 +1,5 @@
 /***** GENERAL STYLES AND OVERRIDES *****/
-
+/*Overwrites bootstrap 3.1.1*/
 body {
     margin-top: 5px;
     margin-bottom: 60px;
@@ -57,7 +57,7 @@ h2 {
     margin-top: 15px;
     text-align: center;
     color: #5E5E5E;
-    background: url(../img/divider.png) top center no-repeat;
+    background: url(../img/divider.png?b=${version}) top center no-repeat;
 }
 .login-footer p {
     margin: 0 auto;
@@ -70,7 +70,7 @@ input[type="password"] {
 .ic-envelope {
     height: 14px;
     width: 20px;
-    background: url(../img/ic-envelope.svg) 0 0 no-repeat;
+    background: url(../img/ic-envelope.svg?b=${version}) 0 0 no-repeat;
     position: absolute;
     display: block;
     left: 27px;
@@ -79,7 +79,7 @@ input[type="password"] {
 .ic-lock {
     height: 19px;
     width: 15px;
-    background: url(../img/ic-lock.svg) 0 0 no-repeat;
+    background: url(../img/ic-lock.svg?b=${version}) 0 0 no-repeat;
     position: absolute;
     display: block;
     left: 27px;
@@ -241,7 +241,7 @@ select.form-control {
 }
 .chosen-container-single .chosen-single div b,
 .chosen-container-single.chosen-container-active .chosen-single div b {
-    background: #EDEDED url(../img/chosen-sprite.png) 5px 7px no-repeat;
+    background: #EDEDED url(../img/chosen-sprite.png?b=${version}) 5px 7px no-repeat;
     background-size: 20px 20px;
     display: block;
     height: 100%;
@@ -405,7 +405,7 @@ select.form-control {
     .col-sm-4.pw-requirements li {
         list-style-type: none;
         padding-left: 15px;
-        background: url(../img/bullet.svg) 3px 7px no-repeat;
+        background: url(../img/bullet.svg?b=${version}) 3px 7px no-repeat;
         background-size: 4px 4px;
         position: relative;
     }
@@ -553,12 +553,12 @@ select.form-control {
     .col-sm-4.pw-requirements li {
         list-style-type: none;
         padding-left: 15px;
-        background: url(../img/bullet.svg) 3px 7x no-repeat;
+        background: url(../img/bullet.svg?b=${version}) 3px 7x no-repeat;
         background-size: 4px 4px;
     }
     /* TODO: Re-check or remove this after <object> tags added to valid <li>'s */
     .col-sm-4.pw-requirements li.valid {
-        background: url(../img/ic-message-success.svg) 0 1px no-repeat;
+        background: url(../img/ic-message-success.svg?b=${version}) 0 1px no-repeat;
         background-size: 13px 13px;
     }
 

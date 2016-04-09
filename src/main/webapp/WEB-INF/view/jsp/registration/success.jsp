@@ -4,6 +4,7 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jstl/fmt_rt" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
+<%@ taglib prefix="versioned" tagdir="/WEB-INF/tags/common/page" %>
 
 <%--@elvariable id="appUrl" type="java.lang.String"--%>
 <%--@elvariable id="user" type="com.infusionsoft.cas.domain.User"--%>
@@ -39,7 +40,7 @@
                     <div class="well well-sm">
                         <div class="row">
                             <div class="col-xs-3">
-                                <img src="${imageUrl}"/>
+                                <versioned:img src="${imageUrl}"/>
                             </div>
                             <div class="col-xs-9">
                                 <h4>${user.firstName} ${user.lastName}</h4>

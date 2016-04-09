@@ -31,9 +31,45 @@ public class SecurityFilter implements Filter {
         if (path.startsWith("/login") || path.startsWith("/logout") || path.startsWith("/app")) {
             response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate, private");
             response.setHeader("Pragma", "no-cache");
+        } else if (shouldBeCached(path)) {
+            int oneYearInSeconds = 31536000;
+            response.setHeader("Cache-Control", "max-age=" + oneYearInSeconds);
         }
 
         filterChain.doFilter(request, response);
+    }
+
+    private boolean shouldBeCached(String path) {
+        return isImage(path) || isCachedPath(path);
+    }
+
+    private boolean isImage(String path) {
+        String[] imageExtensions = {".png", ".gif", ".svg", ".ico", ".jpg"};
+
+        for (String imageExtension : imageExtensions) {
+            if (path.contains(imageExtension)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private boolean isCachedPath(String path) {
+        String[] cachedPaths = {
+                "/js/",
+                "/css/",
+                "/bootstrap",
+                "/infusionsoft-icon/"
+        };
+
+        for (String cachedPath : cachedPaths) {
+            if (path.contains(cachedPath)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public void destroy() {

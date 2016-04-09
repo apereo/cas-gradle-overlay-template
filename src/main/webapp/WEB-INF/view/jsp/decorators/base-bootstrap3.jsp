@@ -3,10 +3,11 @@
 <%@ page contentType="text/html; charset=UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jstl/core_rt" %>
 <%@ taglib prefix="decorator" uri="http://www.opensymphony.com/sitemesh/decorator" %>
+<%@ taglib prefix="versioned" tagdir="/WEB-INF/tags/common/page" %>
 
 <c:set var="choosenCss" value="${pageContext.request.contextPath}/css/chosen.min.css"/>
 <c:set var="bootstrapCss" value="${pageContext.request.contextPath}/bootstrap-3.2.0-dist/css/bootstrap.min.css"/>
-<c:set var="bootstrapOverrideCss" value="${pageContext.request.contextPath}/css/bootstrap-app-central-3.2.0.1.css"/>
+<c:set var="bootstrapOverrideCss" value="${pageContext.request.contextPath}/css/bootstrap-app-central.css"/>
 
 <c:set var="bootstrapChoosenCss" value="${pageContext.request.contextPath}/bootstrap-chosen/bootstrap-chosen.css"/>
 <c:set var="bootstrapTypeaheadCss" value="${pageContext.request.contextPath}/css/typeahead-bootstrap-fix.css"/>
@@ -19,10 +20,10 @@
 <c:set var="handlebarsJs" value="${pageContext.request.contextPath}/js/handlerbars-2.0.0/handlebars-v2.0.0.js"/>
 <c:set var="typeAheadJs" value="${pageContext.request.contextPath}/js/typeahead-0.10.5/typeahead.bundle.js"/>
 
-<c:set var="infusionsoftChosenConfig" value="${pageContext.request.contextPath}/js/infusionsoft-chosen-1.0.1.js"/>
+<c:set var="infusionsoftChosenConfig" value="${pageContext.request.contextPath}/js/infusionsoft-chosen.js"/>
 
-<c:set var="animo_css" value="${pageContext.request.contextPath}/js/animo/animate-animo.min.css"/>
-<c:set var="animo_js" value="${pageContext.request.contextPath}/js/animo/animo.min.js"/>
+<c:set var="animo_css" value="${pageContext.request.contextPath}/js/animo-1.0.3/animate-animo.min.css"/>
+<c:set var="animo_js" value="${pageContext.request.contextPath}/js/animo-1.0.3/animo.min.js"/>
 
 <c:set var="infusionsoft_icon_css" value="${pageContext.request.contextPath}/infusionsoft-icon/style.css"/>
 
@@ -44,12 +45,12 @@
 
     <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
     <link type="text/css" rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700,800"/>
-    <link type="text/css" rel="stylesheet" href="${infusionsoft_icon_css}"/>
+    <versioned:link type="text/css" rel="stylesheet" href="${infusionsoft_icon_css}"/>
     <link type="text/css" rel="stylesheet" href="${animo_css}"/>
     <link type="text/css" rel="stylesheet" href="${bootstrapCss}"/>
-    <link type="text/css" rel="stylesheet" href="${bootstrapChoosenCss}"/>
-    <link type="text/css" rel="stylesheet" href="${bootstrapTypeaheadCss}"/>
-    <link type="text/css" rel="stylesheet" href="${bootstrapOverrideCss}"/>
+    <versioned:link type="text/css" rel="stylesheet" href="${bootstrapChoosenCss}"/>
+    <versioned:link type="text/css" rel="stylesheet" href="${bootstrapTypeaheadCss}"/>
+    <versioned:link type="text/css" rel="stylesheet" href="${bootstrapOverrideCss}"/>
 
     <script type="text/javascript">
         //Necessary to overcome the known Microsoft Mobile IE bug
@@ -79,7 +80,7 @@
 <script type="text/javascript" src="${placeholderJs}"></script>
 <script type="text/javascript" src="${chosenJs}"></script>
 <script type="text/javascript" src="${validateJs}"></script>
-<script type="text/javascript" src="${infusionsoftChosenConfig}"></script>
+<versioned:script type="text/javascript" src="${infusionsoftChosenConfig}"/>
 <script type="text/javascript" src="${handlebarsJs}"></script>
 <script type="text/javascript" src="${typeAheadJs}"></script>
 

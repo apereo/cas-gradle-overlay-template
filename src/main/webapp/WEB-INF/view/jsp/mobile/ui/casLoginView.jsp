@@ -6,6 +6,7 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jstl/fmt_rt" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
+<%@ taglib prefix="versioned" tagdir="/WEB-INF/tags/common/page" %>
 
 <%--@elvariable id="adLinkUrl" type="java.lang.String"--%>
 <%--@elvariable id="adDesktopImageSrcUrl" type="java.lang.String"--%>
@@ -51,17 +52,17 @@
         <c:if test="${enableAds}">
             <div class="col-md-6 ">
                 <a href="${adLinkHref}">
-                    <img src="${adDesktopImageUrl}" class="iconAd img-responsive">
+                    <versioned:img src="${adDesktopImageUrl}" cssClass="iconAd img-responsive"/>
                 </a>
             </div>
         </c:if>
         <div class="col-md-6 login-form ${adClass}">
-            <object type="image/svg+xml" tabindex="-1" data="/img/is_logo.svg" width="159" height="26" class="logo">Infusionsoft</object>
+            <versioned:objectSvg type="image/svg+xml" tabindex="-1" data="/img/is_logo.svg" width="159" height="26" cssClass="logo">Infusionsoft</versioned:objectSvg>
 
             <form:form method="post" action="/login" id="loginForm" cssClass="form-horizontal" commandName="${commandName}" htmlEscape="true" role="form" data-toggle="validator">
                 <form:errors path="*" id="msg" cssClass="text-error" element="p">
                     <p class="text-error">
-                        <object type="image/svg+xml" tabindex="-1" data="/img/ic-exclamation-circle.svg" width="16" height="16"></object>
+                        <versioned:objectSvg type="image/svg+xml" tabindex="-1" data="/img/ic-exclamation-circle.svg" width="16" height="16"/>
                         <c:forEach var="error" items="${messages}">
                             <c:out value="${error}"/>
                         </c:forEach>
@@ -94,7 +95,7 @@
             <a href="${forgotPasswordUrl}">Forgot your password?</a>
 
             <div class="row infusionsoftID">
-                <object type="image/svg+xml" tabindex="-1" data="/img/isID_logo.svg" width="60" height="30" class="isIDlogo">Infusionsoft ID</object>
+                <versioned:objectSvg type="image/svg+xml" tabindex="-1" data="/img/isID_logo.svg" width="60" height="30" cssClass="isIDlogo">Infusionsoft ID</versioned:objectSvg>
                 <p>Haven't created your Infusionsoft ID?</p>
 
                 <p><a href="${registrationUrl}">Click here to get started</a></p>
@@ -120,14 +121,14 @@
     <c:if test="${enableAds}">
         <div class="navbar navbar-default navbar-fixed-bottom">
             <a href="${adLinkHref}">
-                <img src="${adMobileImageUrl}" class="iconAdSm img-responsive">
+                <versioned:img src="${adMobileImageUrl}" cssClass="iconAdSm img-responsive"/>
             </a>
         </div>
     </c:if>
 </div>
 
 <content tag="local_script">
-    <script type="text/javascript" src="${pageContext.request.contextPath}/js/login.js"></script>
+    <versioned:script type="text/javascript" src="${pageContext.request.contextPath}/js/login.js"/>
 </content>
 
 </body>
