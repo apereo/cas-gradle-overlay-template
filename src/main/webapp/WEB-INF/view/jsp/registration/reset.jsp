@@ -10,6 +10,8 @@
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 
+<c:set var="buildVersion" value="<%=com.infusionsoft.cas.support.BuildVersion.getBuildVersion()%>"/>
+
 <head>
 
     <meta name="decorator" content="black-header-minimal" />
@@ -45,16 +47,16 @@
             var currPass = $('#password1').val();
             resetCheckPassword();
             if (currPass.length >= 7) {
-                $("#pw_length").css({"list-style-image": "url('/img/checkmark.png')"});
+                $("#pw_length").css({"list-style-image": "url('/img/checkmark.png?b=${buildVersion}')"});
             }
             if (/\d/.test(currPass)) {
-                $("#pw_number").css({"list-style-image": "url('/img/checkmark.png')"});
+                $("#pw_number").css({"list-style-image": "url('/img/checkmark.png?b=${buildVersion}')"});
             }
             if (/[a-z]/.test(currPass)) {
-                $("#pw_under").css({"list-style-image": "url('/img/checkmark.png')"});
+                $("#pw_under").css({"list-style-image": "url('/img/checkmark.png?b=${buildVersion}')"});
             }
             if (/[A-Z]/.test(currPass)) {
-                $("#pw_upper").css({"list-style-image": "url('/img/checkmark.png')"});
+                $("#pw_upper").css({"list-style-image": "url('/img/checkmark.png?b=${buildVersion}')"});
             }
         }
         setInterval(function () {

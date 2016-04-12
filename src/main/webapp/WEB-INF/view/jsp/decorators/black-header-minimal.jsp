@@ -9,6 +9,7 @@
 <%@ taglib prefix="decorator" uri="http://www.opensymphony.com/sitemesh/decorator" %>
 <%@ taglib prefix="page" uri="http://www.opensymphony.com/sitemesh/page" %>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
+<%@ taglib prefix="versioned" tagdir="/WEB-INF/tags/common/page" %>
 
 <c:set var="cornerstoneImage" value="${pageContext.request.contextPath}/img/is_cornerstone.svg"/>
 <c:set var="homeLink" value="${pageContext.request.contextPath}/app/central/home"/>
@@ -32,7 +33,7 @@
                     <span class="icon-bar"></span>
                 </button>
                 <a class="navbar-brand" href="${homeLink}">
-                    <img src="${cornerstoneImage}" width="18px" height="30px"/>
+                    <versioned:img src="${cornerstoneImage}" width="18px" height="30px"/>
                     <span class="vertical-bar">|</span>
                     Account Central
                 </a>

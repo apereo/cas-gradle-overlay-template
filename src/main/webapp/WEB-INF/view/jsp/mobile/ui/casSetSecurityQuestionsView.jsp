@@ -6,6 +6,7 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jstl/fmt_rt" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
+<%@ taglib prefix="versioned" tagdir="/WEB-INF/tags/common/page" %>
 
 <c:set var="security_questions_js" value="${pageContext.request.contextPath}/js/securityQuestions.js"/>
 
@@ -46,7 +47,7 @@
             <form:form cssClass="form-horizontal" commandName="${commandName}" method="post">
                 <form:errors path="*" id="msg" cssClass="text-error" element="p">
                     <p class="text-error">
-                        <object type="image/svg+xml" tabindex="-1" data="/img/ic-exclamation-circle.svg" width="16" height="16"></object>
+                        <versioned:objectSvg tabindex="-1" data="/img/ic-exclamation-circle.svg" width="16" height="16"/>
                         <c:forEach var="error" items="${messages}">
                             ${error}
                         </c:forEach>
@@ -117,7 +118,7 @@
 </div>
 
 <content tag="local_script">
-    <script type="text/javascript" src="${security_questions_js}"></script>
+    <versioned:script type="text/javascript" src="${security_questions_js}"/>
 </content>
 
 </body>

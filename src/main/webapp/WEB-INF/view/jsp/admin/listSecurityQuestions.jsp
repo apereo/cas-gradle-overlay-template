@@ -2,6 +2,7 @@
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
+<%@ taglib prefix="versioned" tagdir="/WEB-INF/tags/common/page" %>
 
 <c:set var="newSecurityQuestionUrl" value="${pageContext.request.contextPath}/app/securityquestion/create"/>
 <c:set var="editSecurityQuestionUrl" value="${pageContext.request.contextPath}/app/securityquestion/edit"/>
@@ -47,10 +48,10 @@
 
                             <td>
                                 <c:if test="${securityQuestion.enabled}">
-                                    <object type="image/svg+xml" tabindex="-1" data="/img/ic-message-success.svg" width="16" height="16"></object>
+                                    <versioned:objectSvg tabindex="-1" data="/img/ic-message-success.svg" width="16" height="16"/>
                                 </c:if>
                                 <c:if test="${!securityQuestion.enabled}">
-                                    <object type="image/svg+xml" tabindex="-1" data="/img/ic-message-danger.svg" width="16" height="16"></object>
+                                    <versioned:objectSvg tabindex="-1" data="/img/ic-message-danger.svg" width="16" height="16"/>
                                 </c:if>
                             </td>
                             <td>

@@ -102,6 +102,18 @@
                             </excludes>
                         </overlay>
                     </overlays>
+                    <webResources>
+                        <resource>
+                            <directory>src/main/webapp</directory>
+                            <filtering>true</filtering>
+                            <includes>
+                                <include>js/*.js</include>
+                                <include>css/*.css</include>
+                                <include>bootstrap-chosen/bootstrap-chosen.css</include>
+                                <include>infusionsoft-icon/style.css</include>
+                            </includes>
+                        </resource>
+                    </webResources>
                 </configuration>
             </plugin>
             <plugin>

@@ -6,6 +6,7 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jstl/fmt_rt" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
+<%@ taglib prefix="versioned" tagdir="/WEB-INF/tags/common/page" %>
 
 <c:set var="security_questions_confirm_js" value="${pageContext.request.contextPath}/js/securityQuestionsConfirm.js"/>
 <c:set var="succes_image_url" value="${pageContext.request.contextPath}/img/ic-check-with-background.svg"/>
@@ -23,7 +24,7 @@
     <div class="page-header">
         <div class="row">
             <div class="col-xs-12 text-center">
-                <img src="${succes_image_url}" style="display: none;" class="confirm-success bounceIn">
+                <versioned:img src="${succes_image_url}" style="display: none;" cssClass="confirm-success bounceIn"/>
             </div>
         </div>
         <div class="row">
@@ -54,7 +55,7 @@
 </div>
 
 <content tag="local_script">
-    <script type="text/javascript" src="${security_questions_confirm_js}"></script>
+    <versioned:script type="text/javascript" src="${security_questions_confirm_js}"/>
 </content>
 
 </body>
