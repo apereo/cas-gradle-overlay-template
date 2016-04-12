@@ -17,4 +17,20 @@
 <%@ attribute name="dataThemeId" required="false" description="Data theme id of the image" %> <%-- Not valid attribute. Added for backwards compatibility--%>
 <%@ attribute name="dataType" required="false" description="Data type of the image" %> <%-- Not valid attribute. Added for backwards compatibility--%>
 <%@ attribute name="vspace" required="false" description="Vspace of the image" %> <%-- Deprecated attribute. Added for backwards compatibility--%>
-<img <c:if test="${not empty id}">id="${id}" </c:if>src="${src}?b=<%=com.infusionsoft.cas.support.BuildVersion.getBuildVersion()%>" <c:if test="${not empty cssClass}">class="${cssClass}" </c:if><c:if test="${not empty style}">style="${style}" </c:if><c:if test="${not empty alt}">alt="${alt}" </c:if><c:if test="${not empty title}">title="${title}" </c:if><c:if test="${not empty height}">height="${height}" </c:if><c:if test="${not empty width}">width="${width}" </c:if><c:if test="${not empty border}">border="${border}" </c:if><c:if test="${not empty align}">align="${align}" </c:if><c:if test="${not empty onclick}">onclick="${onclick}" </c:if><c:if test="${not empty name}">name="${name}" </c:if><c:if test="${not empty dataThemeId}">data-theme-id="${dataThemeId}" </c:if><c:if test="${not empty dataType}">data-type="${dataType}" </c:if><c:if test="${not empty vspace}">vspace="${vspace}" </c:if>/>
+
+<img <c:if test="${not empty id}">id="${id}" </c:if>
+     src="${src}?b=<%=com.infusionsoft.cas.support.BuildVersion.getBuildVersion()%>"
+     <c:if test="${not empty cssClass}">class="${cssClass}" </c:if>
+     <c:if test="${not empty style}">style="${style}" </c:if>
+     <c:if test="${not empty alt}">alt="${alt}" </c:if>
+     <c:if test="${not empty title}">title="${title}" </c:if>
+     <c:if test="${not empty height}">height="${height}" </c:if>
+     <c:if test="${not empty width}">width="${width}" </c:if>
+     <c:if test="${not empty border}">border="${border}" </c:if>
+     <c:if test="${not empty align}">align="${align}" </c:if>
+     <c:if test="${not empty onclick}">onclick="${onclick}" </c:if>
+     <c:if test="${not empty name}">name="${name}" </c:if>
+     <c:if test="${not empty dataThemeId}">data-theme-id="${dataThemeId}" </c:if>
+     <c:if test="${not empty dataType}">data-type="${dataType}" </c:if>
+     <c:if test="${not empty vspace}">vspace="${vspace}" </c:if>
+/>

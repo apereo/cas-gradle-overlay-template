@@ -22,20 +22,20 @@
 <div class="container">
     <div class="row">
         <div class="rounded-box">
-            <versioned:objectSvg type="image/svg+xml" tabindex="-1" data="/img/is_logo.svg" width="159" height="26" cssClass="logo">Infusionsoft</versioned:objectSvg>
+            <versioned:objectSvg tabindex="-1" data="/img/is_logo.svg" width="159" height="26" cssClass="logo">Infusionsoft</versioned:objectSvg>
 
             <h2>Enter Recovery Code</h2>
 
             <c:if test="${not empty error}">
                 <p class="text-error">
-                    <versioned:objectSvg type="image/svg+xml" tabindex="-1" data="/img/ic-exclamation-circle.svg" width="16" height="16"/>
+                    <versioned:objectSvg tabindex="-1" data="/img/ic-exclamation-circle.svg" width="16" height="16"/>
                     <spring:message code="${error}"/>
                 </p>
             </c:if>
 
             <c:if test="${empty error}">
                 <p class="text-info">
-                    <versioned:objectSvg type="image/svg+xml" tabindex="-1" data="/img/ic-message-info.svg" width="16" height="16"/>
+                    <versioned:objectSvg tabindex="-1" data="/img/ic-message-info.svg" width="16" height="16"/>
                     We have sent a recovery code to ${fn:escapeXml(username)}. Type it into the field below.
                 </p>
             </c:if>

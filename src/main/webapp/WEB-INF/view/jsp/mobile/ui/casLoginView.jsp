@@ -57,12 +57,12 @@
             </div>
         </c:if>
         <div class="col-md-6 login-form ${adClass}">
-            <versioned:objectSvg type="image/svg+xml" tabindex="-1" data="/img/is_logo.svg" width="159" height="26" cssClass="logo">Infusionsoft</versioned:objectSvg>
+            <versioned:objectSvg tabindex="-1" data="/img/is_logo.svg" width="159" height="26" cssClass="logo">Infusionsoft</versioned:objectSvg>
 
             <form:form method="post" action="/login" id="loginForm" cssClass="form-horizontal" commandName="${commandName}" htmlEscape="true" role="form" data-toggle="validator">
                 <form:errors path="*" id="msg" cssClass="text-error" element="p">
                     <p class="text-error">
-                        <versioned:objectSvg type="image/svg+xml" tabindex="-1" data="/img/ic-exclamation-circle.svg" width="16" height="16"/>
+                        <versioned:objectSvg tabindex="-1" data="/img/ic-exclamation-circle.svg" width="16" height="16"/>
                         <c:forEach var="error" items="${messages}">
                             <c:out value="${error}"/>
                         </c:forEach>
@@ -95,7 +95,7 @@
             <a href="${forgotPasswordUrl}">Forgot your password?</a>
 
             <div class="row infusionsoftID">
-                <versioned:objectSvg type="image/svg+xml" tabindex="-1" data="/img/isID_logo.svg" width="60" height="30" cssClass="isIDlogo">Infusionsoft ID</versioned:objectSvg>
+                <versioned:objectSvg tabindex="-1" data="/img/isID_logo.svg" width="60" height="30" cssClass="isIDlogo">Infusionsoft ID</versioned:objectSvg>
                 <p>Haven't created your Infusionsoft ID?</p>
 
                 <p><a href="${registrationUrl}">Click here to get started</a></p>

@@ -48,10 +48,10 @@
 
                             <td>
                                 <c:if test="${securityQuestion.enabled}">
-                                    <versioned:objectSvg type="image/svg+xml" tabindex="-1" data="/img/ic-message-success.svg" width="16" height="16"/>
+                                    <versioned:objectSvg tabindex="-1" data="/img/ic-message-success.svg" width="16" height="16"/>
                                 </c:if>
                                 <c:if test="${!securityQuestion.enabled}">
-                                    <versioned:objectSvg type="image/svg+xml" tabindex="-1" data="/img/ic-message-danger.svg" width="16" height="16"/>
+                                    <versioned:objectSvg tabindex="-1" data="/img/ic-message-danger.svg" width="16" height="16"/>
                                 </c:if>
                             </td>
                             <td>

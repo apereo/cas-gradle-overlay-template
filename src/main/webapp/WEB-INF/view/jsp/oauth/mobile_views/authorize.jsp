@@ -50,7 +50,7 @@
                         <c:choose>
                             <c:when test="${!empty error}">
                                 <p class="text-error">
-                                    <versioned:objectSvg type="image/svg+xml" tabindex="-1" data="/img/ic-exclamation-circle.svg" width="16" height="16"/>
+                                    <versioned:objectSvg tabindex="-1" data="/img/ic-exclamation-circle.svg" width="16" height="16"/>
                                     <spring:message code="${error}"/>
                                 </p>
                             </c:when>

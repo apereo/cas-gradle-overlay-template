@@ -68,7 +68,7 @@
 
                         <form:errors path="*" id="msg" cssClass="text-error" element="p">
                             <p class="text-error">
-                                <versioned:objectSvg type="image/svg+xml" tabindex="-1" data="/img/ic-exclamation-circle.svg" width="16" height="16" />
+                                <versioned:objectSvg tabindex="-1" data="/img/ic-exclamation-circle.svg" width="16" height="16" />
                                 <c:forEach var="error" items="${messages}">
                                     ${error}
                                 </c:forEach>
@@ -77,7 +77,7 @@
 
                         <c:if test="${error != null}">
                             <p class="text-error">
-                                <versioned:objectSvg type="image/svg+xml" tabindex="-1" data="/img/ic-exclamation-circle.svg" width="16" height="16"/>
+                                <versioned:objectSvg tabindex="-1" data="/img/ic-exclamation-circle.svg" width="16" height="16"/>
                                 <spring:message code="${error}" text="${error}"/>
                             </p>
                         </c:if>

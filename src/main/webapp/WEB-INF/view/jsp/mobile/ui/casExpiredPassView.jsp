@@ -21,12 +21,12 @@
     <div class="rounded-box-wide">
         <div class="row">
             <div class="col-sm-8">
-                <versioned:objectSvg type="image/svg+xml" tabindex="-1" data="/img/is_logo.svg" width="159" height="26" cssClass="logo">Infusionsoft</versioned:objectSvg>
+                <versioned:objectSvg tabindex="-1" data="/img/is_logo.svg" width="159" height="26" cssClass="logo">Infusionsoft</versioned:objectSvg>
 
                 <h2>Your Password Expired</h2>
 
                 <p class="text-info">
-                    <versioned:objectSvg type="image/svg+xml" tabindex="-1" data="/img/ic-message-info.svg" width="16" height="16"/>
+                    <versioned:objectSvg tabindex="-1" data="/img/ic-message-info.svg" width="16" height="16"/>
                     <spring:message code="password.expired.page.instructions"/>
                 </p>
 

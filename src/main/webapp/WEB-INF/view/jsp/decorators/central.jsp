@@ -115,7 +115,7 @@
                         <div class="form-group">
                             <div class="input-group">
                                 <div class="input-group-addon">
-                                    <versioned:objectSvg width="12" height="12" data="${searchImage}" type="image/svg+xml"/>
+                                    <versioned:objectSvg width="12" height="12" data="${searchImage}"/>
                                 </div>
                                 <input type="search" class="form-control" name="searchUsername" placeholder="${searchLabel}" value="${fn:escapeXml(searchUsername)}"/>
                             </div>
@@ -136,7 +136,7 @@
 
                     <div class="icon-holder">
                         <div class="tiny-icon">
-                            <versioned:objectSvg width="18" height="18" data="${alertImage}" type="image/svg+xml"/>
+                            <versioned:objectSvg width="18" height="18" data="${alertImage}"/>
                         </div>
                     </div>
                     <div class="alert-text">
