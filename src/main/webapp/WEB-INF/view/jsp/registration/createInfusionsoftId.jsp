@@ -167,7 +167,7 @@
                             </div>
 
                             <div class="col-xs-12 col-xs-pull-0 col-sm-6 col-sm-pull-6 text-center">
-                                <a id="linkToExisting" href="#" class="btn btn-link"><spring:message code='registration.signin'/></a>
+                                <a href="#" class="btn btn-link linkToExisting"><spring:message code='registration.signin'/></a>
                             </div>
 
                         </div>
