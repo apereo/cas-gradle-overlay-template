@@ -87,9 +87,6 @@ public class InfusionsoftAuthenticationServiceImpl implements InfusionsoftAuthen
     @Value("${infusionsoft.marketplace.domain}")
     private String marketplaceDomain;
 
-    @Value("${infusionsoft.marketplace.loginurl}")
-    private String marketplaceLoginUrl;
-
     @Value("${infusionsoft.cas.security.questions.force.answer}")
     private boolean forceSecurityQuestion;
 
