@@ -94,23 +94,25 @@ You can alias the commands above by adding them to your ```.bashrc``` file like 
 
 Install docker, docker-machine, docker-compose, VirtualBox
 
-
-Setup CAS Locally steps:
+Setup cas:
 1. mvn clean install, JDK 7
 2. run ./bootstrap from root
 4. add to /etc/hosts file: 127.0.0.1    devcas.infusiontest.com
 3. run cas server using "mvn tomcat6:run-war"
+4. INSERT INTO cas.user VALUES (1, 1, 'your-first-name', 'your-last-name', null, null, 'youre-email')
+5. INSERT INTO cas.user_authority VALUES (1,2);
+6. Go to https://devcas.infusiontest.com:7443
+7. Click 'Forgot Your Password?'
+8. Get recovery code from the logs or from the database with: SELECT password_recovery_code FROM cas.user;
+9. Enter recovery code and create new password 
 
-
-Modify cas database: Add to user table e.g. INSERT INTO cas.user VALUES (1, 1, 'Chad', 'Cotter', null, null, 'chad.cotter@infusionsoft.com');
-Modify cas database: Add to user_authority e.g. INSERT INTO cas.user_authority VALUES (1,2);
-login https://devcas.infusiontest.com:7443
-
-Need to set password for CAS, click "Forgot Password" link. The recover code will be in the database (SELECT * FROM cas.user). Enter recover code and set new password.
-(optional) Add cas role for content publishing: ROLE_CAS_LISTING_PUBLISHER_MARKETPLACE
-Go to flagship database. Run Select * from Contact. Make sure that you have an admin username that matches the cas username above (the username must be an email address. If it doesn't match, update Flagship database to match cas username).
-Run flagship: mvn tomcat6:run -pl webapp -P cas
-check roles and make sure have cas publishing role: https://infusionsoft.infusiontest.com:8443/app/authentication/whoAmI.jsp
+Configure Infusionsoft to use cas:
+1. Update your infusionsoft User.GlobalUserId field: UPDATE User SET GlobalUserId=1 WHERE Id=~yourUserId~;
+2. Run flagship with the cas profile: mvn tomcat6:run -pl webapp -P cas
+    Just run or compile?
+3. Optional (how to do this???) - Add cas role for content publishing: ROLE_CAS_LISTING_PUBLISHER_MARKETPLACE
+       You can verify that your user has this role by going to https://infusionsoft.infusiontest.com:8443/app/authentication/whoAmI.jsp
+4. JDK Certs???
 
 Make sure the JDK has the valid certificates. If not, install the certs.
 
