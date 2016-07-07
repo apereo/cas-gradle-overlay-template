@@ -50,7 +50,7 @@ The full installation instructions can be found here: https://wiki.infusionsoft.
 8. Run CAS using Java 6 and Maven 3.0.5. ```Inside of your CAS directory``` run:
     
   ```sh
-      JAVA_HOME=`/usr/libexec/java_home -v 1.6` M2_HOME=/usr/local/installs/maven/cas mvn tomcat:run-war
+      JAVA_HOME=`/usr/libexec/java_home -v 1.6` M2_HOME=/usr/local/installs/maven/cas mvn tomcat6:run-war
   ```
   - The first time you run CAS it should populate your cas schema
 9. Install Core for CAS ```Inside of your Core directory``` run:
