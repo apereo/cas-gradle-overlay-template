@@ -1,0 +1,50 @@
+apply from: 'http://dl.bintray.com/scalding/generic/waroverlay.gradle'
+apply plugin: 'org.akhikhl.gretty'
+
+ext {
+    jettySslConfigEnabled = project.hasProperty('jettySslKeyStorePath') &&
+                            project.hasProperty('jettySslTrustStorePath') &&
+                            project.hasProperty('jettySslTrustStorePassword') &&
+                            project.hasProperty('jettySslKeyStorePassword')
+}
+
+repositories {
+    mavenLocal()
+    jcenter()
+    maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }    
+    maven { url 'https://build.shibboleth.net/nexus/content/repositories/releases/' }
+}
+
+dependencies {
+    runtime("org.jasig.cas:cas-server-webapp:${project.'cas.version'}@war") {
+        transitive = true
+    }
+}
+
+war {
+    baseName 'cas'
+}
+
+task explodeWar(type: Copy) {
+    group = "build"
+    description = "Explode the cas.war"
+    from zipTree(project.war.outputs.files.singleFile)
+    into "${buildDir}/cas"
+}
+
+gretty {
+    jvmArgs = ["-DloggerFactory=org.apache.logging.slf4j.Log4jLoggerFactory", 
+               "-Dorg.eclipse.jetty.annotations.maxWait=120", 
+               "-Xdebug",
+               "-Xrunjdwp:transport=dt_socket,address=5000,server=y,suspend=n"]
+    scanInterval = 5
+    contextPath = '/cas'
+    httpsEnabled = project.ext.jettySslConfigEnabled
+    if (project.ext.jettySslConfigEnabled) {
+        httpsPort = 8443
+        sslKeyStorePath = project.ext.jettySslKeyStorePath
+        sslKeyStorePassword = project.ext.jettySslKeyStorePassword
+        sslTrustStorePath = project.ext.jettySslTrustStorePath
+        sslTrustStorePassword = project.ext.jettySslTrustStorePassword
+    }
+}
