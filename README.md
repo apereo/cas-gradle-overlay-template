@@ -5,9 +5,7 @@ CAS gradle war overlays.
 
 ## Versions
 
-```bash
-CAS 4.2.x
-```
+* CAS 4.2.x
 
 ## Requirements
 
