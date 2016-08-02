@@ -1,5 +1,7 @@
-CAS 4.2.x Gradle Overlay
+CAS Gradle Overlay
 ============================
+Generic CAS gradle war overlay to exercise the latest versions of CAS. This overlay could be freely used as a starting template for local 
+CAS gradle war overlays. 
 
 ## Versions
 
@@ -59,3 +61,10 @@ If you do not specify a keystore configuration, CAS will simply run on port `808
 ### External
 
 Deploy resultant `cas/build/libs/cas.war` to a Servlet container of choice.
+
+Remember to start your container with the following variables set with `-D`:
+
+```properties
+cas.properties.config.location=file:/etc/cas/cas.properties
+log4j.configurationFile=/etc/cas/log4j2.xml
+```
