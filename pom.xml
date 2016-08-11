@@ -99,6 +99,18 @@
                             <excludes>
                                 <exclude>WEB-INF/lib/standard-1.1.2.jar</exclude>
                                 <exclude>WEB-INF/lib/jstl-1.1.2.jar</exclude>
+                                <exclude>WEB-INF/lib/spring-aop-3.1.1.RELEASE.jar</exclude>
+                                <exclude>WEB-INF/lib/spring-asm-3.1.1.RELEASE.jar</exclude>
+                                <exclude>WEB-INF/lib/spring-beans-3.1.1.RELEASE.jar</exclude>
+                                <exclude>WEB-INF/lib/spring-context-3.1.1.RELEASE.jar</exclude>
+                                <exclude>WEB-INF/lib/spring-context-support-3.1.1.RELEASE.jar</exclude>
+                                <exclude>WEB-INF/lib/spring-core-3.1.1.RELEASE.jar</exclude>
+                                <exclude>WEB-INF/lib/spring-expression-3.1.1.RELEASE.jar</exclude>
+                                <exclude>WEB-INF/lib/spring-jdbc-3.1.1.RELEASE.jar</exclude>
+                                <exclude>WEB-INF/lib/spring-orm-3.1.1.RELEASE.jar</exclude>
+                                <exclude>WEB-INF/lib/spring-tx-3.1.1.RELEASE.jar</exclude>
+                                <exclude>WEB-INF/lib/spring-web-3.1.1.RELEASE.jar</exclude>
+                                <exclude>WEB-INF/lib/spring-webmvc-3.1.1.RELEASE.jar</exclude>
                             </excludes>
                         </overlay>
                     </overlays>
