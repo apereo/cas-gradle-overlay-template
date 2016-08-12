@@ -1,4 +1,4 @@
-FROM infusionsoft/tomcat_java-base:8u25.8015
+FROM infusionsoft/tomcat_java-base:7u65.7057.41
 
 #enable compression
 RUN sed -i '/<Connector port="8080" protocol="HTTP1"/a compression="on"' /opt/tomcat/conf/server.xml

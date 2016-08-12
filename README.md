@@ -96,7 +96,8 @@ Install docker, docker-machine, docker-compose, VirtualBox
 
 Setup cas:
 1. mvn clean install, JDK 7
-2. run ./bootstrap from root
+2. docker-compose up
+2. run ./bin/bootstrap 
 4. add to /etc/hosts file: 127.0.0.1    devcas.infusiontest.com
 3. run cas server using "mvn tomcat6:run-war"
 4. INSERT INTO cas.user VALUES (1, 1, 'your-first-name', 'your-last-name', null, null, 'youre-email')
@@ -113,7 +114,6 @@ Configure Infusionsoft to use cas:
 3. Optional (how to do this???) - Add cas role for content publishing: ROLE_CAS_LISTING_PUBLISHER_MARKETPLACE
        You can verify that your user has this role by going to https://infusionsoft.infusiontest.com:8443/app/authentication/whoAmI.jsp
 4. JDK Certs???
-
 Make sure the JDK has the valid certificates. If not, install the certs.
 
 ------------------------------------------

@@ -47,7 +47,7 @@
                 <artifactId>flyway-maven-plugin</artifactId>
                 <version>4.0</version>
                 <configuration>
-                    <url>jdbc:mysql://localhost:3306/cas</url>
+                    <url>jdbc:mysql://192.168.99.103:3306/cas</url>
                     <user>eric</user>
                     <password>eric5425</password>
                 </configuration>
