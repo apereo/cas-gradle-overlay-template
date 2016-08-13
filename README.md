@@ -92,53 +92,38 @@ You can alias the commands above by adding them to your ```.bashrc``` file like 
 
 
 
-Install docker, docker-machine, docker-compose, VirtualBox
 
-Setup cas:
+##Setup cas:
+
 1. run ./bin/bootstrap 
+
 2. add to /etc/hosts file: 127.0.0.1    devcas.infusiontest.com
+
 3. mvn clean install
+
 4. run cas server using "mvn tomcat6:run-war"
+
 5. INSERT INTO cas.user VALUES (1, 1, 'your-first-name', 'your-last-name', null, null, 'youre-email')
+
 6. INSERT INTO cas.user_authority VALUES (1,2);
+
 7. Go to https://devcas.infusiontest.com:7443
+
 8. Click 'Forgot Your Password?'
+
 9. Get recovery code from the logs or from the database with: SELECT password_recovery_code FROM cas.user;
+
 10. Enter recovery code and create new password 
 
-Configure Infusionsoft to use cas:
+
+##Configure Infusionsoft to use cas:
+
 1. Update your infusionsoft User.GlobalUserId field: UPDATE User SET GlobalUserId=1 WHERE Id=~yourUserId~;
+
 2. Compile and Run flagship with the cas profile: 
     mvn clean install -P cas
     mvn tomcat6:run -pl webapp -P cas
     
-3. Optional (how to do this???) - Add cas role for content publishing: ROLE_CAS_LISTING_PUBLISHER_MARKETPLACE
-       You can verify that your user has this role by going to https://infusionsoft.infusiontest.com:8443/app/authentication/whoAmI.jsp
-4. JDK Certs??? Haven't had to mess with thes
-Make sure the JDK has the valid certificates. If not, install the certs.
+3. Login with cas crednetials
 
-------------------------------------------
-Linux script:
-fix_certs.sh
------------------------------------------
-#! /bin/sh
-
-echo "Java home is:" $JAVA_HOME
-
-if [ $1 ]
-then
-    password=$1
-else
-    echo "Usage $0 <keystore password> (default is 'changeit')"
-    exit 1
-fi
-
-wget https://certs.godaddy.com/repository/gdroot-g2.crt
-wget https://certs.godaddy.com/repository/gdig2.crt
-
-sudo $JAVA_HOME/bin/keytool -import -alias cross -file ./gdroot-g2.crt -storepass $password -trustcacerts -keystore $JAVA_HOME/jre/lib/security/cacerts
-sudo $JAVA_HOME/bin/keytool -import -alias root -file ./gdig2.crt -storepass $password -trustcacerts -keystore $JAVA_HOME/jre/lib/security/cacerts
-
-rm gdroot-g2.crt
-rm gdig2.crt
------------------------------------------
+# You did it!
