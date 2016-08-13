@@ -1,4 +1,3 @@
-docker-machine create cas --driver virtualbox
+#!/usr/bin/env bash
 
-mysql -uroot -proot -h `docker-machine ip cas` < bin/create-user.sql
-mysql -ueric -peric5425 -h `docker-machine ip cas` < bin/baseline-db.sql
+mysql -ueric -peric5425 < bin/baseline-db.sql
