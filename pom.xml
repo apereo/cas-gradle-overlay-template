@@ -30,6 +30,7 @@
         <jackson.version>2.4.0</jackson.version>
         <groovy.version>2.3.8</groovy.version>
         <spock.version>0.7-groovy-2.0</spock.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
     <scm>
@@ -140,6 +141,8 @@
                     <httpsPort>7443</httpsPort>
                     <keystoreFile>${basedir}/tomcat/infusiontest.com.jks</keystoreFile>
                     <keystorePass>[er1c]5425</keystorePass>
+                    <charset>UTF-8</charset>
+                    <uriEncoding>UTF-8</uriEncoding>
                 </configuration>
             </plugin>
         </plugins>
