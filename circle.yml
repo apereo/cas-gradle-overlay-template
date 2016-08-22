@@ -1,0 +1,26 @@
+machine:
+  timezone: America/Phoenix
+  services:
+    - mysql
+  environment:
+    MAVEN_OPTS: "-Xms64m -Xmx2g -XX:MaxPermSize=512m"
+    JAVA_HOME: $HOME/java
+dependencies:
+  pre:
+    - curl "https://storage.googleapis.com/circle-scripts/latest/init.sh" | bash
+  override:
+    - ${HOME}/bin/circle-install java jdk-6u45 ${JAVA_HOME}
+    - mvn install -T1C -Dmaven.test.skip.exec=true
+test:
+  override:
+    - mvn verify -P regression
+  post:
+    - mkdir -p $CIRCLE_TEST_REPORTS/junit/
+    - find . -type f -regex ".*/target/surefire-reports/.*xml" -exec cp {} $CIRCLE_TEST_REPORTS/junit/ \;
+deployment:
+  master:
+    branch: master
+    commands:
+      - git config user.email "cd@infusionsoft.com"
+      - git config user.name "CircleCI"
+      - mvn release:prepare release:perform --batch-mode
