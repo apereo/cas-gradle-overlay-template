@@ -13,8 +13,7 @@ CAS gradle war overlays.
 
 ## Configuration
 
-The `etc` directory contains the configuration files that need to be copied to `/etc/cas/config` 
-and configured to satisfy local deployment environment configuration needs.
+The `etc` directory contains the configuration files that are copied to `/etc/cas/config`  automatically.
 
 ## Deployment
 
