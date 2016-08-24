@@ -1,28 +1,43 @@
-apply from: 'http://dl.bintray.com/scalding/generic/waroverlay.gradle'
-apply plugin: 'org.akhikhl.gretty'
+import java.nio.file.FileSystems
+import java.nio.file.Files
 
-ext {
-    jettySslConfigEnabled = project.hasProperty('jettySslKeyStorePath') &&
-                            project.hasProperty('jettySslTrustStorePath') &&
-                            project.hasProperty('jettySslTrustStorePassword') &&
-                            project.hasProperty('jettySslKeyStorePassword')
-}
+apply from: 'http://dl.bintray.com/scalding/generic/waroverlay.gradle'
 
 repositories {
     mavenLocal()
     jcenter()
-    maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }    
+    maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
     maven { url 'https://build.shibboleth.net/nexus/content/repositories/releases/' }
 }
 
 dependencies {
-    runtime("org.jasig.cas:cas-server-webapp:${project.'cas.version'}@war") {
+    runtime("org.apereo.cas:cas-server-webapp:${project.'cas.version'}@war") {
         transitive = true
     }
 }
 
+File manifestFile() {
+    def warfile = configurations.runtime.asFileTree.matching {
+        include '**/*.war'
+    }
+    def manifest = zipTree(warfile.singleFile).matching {
+        include '**/*.MF'
+    }
+    def dst = new File("${project.rootDir}/etc/cas/MANIFEST.MF")
+    dst.delete()
+    dst << manifest.singleFile.text
+    return dst
+}
+
+task task2 << {
+    manifestFile()
+}
 war {
     baseName 'cas'
+    includeWarJars = true
+    manifest {
+        from manifestFile()
+    }
 }
 
 task explodeWar(type: Copy) {
@@ -30,23 +45,4 @@ task explodeWar(type: Copy) {
     description = "Explode the cas.war"
     from zipTree(project.war.outputs.files.singleFile)
     into "${buildDir}/cas"
-}
-
-gretty {
-    jvmArgs = ["-DloggerFactory=org.apache.logging.slf4j.Log4jLoggerFactory", 
-               "-Dcas.properties.config.location=file:/etc/cas/cas.properties",
-               "-Dlog4j.configurationFile=/etc/cas/log4j2.xml",
-               "-Dorg.eclipse.jetty.annotations.maxWait=120", 
-               "-Xdebug",
-               "-Xrunjdwp:transport=dt_socket,address=5000,server=y,suspend=n"]
-    scanInterval = 5
-    contextPath = '/cas'
-    httpsEnabled = project.ext.jettySslConfigEnabled
-    if (project.ext.jettySslConfigEnabled) {
-        httpsPort = 8443
-        sslKeyStorePath = project.ext.jettySslKeyStorePath
-        sslKeyStorePassword = project.ext.jettySslKeyStorePassword
-        sslTrustStorePath = project.ext.jettySslTrustStorePath
-        sslTrustStorePassword = project.ext.jettySslTrustStorePassword
-    }
 }
