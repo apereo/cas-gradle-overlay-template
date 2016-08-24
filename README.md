@@ -5,64 +5,19 @@ CAS gradle war overlays.
 
 ## Versions
 
-* CAS 4.2.x
+* CAS 5.0.0
 
 ## Requirements
 
-* JDK 1.7+
+* JDK 1.8+
 
 ## Configuration
 
-The `etc` directory contains the configuration files that need to be copied to `/etc/cas` 
+The `etc` directory contains the configuration files that need to be copied to `/etc/cas/config` 
 and configured to satisfy local deployment environment configuration needs.
-
-## Build
-
-```bash
-./gradlew[.bat] clean build
-```
-
-To produce an exploded war directory (convenient during development, etc.)
-
-```bash
-./gradlew[.bat] clean build explodeWar
-```
 
 ## Deployment
 
-### Embedded Jetty
-
-- Create a Java keystore under `/etc/cas/jetty`
-- Import your CAS server certificate inside this keystore.
-- Edit your `~/.gradle/gradle.properties` to include:
-
-```properties
-jettySslKeyStorePath=/etc/cas/jetty/thekeystore
-jettySslTrustStorePath=/etc/cas/jetty/thekeystore
-jettySslTrustStorePassword=changeit
-jettySslKeyStorePassword=changeit
-```
-
-Then run:
-
 ```bash
-./gradlew[.bat] clean build jettyRunWar 
-```
-
-CAS will be available at:
-
-- http://cas.server.name:8080/cas
-- https://cas.server.name:8443/cas
-
-If you do not specify a keystore configuration, CAS will simply run on port `8080`.
-
-### External
-
-Deploy resultant `cas/build/libs/cas.war` to a Servlet container of choice.
-
-Remember to start your container with the following variables set with `-D`:
-
-```properties
-cas.properties.config.location=file:/etc/cas/cas.properties
-log4j.configurationFile=/etc/cas/log4j2.xml
+./gradlew[.bat] clean build && java -jar cas/build/libs/cas.war
 ```
