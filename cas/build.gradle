@@ -1,6 +1,3 @@
-import java.nio.file.FileSystems
-import java.nio.file.Files
-
 apply from: 'http://dl.bintray.com/scalding/generic/waroverlay.gradle'
 
 repositories {
@@ -16,6 +13,30 @@ dependencies {
     }
 }
 
+task copyConfig(type: Copy) {
+    println "Copying configuration to /etc/cas/config"
+    from "${project.rootDir}/etc/cas/config"
+    into '/etc/cas/config'
+}
+
+war {
+    dependsOn copyConfig
+    
+    baseName 'cas'
+    includeWarJars = true
+    entryCompression = ZipEntryCompression.STORED
+    manifest {
+        from manifestFile()
+    }
+}
+
+task explodeWar(type: Copy) {
+    group = "build"
+    description = "Explode the cas.war"
+    from zipTree(project.war.outputs.files.singleFile)
+    into "${buildDir}/cas"
+}
+
 File manifestFile() {
     def warfile = configurations.runtime.asFileTree.matching {
         include '**/*.war'
@@ -29,20 +50,3 @@ File manifestFile() {
     return dst
 }
 
-task task2 << {
-    manifestFile()
-}
-war {
-    baseName 'cas'
-    includeWarJars = true
-    manifest {
-        from manifestFile()
-    }
-}
-
-task explodeWar(type: Copy) {
-    group = "build"
-    description = "Explode the cas.war"
-    from zipTree(project.war.outputs.files.singleFile)
-    into "${buildDir}/cas"
-}
