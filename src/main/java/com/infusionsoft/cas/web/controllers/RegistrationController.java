@@ -114,19 +114,21 @@ public class RegistrationController {
             log.debug("User is registering while already logged in as " + authentication.getName() + "; redirecting to j_spring_security_logout");
             return "redirect:/j_spring_security_logout?service=" + URLEncoder.encode(getFullRequestUrl(request), "UTF-8");
         } else {
+            //NOTE: these values get escaped by the <form:input htmlEscape=true>
             User user = new User();
-            user.setFirstName(StringEscapeUtils.escapeHtml4(firstName));
-            user.setLastName(StringEscapeUtils.escapeHtml4(lastName));
-            user.setUsername(StringEscapeUtils.escapeHtml4(email));
+            user.setFirstName(firstName);
+            user.setLastName(lastName);
+            user.setUsername(email);
 
             // If there's a registration code, pre-populate from that
             if (StringUtils.isNotEmpty(registrationCode)) {
                 PendingUserAccount pending = userService.findPendingUserAccount(registrationCode);
 
                 if (pending != null) {
-                    user.setFirstName(StringEscapeUtils.escapeHtml4(pending.getFirstName()));
-                    user.setLastName(StringEscapeUtils.escapeHtml4(pending.getLastName()));
-                    user.setUsername(StringEscapeUtils.escapeHtml4(pending.getEmail()));
+                    //NOTE: these values get escaped by the <form:input htmlEscape=true>
+                    user.setFirstName(pending.getFirstName());
+                    user.setLastName(pending.getLastName());
+                    user.setUsername(pending.getEmail());
                 }
             }
 
