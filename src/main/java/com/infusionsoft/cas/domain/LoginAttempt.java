@@ -57,5 +57,4 @@ public class LoginAttempt implements Serializable {
     public void setStatus(LoginAttemptStatus loginAttemptStatus) {
         this.status = loginAttemptStatus;
     }
-
 }

@@ -8,7 +8,7 @@
     <parent>
         <groupId>com.infusionsoft</groupId>
         <artifactId>infusionsoft-parent</artifactId>
-        <version>1.0.9</version>
+        <version>0.5.0.40</version>
     </parent>
 
     <properties>
@@ -42,16 +42,6 @@
     <build>
         <defaultGoal>install</defaultGoal>
         <plugins>
-            <plugin>
-                <groupId>org.flywaydb</groupId>
-                <artifactId>flyway-maven-plugin</artifactId>
-                <version>4.0</version>
-                <configuration>
-                    <url>jdbc:mysql://192.168.99.103:3306/cas</url>
-                    <user>eric</user>
-                    <password>eric5425</password>
-                </configuration>
-            </plugin>
             <plugin>
                 <groupId>org.codehaus.gmaven</groupId>
                 <artifactId>gmaven-plugin</artifactId>
