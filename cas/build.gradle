@@ -1,3 +1,4 @@
+apply plugin: 'spring-boot'
 apply from: 'http://dl.bintray.com/scalding/generic/waroverlay.gradle'
 
 repositories {
@@ -8,9 +9,8 @@ repositories {
 }
 
 dependencies {
-    runtime("org.apereo.cas:cas-server-webapp:${project.'cas.version'}@war") {
-        transitive = true
-    }
+    compile "org.apereo.cas:cas-server-webapp:${project.'cas.version'}@war"
+    
 }
 
 task copyConfig(type: Copy) {
@@ -35,6 +35,18 @@ task explodeWar(type: Copy) {
     description = "Explode the cas.war"
     from zipTree(project.war.outputs.files.singleFile)
     into "${buildDir}/cas"
+}
+
+bootRepackage {
+    enabled = false
+}
+
+springBoot  {
+    mainClass = "org.springframework.boot.loader.WarLauncher"
+}
+
+bootRun {
+    addResources = true
 }
 
 File manifestFile() {

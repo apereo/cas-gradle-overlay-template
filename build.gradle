@@ -8,6 +8,7 @@ buildscript {
     }
     dependencies {
         classpath "org.bitbucket.b_c:jose4j:0.5.2"
+        classpath "org.springframework.boot:spring-boot-gradle-plugin:${project.'springboot.version'}"
     }
 }
 
