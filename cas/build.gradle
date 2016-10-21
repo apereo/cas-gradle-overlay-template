@@ -1,6 +1,26 @@
 apply plugin: 'spring-boot'
 apply from: 'http://dl.bintray.com/scalding/generic/waroverlay.gradle'
 
+/*
+This list needs to match the dependency versions
+that are overridden by the CAS server directly.
+The spring-boot plugin automatically applies the
+Dependency Management Plugin and configures in to
+import the "spring-boot-starter-parent" bom.
+There is currently no way to disable that behavior.
+The versions need to be consulted and updated always
+to match what the CAS server provides.
+ */
+ext["hibernate.version"] = "$hibernateVersion"
+ext["hazelcast.version"] = "$hazelcastVersion"
+ext["spring-session.version"] = "$springSessionVersion"
+ext["tomcat.version"] = "$springBootTomcatVersion"
+ext["infinispan.version"] = "$infinispanVersion"
+ext["spring.version"] = "$springVersion"
+ext["jackson.version"] = "$jacksonDatabindVersion"
+ext["thymeleaf.version"] = "$thymeleafVersion"
+ext["thymeleaf-layout-dialect.version"] = "$thymeleafDialectVersion"
+
 repositories {
     mavenLocal()
     jcenter()
@@ -10,7 +30,7 @@ repositories {
 
 dependencies {
     compile "org.apereo.cas:cas-server-webapp:${project.'cas.version'}@war"
-    
+
 }
 
 task copyConfig(type: Copy) {
@@ -21,7 +41,7 @@ task copyConfig(type: Copy) {
 
 war {
     dependsOn copyConfig
-    
+
     baseName 'cas'
     includeWarJars = true
     entryCompression = ZipEntryCompression.STORED
@@ -49,6 +69,7 @@ bootRun {
     addResources = true
 }
 
+
 File manifestFile() {
     def warfile = configurations.runtime.asFileTree.matching {
         include '**/*.war'
@@ -61,4 +82,3 @@ File manifestFile() {
     dst << manifest.singleFile.text
     return dst
 }
-
