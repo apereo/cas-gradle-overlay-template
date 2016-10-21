@@ -12,11 +12,16 @@ buildscript {
     }
 }
 
-task wrapper(type: Wrapper) {
+subprojects {
+    task allDependenciesInsight(type: DependencyInsightReportTask, description: "Produce insight information for all dependencies") << {}
+    task allDependencies(type: DependencyReportTask, description: "Display a graph of all project dependencies") {}
+}
+
+task wrapper(type: Wrapper, description: "Update the Gradle wrapper") {
     gradleVersion = project."gradle.version"
 }
 
-task generateKey << {
+task generateKey(description: "Generate keys for the CAS server") << {
     int keySize = project.hasProperty('size') ? size.toInteger() : 512
     println "generating key of size ${keySize} (to change, pass `-Psize=int` where `int` is the size)"
     def octetKey = OctJwkGenerator.generateJwk(keySize)
