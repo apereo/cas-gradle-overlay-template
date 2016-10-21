@@ -48,6 +48,19 @@ To see what commands are available in the build, use:
  ./gradlew[.bat] tasks
 ```
 
+To see where certain dependencies come from in the build:
+
+```bash
+# Show the surrounding 2 before/after lines once a match is found
+ ./gradlew[.bat] allDependencies | grep -A 2 -B 2 xyz
+```
+
+Or:
+
+```bash
+./gradlew[.bat] allDependenciesInsight --configuration [compile|runtime] --dependency xyz
+```
+
 ## Deployment
 
 - Create a keystore file `thekeystore` under `/etc/cas`. Use the password `changeit` for both the keystore and the key/certificate entries.
