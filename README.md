@@ -17,7 +17,7 @@ The `etc` directory contains the configuration files that are copied to `/etc/ca
 
 ## Adding Modules
 
-CAS modules may be specified under the `dependencies` block of the CAS subproject:
+CAS modules may be specified under the `dependencies` block of the [CAS subproject](cas/build.gradle):
 
 ```gradle
 dependencies {
@@ -26,6 +26,12 @@ dependencies {
     ...
 }
 ```
+
+Study material:
+
+- https://docs.gradle.org/current/userguide/artifact_dependencies_tutorial.html
+- https://docs.gradle.org/current/userguide/dependency_management.html
+
 
 ## Build
 
