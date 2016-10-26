@@ -28,6 +28,11 @@ dependencies {
 }
 ```
 
+Study material:
+
+- https://docs.gradle.org/current/userguide/artifact_dependencies_tutorial.html
+- https://docs.gradle.org/current/userguide/dependency_management.html
+
 ## Build
 
 ```bash
