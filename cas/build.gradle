@@ -11,12 +11,12 @@ ext {
 repositories {
     mavenLocal()
     jcenter()
-    maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }    
+    maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
     maven { url 'https://build.shibboleth.net/nexus/content/repositories/releases/' }
 }
 
 dependencies {
-    runtime("org.jasig.cas:cas-server-webapp:${project.'cas.version'}@war") {
+    compile("org.jasig.cas:cas-server-webapp:${project.'cas.version'}@war") {
         transitive = true
     }
 }
@@ -33,10 +33,10 @@ task explodeWar(type: Copy) {
 }
 
 gretty {
-    jvmArgs = ["-DloggerFactory=org.apache.logging.slf4j.Log4jLoggerFactory", 
+    jvmArgs = ["-DloggerFactory=org.apache.logging.slf4j.Log4jLoggerFactory",
                "-Dcas.properties.config.location=file:/etc/cas/cas.properties",
                "-Dlog4j.configurationFile=/etc/cas/log4j2.xml",
-               "-Dorg.eclipse.jetty.annotations.maxWait=120", 
+               "-Dorg.eclipse.jetty.annotations.maxWait=120",
                "-Xdebug",
                "-Xrunjdwp:transport=dt_socket,address=5000,server=y,suspend=n"]
     scanInterval = 5
