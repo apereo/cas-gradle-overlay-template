@@ -16,7 +16,7 @@ CAS gradle war overlays.
 The `etc` directory contains the configuration files that need to be copied to `/etc/cas`
 and configured to satisfy local deployment environment configuration needs.
 
-## Adding Modules
+### Adding Modules
 
 CAS modules may be specified under the `dependencies` block of the CAS subproject:
 
