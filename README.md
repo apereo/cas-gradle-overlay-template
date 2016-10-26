@@ -18,7 +18,7 @@ and configured to satisfy local deployment environment configuration needs.
 
 ### Adding Modules
 
-CAS modules may be specified under the `dependencies` block of the CAS subproject:
+CAS modules may be specified under the `dependencies` block of the [CAS subproject](cas/build.gradle):
 
 ```gradle
 dependencies {
