@@ -1,7 +1,7 @@
 CAS Gradle Overlay
 ============================
-Generic CAS gradle war overlay to exercise the latest versions of CAS. This overlay could be freely used as a starting template for local 
-CAS gradle war overlays. 
+Generic CAS gradle war overlay to exercise the latest versions of CAS. This overlay could be freely used as a starting template for local
+CAS gradle war overlays.
 
 ## Versions
 
@@ -13,8 +13,20 @@ CAS gradle war overlays.
 
 ## Configuration
 
-The `etc` directory contains the configuration files that need to be copied to `/etc/cas` 
+The `etc` directory contains the configuration files that need to be copied to `/etc/cas`
 and configured to satisfy local deployment environment configuration needs.
+
+## Adding Modules
+
+CAS modules may be specified under the `dependencies` block of the CAS subproject:
+
+```gradle
+dependencies {
+    compile "org.apereo.cas:cas-server-webapp:${project.'cas.version'}@war"
+    compile "org.apereo.cas:cas-server-some-module:${project.'cas.version'}"
+    ...
+}
+```
 
 ## Build
 
@@ -46,7 +58,7 @@ jettySslKeyStorePassword=changeit
 Then run:
 
 ```bash
-./gradlew[.bat] clean build jettyRunWar 
+./gradlew[.bat] clean build jettyRunWar
 ```
 
 CAS will be available at:
