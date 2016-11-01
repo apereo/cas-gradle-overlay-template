@@ -56,6 +56,12 @@
         <sec:intercept-url pattern="/app/oauth/token" access="isAuthenticated()"/>
     </sec:http>
 
+    <sec:http pattern="/app/api/**" authentication-manager-ref="apiAuthenticationManager" entry-point-ref="apiAuthenticationEntryPoint" use-expressions="true" security-context-repository-ref="nullSecurityContextRepository" disable-url-rewriting="true">
+        <sec:custom-filter ref="corsPreflightFilter" after="FIRST"/>
+        <sec:custom-filter ref="apiAuthenticationFilter" before="ANONYMOUS_FILTER"/>
+        <sec:intercept-url pattern="/app/api/**" access="isAuthenticated()"/>
+    </sec:http>
+
     <sec:http authentication-manager-ref="casAuthenticationManager" entry-point-ref="casProcessingFilterEntryPoint" auto-config="true" use-expressions="true" disable-url-rewriting="true">
         <sec:logout success-handler-ref="infusionsoftLogoutSuccessHandler"/>
         <sec:custom-filter ref="casProcessingFilter" after="CAS_FILTER"/>
@@ -79,6 +85,10 @@
         <sec:authentication-provider ref="OAuthTrustedGrantAuthenticationProvider"/>
         <sec:authentication-provider ref="OAuthResourceOwnerAuthenticationProvider"/>
         <sec:authentication-provider ref="OAuthRefreshAuthenticationProvider"/>
+    </sec:authentication-manager>
+
+    <sec:authentication-manager id="apiAuthenticationManager">
+        <sec:authentication-provider ref="apiAuthenticationProvider"/>
     </sec:authentication-manager>
 
     <sec:authentication-manager id="casAuthenticationManager">
