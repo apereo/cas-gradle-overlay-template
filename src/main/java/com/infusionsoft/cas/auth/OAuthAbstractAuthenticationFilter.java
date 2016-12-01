@@ -75,10 +75,12 @@ public abstract class OAuthAbstractAuthenticationFilter extends GenericFilterBea
 
         String scope = null;
         String application = null;
-        if (oAuthServiceConfig == null || !StringUtils.equals(serviceName, "crm")) {
+        if (oAuthServiceConfig != null && !StringUtils.equals(serviceName, "crm")) {
+            // For all apps but CRM, pass the scope through unchanged and don't set the app
             scope = passedScopeUnSplit;
-            application = serviceName;
+            application = "";
         } else {
+            // For CRM apps, the scope includes the app name, so parse it out
             if (passedScope.length > 1) {
                 scope = passedScope[0];
                 application = passedScope[1];
