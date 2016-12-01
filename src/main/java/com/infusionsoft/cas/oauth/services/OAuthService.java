@@ -29,6 +29,7 @@ public class OAuthService implements ApplicationListener<UserAccountRemovedEvent
 
     private static final Logger log = Logger.getLogger(OAuthService.class);
     private static final String TRUSTED_INTERNAL_SYSTEM_ROLE = "Trusted Internal System";
+    private static final String TRUSTED_MOBILE_SYSTEM_ROLE = "Trusted Mobile System";
 
     @Autowired
     private MasheryApiClientService masheryApiClientService;
@@ -181,6 +182,17 @@ public class OAuthService implements ApplicationListener<UserAccountRemovedEvent
         MasheryMember masheryMember = masheryApiClientService.fetchMemberByClientId(clientId);
         for (MasheryRole masheryRole : masheryMember.getRoles()) {
             if (TRUSTED_INTERNAL_SYSTEM_ROLE.equals(masheryRole.getName())) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public boolean isClientAuthorizedForResourceOwnerGrantType(String clientId) throws OAuthException {
+        MasheryMember masheryMember = masheryApiClientService.fetchMemberByClientId(clientId);
+        for (MasheryRole masheryRole : masheryMember.getRoles()) {
+            if (TRUSTED_MOBILE_SYSTEM_ROLE.equals(masheryRole.getName())) {
                 return true;
             }
         }
