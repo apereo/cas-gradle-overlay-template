@@ -3,7 +3,9 @@ package com.infusionsoft.cas.web.controllers;
 import com.infusionsoft.cas.auth.OAuthAuthenticationToken;
 import com.infusionsoft.cas.auth.OAuthExceptionHandler;
 import com.infusionsoft.cas.auth.OAuthRefreshAuthenticationToken;
+import com.infusionsoft.cas.auth.OAuthResourceOwnerAuthenticationToken;
 import com.infusionsoft.cas.domain.AppType;
+import com.infusionsoft.cas.domain.OAuthServiceConfig;
 import com.infusionsoft.cas.domain.User;
 import com.infusionsoft.cas.domain.UserAccount;
 import com.infusionsoft.cas.oauth.dto.OAuthAccessToken;
@@ -141,14 +143,19 @@ public class OAuthController {
     @RequestMapping("/oauth/token")
     public OAuthAccessToken token() throws Exception {
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        OAuthAuthenticationToken oAuthAuthenticationToken = (OAuthAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
+        OAuthAuthenticationToken token = (OAuthAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
 
-        if (oAuthAuthenticationToken != null) {
+        if (token != null) {
             String userId;
             String refreshToken = null;
+            final OAuthServiceConfig serviceConfig = token.getServiceConfig();
 
-            if(oAuthAuthenticationToken instanceof OAuthRefreshAuthenticationToken) {
-                refreshToken = ((OAuthRefreshAuthenticationToken) oAuthAuthenticationToken).getRefreshToken();
+            if (token instanceof OAuthRefreshAuthenticationToken) {
+                refreshToken = ((OAuthRefreshAuthenticationToken) token).getRefreshToken();
+            } else if (token instanceof OAuthResourceOwnerAuthenticationToken) {
+                if (StringUtils.equals(serviceConfig.getName(), "crm") && !userService.validateUserApplication(token.getApplication())) {
+                    throw new OAuthAccessDeniedException();
+                }
             }
 
             if (principal != null && principal instanceof User) {
@@ -160,7 +167,7 @@ public class OAuthController {
             /**
              * The scope is the application for these grant type
              */
-            return oauthService.createAccessToken(oAuthAuthenticationToken.getServiceConfig().getServiceKey(), oAuthAuthenticationToken.getClientId(), oAuthAuthenticationToken.getClientSecret(), oAuthAuthenticationToken.getGrantType(), oAuthAuthenticationToken.getScope(), oAuthAuthenticationToken.getApplication(), userId, refreshToken);
+            return oauthService.createAccessToken(serviceConfig.getServiceKey(), token.getClientId(), token.getClientSecret(), token.getGrantType(), token.getScope(), token.getApplication(), userId, refreshToken);
         } else {
             throw new OAuthInvalidRequestException();
         }

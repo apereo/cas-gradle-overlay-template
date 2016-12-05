@@ -71,14 +71,23 @@ public abstract class OAuthAbstractAuthenticationFilter extends GenericFilterBea
         String passedScopeUnSplit = StringUtils.defaultString(request.getParameter("scope"));
         String[] passedScope = StringUtils.split(passedScopeUnSplit, "|");
 
+        OAuthServiceConfig oAuthServiceConfig = oAuthServiceConfigService.loadOAuthServiceConfig(serviceName);
+
         String scope = null;
         String application = null;
-        if (passedScope.length > 1) {
-            scope = passedScope[0];
-            application = passedScope[1];
-        } else if (passedScope.length == 1) {
-            scope = "";
-            application = passedScope[0];
+        if (oAuthServiceConfig != null && !StringUtils.equals(serviceName, "crm")) {
+            // For all apps but CRM, pass the scope through unchanged and don't set the app
+            scope = passedScopeUnSplit;
+            application = "";
+        } else {
+            // For CRM apps, the scope includes the app name, so parse it out
+            if (passedScope.length > 1) {
+                scope = passedScope[0];
+                application = passedScope[1];
+            } else if (passedScope.length == 1) {
+                scope = "";
+                application = passedScope[0];
+            }
         }
 
         String header = request.getHeader("Authorization");
@@ -87,8 +96,6 @@ public abstract class OAuthAbstractAuthenticationFilter extends GenericFilterBea
             clientId = clientCredentials[0];
             clientSecret = clientCredentials[1];
         }
-
-        OAuthServiceConfig oAuthServiceConfig = oAuthServiceConfigService.loadOAuthServiceConfig(serviceName);
 
         return createAuthenticationToken(request, response, scope, application, grantType, oAuthServiceConfig, clientId, clientSecret);
     }
