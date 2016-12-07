@@ -1,4 +1,4 @@
-apply plugin: 'spring-boot'
+apply plugin: 'org.springframework.boot'
 apply from: 'http://dl.bintray.com/scalding/generic/waroverlay.gradle'
 apply from: 'https://raw.githubusercontent.com/apereo/cas/5.0.x/gradle/overrides.gradle'
 
@@ -59,4 +59,17 @@ File manifestFile() {
     dst.delete()
     dst << manifest.singleFile.text
     return dst
+}
+
+task generateKeys {
+  group = 'CAS'
+  description = 'generate keys for CAS. These keys can be added to your application.properties file'
+  doLast {
+    println 'Generating keys for CAS...'
+    ['cas.tgc.encryptionKey': 256, 'cas.tgc.signingKey': 512, 'cas.webflow.encryption.key': 96, 'cas.webflow.signing.key': 512].each { key, size ->
+        def octetKey = OctJwkGenerator.generateJwk(size)
+        def params = octetKey.toParams(JsonWebKey.OutputControlLevel.INCLUDE_SYMMETRIC)
+        println "${key}=${params.get('k')}"
+    }
+  }
 }
