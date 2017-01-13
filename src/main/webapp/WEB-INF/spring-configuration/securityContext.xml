@@ -36,6 +36,7 @@
     <sec:http pattern="/app/registration/getLogoImageUrl*" security="none"/>
     <sec:http pattern="/app/rest/**" security="none"/>
     <sec:http pattern="/app/error/**" security="none"/>
+    <sec:http pattern="/content/**" security="none"/>
     <sec:http pattern="/img/**" security="none"/>
 
     <sec:http pattern="/status/**" authentication-manager-ref="casAuthenticationManager" entry-point-ref="notAuthorizedEntryPoint" use-expressions="true" auto-config="true" disable-url-rewriting="true">
