@@ -9,7 +9,7 @@ dependencies:
   pre:
     - curl "https://storage.googleapis.com/circle-scripts/latest/init.sh" | bash
   override:
-    - ${HOME}/bin/circle-install java jdk-6u45 ${JAVA_HOME}
+    - ${HOME}/bin/circle-install java jdk-8u74 ${JAVA_HOME}
     - mvn install -T1C -Dmaven.test.skip.exec=true
 test:
   override:
