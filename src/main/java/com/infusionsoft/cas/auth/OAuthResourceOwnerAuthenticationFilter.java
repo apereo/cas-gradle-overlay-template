@@ -11,7 +11,7 @@ import javax.servlet.http.HttpServletResponse;
 /**
  * A Spring Security Filter that is responsible for extracting client credentials and user credentials
  * to be authenticated via CAS and Mashery.
- * <p/>
+ *
  * The filter was original copied from BasicAuthenticationFilter and modified from there.
  */
 @Component

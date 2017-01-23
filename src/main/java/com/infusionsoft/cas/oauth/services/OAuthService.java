@@ -89,9 +89,11 @@ public class OAuthService implements ApplicationListener<UserAccountRemovedEvent
      * @param clientSecret       The OAuth client_secret
      * @param grantType          The OAuth grant_type
      * @param requestedScope     The request scope which should be the application, i.e. myapp.infusionsoft.com
+     * @param application        application
      * @param userId             The user identifier, which is either a globalUserId or the anonymous-UUID tracking code
+     * @param refreshToken       refreshToken
      * @return The created access token or throws exception
-     * @throws OAuthException
+     * @throws OAuthException e
      */
     public OAuthAccessToken createAccessToken(String providedServiceKey, String clientId, String clientSecret, String grantType, String requestedScope, String application, String userId, String refreshToken) throws OAuthException {
         String scope = StringUtils.isBlank(requestedScope) && StringUtils.isBlank(application) ? "" : StringUtils.defaultString(requestedScope) + "|" + StringUtils.defaultString(application);

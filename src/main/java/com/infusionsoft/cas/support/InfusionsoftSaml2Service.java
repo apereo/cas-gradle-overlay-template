@@ -24,12 +24,12 @@ import java.util.zip.InflaterInputStream;
 /**
  * Our own version of Scott Battaglia's famous Google Accounts Service, wherein we add a few extra SAML claims needed
  * by Mashery (FirstName, LastName, Email).
- * <p/>
+ *
  * This guy Scott Battaglia loves to make everything "final" so it can't be extended in a meaningful way. Most of the
  * important methods are private so we can't use composition either. Therefore we pretty much pasted the code in here
  * and changed it to meet our needs. Someday we could build a much better implementation if we have nothing better
  * to do.
- * <p/>
+ *
  * TODO: this code should be taken out back and fed to Mr. Wu's pigs
  */
 public class InfusionsoftSaml2Service extends AbstractWebApplicationService {

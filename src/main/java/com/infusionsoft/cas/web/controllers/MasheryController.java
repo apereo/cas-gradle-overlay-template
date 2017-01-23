@@ -55,7 +55,14 @@ public class MasheryController {
     /**
      * Admin Level User Application Searching
      *
-     * @throws OAuthException
+     * @param model    model
+     * @param search   search
+     * @param username username
+     * @param appName  appName
+     * @param success  success
+     * @param error    error
+     * @return view
+     * @throws OAuthException e
      */
     @RequestMapping
     public String userApplicationSearch(Model model, String search, String username, String appName, String success, String error) throws OAuthException {
@@ -81,7 +88,12 @@ public class MasheryController {
     /**
      * Admin Level Access Token Searching
      *
-     * @throws com.infusionsoft.cas.oauth.exceptions.OAuthException
+     * @param model       model
+     * @param accessToken accessToken
+     * @param appName     appName
+     * @param username    username
+     * @return view
+     * @throws com.infusionsoft.cas.oauth.exceptions.OAuthException e
      */
     @RequestMapping
     public String viewAccessToken(Model model, String accessToken, String appName, String username) throws OAuthException {
@@ -98,7 +110,7 @@ public class MasheryController {
 
     @RequestMapping
     public String revokeAccessToken(Model model, String username, String appName, String clientId) {
-        if(StringUtils.isNotBlank(username) && StringUtils.isNotBlank(appName) && StringUtils.isNotBlank(clientId)) {
+        if (StringUtils.isNotBlank(username) && StringUtils.isNotBlank(appName) && StringUtils.isNotBlank(clientId)) {
             UserAccount userAccount = userService.findUserAccountByInfusionsoftId(appName, AppType.CRM, username);
 
             model.addAttribute("username", username);
@@ -107,9 +119,9 @@ public class MasheryController {
             try {
                 Set<OAuthUserApplication> userApplications = oAuthService.fetchUserApplicationsByUserAccount(crmServiceKey, userAccount);
 
-                for(OAuthUserApplication oAuthUserApplication : userApplications) {
-                    if(clientId.equals(oAuthUserApplication.getClientId())) {
-                        for(String accessToken : oAuthUserApplication.getAccessTokens()) {
+                for (OAuthUserApplication oAuthUserApplication : userApplications) {
+                    if (clientId.equals(oAuthUserApplication.getClientId())) {
+                        for (String accessToken : oAuthUserApplication.getAccessTokens()) {
                             oAuthService.revokeAccessToken(crmServiceKey, clientId, accessToken);
                         }
                     }
@@ -125,7 +137,7 @@ public class MasheryController {
     }
 
     @RequestMapping
-    public void testApiCall(Model model, String accessToken) throws MalformedURLException{
+    public void testApiCall(Model model, String accessToken) throws MalformedURLException {
 
         try {
             XmlRpcClientConfigImpl config = new XmlRpcClientConfigImpl();

@@ -33,7 +33,7 @@ public class SamlHelper {
     private static final Logger log = Logger.getLogger(SamlHelper.class);
 
     private static void setPrefixOnElements(Document document, String tagName, String prefix) {
-        NodeList list =  document.getElementsByTagName(tagName);
+        NodeList list = document.getElementsByTagName(tagName);
 
         for (int i = 0; i < list.getLength(); i++) {
             Node element = list.item(i);
@@ -44,6 +44,11 @@ public class SamlHelper {
 
     /**
      * Props to the creators of Java for creating such an easy and straightforward way to sign an XML document.
+     *
+     * @param samlResponse samlResponse
+     * @param privateKey   privateKey
+     * @param publicKey    publicKey
+     * @return signed assertion
      */
     public static String signAssertion(String samlResponse, PrivateKey privateKey, PublicKey publicKey) {
         try {
@@ -81,7 +86,7 @@ public class SamlHelper {
             List transforms = new ArrayList();
 
             transforms.add(signatureFactory.newTransform(Transform.ENVELOPED, (TransformParameterSpec) null));
-            transforms.add(signatureFactory.newTransform("http://www.w3.org/2001/10/xml-exc-c14n#",(TransformParameterSpec) null));
+            transforms.add(signatureFactory.newTransform("http://www.w3.org/2001/10/xml-exc-c14n#", (TransformParameterSpec) null));
 
             Reference ref = signatureFactory.newReference("#" + id, signatureFactory.newDigestMethod(DigestMethod.SHA1, null), transforms, null, null);
             SignedInfo si = signatureFactory.newSignedInfo(signatureFactory.newCanonicalizationMethod(CanonicalizationMethod.EXCLUSIVE, (C14NMethodParameterSpec) null), signatureFactory.newSignatureMethod(SignatureMethod.RSA_SHA1, null), Collections.singletonList(ref));

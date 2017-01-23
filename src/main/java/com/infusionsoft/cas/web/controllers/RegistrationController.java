@@ -87,6 +87,18 @@ public class RegistrationController {
 
     /**
      * Uses the new action for now.  Once old registrations finish we can kill this action
+     *
+     * @param model            model
+     * @param registrationCode registrationCode
+     * @param returnUrl        returnUrl
+     * @param skipUrl          skipUrl
+     * @param userToken        userToken
+     * @param firstName        firstName
+     * @param lastName         lastName
+     * @param email            email
+     * @param request          request
+     * @return view
+     * @throws IOException e
      */
     //TODO: Kill after a couple weeks after any outstanding new user invites have processed.
     // NOTE: as of March 2014 this is still being hit (828 times in the last month)!  It is showing up in Google search
@@ -98,6 +110,19 @@ public class RegistrationController {
 
     /**
      * Shows the registration form.
+     *
+     * @param model            model
+     * @param registrationCode registrationCode
+     * @param returnUrl        returnUrl
+     * @param skipUrl          skipUrl
+     * @param userToken        userToken
+     * @param firstName        firstName
+     * @param lastName         lastName
+     * @param email            email
+     * @param skipWelcomeEmail skipWelcomeEmail
+     * @param request          request
+     * @return view
+     * @throws IOException e
      */
     @RequestMapping
     public String createInfusionsoftId(Model model, String registrationCode, String returnUrl, String skipUrl, String userToken, String firstName, String lastName, String email, @RequestParam(defaultValue = "false") boolean skipWelcomeEmail, HttpServletRequest request) throws IOException {
@@ -178,6 +203,16 @@ public class RegistrationController {
 
     /**
      * Either connects a pending CAS account with a real CAS account, or redirects a user to the app to finish linking an account.
+     *
+     * @param model            model
+     * @param registrationCode registrationCode
+     * @param returnUrl        returnUrl
+     * @param userToken        userToken
+     * @param request          request
+     * @param response         response
+     * @return view
+     * @throws AccountException             ae
+     * @throws UnsupportedEncodingException ue
      */
     @RequestMapping
     public String linkToExisting(Model model, String registrationCode, String returnUrl, String userToken, HttpServletRequest request, HttpServletResponse response) throws AccountException, UnsupportedEncodingException {
@@ -233,6 +268,25 @@ public class RegistrationController {
 
     /**
      * Registers a new user account.
+     *
+     * @param model                  model
+     * @param firstName              firstName
+     * @param lastName               lastName
+     * @param username               username
+     * @param username2              username2
+     * @param password1              password1
+     * @param password2              password2
+     * @param eula                   eula
+     * @param registrationCode       registrationCode
+     * @param returnUrl              returnUrl
+     * @param skipUrl                skipUrl
+     * @param userToken              userToken
+     * @param skipWelcomeEmail       skipWelcomeEmail
+     * @param securityQuestionId     securityQuestionId
+     * @param securityQuestionAnswer securityQuestionAnswer
+     * @param request                request
+     * @param response               response
+     * @return view
      */
     @RequestMapping
     public String register(Model model, String firstName, String lastName, String username, String username2, String password1, String password2, String eula, String registrationCode, String returnUrl, String skipUrl, String userToken, @RequestParam(defaultValue = "false") boolean skipWelcomeEmail, Long securityQuestionId, String securityQuestionAnswer, HttpServletRequest request, HttpServletResponse response) {
@@ -263,7 +317,7 @@ public class RegistrationController {
                 model.addAttribute("error", "user.error.email.inUse.with.link");
             } else if (!eulaChecked) {
                 model.addAttribute("error", "registration.error.eula");
-            }else if(StringUtils.isBlank(securityQuestionAnswer)) {
+            } else if (StringUtils.isBlank(securityQuestionAnswer)) {
                 model.addAttribute("error", "registration.error.security.question.answer");
             } else if (securityQuestionId == null) {
                 model.addAttribute("error", "registration.error.security.question");
@@ -277,7 +331,6 @@ public class RegistrationController {
             if (model.containsAttribute("error")) {
                 log.warn("couldn't create new user account: " + model.asMap().get("error"));
             } else {
-
 
 
                 user = userService.createUser(user, password1);
@@ -330,6 +383,9 @@ public class RegistrationController {
 
     /**
      * Shows the registration success page.
+     *
+     * @param request request
+     * @return ModelAndView
      */
     @RequestMapping
     public ModelAndView success(HttpServletRequest request) {
@@ -353,6 +409,10 @@ public class RegistrationController {
 
     /**
      * Shows the "forgot password" dialog.
+     *
+     * @param model    model
+     * @param username username
+     * @return view
      */
     @RequestMapping
     public String forgot(Model model, @RequestParam(required = false) String username) {
@@ -364,6 +424,11 @@ public class RegistrationController {
     /**
      * If a valid recovery code is supplied, render the password reset form so they can enter a new
      * password. If not, make them try again.
+     *
+     * @param model        model
+     * @param username     username
+     * @param recoveryCode recoveryCode
+     * @return view
      */
     @RequestMapping
     public String recover(Model model, String username, String recoveryCode) {
@@ -407,6 +472,14 @@ public class RegistrationController {
 
     /**
      * Resets the user's password and clears the password recovery code, if the recovery code is valid and the new password meets the rules.
+     *
+     * @param model        model
+     * @param recoveryCode recoveryCode
+     * @param password1    password1
+     * @param password2    password2
+     * @param request      request
+     * @param response     response
+     * @return view
      */
     @RequestMapping
     public String reset(Model model, String recoveryCode, String password1, String password2, HttpServletRequest request, HttpServletResponse response) {
@@ -462,6 +535,11 @@ public class RegistrationController {
 
     /**
      * Called from AJAX to get a URL to an app logo, if available.
+     *
+     * @param appType appType
+     * @param appName appName
+     * @return view
+     * @throws IOException e
      */
     @RequestMapping
     @ResponseBody

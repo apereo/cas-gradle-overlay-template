@@ -10,7 +10,8 @@ public class CookieUtil {
      * Locates the cookie in the request and returns it.
      * The cookie is searched for by name.
      *
-     * @param request the submitted request which is to be authenticated
+     * @param request    the submitted request which is to be authenticated
+     * @param cookieName cookieName
      * @return the cookie (if present), null otherwise.
      */
     public static Cookie extractCookie(HttpServletRequest request, String cookieName) {
@@ -33,7 +34,8 @@ public class CookieUtil {
      * Locates the cookie in the request and returns its value.
      * The cookie is searched for by name.
      *
-     * @param request the submitted request which is to be authenticated
+     * @param request    the submitted request which is to be authenticated
+     * @param cookieName cookieName
      * @return the cookie value (if present), null otherwise.
      */
     public static String extractCookieValue(HttpServletRequest request, String cookieName) {

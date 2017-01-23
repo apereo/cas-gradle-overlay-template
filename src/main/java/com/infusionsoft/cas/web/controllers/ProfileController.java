@@ -46,6 +46,10 @@ public class ProfileController {
 
     /**
      * Brings up the form to edit the user profile.
+     *
+     * @param model model
+     * @return String view
+     * @throws IOException e
      */
     @RequestMapping
     public String editProfile(Model model) throws IOException {
@@ -66,6 +70,11 @@ public class ProfileController {
 
     /**
      * Updates the user profile.
+     *
+     * @param editProfileForm editProfileForm
+     * @param model           model
+     * @return view
+     * @throws IOException e
      */
     @RequestMapping
     public String updateProfile(@ModelAttribute("editProfileForm") EditProfileForm editProfileForm, Model model) throws IOException {
@@ -101,6 +110,12 @@ public class ProfileController {
 
     /**
      * Updates the user password.
+     *
+     * @param model   model
+     * @param error   error
+     * @param success success
+     * @return view
+     * @throws IOException e
      */
     @RequestMapping
     public String changePassword(Model model, String error, String success) throws IOException {

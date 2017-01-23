@@ -13,9 +13,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
+ * <p>
  * A Spring Security Filter that is responsible for extracting client credentials and user credentials
  * to be authenticated via CAS and Mashery.
- * <p/>
+ * </p>
  * The filter was original copied from BasicAuthenticationFilter and modified from there.
  */
 @Component
@@ -24,6 +25,16 @@ public class OAuthRefreshAuthenticationFilter extends OAuthAbstractAuthenticatio
     @Autowired
     OAuthClientService oAuthClientService;
 
+    /**
+     * @param request            request
+     * @param response           response
+     * @param scope              scope
+     * @param application        application
+     * @param grantType          grantType
+     * @param oAuthServiceConfig oAuthServiceConfig
+     * @param clientId           clientId
+     * @param clientSecret       clientSecret
+     */
     @Override
     protected OAuthAuthenticationToken createAuthenticationToken(HttpServletRequest request, HttpServletResponse response, String scope, String application, String grantType, OAuthServiceConfig oAuthServiceConfig, String clientId, String clientSecret) {
         String refreshToken = StringUtils.defaultString(request.getParameter("refresh_token")).trim();
@@ -32,7 +43,7 @@ public class OAuthRefreshAuthenticationFilter extends OAuthAbstractAuthenticatio
             return null;
         }
 
-        if(StringUtils.isEmpty(clientSecret)) {
+        if (StringUtils.isEmpty(clientSecret)) {
             OAuthClient oAuthClient = oAuthClientService.loadOAuthClient(clientId);
             if (oAuthClient == null) {
                 throw new OAuthInvalidClientException();

@@ -15,6 +15,9 @@ public class CasRegisteredServiceService {
 
     /**
      * Looks up a CAS registered service from a URL.  Finds the first service that matches and is enabled, or null if none is found.
+     *
+     * @param url url
+     * @return RegisteredService
      */
     public RegisteredService getEnabledRegisteredServiceByUrl(String url) {
         RegisteredService registeredService = getRegisteredServiceByUrl(url);
@@ -26,6 +29,9 @@ public class CasRegisteredServiceService {
 
     /**
      * Looks up a CAS registered service from a URL.  Finds the first service that matches, or null if none is found.
+     *
+     * @param url url
+     * @return RegisteredService
      */
     public RegisteredService getRegisteredServiceByUrl(String url) {
         RegisteredService registeredService = null;

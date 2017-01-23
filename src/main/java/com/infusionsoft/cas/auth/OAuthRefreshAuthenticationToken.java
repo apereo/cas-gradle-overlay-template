@@ -14,6 +14,13 @@ public class OAuthRefreshAuthenticationToken extends OAuthAuthenticationToken {
      * <code>OAuthRefreshAuthenticationToken</code>, as the {@link
      * #isAuthenticated()} will return <code>false</code>.
      *
+     * @param principal          principal
+     * @param credentials        credentials
+     * @param oAuthServiceConfig oAuthServiceConfig
+     * @param clientId           clientId
+     * @param clientSecret       clientSecret
+     * @param grantType          grantType
+     * @param refreshToken       refreshToken
      */
     public OAuthRefreshAuthenticationToken(Object principal, Object credentials, OAuthServiceConfig oAuthServiceConfig, String clientId, String clientSecret, String grantType, String refreshToken) {
         super(principal, credentials, oAuthServiceConfig, clientId, clientSecret, null, grantType, null, null);

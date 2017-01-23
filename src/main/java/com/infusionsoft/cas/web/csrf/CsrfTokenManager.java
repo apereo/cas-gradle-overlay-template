@@ -26,6 +26,9 @@ public class CsrfTokenManager {
     /**
      * Generates a CSRF token using a one-way SHA-256 hash of the user's ticket granting ticket and a server
      * secret. All forms that are submitted by POST are expected to have a parameter matching the token.
+     *
+     * @param request request
+     * @return expected token
      */
     public String getExpectedCsrfTokenForRequest(HttpServletRequest request) {
         try {

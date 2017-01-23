@@ -104,6 +104,10 @@ public class CentralController {
 
     /**
      * Renders the Infusionsoft Central home page.
+     *
+     * @param model        model
+     * @param connectError connectError
+     * @return view
      */
     @RequestMapping
     public String home(Model model, String connectError) {
@@ -131,6 +135,9 @@ public class CentralController {
 
     /**
      * Displays the form to link up an existing CustomerHub account.
+     *
+     * @param model model
+     * @return view
      */
     @RequestMapping
     public String linkCustomerHubAccount(Model model) {
@@ -142,6 +149,9 @@ public class CentralController {
 
     /**
      * Displays the form to link up an existing community account.
+     *
+     * @param model model
+     * @return view
      */
     @RequestMapping
     public String linkCommunityAccount(Model model) {
@@ -152,6 +162,16 @@ public class CentralController {
 
     /**
      * Creates a brand new community account and associates it to the CAS account.
+     *
+     * @param agreeToRules             agreeToRules
+     * @param displayName              displayName
+     * @param infusionsoftExperience   infusionsoftExperience
+     * @param timeZone                 timeZone
+     * @param notificationEmailAddress notificationEmailAddress
+     * @param twitterHandle            twitterHandle
+     * @param request                  request
+     * @param response                 response
+     * @return ModelAndView
      */
     @RequestMapping()
     public ModelAndView createCommunityAccount(Boolean agreeToRules, String displayName, Integer infusionsoftExperience, String timeZone, String notificationEmailAddress, String twitterHandle, HttpServletRequest request, HttpServletResponse response) {
@@ -207,6 +227,15 @@ public class CentralController {
 
     /**
      * Associates the current user to a legacy account, after first validating the legacy username and password.
+     *
+     * @param appType     appType
+     * @param appName     appName
+     * @param appUsername appUsername
+     * @param appPassword appPAssword
+     * @param request     request
+     * @param response    response
+     * @return ModelAndView
+     * @throws Exception e
      */
     @RequestMapping
     public ModelAndView associate(AppType appType, String appName, String appUsername, String appPassword, HttpServletRequest request, HttpServletResponse response) throws Exception {
@@ -277,7 +306,11 @@ public class CentralController {
     /**
      * Called from the AJAX Configure Account
      *
-     * @throws com.infusionsoft.cas.oauth.exceptions.OAuthException
+     * @param model     model
+     * @param accountId accountId
+     * @return view
+     * @throws com.infusionsoft.cas.oauth.exceptions.OAuthException e
+     * @throws IOException                                          e
      */
     @RequestMapping
     public String loggedInUserOAuthApplications(Model model, long accountId) throws OAuthException, IOException {
@@ -319,6 +352,12 @@ public class CentralController {
 
     /**
      * Called from the AJAX quick edit to rename an account alias.
+     *
+     * @param accountId accountId
+     * @param alias     alias
+     * @param response  response
+     * @return ModelAndView
+     * @throws IOException e
      */
     @RequestMapping
     public ModelAndView renameAccount(Long accountId, String alias, HttpServletResponse response) throws IOException {
@@ -343,6 +382,11 @@ public class CentralController {
 
     /**
      * Called from AJAX to validate the existing password.
+     *
+     * @param currentPassword currentPassword
+     * @param response        response
+     * @return ModelAndView
+     * @throws IOException e
      */
     @RequestMapping
     public ModelAndView verifyExistingPassword(String currentPassword, HttpServletResponse response) throws IOException {

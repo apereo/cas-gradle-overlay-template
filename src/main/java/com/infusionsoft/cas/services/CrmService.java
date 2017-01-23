@@ -37,6 +37,9 @@ public class CrmService {
 
     /**
      * Builds a base URL to a CRM app.
+     *
+     * @param appName appName
+     * @return redirect url
      */
     public String buildCrmUrl(String appName) {
         StringBuilder url = new StringBuilder(crmProtocol + "://" + buildCrmHostName(appName));

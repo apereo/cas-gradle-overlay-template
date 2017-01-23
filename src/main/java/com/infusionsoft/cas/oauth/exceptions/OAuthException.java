@@ -6,7 +6,7 @@ import org.springframework.security.core.AuthenticationException;
 /**
  * This is an exception that is used OAuth Error Responses.
  *
- * @see <a href="http://tools.ietf.org/html/draft-ietf-oauth-v2-31#section-4.1.2.1"/>
+ * @see <a href="http://tools.ietf.org/html/draft-ietf-oauth-v2-31#section-4.1.2.1"></a>
  */
 public abstract class OAuthException extends AuthenticationException {
 

@@ -59,6 +59,9 @@ public class MailService {
 
     /**
      * Sends a welcome to new users who just created their Infusionsoft ID.
+     *
+     * @param user   user
+     * @param locale locale
      */
     public void sendWelcomeEmail(User user, Locale locale) {
         try {
@@ -81,6 +84,8 @@ public class MailService {
 
     /**
      * Sends an email with a link and password recovery code.
+     *
+     * @param user user
      */
     public void sendPasswordResetEmail(User user) {
         try {

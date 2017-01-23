@@ -76,6 +76,15 @@ public class OAuthController {
 
     /**
      * Landing page for a user to give a 3rd party application permission to their API
+     *
+     * @param model         model
+     * @param client_id     client_id
+     * @param redirect_uri  redirect_uri
+     * @param response_type response_type
+     * @param scope         scope
+     * @param state         state
+     * @return view
+     * @throws Exception e
      */
     @RequestMapping
     public String authorize(Model model, String client_id, String redirect_uri, String response_type, String scope, String state) throws Exception {
@@ -110,6 +119,10 @@ public class OAuthController {
 
     /**
      * Token generation for Legacy Resource Owner Credential Grant Type
+     *
+     * @param serviceKey serviceKey
+     * @return OAuthAccessToken
+     * @throws Exception e
      */
     @ResponseBody
     @RequestMapping("/oauth/service/{serviceKey}/token")
@@ -119,11 +132,11 @@ public class OAuthController {
 
         if (oAuthAuthenticationToken != null) {
             String refreshToken = null;
-            if(oAuthAuthenticationToken instanceof OAuthRefreshAuthenticationToken) {
+            if (oAuthAuthenticationToken instanceof OAuthRefreshAuthenticationToken) {
                 refreshToken = ((OAuthRefreshAuthenticationToken) oAuthAuthenticationToken).getRefreshToken();
             }
 
-            if(!userService.validateUserApplication(oAuthAuthenticationToken.getApplication()) ) {
+            if (!userService.validateUserApplication(oAuthAuthenticationToken.getApplication())) {
                 throw new OAuthAccessDeniedException();
             }
 
@@ -138,6 +151,9 @@ public class OAuthController {
 
     /**
      * Token generation for Extended Grant Types
+     *
+     * @return OAuthAccessToken
+     * @throws Exception e
      */
     @ResponseBody
     @RequestMapping("/oauth/token")
@@ -175,6 +191,15 @@ public class OAuthController {
 
     /**
      * Action to grant access to the requesting application
+     *
+     * @param allow          allow
+     * @param client_id      client_id
+     * @param redirect_uri   redirect_uri
+     * @param requestedScope requestedScope
+     * @param application    application
+     * @param state          state
+     * @return view
+     * @throws OAuthException e
      */
     @RequestMapping
     public String processAuthorization(String allow, String client_id, String redirect_uri, String requestedScope, String application, String state) throws OAuthException {
@@ -195,6 +220,11 @@ public class OAuthController {
 
     /**
      * Allows user to view to all apps granted access to their CRM account via oauth.
+     *
+     * @param userId                userId
+     * @param infusionsoftAccountId infusionsoftAccountId
+     * @return ModelAndView
+     * @throws OAuthException e
      */
     @RequestMapping
     public ModelAndView manageAccounts(Long userId, Long infusionsoftAccountId) throws OAuthException {
@@ -209,6 +239,11 @@ public class OAuthController {
 
     /**
      * Allows user to revoke access to any app granted access to their CRM account via oauth.
+     *
+     * @param userId                userId
+     * @param infusionsoftAccountId infusionsoftAccountId
+     * @param masheryAppId          masheryAppId
+     * @throws OAuthException e
      */
     @RequestMapping
     public void revokeAccess(Long userId, Long infusionsoftAccountId, String masheryAppId) throws OAuthException {

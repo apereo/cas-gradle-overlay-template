@@ -11,6 +11,9 @@ import org.jsoup.safety.Whitelist;
 public class ValidationUtils {
     /**
      * Make sure the app name consists only of alphanumeric and hyphen characters.
+     *
+     * @param appName appName
+     * @return sanitized app name
      */
     public static String sanitizeAppName(String appName) {
         if (appName == null) {
@@ -22,6 +25,9 @@ public class ValidationUtils {
 
     /**
      * Make sure the app alias only has alphanumeric and common punctuation characters.
+     *
+     * @param appAlias appAlias
+     * @return sanitized app alias
      */
     public static String sanitizeAppAlias(String appAlias) {
         if (appAlias == null) {
@@ -33,6 +39,9 @@ public class ValidationUtils {
 
     /**
      * Make sure the message code only has alphanumeric characters and periods.
+     *
+     * @param messageCode messageCode
+     * @return sanitized string
      */
     public static String sanitizeMessageCode(String messageCode) {
         if (messageCode == null) {
@@ -44,6 +53,9 @@ public class ValidationUtils {
 
     /**
      * Remove all HTML tags from the given string
+     *
+     * @param unsafe unsafe
+     * @return sanitized string
      */
     public static String removeAllHtmlTags(String unsafe) {
         if (unsafe == null) {

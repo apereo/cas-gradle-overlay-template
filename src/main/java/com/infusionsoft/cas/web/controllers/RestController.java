@@ -95,6 +95,15 @@ public class RestController {
 
     /**
      * Registers a new user account mapped to an app account.
+     *
+     * @param apiKey       apiKey
+     * @param casGlobalId  casGlobalId
+     * @param globalUserId globalUserId
+     * @param appUsername  appUsername
+     * @param appName      appName
+     * @param appType      appType
+     * @param locale       locale
+     * @return ResponseEntity
      */
     @RequestMapping
     @ResponseBody
@@ -133,6 +142,15 @@ public class RestController {
     /**
      * Finds and re-associates accounts that have been disassociated previously. This is for the case where the admin
      * of an Infusionsoft app deactivates and later reactivates one of their users.
+     *
+     * @param apiKey       apiKey
+     * @param appName      appName
+     * @param appType      appType
+     * @param appUsername  appUsername
+     * @param casGlobalId  casGlobalId
+     * @param globalUserId globalUserId
+     * @param locale       locale
+     * @return ResponseEntity
      */
     @RequestMapping
     @ResponseBody
@@ -170,6 +188,15 @@ public class RestController {
      * their local users is deleted or deactivated, to also remove the mapping on the CAS side. It can also be called
      * when an app instance is deleted; in this case, if the appUsername is not passed then it will unlink ALL
      * accounts for that app instance.
+     *
+     * @param apiKey       apiKey
+     * @param appName      appName
+     * @param appType      appType
+     * @param appUsername  appUsername
+     * @param casGlobalId  casGlobalId
+     * @param globalUserId globalUserId
+     * @param locale       locale
+     * @return ResponseEntity
      */
     @RequestMapping
     @ResponseBody
@@ -207,6 +234,15 @@ public class RestController {
      * of their local users is deleted, to also remove the mapping on the CAS side. It can also be called
      * when an app instance is deleted; in this case, if the appUsername is not passed then it will unlink ALL
      * accounts for that app instance.
+     *
+     * @param apiKey       apiKey
+     * @param appName      appName
+     * @param appType      appType
+     * @param appUsername  appUsername
+     * @param casGlobalId  casGlobalId
+     * @param globalUserId globalUserId
+     * @param locale       locale
+     * @return ResponseEntity
      */
     @RequestMapping
     @ResponseBody
@@ -241,6 +277,15 @@ public class RestController {
 
     /**
      * Changes the application username that is associated with a user
+     *
+     * @param apiKey         apiKey
+     * @param casGlobalId    casGlobalId
+     * @param globalUserId   globalUserId
+     * @param appName        appName
+     * @param appType        appType
+     * @param newAppUsername newAppUsername
+     * @param locale         locale
+     * @return ResponseEntity
      */
     @RequestMapping
     @ResponseBody
@@ -265,6 +310,16 @@ public class RestController {
      * They can then supply the user with a link including the registration code.
      * When the user follows that link and registers, their account will automatically
      * be associated.
+     *
+     * @param apiKey      apiKey
+     * @param appName     appName
+     * @param appType     appType
+     * @param appUsername appUsername
+     * @param firstName   firstName
+     * @param lastName    lastName
+     * @param email       email
+     * @param locale      locale
+     * @return ResponseEntity
      */
     @RequestMapping
     @ResponseBody
@@ -298,8 +353,15 @@ public class RestController {
      * Authenticates caller credentials against their CAS account.  Pass in a username and either a password or
      * an MD5 hash of the password.  Enforces account locking if there are too many wrong guesses.
      * Returns a JSON object with user info if successful.
-     * <p/>
+     * <p>
      * NOTE: this call does *not* use an API key, because the password is the authentication
+     *
+     * @param username    username
+     * @param password    password
+     * @param md5password md5password
+     * @param locale      locale
+     * @return ResponseEntity
+     * @throws IOException e
      */
     @RequestMapping(value = "authenticateUser", method = RequestMethod.POST)
     @ResponseBody
@@ -374,8 +436,18 @@ public class RestController {
      * Called from trusted clients to get info about a CAS user profile. This can be obtained either by the username
      * (the Infusionsoft ID of the user they are searching for), by the Global User ID, or by a combination of local
      * appName, appType, and appUsername.  Only returns enabled accounts.
-     * <br/>
+     * <p>
      * NOTE: One of these is required:  username OR globalUserId OR (appName/appType/appUsername)
+     *
+     * @param apiKey       apiKey
+     * @param username     username
+     * @param casGlobalId  casGlobalId
+     * @param globalUserId globalUserId
+     * @param appName      appName
+     * @param appType      appType
+     * @param appUsername  appUsername
+     * @param locale       locale
+     * @return ResponseEntity
      */
     @RequestMapping
     @ResponseBody

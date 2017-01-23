@@ -104,7 +104,7 @@ public abstract class OAuthAbstractAuthenticationFilter extends GenericFilterBea
 
     /**
      * Decodes the header into a username and password.
-     * <p/>
+     *
      * Copied from BasicAuthenticationFilter
      *
      * @throws org.springframework.security.authentication.BadCredentialsException if the Basic header is not present or is not valid Base64

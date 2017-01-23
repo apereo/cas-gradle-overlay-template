@@ -70,6 +70,9 @@ public class CustomerHubService {
 
     /**
      * Builds a URL where users of this app should be sent after login.
+     *
+     * @param appName appName
+     * @return redirect url
      */
     public String buildUrl(String appName) {
         return buildBaseUrl(appName) + "/admin";
@@ -77,6 +80,9 @@ public class CustomerHubService {
 
     /**
      * Builds a base URL for web services calls and what-not.
+     *
+     * @param appName appName
+     * @return the base url
      */
     public String buildBaseUrl(String appName) {
         StringBuilder baseUrl = new StringBuilder(customerHubProtocol + "://" + appName + "." + customerHubDomain);
@@ -92,6 +98,11 @@ public class CustomerHubService {
 
     /**
      * Authenticates a user with CustomerHub.
+     *
+     * @param appName     appName
+     * @param appUsername appUsername
+     * @param appPassword appPassword
+     * @return true if user authenticated
      */
     public boolean authenticateUser(String appName, String appUsername, String appPassword) {
         try {
@@ -123,6 +134,9 @@ public class CustomerHubService {
 
     /**
      * Fetches a URL to a custom logo for a CustomerHub instance, or null if such a logo is unavailable.
+     *
+     * @param appName appName
+     * @return logo url
      */
     public String getLogoUrl(String appName) {
         try {

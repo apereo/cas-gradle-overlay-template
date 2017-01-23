@@ -24,6 +24,10 @@ public class AppHelper {
 
     /**
      * Builds a URL for redirecting users to an app.
+     *
+     * @param appType appType
+     * @param appName appName
+     * @return redirect url
      */
     public String buildAppUrl(AppType appType, String appName) {
         String retVal = "";

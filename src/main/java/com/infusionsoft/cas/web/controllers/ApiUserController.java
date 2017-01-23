@@ -40,6 +40,10 @@ public class ApiUserController {
     /**
      * A simple REST endpoint for getting user information. Right now the only user supported is the value "current"
      * which returns the current signed-in user.
+     *
+     * @param id     id
+     * @param locale locale
+     * @return ResponseEntity
      */
     @RequestMapping(value = "/{userId}", method = RequestMethod.GET)
     @ResponseBody

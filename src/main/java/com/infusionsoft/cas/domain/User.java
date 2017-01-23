@@ -162,6 +162,8 @@ public class User implements Serializable, UserDetails {
 
     /**
      * @deprecated This is only to be used in the CasUserDetailsService to populate the encoded password.  Do not use for anything else.
+     *
+     * @param password password
      */
     @Transient
     @Deprecated

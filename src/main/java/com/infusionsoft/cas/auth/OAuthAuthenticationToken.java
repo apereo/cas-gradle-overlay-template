@@ -13,7 +13,7 @@ import java.util.Collection;
  * the default basic auth filter was seeing the username being different
  * and attempting an authentication against the local CAS database for
  * client_id and client_secret
- *
+ * <p>
  * The class was mostly copied from UsernamePasswordToken
  */
 public class OAuthAuthenticationToken extends AbstractAuthenticationToken {
@@ -33,6 +33,15 @@ public class OAuthAuthenticationToken extends AbstractAuthenticationToken {
      * <code>OAuthAuthenticationToken</code>, as the {@link
      * #isAuthenticated()} will return <code>false</code>.
      *
+     * @param principal     principal
+     * @param credentials   credentials
+     * @param serviceConfig serviceConfig
+     * @param clientId      clientId
+     * @param clientSecret  clientSecret
+     * @param scope         scope
+     * @param grantType     grantType
+     * @param application   application application
+     * @param trackingUUID  trackingUUID
      */
     public OAuthAuthenticationToken(Object principal, Object credentials, OAuthServiceConfig serviceConfig, String clientId, String clientSecret, String scope, String grantType, String application, String trackingUUID) {
         super(null);
@@ -52,6 +61,18 @@ public class OAuthAuthenticationToken extends AbstractAuthenticationToken {
      * This constructor should only be used by <code>AuthenticationManager</code> or <code>AuthenticationProvider</code>
      * implementations that are satisfied with producing a trusted (i.e. {@link #isAuthenticated()} = <code>true</code>)
      * authentication token.
+     * <p>
+     *
+     * @param principal     principal
+     * @param credentials   credentials
+     * @param serviceConfig serviceConfig
+     * @param clientId      clientId
+     * @param clientSecret  clientSecret
+     * @param scope         scope
+     * @param grantType     grantType
+     * @param application   application
+     * @param trackingUUID  trackingUUID
+     * @param authorities   authorities
      */
     public OAuthAuthenticationToken(Object principal, Object credentials, OAuthServiceConfig serviceConfig, String clientId, String clientSecret, String scope, String grantType, String application, String trackingUUID, Collection<? extends GrantedAuthority> authorities) {
         super(authorities);
@@ -84,7 +105,7 @@ public class OAuthAuthenticationToken extends AbstractAuthenticationToken {
     }
 
     public String getClientSecret() {
-        return  clientSecret;
+        return clientSecret;
     }
 
     public String getScope() {
