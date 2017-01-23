@@ -3,17 +3,20 @@ machine:
   services:
     - mysql
   environment:
-    MAVEN_OPTS: "-Xms64m -Xmx2g -XX:MaxPermSize=512m"
+    MAVEN_OPTS: "-Xms64m -Xmx2g -XX:MaxMetaspaceSize=512m"
+    M2_HOME: ${HOME}/mvn
+    MVN: ${M2_HOME}/bin/mvn
     JAVA_HOME: $HOME/java
 dependencies:
   pre:
     - curl "https://storage.googleapis.com/circle-scripts/latest/init.sh" | bash
   override:
     - ${HOME}/bin/circle-install java jdk-8u74 ${JAVA_HOME}
-    - mvn install -T1C -Dmaven.test.skip.exec=true
+    - ${HOME}/bin/circle-install mvn 3.3.3 ${M2_HOME}
+    - ${MVN} install -T1C -Dmaven.test.skip.exec=true
 test:
   override:
-    - mvn verify -P regression
+    - ${MVN} verify -P regression
   post:
     - mkdir -p $CIRCLE_TEST_REPORTS/junit/
     - find . -type f -regex ".*/target/surefire-reports/.*xml" -exec cp {} $CIRCLE_TEST_REPORTS/junit/ \;
@@ -23,4 +26,4 @@ deployment:
     commands:
       - git config user.email "cd@infusionsoft.com"
       - git config user.name "CircleCI"
-      - mvn release:prepare release:perform --batch-mode
+      - ${MVN} release:prepare release:perform --batch-mode
