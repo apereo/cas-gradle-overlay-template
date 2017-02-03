@@ -27,10 +27,11 @@
         <label class="col-sm-2 control-label">Infusionsoft ID</label>
 
         <div class="col-sm-4">
-            <p class="form-control-static">
-                    ${fn:escapeXml(user != null ? user.username : '')}
+            <input class="form-control" id="username" name="username" value="${fn:escapeXml(user != null ? user.username : '')}" type="email"/>
+            <%--<p class="form-control-static">--%>
+                    <%--${fn:escapeXml(user != null ? user.username : '')}--%>
                 <span class="help-block"><a href="${changePasswordUrl}">Change Password</a></span>
-            </p>
+            <%--</p>--%>
         </div>
 
     </div>

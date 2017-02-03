@@ -44,4 +44,11 @@ public class SecurityService {
         return false;
     }
 
+    public void syncCurrentUser(User user) {
+        User currentUser = getCurrentUser();
+        currentUser.setUsername(user.getUsername());
+        currentUser.setFirstName(user.getFirstName());
+        currentUser.setLastName(user.getLastName());
+    }
+
 }

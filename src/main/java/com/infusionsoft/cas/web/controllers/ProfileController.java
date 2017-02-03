@@ -4,6 +4,7 @@ import com.infusionsoft.cas.domain.User;
 import com.infusionsoft.cas.exceptions.InfusionsoftValidationException;
 import com.infusionsoft.cas.services.AutoLoginService;
 import com.infusionsoft.cas.services.PasswordService;
+import com.infusionsoft.cas.services.SecurityService;
 import com.infusionsoft.cas.services.UserService;
 import com.infusionsoft.cas.web.ValidationUtils;
 import com.infusionsoft.cas.web.controllers.commands.EditProfileForm;
@@ -44,6 +45,9 @@ public class ProfileController {
     @Autowired
     MessageSource messageSource;
 
+    @Autowired
+    SecurityService securityService;
+
     /**
      * Brings up the form to edit the user profile.
      *
@@ -54,7 +58,7 @@ public class ProfileController {
     @RequestMapping
     public String editProfile(Model model) throws IOException {
         try {
-            User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            User user = securityService.getCurrentUser();
             user = userService.loadUser(user.getUsername());
 
             model.addAttribute("user", user);
@@ -77,17 +81,26 @@ public class ProfileController {
      * @throws IOException e
      */
     @RequestMapping
-    public String updateProfile(@ModelAttribute("editProfileForm") EditProfileForm editProfileForm, Model model) throws IOException {
-        User user = userService.loadUser(SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString());
+    public String updateProfile(@ModelAttribute("editProfileForm") EditProfileForm editProfileForm, Model model, HttpServletRequest request, HttpServletResponse response) throws IOException {
+        User currentUser = securityService.getCurrentUser();
+        User user = userService.loadUser(currentUser.toString());
 
         try {
 
             if (model.containsAttribute("error")) {
                 log.info("couldn't update user account for user " + user.getId() + ": " + model.asMap().get("error"));
             } else {
+                boolean resetLogin = !editProfileForm.getUsername().equals(user.getUsername());
+
+                user.setUsername(editProfileForm.getUsername());
                 user.setFirstName(editProfileForm.getFirstName());
                 user.setLastName(editProfileForm.getLastName());
                 user = userService.saveUser(user);
+
+                if(resetLogin) {
+                    autoLoginService.autoLogin(user.getUsername(), request, response);
+                    securityService.syncCurrentUser(user);
+                }
             }
         } catch (InfusionsoftValidationException e) {
             log.error("Failed to create user account", e);
