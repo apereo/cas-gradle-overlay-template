@@ -100,6 +100,12 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public Page<User> findByAuthority(String authoritySearch, Pageable pageable) {
+        Authority authority  = authorityDAO.findByAuthority(authoritySearch);
+        return userDAO.findByAuthority(authority, pageable);
+    }
+
+    @Override
     public Page<UserAccount> findUserAccountsByUsernameLikeOrAppNameLikeAndAppType(String username, String appName, AppType appType, Pageable pageable) {
         if (StringUtils.isEmpty(username)) {
             username = "%";

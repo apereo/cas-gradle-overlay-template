@@ -1,8 +1,10 @@
 package com.infusionsoft.cas.dao;
 
+import com.infusionsoft.cas.domain.Authority;
 import com.infusionsoft.cas.domain.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
 
 public interface UserDAO extends PagingAndSortingRepository<User, Long> {
@@ -15,4 +17,7 @@ public interface UserDAO extends PagingAndSortingRepository<User, Long> {
     User findByPasswordRecoveryCode(String passwordRecoveryCode);
 
     Page<User> findByUsernameLike(String username, Pageable pageable);
+
+    @Query("select u from User u left join u.authorities as a where a = ?1 order by u.username")
+    Page<User> findByAuthority(Authority authority, Pageable pageable);
 }

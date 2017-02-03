@@ -3,6 +3,7 @@
 <%--@elvariable id="oauthLinkSelected" type="java.lang.String"--%>
 <%--@elvariable id="marketingOptionsLinkSelected" type="java.lang.String"--%>
 <%--@elvariable id="securityQuestionLinkSelected" type="java.lang.String"--%>
+<%--@elvariable id="userRoleSearchLinkSelected" type="java.lang.String"--%>
 <%--@elvariable id="alertTitle" type="java.lang.String"--%>
 <%--@elvariable id="error" type="java.lang.String"--%>
 <%--@elvariable id="info" type="java.lang.String"--%>
@@ -33,6 +34,7 @@
 <c:set var="securityQuestionLink" value="${pageContext.request.contextPath}/app/securityquestion/list"/>
 <c:set var="masheryLink" value="${pageContext.request.contextPath}/app/mashery/userApplicationSearch"/>
 <c:set var="marketingOptionsLink" value="${pageContext.request.contextPath}/app/marketingoptions/show"/>
+<c:set var="userRoleSearchLink" value="${pageContext.request.contextPath}/app/admin/userRoleSearch"/>
 <c:set var="userSearchUrl" value="${pageContext.request.contextPath}/app/support/userSearch"/>
 
 <c:set var="searchLabel">
@@ -108,6 +110,9 @@
                     </sec:authorize>
                     <sec:authorize access="hasRole('ROLE_CAS_MARKETING_ADMIN')">
                         <li class="${!empty marketingOptionsLinkSelected ? 'active' : ''}"><a href="${marketingOptionsLink}">Marketing</a></li>
+                    </sec:authorize>
+                    <sec:authorize access="hasRole('ROLE_CAS_ADMIN')">
+                        <li class="${!empty userRoleSearchLinkSelected ? 'active' : ''}"><a href="${userRoleSearchLink}">Role Search</a></li>
                     </sec:authorize>
                 </ul>
                 <sec:authorize access="hasRole('ROLE_CAS_ADMIN') or hasRole('ROLE_CAS_SUPPORT_TIER_1') or hasRole('ROLE_CAS_SUPPORT_TIER_2') or hasRole('ROLE_CAS_VIEW_SECURITY_QUESTIONS')">

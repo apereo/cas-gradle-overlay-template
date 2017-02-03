@@ -71,6 +71,8 @@ public interface UserService {
 
     Page<User> findByUsernameLike(String usernameWildcard, Pageable pageable);
 
+    Page<User> findByAuthority(String authoritySearch, Pageable pageable);
+
     boolean isDuplicateUsername(User user);
 
     String resetPassword(User user);

@@ -4,8 +4,11 @@ import com.infusionsoft.cas.domain.Authority;
 import com.infusionsoft.cas.domain.User;
 import com.infusionsoft.cas.services.InfusionsoftAuthenticationService;
 import com.infusionsoft.cas.services.UserService;
+import com.infusionsoft.cas.web.controllers.commands.UserRoleSearchForm;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.TransactionSystemException;
 import org.springframework.ui.Model;
@@ -93,6 +96,16 @@ public class AdminController {
         }
 
         return supportController.userSearch(model, null, 0);
+    }
+
+    @RequestMapping
+    public String userRoleSearch(Model model, UserRoleSearchForm userRoleSearchForm) {
+        Page<User> users = userService.findByAuthority(userRoleSearchForm.getAuthority(), new PageRequest(userRoleSearchForm.getPage() != null ? userRoleSearchForm.getPage() : 0, 10));
+        model.addAttribute("authorities", loadAuthorities());
+        model.addAttribute("userRoleSearchForm", userRoleSearchForm);
+        model.addAttribute("users", users);
+
+        return "admin/userRoleSearch";
     }
 
     private String editUser(Model model, User user, List<Authority> authorities) {
