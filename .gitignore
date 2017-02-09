@@ -19,3 +19,4 @@ build
 *.log.gz
 out/
 MANIFEST.MF
+/cas/etc/
