@@ -1,5 +1,6 @@
 package org.apereo.cas.infusionsoft.config;
 
+import org.apache.velocity.app.VelocityEngine;
 import org.apereo.cas.infusionsoft.config.properties.InfusionsoftConfigurationProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
