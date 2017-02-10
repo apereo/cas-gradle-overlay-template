@@ -21,10 +21,15 @@ task wrapper(type: Wrapper, description: "Update the Gradle wrapper") {
     gradleVersion = project."gradle.version"
 }
 
-task generateKey(description: "Generate keys for the CAS server") << {
-    int keySize = project.hasProperty('size') ? size.toInteger() : 512
-    println "generating key of size ${keySize} (to change, pass `-Psize=int` where `int` is the size)"
-    def octetKey = OctJwkGenerator.generateJwk(keySize)
-    def params = octetKey.toParams(JsonWebKey.OutputControlLevel.INCLUDE_SYMMETRIC)
-    println "key: ${params.get('k')}"
+task generateKeys {
+  group = 'CAS'
+  description = 'generate keys for CAS. These keys can be added to your application.properties file'
+  doLast {
+    println 'Generating keys for CAS...'
+    ['cas.tgc.encryptionKey': 256, 'cas.tgc.signingKey': 512, 'cas.webflow.encryption.key': 96, 'cas.webflow.signing.key': 512].each { key, size ->
+        def octetKey = OctJwkGenerator.generateJwk(size)
+        def params = octetKey.toParams(JsonWebKey.OutputControlLevel.INCLUDE_SYMMETRIC)
+        println "${key}=${params.get('k')}"
+    }
+  }
 }
