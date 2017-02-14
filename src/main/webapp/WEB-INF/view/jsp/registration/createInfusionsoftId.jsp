@@ -188,10 +188,10 @@
                 <h4><spring:message code='registration.legal.eula.title'/></h4>
             </div>
             <div class="modal-body">
-                <div id="legal" class="center">
+                <div id="legal">
                     <jsp:include page="/content/eula.html"/>
                 </div>
-                <div id="buttons" class="center">
+                <div id="buttons">
                     <button id="acceptTerms" type="submit" class="btn btn-primary" onclick="acceptedTerms();" disabled="disabled"><spring:message code='registration.legal.accept'/></button>
                 </div>
             </div>
