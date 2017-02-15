@@ -31,6 +31,7 @@
         <groovy.version>2.3.8</groovy.version>
         <spock.version>0.7-groovy-2.0</spock.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <tomcat.version>7.0.75</tomcat.version>
     </properties>
 
     <scm>
