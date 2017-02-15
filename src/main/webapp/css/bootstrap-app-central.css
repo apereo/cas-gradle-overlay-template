@@ -751,3 +751,52 @@ input.form-control {
     font-size: 16px;
     line-height: 1.42857143;
 }
+
+.legal-modal {
+    margin: auto;
+    height: 100%;
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+@media (min-width: 768px){
+    .legal-modal {
+        width: 80%;
+    }
+}
+
+.legal-modal > .modal-content {
+    max-height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.legal-modal > .modal-content > .modal-header {
+    flex-shrink: 0;
+}
+
+.legal-modal > .modal-content > .modal-body {
+    flex-shrink: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 0 0 10px;
+}
+
+#legal {
+    overflow-y: auto;
+    border-bottom: 1px solid lightgrey;
+}
+
+#buttons {
+    margin-top: 20px;
+    text-align: center;
+}
+
+.legal-section {
+    padding: 0 16px 16px 16px;
+    border-bottom: 1px solid lightgrey;
+}
+
+.legal-section:last-child {
+    border-bottom: none;
+}

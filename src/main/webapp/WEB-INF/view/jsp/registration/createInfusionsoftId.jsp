@@ -149,10 +149,10 @@
                                 <div class="form-group">
                                     <div class="checkbox">
                                         <label>
-                                            <input id="eula" name="eula" type="checkbox" value="agreed" tabindex="7"/>
+                                            <input id="eula" name="eula" type="checkbox" value="agreed" disabled="disabled" tabindex="7"/>
                                             <span class="checkbox-label">
                                                 <spring:message code='registration.form.readEULA'/>
-                                                <a tabindex="-1" href="http://www.infusionsoft.com/legal" target="_blank"><spring:message code='registration.link.policies'/></a>
+                                                <a tabindex="-1" href="#" onclick="openLightBox(); return false;"><spring:message code='registration.link.policies'/></a>
                                             </span>
                                         </label>
                                     </div>
@@ -172,6 +172,27 @@
 
                         </div>
                     </form:form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="lightbox-terms">
+    <div class="modal-dialog legal-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">
+                    <span aria-hidden="true">&times;</span><span class="sr-only">Close</span>
+                </button>
+                <h4><spring:message code='registration.legal.eula.title'/></h4>
+            </div>
+            <div class="modal-body">
+                <div id="legal">
+                    <jsp:include page="/content/eula.html"/>
+                </div>
+                <div id="buttons">
+                    <button id="acceptTerms" type="submit" class="btn btn-primary" onclick="acceptedTerms();" disabled="disabled"><spring:message code='registration.legal.accept'/></button>
                 </div>
             </div>
         </div>

@@ -332,7 +332,7 @@ public class RegistrationController {
                 log.warn("couldn't create new user account: " + model.asMap().get("error"));
             } else {
 
-
+                user.setIpAddress(request.getRemoteAddr());
                 user = userService.createUser(user, password1);
 
                 SecurityQuestion securityQuestion = securityQuestionService.fetch(securityQuestionId);
