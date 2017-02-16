@@ -1,21 +1,29 @@
 package com.infusionsoft.cas.oauth.dto;
 
-import java.util.Set;
-
 /**
  * A class that represents a OAuth Client Application
  */
 public class OAuthApplication {
+    private String id;
     private String name;
     private String description;
     private String developedBy;
-    private Set<String> roles;
+    private String developedByUsername;
 
-    public OAuthApplication(String name, String description, String developedBy, Set<String> roles) {
+    public OAuthApplication(String id, String name, String description, String developedBy, String developedByUsername) {
+        this.id = id;
         this.name = name;
         this.description = description;
         this.developedBy = developedBy;
-        this.roles = roles;
+        this.developedByUsername = developedByUsername;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getName() {
@@ -42,11 +50,11 @@ public class OAuthApplication {
         this.developedBy = developedBy;
     }
 
-    public Set<String> getRoles() {
-        return roles;
+    public String getDevelopedByUsername() {
+        return developedByUsername;
     }
 
-    public void setRoles(Set<String> roles) {
-        this.roles = roles;
+    public void setDevelopedByUsername(String developedByUsername) {
+        this.developedByUsername = developedByUsername;
     }
 }
