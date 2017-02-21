@@ -777,6 +777,7 @@ input.form-control {
 
 .legal-modal > .modal-content > .modal-body {
     flex-shrink: 1;
+    min-height: 0; /* FF won't shrink without this */
     display: flex;
     flex-direction: column;
     padding: 0 0 10px;
