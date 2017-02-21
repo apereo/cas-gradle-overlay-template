@@ -64,7 +64,7 @@ public class OAuthService implements ApplicationListener<UserAccountRemovedEvent
             if (masheryApplication != null) {
                 MasheryMember masheryMember = masheryApiClientService.fetchMember(masheryApplication.getUsername());
                 if (masheryMember != null) {
-                    oAuthApplication = new OAuthApplication(Objects.toString(masheryOAuthApplication.getId(), null), masheryApplication.getName(), masheryApplication.getDescription(), masheryMember.getDisplayName(), masheryMember.getUsername());
+                    oAuthApplication = new OAuthApplication(Objects.toString(masheryOAuthApplication.getId(), null), masheryApplication.getUuid(), masheryApplication.getName(), masheryApplication.getDescription(), masheryMember.getDisplayName(), masheryMember.getUsername());
                 }
             }
         }
