@@ -19,12 +19,10 @@
             <object type="image/svg+xml" tabindex="-1" th:data="@{/infusionsoft/img/is_logo.svg}" width="159" height="26" class="logo">Infusionsoft</object>
 
             <form method="post" id="loginForm" class="form-horizontal" th:object="${credential}" role="form" data-toggle="validator">
-                <div class="text-error">
-                    <p class="text-error" th:each="err : ${#fields.errors('*')}">
-                        <object tabindex="-1" data="/img/ic-exclamation-circle.svg" width="16" height="16"/>
-                        <span th:each="err : ${#fields.errors('*')}" th:utext="${err}"/>
-                    </p>
-                </div>
+                <p class="text-error" th:if="${#fields.hasErrors('*')}">
+                    <object type="image/svg+xml" tabindex="-1" th:data="@{/infusionsoft/img/ic-exclamation-circle.svg}" width="16" height="16"></object>
+                    <span th:each="err : ${#fields.errors('*')}" th:utext="${err}"></span>
+                </p>
 
                 <input type="hidden" name="execution" th:value="${flowExecutionKey}"/>
                 <input type="hidden" name="_eventId" value="submit"/>
@@ -66,7 +64,7 @@
             <a th:href="@{~/app/registration/forgot}">Forgot your password?</a>
 
             <div class="row infusionsoftID">
-                <object tabindex="-1" th:data="@{/infusionsoft/img/isID_logo.svg}" width="60" height="30" class="isIDlogo">Infusionsoft ID</object>
+                <object type="image/svg+xml" tabindex="-1" th:data="@{/infusionsoft/img/isID_logo.svg}" width="60" height="30" class="isIDlogo">Infusionsoft ID</object>
                 <p>Haven't created your Infusionsoft ID?</p>
 
                 <p><a th:href="@{~/app/registration/createInfusionsoftId}">Click here to get started</a></p>
