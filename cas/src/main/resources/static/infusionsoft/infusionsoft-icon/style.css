@@ -1,0 +1,53 @@
+@font-face {
+	font-family: 'infusionsoft-icon';
+	src:url('fonts/infusionsoft-icon.eot');
+	src:url('fonts/infusionsoft-icon.eot') format('embedded-opentype'),
+		url('fonts/infusionsoft-icon.woff') format('woff'),
+		url('fonts/infusionsoft-icon.ttf') format('truetype'),
+		url('fonts/infusionsoft-icon.svg') format('svg');
+	font-weight: normal;
+	font-style: normal;
+}
+
+.ic {
+	font-family: 'infusionsoft-icon';
+	speak: none;
+	font-style: normal;
+	font-weight: normal;
+	font-variant: normal;
+	text-transform: none;
+	line-height: 1;
+
+	/* Better Font Rendering =========== */
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}
+
+.ic-car:before {
+	content: "\e600";
+}
+
+.ic-baby:before {
+	content: "\e601";
+}
+
+.ic-horse:before {
+	content: "\e603";
+}
+
+.ic-heart:before {
+	content: "\e602";
+}
+
+.ic-paw:before {
+	content: "\e604";
+}
+
+.ic-sign:before {
+	content: "\e605";
+}
+
+.ic-woman:before {
+	content: "\e606";
+}
+

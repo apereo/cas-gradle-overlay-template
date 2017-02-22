@@ -3,7 +3,8 @@ package org.apereo.cas.infusionsoft.config.properties;
 import org.apereo.cas.configuration.model.core.authentication.PasswordEncoderProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.NestedConfigurationProperty;
-import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 @ConfigurationProperties("infusionsoft")
 public class InfusionsoftConfigurationProperties {
@@ -19,6 +20,8 @@ public class InfusionsoftConfigurationProperties {
 
     @NestedConfigurationProperty
     private PasswordEncoderProperties passwordEncoder = new PasswordEncoderProperties();
+
+    private List<String> supportPhoneNumbers;
 
     public InfusionsoftJpaConfigurationProperties getJpa() {
         return jpa;
@@ -50,5 +53,13 @@ public class InfusionsoftConfigurationProperties {
 
     public void setCrm(HostConfigurationProperties crm) {
         this.crm = crm;
+    }
+
+    public List<String> getSupportPhoneNumbers() {
+        return supportPhoneNumbers;
+    }
+
+    public void setSupportPhoneNumbers(List<String> supportPhoneNumbers) {
+        this.supportPhoneNumbers = supportPhoneNumbers;
     }
 }

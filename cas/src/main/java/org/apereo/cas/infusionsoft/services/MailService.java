@@ -4,6 +4,7 @@ import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.context.Context;
 import org.apereo.cas.configuration.CasConfigurationProperties;
+import org.apereo.cas.infusionsoft.config.properties.InfusionsoftConfigurationProperties;
 import org.apereo.cas.infusionsoft.domain.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,7 +24,7 @@ import java.util.Locale;
  * Simple service for sending transactional emails, like the Forgot Password email.
  */
 @Service
-@EnableConfigurationProperties(CasConfigurationProperties.class)
+@EnableConfigurationProperties({CasConfigurationProperties.class, InfusionsoftConfigurationProperties.class})
 public class MailService {
     private static final String NO_REPLY_EMAIL_ADDRESS = "noreply@infusionsoft.com";
     private static final Logger log = LoggerFactory.getLogger(MailService.class);
@@ -41,7 +42,7 @@ public class MailService {
     private MessageSource messageSource;
 
     @Autowired
-    private SupportContactService supportContactService;
+    private InfusionsoftConfigurationProperties infusionsoftConfigurationProperties;
 
     /**
      * Utility method for making a transactional email in a "standard" manner.
@@ -96,7 +97,7 @@ public class MailService {
             context.put("user", user);
             context.put("code", user.getPasswordRecoveryCode());
             context.put("serverPrefix", casProperties.getServer().getPrefix());
-            context.put("supportPhoneNumbers", supportContactService.getSupportPhoneNumbers());
+            context.put("supportPhoneNumbers", infusionsoftConfigurationProperties.getSupportPhoneNumbers());
 
             velocityEngine.mergeTemplate("/velocity/forgotPasswordEmail.vm", "UTF-8", context, body);
             message.setContent(body.toString(), "text/html");

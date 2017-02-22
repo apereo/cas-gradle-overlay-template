@@ -1,0 +1,7 @@
+{
+  "@class" : "org.apereo.cas.services.RegexRegisteredService",
+  "serviceId" : "https://.+.infusion(soft|test).com(:[0-9]+)?/.*",
+  "name" : "Infusionsoft CRM",
+  "id" : 2,
+  "evaluationOrder" : 2
+}

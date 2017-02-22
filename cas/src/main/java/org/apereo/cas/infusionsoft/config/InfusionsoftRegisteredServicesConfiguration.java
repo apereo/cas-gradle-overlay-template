@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Configuration;
 import java.util.ArrayList;
 import java.util.List;
 
-@Configuration
+//@Configuration
 public class InfusionsoftRegisteredServicesConfiguration {
 
     @Bean
@@ -47,7 +47,7 @@ public class InfusionsoftRegisteredServicesConfiguration {
 
     @Bean
     RegisteredService serviceMarketplaceUI() {
-        return buildService(5, "Marketplace API", "https?://marketplace(3(dev)?ui)?\\.infusion(soft|test)\\.com(:[0-9]+)?((/.*)|$)", 5);
+        return buildService(5, "Marketplace UI", "https?://marketplace(3(dev)?ui)?\\.infusion(soft|test)\\.com(:[0-9]+)?((/.*)|$)", 5);
     }
 
     @Bean

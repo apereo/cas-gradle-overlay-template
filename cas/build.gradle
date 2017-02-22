@@ -2,12 +2,15 @@ apply plugin: 'org.springframework.boot'
 apply from: 'http://dl.bintray.com/scalding/generic/waroverlay.gradle'
 apply from: 'https://raw.githubusercontent.com/apereo/cas/5.0.x/gradle/overrides.gradle'
 
+version =  "${project.'cas.version'}.0-SNAPSHOT"
+
 bootRepackage {
     enabled = false
 }
 
-springBoot  {
+springBoot {
     mainClass = "org.springframework.boot.loader.WarLauncher"
+    buildInfo()
 }
 
 bootRun {
@@ -35,12 +38,20 @@ dependencies {
     compile "org.apereo.cas:cas-server-support-hazelcast-monitor:${project.'cas.version'}"
     compile "org.apereo.cas:cas-server-support-hazelcast-ticket-registry:${project.'cas.version'}"
     compile "org.apereo.cas:cas-server-support-jdbc-drivers:${project.'cas.version'}"
+    compile "org.apereo.cas:cas-server-support-json-service-registry:${project.'cas.version'}"
 //    compile "org.apereo.cas:cas-server-webapp-session-hazelcast:${project.'cas.version'}"
     compile "org.apache.velocity:velocity"
     compile "org.apache.velocity:velocity-tools"
     compile "org.springframework.data:spring-data-commons:${project.'springDataCommons.version'}"
     compile "org.springframework.data:spring-data-jpa:${project.'springDataJpa.version'}"
     compile "org.jadira.usertype:usertype.core:${project.'jadira.version'}"
+}
+
+processResources {
+//    from('src/main/java') {
+//        include '**/*.properties'
+//        expand(project.properties)
+//    }
 }
 
 task copyConfig(type: Copy) {
@@ -52,6 +63,7 @@ task copyConfig(type: Copy) {
 war {
     dependsOn copyConfig
     baseName 'cas'
+    archiveName 'cas.war'
     includeWarJars = true
     entryCompression = ZipEntryCompression.STORED
     manifest {
@@ -80,14 +92,14 @@ File manifestFile() {
 }
 
 task generateKeys {
-  group = 'CAS'
-  description = 'generate keys for CAS. These keys can be added to your application.properties file'
-  doLast {
-    println 'Generating keys for CAS...'
-    ['cas.tgc.encryptionKey': 256, 'cas.tgc.signingKey': 512, 'cas.webflow.encryption.key': 96, 'cas.webflow.signing.key': 512].each { key, size ->
-        def octetKey = OctJwkGenerator.generateJwk(size)
-        def params = octetKey.toParams(JsonWebKey.OutputControlLevel.INCLUDE_SYMMETRIC)
-        println "${key}=${params.get('k')}"
+    group = 'CAS'
+    description = 'generate keys for CAS. These keys can be added to your application.properties file'
+    doLast {
+        println 'Generating keys for CAS...'
+        ['cas.tgc.encryptionKey': 256, 'cas.tgc.signingKey': 512, 'cas.webflow.encryption.key': 96, 'cas.webflow.signing.key': 512].each { key, size ->
+            def octetKey = OctJwkGenerator.generateJwk(size)
+            def params = octetKey.toParams(JsonWebKey.OutputControlLevel.INCLUDE_SYMMETRIC)
+            println "${key}=${params.get('k')}"
+        }
     }
-  }
 }
