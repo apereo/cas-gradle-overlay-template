@@ -43,18 +43,25 @@ public class MailService {
     /**
      * Utility method for making a transactional email in a "standard" manner.
      */
-    private MimeMessage createMessage(User user, String subject) throws MessagingException {
+    private MimeMessage createMessage(User user, String emailAddress, String subject) throws MessagingException {
         MimeMessage message = mailSender.createMimeMessage();
         message.setHeader("X-InfApp", "cas");
         message.setHeader("X-inf-package", "transactional");
         message.setHeader("Package", "transactional");
 
         MimeMessageHelper helper = new MimeMessageHelper(message);
-        helper.setTo(user.getUsername());
+        helper.setTo(emailAddress);
         helper.setFrom(NO_REPLY_EMAIL_ADDRESS);
         helper.setSubject(subject);
 
         return message;
+    }
+
+    /**
+     * Utility method for making a transactional email in a "standard" manner.
+     */
+    private MimeMessage createMessage(User user, String subject) throws MessagingException {
+        return createMessage(user, user.getUsername(), subject);
     }
 
     /**
@@ -107,6 +114,33 @@ public class MailService {
             log.info("sent password recovery email to user " + user.getId());
         } catch (Exception e) {
             log.error("failed to send password recovery email to user " + user.getId() + "(" + user.getUsername() + ")", e);
+        }
+    }
+
+    /**
+     * Sends an email informing user that their email has been changed.
+     *
+     * @param user user
+     */
+    public void sendInfusionsoftIdChanged(User user, String oldInfusionsoftId) {
+        try {
+            // we should be passing in a locale here, or be able to determine the user's locale from the user object...
+            MimeMessage message = createMessage(user, oldInfusionsoftId, messageSource.getMessage("email.infusionsoftId.changed.subject", null, Locale.getDefault()));
+
+            StringWriter body = new StringWriter();
+            Context context = new VelocityContext();
+
+            context.put("user", user);
+            context.put("oldInfusionsoftId", oldInfusionsoftId);
+            context.put("supportPhoneNumbers", supportContactService.getSupportPhoneNumbers());
+
+            velocityEngine.mergeTemplate("/velocity/infusionsoftIdChangedEmail.vm", "UTF-8", context, body);
+            message.setContent(body.toString(), "text/html");
+            mailSender.send(message);
+
+            log.info("sent infusionsoft id changed email to user " + user.getId());
+        } catch (Exception e) {
+            log.error("failed to send infusionsoft id changed email to user " + user.getId() + "(" + user.getUsername() + ")", e);
         }
     }
 }

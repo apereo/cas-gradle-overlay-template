@@ -2,10 +2,7 @@ package com.infusionsoft.cas.web.controllers;
 
 import com.infusionsoft.cas.domain.User;
 import com.infusionsoft.cas.exceptions.InfusionsoftValidationException;
-import com.infusionsoft.cas.services.AutoLoginService;
-import com.infusionsoft.cas.services.PasswordService;
-import com.infusionsoft.cas.services.SecurityService;
-import com.infusionsoft.cas.services.UserService;
+import com.infusionsoft.cas.services.*;
 import com.infusionsoft.cas.web.ValidationUtils;
 import com.infusionsoft.cas.web.controllers.commands.EditProfileForm;
 import org.apache.commons.lang3.StringUtils;
@@ -32,6 +29,9 @@ public class ProfileController {
 
     @Autowired
     CentralController centralController;
+
+    @Autowired
+    MailService mailService;
 
     @Autowired
     PasswordService passwordService;
@@ -91,13 +91,22 @@ public class ProfileController {
                 log.info("couldn't update user account for user " + user.getId() + ": " + model.asMap().get("error"));
             } else {
                 boolean resetLogin = !editProfileForm.getUsername().equals(user.getUsername());
+                String oldInfusionsoftId = null;
 
-                user.setUsername(editProfileForm.getUsername());
+                if (!user.getUsername().equals(editProfileForm.getUsername())) {
+                    oldInfusionsoftId = user.getUsername();
+                    user.setUsername(editProfileForm.getUsername());
+                }
+
                 user.setFirstName(editProfileForm.getFirstName());
                 user.setLastName(editProfileForm.getLastName());
                 user = userService.saveUser(user);
 
-                if(resetLogin) {
+                if(oldInfusionsoftId != null) {
+                    mailService.sendInfusionsoftIdChanged(user, oldInfusionsoftId);
+                }
+
+                if (resetLogin) {
                     autoLoginService.autoLogin(user.getUsername(), request, response);
                     securityService.syncCurrentUser(user);
                 }
