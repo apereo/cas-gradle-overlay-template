@@ -63,9 +63,9 @@ public class DiscourseController {
             newPayload.append("external_id=").append(user.getId()).append("&");
             newPayload.append("name=").append(URLEncoder.encode(user.getFirstName() + " " + user.getLastName(), "UTF-8"));
 
-            String newPayloadBase64Encoded = Base64.encodeBase64String(newPayload.toString().getBytes());
+            String newPayloadBase64Encoded = Base64.encodeBase64String(newPayload.toString().getBytes("UTF-8"));
 
-            String newSignature = Hex.encodeHexString(mac.doFinal(newPayloadBase64Encoded.getBytes()));
+            String newSignature = Hex.encodeHexString(mac.doFinal(newPayloadBase64Encoded.getBytes("UTF-8")));
 
             model.addAttribute("sso", newPayloadBase64Encoded);
             model.addAttribute("sig", newSignature);
