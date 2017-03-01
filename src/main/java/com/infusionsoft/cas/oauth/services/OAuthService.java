@@ -57,18 +57,10 @@ public class OAuthService implements ApplicationListener<UserAccountRemovedEvent
     }
 
     public OAuthApplication fetchApplication(String serviceKey, String clientId, String redirectUri, String responseType) throws OAuthException {
-        OAuthApplication oAuthApplication = null;
         MasheryOAuthApplication masheryOAuthApplication = masheryApiClientService.fetchOAuthApplication(serviceKey, clientId, redirectUri, responseType);
-        if (masheryOAuthApplication != null) {
-            MasheryApplication masheryApplication = masheryApiClientService.fetchApplication(masheryOAuthApplication.getId());
-            if (masheryApplication != null) {
-                MasheryMember masheryMember = masheryApiClientService.fetchMember(masheryApplication.getUsername());
-                if (masheryMember != null) {
-                    oAuthApplication = new OAuthApplication(Objects.toString(masheryOAuthApplication.getId(), null), masheryApplication.getUuid(), masheryApplication.getName(), masheryApplication.getDescription(), masheryMember.getDisplayName(), masheryMember.getUsername());
-                }
-            }
-        }
-        return oAuthApplication;
+        MasheryApplication masheryApplication = masheryApiClientService.fetchApplication(masheryOAuthApplication.getId());
+        MasheryMember masheryMember = masheryApiClientService.fetchMember(masheryApplication.getUsername());
+        return new OAuthApplication(Objects.toString(masheryOAuthApplication.getId(), null), masheryApplication.getUuid(), masheryApplication.getName(), masheryApplication.getDescription(), masheryMember.getDisplayName(), masheryMember.getUsername());
     }
 
     public String createAuthorizationCode(String serviceKey, String clientId, String requestedScope, String application, String redirectUri, Long globalUserId, String state) throws OAuthException {

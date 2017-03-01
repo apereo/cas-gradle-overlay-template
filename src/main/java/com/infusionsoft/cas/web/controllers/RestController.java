@@ -11,8 +11,6 @@ import com.infusionsoft.cas.domain.PendingUserAccount;
 import com.infusionsoft.cas.domain.User;
 import com.infusionsoft.cas.domain.UserAccount;
 import com.infusionsoft.cas.exceptions.DuplicateAccountException;
-import com.infusionsoft.cas.oauth.dto.OAuthApplication;
-import com.infusionsoft.cas.oauth.services.OAuthService;
 import com.infusionsoft.cas.services.AuditService;
 import com.infusionsoft.cas.services.InfusionsoftAuthenticationService;
 import com.infusionsoft.cas.services.UserService;
@@ -65,9 +63,6 @@ public class RestController {
 
     @Autowired
     private AuditService auditService;
-
-    @Autowired
-    private OAuthService oAuthService;
 
     @Value("${infusionsoft.cas.apikey}")
     private String requiredApiKey;
@@ -491,28 +486,6 @@ public class RestController {
             }
         } catch (Exception e) {
             return logAndReturnError(e, "cas.exception.getUserInfo.failure", new Object[]{username, globalUserId, appName, appType, appUsername}, locale);
-        }
-    }
-
-    @RequestMapping
-    @ResponseBody
-    public ResponseEntity getAppInfo(String apiKey, String serviceKey, String clientId, Locale locale) {
-        // Validate the API key
-        ResponseEntity apiKeyResponse = validateApiKey(apiKey, locale);
-        if (apiKeyResponse != null) {
-            return apiKeyResponse;
-        }
-
-        try {
-            final OAuthApplication oAuthApplication = oAuthService.fetchApplication(serviceKey, clientId, null, null);
-
-            if (oAuthApplication != null) {
-                return new ResponseEntity<>(oAuthApplication, HttpStatus.OK);
-            } else {
-                return new ResponseEntity<>(new JSONObject(), HttpStatus.NOT_FOUND);
-            }
-        } catch (Exception e) {
-            return logAndReturnError(e, "cas.exception.getAppInfo.failure", new Object[]{serviceKey, clientId}, locale);
         }
     }
 
