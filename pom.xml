@@ -25,6 +25,7 @@
         <add.artifact.descriptors>false</add.artifact.descriptors>
         <maven.test.skip>true</maven.test.skip>
         <filtering.enabled>true</filtering.enabled>
+        <commons.codec.version>1.10</commons.codec.version>
         <powermock.version>1.6.5</powermock.version>
         <ehcache.version>2.7.4</ehcache.version>
         <jackson.version>2.4.0</jackson.version>
@@ -234,6 +235,12 @@
     </profiles>
 
     <dependencies>
+        <dependency>
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
+            <version>${commons.codec.version}</version>
+        </dependency>
+
         <dependency>
             <groupId>org.jasig.cas</groupId>
             <artifactId>cas-server-webapp</artifactId>
