@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>cas</artifactId>
     <packaging>war</packaging>
-    <version>1.0.0.717-SNAPSHOT</version>
+    <version>1.0.0.717</version>
 
     <parent>
         <groupId>com.infusionsoft</groupId>
@@ -39,7 +39,7 @@
         <connection>scm:git:ssh://github.com/infusionsoft/infusionsoft-cas.git</connection>
         <developerConnection>scm:git:ssh://git@github.com/infusionsoft/infusionsoft-cas.git</developerConnection>
         <url>https://github.com/infusionsoft/infusionsoft-cas.git</url>
-      <tag>HEAD</tag>
+      <tag>cas-1.0.0.717</tag>
   </scm>
 
     <build>
