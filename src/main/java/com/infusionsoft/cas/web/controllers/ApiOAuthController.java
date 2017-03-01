@@ -80,7 +80,6 @@ public class ApiOAuthController {
 
     private ResponseEntity createErrorResponse(Exception e, String serviceKey, String clientId, Locale locale) {
         final APIErrorDTO error = new APIErrorDTO("cas.exception.getAppInfo.failure", messageSource, new Object[]{serviceKey, clientId}, locale);
-        log.error(error.getMessage(), e);
         return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
