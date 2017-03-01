@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 @Service
@@ -59,13 +60,7 @@ public class OAuthService implements ApplicationListener<UserAccountRemovedEvent
         MasheryOAuthApplication masheryOAuthApplication = masheryApiClientService.fetchOAuthApplication(serviceKey, clientId, redirectUri, responseType);
         MasheryApplication masheryApplication = masheryApiClientService.fetchApplication(masheryOAuthApplication.getId());
         MasheryMember masheryMember = masheryApiClientService.fetchMember(masheryApplication.getUsername());
-
-        Set<String> roles = new HashSet<String>();
-        for (MasheryRole masheryRole : masheryMember.getRoles()) {
-            roles.add(masheryRole.getName());
-        }
-
-        return new OAuthApplication(masheryApplication.getName(), masheryApplication.getDescription(), masheryMember.getDisplayName(), roles);
+        return new OAuthApplication(Objects.toString(masheryOAuthApplication.getId(), null), masheryApplication.getUuid(), masheryApplication.getName(), masheryApplication.getDescription(), masheryMember.getDisplayName(), masheryMember.getUsername());
     }
 
     public String createAuthorizationCode(String serviceKey, String clientId, String requestedScope, String application, String redirectUri, Long globalUserId, String state) throws OAuthException {

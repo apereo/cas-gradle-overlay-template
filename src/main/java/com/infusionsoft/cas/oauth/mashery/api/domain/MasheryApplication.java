@@ -2,10 +2,13 @@ package com.infusionsoft.cas.oauth.mashery.api.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+import java.util.UUID;
+
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class MasheryApplication {
 
     private Integer id;
+    private UUID uuid;
     private String username;
     private String name;
     private String description;
@@ -17,6 +20,14 @@ public class MasheryApplication {
 
     public void setId(Integer id) {
         this.id = id;
+    }
+
+    public UUID getUuid() {
+        return uuid;
+    }
+
+    public void setUuid(UUID uuid) {
+        this.uuid = uuid;
     }
 
     public String getUsername() {

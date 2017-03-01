@@ -1,21 +1,41 @@
 package com.infusionsoft.cas.oauth.dto;
 
-import java.util.Set;
+import java.util.UUID;
 
 /**
  * A class that represents a OAuth Client Application
  */
 public class OAuthApplication {
+    private String id;
+    private UUID uuid;
     private String name;
     private String description;
     private String developedBy;
-    private Set<String> roles;
+    private String developedByUsername;
 
-    public OAuthApplication(String name, String description, String developedBy, Set<String> roles) {
+    public OAuthApplication(String id, UUID uuid, String name, String description, String developedBy, String developedByUsername) {
+        this.id = id;
+        this.uuid = uuid;
         this.name = name;
         this.description = description;
         this.developedBy = developedBy;
-        this.roles = roles;
+        this.developedByUsername = developedByUsername;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public UUID getUuid() {
+        return uuid;
+    }
+
+    public void setUuid(UUID uuid) {
+        this.uuid = uuid;
     }
 
     public String getName() {
@@ -42,11 +62,11 @@ public class OAuthApplication {
         this.developedBy = developedBy;
     }
 
-    public Set<String> getRoles() {
-        return roles;
+    public String getDevelopedByUsername() {
+        return developedByUsername;
     }
 
-    public void setRoles(Set<String> roles) {
-        this.roles = roles;
+    public void setDevelopedByUsername(String developedByUsername) {
+        this.developedByUsername = developedByUsername;
     }
 }
