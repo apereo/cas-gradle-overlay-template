@@ -103,7 +103,9 @@ public class ProfileController {
                 user = userService.saveUser(user);
 
                 if(oldInfusionsoftId != null) {
-                    mailService.sendInfusionsoftIdChanged(user, oldInfusionsoftId);
+                    //Send to both email addresses to be safe.
+                    mailService.sendInfusionsoftIdChanged(user, oldInfusionsoftId, true);
+                    mailService.sendInfusionsoftIdChanged(user, oldInfusionsoftId, false);
                 }
 
                 if (resetLogin) {

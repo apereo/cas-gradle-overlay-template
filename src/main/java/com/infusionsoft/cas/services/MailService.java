@@ -122,10 +122,11 @@ public class MailService {
      *
      * @param user user
      */
-    public void sendInfusionsoftIdChanged(User user, String oldInfusionsoftId) {
+    public void sendInfusionsoftIdChanged(User user, String oldInfusionsoftId, boolean sendToOldEmail) {
         try {
+            String to = sendToOldEmail ? oldInfusionsoftId : user.getUsername();
             // we should be passing in a locale here, or be able to determine the user's locale from the user object...
-            MimeMessage message = createMessage(user, oldInfusionsoftId, messageSource.getMessage("email.infusionsoftId.changed.subject", null, Locale.getDefault()));
+            MimeMessage message = createMessage(user, to, messageSource.getMessage("email.infusionsoftId.changed.subject", null, Locale.getDefault()));
 
             StringWriter body = new StringWriter();
             Context context = new VelocityContext();
