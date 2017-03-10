@@ -13,12 +13,10 @@ import com.infusionsoft.cas.oauth.dto.OAuthGrantType;
 import com.infusionsoft.cas.oauth.exceptions.*;
 import com.infusionsoft.cas.oauth.services.OAuthService;
 import com.infusionsoft.cas.services.CrmService;
-import com.infusionsoft.cas.services.OAuthServiceConfigService;
 import com.infusionsoft.cas.services.UserService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.MessageSource;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -48,13 +46,7 @@ public class OAuthController {
     OAuthService oauthService;
 
     @Autowired
-    MessageSource messageSource;
-
-    @Autowired
     UserService userService;
-
-    @Autowired
-    OAuthServiceConfigService oAuthServiceConfigService;
 
     @Autowired
     OAuthExceptionHandler oAuthExceptionHandler;
@@ -178,6 +170,10 @@ public class OAuthController {
                 userId = ((User) principal).getId().toString();
             } else {
                 userId = (principal == null ? null : principal.toString());
+            }
+
+            if (StringUtils.isBlank(userId)) {
+                throw new OAuthAccessDeniedException();
             }
 
             /**

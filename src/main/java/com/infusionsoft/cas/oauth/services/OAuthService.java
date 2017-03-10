@@ -31,6 +31,7 @@ public class OAuthService implements ApplicationListener<UserAccountRemovedEvent
     private static final Logger log = Logger.getLogger(OAuthService.class);
     private static final String TRUSTED_INTERNAL_SYSTEM_ROLE = "Trusted Internal System";
     private static final String TRUSTED_MOBILE_SYSTEM_ROLE = "Trusted Mobile System";
+    private static final String TRUSTED_SERVICE_ACCOUNT_ROLE = "Trusted Service Account";
 
     @Autowired
     private MasheryApiClientService masheryApiClientService;
@@ -114,7 +115,7 @@ public class OAuthService implements ApplicationListener<UserAccountRemovedEvent
     }
 
     public Set<OAuthUserApplication> fetchUserApplicationsByUserAccount(String serviceKey, UserAccount userAccount) throws OAuthException {
-        Set<OAuthUserApplication> retVal = new HashSet<OAuthUserApplication>();
+        Set<OAuthUserApplication> retVal = new HashSet<>();
 
         if (userAccount != null) {
             User user = userAccount.getUser();
@@ -190,6 +191,17 @@ public class OAuthService implements ApplicationListener<UserAccountRemovedEvent
         MasheryMember masheryMember = masheryApiClientService.fetchMemberByClientId(clientId);
         for (MasheryRole masheryRole : masheryMember.getRoles()) {
             if (TRUSTED_MOBILE_SYSTEM_ROLE.equals(masheryRole.getName())) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public boolean isClientAuthorizedForClientCredentialsGrantType(String clientId) throws OAuthException {
+        MasheryMember masheryMember = masheryApiClientService.fetchMemberByClientId(clientId);
+        for (MasheryRole masheryRole : masheryMember.getRoles()) {
+            if (TRUSTED_SERVICE_ACCOUNT_ROLE.equals(masheryRole.getName())) {
                 return true;
             }
         }
