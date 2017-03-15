@@ -149,7 +149,7 @@
                                 <div class="form-group">
                                     <div class="checkbox">
                                         <label>
-                                            <input id="eula" name="eula" type="checkbox" value="agreed" disabled="disabled" tabindex="7"/>
+                                            <input id="eula" name="eula" type="checkbox" value="agreed" tabindex="7"/>
                                             <span class="checkbox-label">
                                                 <spring:message code='registration.form.readEULA'/>
                                                 <a tabindex="-1" href="#" onclick="openLightBox(); return false;"><spring:message code='registration.link.policies'/></a>
@@ -192,7 +192,7 @@
                     <jsp:include page="/content/eula.html"/>
                 </div>
                 <div id="buttons">
-                    <button id="acceptTerms" type="submit" class="btn btn-primary" onclick="acceptedTerms();" disabled="disabled"><spring:message code='registration.legal.accept'/></button>
+                    <button id="acceptTerms" type="button" class="btn btn-primary" disabled="disabled"><spring:message code='registration.legal.accept'/></button>
                 </div>
             </div>
         </div>
@@ -240,7 +240,6 @@
                 errorElement: "span",
                 errorClass: "help-block",
                 errorPlacement: function (error, element) {
-                    console.log('error placement');
                     if (element.parent().is('label')) {
                         element.next().after(error);
                     } else {
