@@ -176,6 +176,27 @@ public class MasheryApiClientService {
         return wrappedMasheryOAuthApplication.getResult();
     }
 
+    public Set<MasheryApplication> fetchApplicationsByAPIKey(String apiKey) throws OAuthException {
+        MasheryJsonRpcRequest masheryJsonRpcRequest = new MasheryJsonRpcRequest();
+        masheryJsonRpcRequest.setMethod("object.query");
+
+        masheryJsonRpcRequest.getParams().add("SELECT * FROM applications REQUIRE RELATED keys WITH apikey ='"+apiKey+"'");
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<MasheryJsonRpcRequest> request = new HttpEntity<>(masheryJsonRpcRequest, headers);
+
+        WrappedMasheryApplicationQueryResult wrappedMasheryApplicationQueryResult;
+
+        try {
+            wrappedMasheryApplicationQueryResult = restTemplate.postForObject(java.net.URI.create(buildUrl()), request, WrappedMasheryApplicationQueryResult.class);
+        } catch (RestClientException e) {
+            throw convertException(e);
+        }
+
+        return wrappedMasheryApplicationQueryResult != null ? wrappedMasheryApplicationQueryResult.getResult().getItems() : new HashSet<>();
+    }
+
     @Cacheable(value = "masheryMembers")
     public MasheryMember fetchMember(String username) throws OAuthException {
 

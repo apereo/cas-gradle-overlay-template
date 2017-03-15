@@ -45,7 +45,7 @@ public class OAuthService implements ApplicationListener<UserAccountRemovedEvent
     private String crmServiceKey;
 
     @Value("${mashery.dev.mode}")
-    private boolean devMode = false;
+    private boolean devMode = true;
 
     @Override
     public void onApplicationEvent(UserAccountRemovedEvent userAccountRemovedEvent) {
@@ -60,7 +60,13 @@ public class OAuthService implements ApplicationListener<UserAccountRemovedEvent
         MasheryOAuthApplication masheryOAuthApplication = masheryApiClientService.fetchOAuthApplication(serviceKey, clientId, redirectUri, responseType);
         MasheryApplication masheryApplication = masheryApiClientService.fetchApplication(masheryOAuthApplication.getId());
         MasheryMember masheryMember = masheryApiClientService.fetchMember(masheryApplication.getUsername());
-        return new OAuthApplication(Objects.toString(masheryOAuthApplication.getId(), null), masheryApplication.getUuid(), masheryApplication.getName(), masheryApplication.getDescription(), masheryMember.getDisplayName(), masheryMember.getUsername());
+        return new OAuthApplication(
+                Objects.toString(masheryOAuthApplication.getId(), null),
+                masheryApplication.getUuid(),
+                masheryApplication.getName(),
+                masheryApplication.getDescription(),
+                masheryMember.getDisplayName(),
+                masheryMember.getUsername());
     }
 
     public String createAuthorizationCode(String serviceKey, String clientId, String requestedScope, String application, String redirectUri, Long globalUserId, String state) throws OAuthException {
