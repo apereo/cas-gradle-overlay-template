@@ -7,7 +7,6 @@ $(document).ready(function () {
             errorElement: "span",
             errorClass: "help-block",
             errorPlacement: function (error, element) {
-                console.log('error placement');
                 element.after('<span class="is-icon is-icon-error form-control-feedback"><object type="image/svg+xml" tabindex="-1" data="/img/ic-message-danger.svg?b=${version}" width="4" height="16"></object></span>');
                 element.after(error);
 
