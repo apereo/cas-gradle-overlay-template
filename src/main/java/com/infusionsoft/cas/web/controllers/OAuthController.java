@@ -40,16 +40,16 @@ import java.util.Map;
 public class OAuthController {
 
     @Autowired
-    CrmService crmService;
+    private CrmService crmService;
 
     @Autowired
-    OAuthService oauthService;
+    private OAuthService oauthService;
 
     @Autowired
-    UserService userService;
+    private UserService userService;
 
     @Autowired
-    OAuthExceptionHandler oAuthExceptionHandler;
+    private OAuthExceptionHandler oAuthExceptionHandler;
 
     @Value("${mashery.api.crm.service.key}")
     private String crmServiceKey;
@@ -132,9 +132,7 @@ public class OAuthController {
                 throw new OAuthAccessDeniedException();
             }
 
-            /**
-             * The scope is the application for these grant type
-             */
+            // The scope is the application for this grant type
             return oauthService.createAccessToken(serviceKey, oAuthAuthenticationToken.getClientId(), oAuthAuthenticationToken.getClientSecret(), oAuthAuthenticationToken.getGrantType(), oAuthAuthenticationToken.getScope(), oAuthAuthenticationToken.getApplication(), user.getId().toString(), refreshToken);
         } else {
             throw new OAuthInvalidRequestException();
@@ -157,6 +155,9 @@ public class OAuthController {
             String userId;
             String refreshToken = null;
             final OAuthServiceConfig serviceConfig = token.getServiceConfig();
+            if (serviceConfig == null) {
+                throw new OAuthInvalidRequestException("oauth.exception.service.missing");
+            }
 
             if (token instanceof OAuthRefreshAuthenticationToken) {
                 refreshToken = ((OAuthRefreshAuthenticationToken) token).getRefreshToken();
@@ -176,9 +177,7 @@ public class OAuthController {
                 throw new OAuthAccessDeniedException();
             }
 
-            /**
-             * The scope is the application for these grant type
-             */
+            // The scope is the application for these grant types
             return oauthService.createAccessToken(serviceConfig.getServiceKey(), token.getClientId(), token.getClientSecret(), token.getGrantType(), token.getScope(), token.getApplication(), userId, refreshToken);
         } else {
             throw new OAuthInvalidRequestException();
@@ -224,7 +223,7 @@ public class OAuthController {
      */
     @RequestMapping
     public ModelAndView manageAccounts(Long userId, Long infusionsoftAccountId) throws OAuthException {
-        Map<String, Object> model = new HashMap<String, Object>();
+        Map<String, Object> model = new HashMap<>();
         User user = userService.loadUser(userId);
         UserAccount ua = userService.findUserAccount(user, infusionsoftAccountId);
         model.put("appsGrantedAccess", oauthService.fetchUserApplicationsByUserAccount(crmServiceKey, ua));
