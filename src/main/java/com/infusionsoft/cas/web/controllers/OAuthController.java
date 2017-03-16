@@ -61,8 +61,8 @@ public class OAuthController {
         return "default_views".equals(viewResolverBaseName) ? "" : viewResolverBaseName + "/";
     }
 
-    @ExceptionHandler(OAuthException.class)
-    public ModelAndView handleOAuthException(OAuthException e, HttpServletRequest request, HttpServletResponse response) {
+    @ExceptionHandler(Exception.class)
+    public ModelAndView handleOAuthException(Exception e, HttpServletRequest request, HttpServletResponse response) {
         return oAuthExceptionHandler.resolveException(request, response, null, e);
     }
 
