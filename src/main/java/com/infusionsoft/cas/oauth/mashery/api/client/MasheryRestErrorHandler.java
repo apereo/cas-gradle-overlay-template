@@ -1,8 +1,6 @@
 package com.infusionsoft.cas.oauth.mashery.api.client;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.infusionsoft.cas.oauth.exceptions.OAuthServerErrorException;
-import com.infusionsoft.cas.oauth.exceptions.OAuthUnauthorizedClientException;
 import com.infusionsoft.cas.oauth.mashery.api.wrappers.MasheryResult;
 import org.apache.commons.lang3.text.StrBuilder;
 import org.slf4j.Logger;

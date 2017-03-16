@@ -1,5 +1,6 @@
 package com.infusionsoft.cas.auth;
 
+import com.infusionsoft.cas.oauth.exceptions.OAuthInvalidGrantException;
 import com.infusionsoft.cas.oauth.exceptions.OAuthInvalidRequestException;
 import com.infusionsoft.cas.oauth.exceptions.OAuthUnauthorizedClientException;
 import com.infusionsoft.cas.oauth.services.OAuthService;
@@ -32,6 +33,8 @@ public class OAuthResourceOwnerAuthenticationProvider implements AuthenticationP
             LoginResult loginResult = infusionsoftAuthenticationService.attemptLogin(token.getPrincipal().toString(), token.getCredentials().toString());
             if (loginResult.getLoginStatus().isSuccessful()) {
                 retVal = new OAuthResourceOwnerAuthenticationToken(loginResult.getUser(), null, token.getServiceConfig(), token.getClientId(), token.getClientSecret(), token.getScope(), token.getGrantType(), token.getApplication(), loginResult.getUser().getAuthorities());
+            } else {
+                throw new OAuthInvalidGrantException();
             }
         } else {
             throw new OAuthUnauthorizedClientException("oauth.exception.client.not.trusted.mobile");

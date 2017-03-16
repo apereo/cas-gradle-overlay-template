@@ -1,8 +1,8 @@
 package com.infusionsoft.cas.oauth.mashery.api.client;
 
 import com.infusionsoft.cas.oauth.exceptions.OAuthException;
+import com.infusionsoft.cas.oauth.exceptions.OAuthInvalidClientException;
 import com.infusionsoft.cas.oauth.exceptions.OAuthServerErrorException;
-import com.infusionsoft.cas.oauth.exceptions.OAuthUnauthorizedClientException;
 import com.infusionsoft.cas.oauth.mashery.api.domain.*;
 import com.infusionsoft.cas.oauth.mashery.api.wrappers.*;
 import com.infusionsoft.cas.support.InfusionsoftObjectMapper;
@@ -195,7 +195,7 @@ public class MasheryApiClientService {
             throw convertException(e);
         }
 
-        if(wrappedMasheryMember.getResult().getTotalItems() != 1) {
+        if (wrappedMasheryMember.getResult().getTotalItems() != 1) {
             throw new OAuthServerErrorException("oauth.exception.missing.member");
         } else {
             return wrappedMasheryMember.getResult().getItems().iterator().next();
@@ -222,8 +222,8 @@ public class MasheryApiClientService {
             throw convertException(e);
         }
 
-        if(wrappedMasheryMember.getResult().getTotalItems() != 1) {
-            throw new OAuthServerErrorException("oauth.exception.missing.member");
+        if (wrappedMasheryMember.getResult().getTotalItems() != 1) {
+            throw new OAuthInvalidClientException();
         } else {
             return wrappedMasheryMember.getResult().getItems().iterator().next().getMember();
         }
@@ -317,7 +317,7 @@ public class MasheryApiClientService {
 
             switch (errorCode) {
                 case MASHERY_BAD_CLIENT_ID:
-                    return new OAuthUnauthorizedClientException("oauth.exception.unable.to.create.access.token");
+                    return new OAuthInvalidClientException();
 
                 default:
                     return new OAuthServerErrorException(e);

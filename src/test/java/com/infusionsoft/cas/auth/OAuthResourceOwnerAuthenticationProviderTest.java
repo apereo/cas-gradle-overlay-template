@@ -2,6 +2,7 @@ package com.infusionsoft.cas.auth;
 
 import com.infusionsoft.cas.domain.OAuthServiceConfig;
 import com.infusionsoft.cas.domain.User;
+import com.infusionsoft.cas.oauth.exceptions.OAuthInvalidGrantException;
 import com.infusionsoft.cas.oauth.exceptions.OAuthInvalidRequestException;
 import com.infusionsoft.cas.oauth.exceptions.OAuthUnauthorizedClientException;
 import com.infusionsoft.cas.oauth.services.OAuthService;
@@ -77,15 +78,13 @@ public class OAuthResourceOwnerAuthenticationProviderTest {
         providerToTest.authenticate(token);
     }
 
-    @Test
+    @Test(expected = OAuthInvalidGrantException.class)
     public void testAuthenticateFailFailedLogin() throws Exception {
         OAuthResourceOwnerAuthenticationToken token = new OAuthResourceOwnerAuthenticationToken(username, password, oAuthServiceConfig, clientId, clientSecret, scope, grantType, application);
         doReturn(true).when(oAuthService).isClientAuthorizedForResourceOwnerGrantType(clientId);
         doReturn(LoginResult.BadPassword(user)).when(infusionsoftAuthenticationService).attemptLogin(username, password);
 
-        Authentication actualReturn = providerToTest.authenticate(token);
-
-        Assert.assertNull(actualReturn);
+        providerToTest.authenticate(token);
     }
 
     @Test(expected = NullPointerException.class)

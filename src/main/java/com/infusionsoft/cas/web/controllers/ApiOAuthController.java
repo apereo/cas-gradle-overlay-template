@@ -2,8 +2,8 @@ package com.infusionsoft.cas.web.controllers;
 
 import com.infusionsoft.cas.api.domain.APIErrorDTO;
 import com.infusionsoft.cas.oauth.dto.OAuthApplication;
+import com.infusionsoft.cas.oauth.exceptions.OAuthInvalidClientException;
 import com.infusionsoft.cas.oauth.exceptions.OAuthServerErrorException;
-import com.infusionsoft.cas.oauth.exceptions.OAuthUnauthorizedClientException;
 import com.infusionsoft.cas.oauth.mashery.api.client.MasheryApiException;
 import com.infusionsoft.cas.oauth.services.OAuthService;
 import org.apache.log4j.Logger;
@@ -57,7 +57,7 @@ public class ApiOAuthController {
         try {
             final OAuthApplication oAuthApplication = oAuthService.fetchApplication(serviceKey, clientId, null, null);
             return new ResponseEntity<>(oAuthApplication, HttpStatus.OK);
-        } catch (OAuthUnauthorizedClientException e) {
+        } catch (OAuthInvalidClientException e) {
             // This exception happens if the client ID is wrong
             return new ResponseEntity<>(new APIErrorDTO("cas.exception.clientId.notFound", messageSource, new Object[]{clientId}, locale), HttpStatus.NOT_FOUND);
         } catch (OAuthServerErrorException e) {
