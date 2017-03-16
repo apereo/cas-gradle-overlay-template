@@ -27,12 +27,12 @@ public class OAuthClientCredentialsTokenProviderTest {
     @Test
     public void testValidToken() {
         OAuthAuthenticationToken authToken = oAuthClientCredentialsTokenProvider.createAuthenticationToken(req, resp, "full", "application", "client_credentials", null, "clientId", "clientSecret");
-        Assert.assertTrue("clientId".equals(authToken.getClientId()));
-        Assert.assertTrue("full".equals(authToken.getScope()));
-        Assert.assertTrue("application".equals(authToken.getApplication()));
-        Assert.assertTrue("client_credentials".equals(authToken.getGrantType()));
-        Assert.assertTrue("service:clientId".equals(authToken.getPrincipal()));
-        Assert.assertTrue("clientSecret".equals(authToken.getClientSecret()));
+        Assert.assertEquals("clientId", authToken.getClientId());
+        Assert.assertEquals("full", authToken.getScope());
+        Assert.assertEquals("application", authToken.getApplication());
+        Assert.assertEquals("client_credentials", authToken.getGrantType());
+        Assert.assertNull(authToken.getPrincipal());
+        Assert.assertEquals("clientSecret", authToken.getClientSecret());
     }
 
     @Test

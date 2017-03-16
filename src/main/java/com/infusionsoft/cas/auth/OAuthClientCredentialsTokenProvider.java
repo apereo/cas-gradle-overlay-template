@@ -29,6 +29,6 @@ public class OAuthClientCredentialsTokenProvider implements OAuthFilterTokenProv
             throw new OAuthInvalidRequestException("oauth.exception.clientSecret.missing");
         }
 
-        return new OAuthClientCredentialsAuthenticationToken(oAuthServiceConfig, clientId, clientSecret, scope, grantType, application);
+        return new OAuthClientCredentialsAuthenticationToken(null, oAuthServiceConfig, clientId, clientSecret, scope, grantType, application);
     }
 }

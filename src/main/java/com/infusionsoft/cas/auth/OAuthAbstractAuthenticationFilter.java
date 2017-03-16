@@ -37,7 +37,7 @@ public abstract class OAuthAbstractAuthenticationFilter extends GenericFilterBea
     private AuthenticationManager authenticationManager;
 
     @Autowired
-    OAuthAuthenticationEntryPoint oAuthAuthenticationEntryPoint;
+    private OAuthAuthenticationEntryPoint oAuthAuthenticationEntryPoint;
 
     @Autowired
     private OAuthServiceConfigService oAuthServiceConfigService;
