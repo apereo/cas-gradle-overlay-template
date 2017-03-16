@@ -10,23 +10,23 @@ import org.mockito.MockitoAnnotations;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-public class OAuthClientCredentialsAuthenticationFilterTest {
+public class OAuthClientCredentialsTokenProviderTest {
     @Mock
     private HttpServletRequest req;
     @Mock
     private HttpServletResponse resp;
     @InjectMocks
-    private OAuthClientCredentialsAuthenticationFilter oAuthClientCredentialsAuthenticationFilter;
+    private OAuthClientCredentialsTokenProvider oAuthClientCredentialsTokenProvider;
 
     @Before
     public void beforeMethod() {
-        oAuthClientCredentialsAuthenticationFilter = new OAuthClientCredentialsAuthenticationFilter();
+        oAuthClientCredentialsTokenProvider = new OAuthClientCredentialsTokenProvider();
         MockitoAnnotations.initMocks(this);
     }
 
     @Test
     public void testValidToken() {
-        OAuthAuthenticationToken authToken = oAuthClientCredentialsAuthenticationFilter.createAuthenticationToken(req, resp, "full", "application", "client_credentials", null, "clientId", "clientSecret");
+        OAuthAuthenticationToken authToken = oAuthClientCredentialsTokenProvider.createAuthenticationToken(req, resp, "full", "application", "client_credentials", null, "clientId", "clientSecret");
         Assert.assertTrue("clientId".equals(authToken.getClientId()));
         Assert.assertTrue("full".equals(authToken.getScope()));
         Assert.assertTrue("application".equals(authToken.getApplication()));
@@ -37,7 +37,7 @@ public class OAuthClientCredentialsAuthenticationFilterTest {
 
     @Test
     public void testInValidGrantType() {
-        OAuthAuthenticationToken authToken = oAuthClientCredentialsAuthenticationFilter.createAuthenticationToken(req, resp, "full", "application", "invalid_grant_type", null, "clientId", "clientSecret");
+        OAuthAuthenticationToken authToken = oAuthClientCredentialsTokenProvider.createAuthenticationToken(req, resp, "full", "application", "invalid_grant_type", null, "clientId", "clientSecret");
         Assert.assertTrue(authToken == null);
     }
 }

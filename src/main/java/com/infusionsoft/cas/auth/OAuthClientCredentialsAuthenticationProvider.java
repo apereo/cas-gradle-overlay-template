@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 public class OAuthClientCredentialsAuthenticationProvider implements AuthenticationProvider {
 
     @Autowired
-    OAuthService oAuthService;
+    private OAuthService oAuthService;
 
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {

@@ -12,7 +12,7 @@ import org.mockito.MockitoAnnotations;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-public class OAuthResourceOwnerAuthenticationFilterTest {
+public class OAuthResourceOwnerTokenProviderTest {
     @Mock
     private HttpServletRequest req;
     @Mock
@@ -21,11 +21,11 @@ public class OAuthResourceOwnerAuthenticationFilterTest {
     private LogFactory logFactory;
     @Mock
     private Log log;
-    private OAuthResourceOwnerAuthenticationFilter oAuthResourceOwnerAuthenticationFilter;
+    private OAuthResourceOwnerTokenProvider oAuthResourceOwnerTokenProvider;
 
     @Before
     public void beforeMethod() {
-        oAuthResourceOwnerAuthenticationFilter = new OAuthResourceOwnerAuthenticationFilter();
+        oAuthResourceOwnerTokenProvider = new OAuthResourceOwnerTokenProvider();
         MockitoAnnotations.initMocks(this);
     }
 
@@ -33,7 +33,7 @@ public class OAuthResourceOwnerAuthenticationFilterTest {
     public void testValidToken() {
         Mockito.when(req.getParameter("username")).thenReturn("User123");
         Mockito.when(req.getParameter("password")).thenReturn("Password123");
-        OAuthAuthenticationToken authToken = oAuthResourceOwnerAuthenticationFilter.createAuthenticationToken(req, resp, "full", "application", "password", null, "clientId", "clientSecret");
+        OAuthAuthenticationToken authToken = oAuthResourceOwnerTokenProvider.createAuthenticationToken(req, resp, "full", "application", "password", null, "clientId", "clientSecret");
         Assert.assertTrue("clientId".equals(authToken.getClientId()));
         Assert.assertTrue("full".equals(authToken.getScope()));
         Assert.assertTrue("application".equals(authToken.getApplication()));
@@ -46,7 +46,7 @@ public class OAuthResourceOwnerAuthenticationFilterTest {
     public void testInValidGrantType() {
         Mockito.when(req.getParameter("username")).thenReturn("User123");
         Mockito.when(req.getParameter("password")).thenReturn("Password123");
-        OAuthAuthenticationToken authToken = oAuthResourceOwnerAuthenticationFilter.createAuthenticationToken(req, resp, "full", "application", "invalid_grant_type", null, "clientId", "clientSecret");
+        OAuthAuthenticationToken authToken = oAuthResourceOwnerTokenProvider.createAuthenticationToken(req, resp, "full", "application", "invalid_grant_type", null, "clientId", "clientSecret");
         Assert.assertTrue(authToken == null);
     }
 }

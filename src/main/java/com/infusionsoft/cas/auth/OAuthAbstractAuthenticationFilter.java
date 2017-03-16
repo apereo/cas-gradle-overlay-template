@@ -1,6 +1,9 @@
 package com.infusionsoft.cas.auth;
 
 import com.infusionsoft.cas.domain.OAuthServiceConfig;
+import com.infusionsoft.cas.oauth.exceptions.OAuthException;
+import com.infusionsoft.cas.oauth.exceptions.OAuthInvalidRequestException;
+import com.infusionsoft.cas.oauth.exceptions.OAuthServerErrorException;
 import com.infusionsoft.cas.services.OAuthServiceConfigService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -97,14 +100,24 @@ public abstract class OAuthAbstractAuthenticationFilter extends GenericFilterBea
             clientSecret = clientCredentials[1];
         }
 
-        return createAuthenticationToken(request, response, scope, application, grantType, oAuthServiceConfig, clientId, clientSecret);
+        if (StringUtils.isBlank(grantType)) {
+            throw new OAuthInvalidRequestException("oauth.exception.grantType.missing");
+        }
+
+        try {
+            return createAuthenticationToken(request, response, scope, application, grantType, oAuthServiceConfig, clientId, clientSecret);
+        } catch (OAuthException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new OAuthServerErrorException(e);
+        }
     }
 
     protected abstract OAuthAuthenticationToken createAuthenticationToken(HttpServletRequest request, HttpServletResponse response, String scope, String application, String grantType, OAuthServiceConfig oAuthServiceConfig, String clientId, String clientSecret);
 
     /**
      * Decodes the header into a username and password.
-     *
+     * <p>
      * Copied from BasicAuthenticationFilter
      *
      * @throws org.springframework.security.authentication.BadCredentialsException if the Basic header is not present or is not valid Base64

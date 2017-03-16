@@ -98,9 +98,7 @@ public class OAuthService implements ApplicationListener<UserAccountRemovedEvent
         if (devMode) {
             return new OAuthAccessToken(userContext, "bearer", 0, null, scope);
         } else {
-            /**
-             * Mashery does not support extend grants, so we are faking it by using a password
-             */
+            // Mashery does not support extend grants, so we are faking it by using the password
             if (isExtendedGrantType(grantType)) {
                 grantType = OAuthGrantType.RESOURCE_OWNER_CREDENTIALS.getValue();
             }

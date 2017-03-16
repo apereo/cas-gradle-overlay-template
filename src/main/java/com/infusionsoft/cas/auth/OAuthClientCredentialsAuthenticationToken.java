@@ -1,10 +1,6 @@
 package com.infusionsoft.cas.auth;
 
 import com.infusionsoft.cas.domain.OAuthServiceConfig;
-import com.infusionsoft.cas.domain.User;
-import org.springframework.security.core.GrantedAuthority;
-
-import java.util.Collection;
 
 /**
  * An Authentication Token that is used for the Client Credentials Grant Type

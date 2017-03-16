@@ -18,8 +18,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.UUID;
 
+/**
+ * A ticket granting ticket grant token provider
+ */
 @Component
-public class OAuthTicketGrantingTicketAuthenticationFilter extends OAuthAbstractAuthenticationFilter {
+public class OAuthTicketGrantingTicketTokenProvider implements OAuthFilterTokenProvider {
 
     @Autowired
     private InfusionsoftAuthenticationService infusionsoftAuthenticationService;
@@ -30,11 +33,15 @@ public class OAuthTicketGrantingTicketAuthenticationFilter extends OAuthAbstract
     private static final String USER_TRACKING_COOKIE_NAME = "userUUID";
 
     @Override
-    protected OAuthAuthenticationToken createAuthenticationToken(HttpServletRequest request, HttpServletResponse response, String scope, String application, String grantType, OAuthServiceConfig oAuthServiceConfig, String clientId, String clientSecret) {
+    public OAuthAuthenticationToken createAuthenticationToken(HttpServletRequest request, HttpServletResponse response, String scope, String application, String grantType, OAuthServiceConfig oAuthServiceConfig, String clientId, String clientSecret) {
         TicketGrantingTicket ticketGrantingTicket = infusionsoftAuthenticationService.getTicketGrantingTicket(request);
 
-        if (!OAuthGrantType.EXTENDED_TICKET_GRANTING_TICKET.isValueEqual(grantType) || clientId == null) {
+        if (!OAuthGrantType.EXTENDED_TICKET_GRANTING_TICKET.isValueEqual(grantType)) {
             return null;
+        }
+
+        if (StringUtils.isBlank(clientId)) {
+            throw new OAuthInvalidRequestException("oauth.exception.clientId.missing");
         }
 
         OAuthClient oAuthClient = oAuthClientService.loadOAuthClient(clientId);
