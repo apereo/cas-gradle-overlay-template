@@ -45,7 +45,7 @@ public class OAuthService implements ApplicationListener<UserAccountRemovedEvent
     private String crmServiceKey;
 
     @Value("${mashery.dev.mode}")
-    private boolean devMode = true;
+    private boolean devMode = false;
 
     @Override
     public void onApplicationEvent(UserAccountRemovedEvent userAccountRemovedEvent) {
