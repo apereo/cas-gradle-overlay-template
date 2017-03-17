@@ -176,11 +176,11 @@ public class MasheryApiClientService {
         return wrappedMasheryOAuthApplication.getResult();
     }
 
-    public Set<MasheryApplication> fetchApplicationsByAPIKey(String apiKey) throws OAuthException {
+    public Set<MasheryApplication> fetchApplicationsByClientId(String clientId) throws OAuthException {
         MasheryJsonRpcRequest masheryJsonRpcRequest = new MasheryJsonRpcRequest();
         masheryJsonRpcRequest.setMethod("object.query");
 
-        masheryJsonRpcRequest.getParams().add("SELECT * FROM applications REQUIRE RELATED keys WITH apikey ='"+apiKey+"'");
+        masheryJsonRpcRequest.getParams().add("SELECT * FROM applications REQUIRE RELATED keys WITH apikey ='"+ clientId +"'");
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);

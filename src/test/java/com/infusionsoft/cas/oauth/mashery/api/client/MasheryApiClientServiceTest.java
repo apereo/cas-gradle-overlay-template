@@ -275,7 +275,7 @@ public class MasheryApiClientServiceTest {
         when(restTemplate.postForObject(any(URI.class), anyObject(), any(Class.class))).thenReturn(wrappedMasheryApplicationQueryResult);
 
         // verify result
-        Set<MasheryApplication> methodTestResults = masheryServiceToTest.fetchApplicationsByAPIKey(TEST_APIKEY);
+        Set<MasheryApplication> methodTestResults = masheryServiceToTest.fetchApplicationsByClientId(TEST_APIKEY);
         Assert.assertEquals(methodTestResults,masheryApplications);
 
         verifyCallToMashery("object.query", Arrays.asList(new Object[]{"SELECT * FROM applications REQUIRE RELATED keys WITH apikey ='" + TEST_APIKEY + "'"}), URI.class);

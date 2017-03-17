@@ -78,6 +78,28 @@ public class ApiOAuthController {
         }
     }
 
+    /**
+     * A simple REST endpoint for getting applications based on api key.
+     *
+     * @param clientId clientId
+     * @param locale locale
+     * @return ResponseEntity
+     */
+    @RequestMapping(value = "/applications", method = RequestMethod.GET)
+    @ResponseBody
+    public ResponseEntity get(String clientId, String apiKey, Locale locale) {
+        // Validate the API key
+        ResponseEntity apiKeyResponse = validateApiKey(apiKey, locale);
+        if (apiKeyResponse != null) {
+            return apiKeyResponse;
+        }
+        try {
+            return new ResponseEntity<>(oAuthService.fetchApplications(clientId), HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(new APIErrorDTO("cas.exception.general", messageSource, new Object[]{e.getMessage()}, locale), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     private ResponseEntity createErrorResponse(Exception e, String serviceKey, String clientId, Locale locale) {
         final APIErrorDTO error = new APIErrorDTO("cas.exception.getAppInfo.failure", messageSource, new Object[]{serviceKey, clientId}, locale);
         return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
