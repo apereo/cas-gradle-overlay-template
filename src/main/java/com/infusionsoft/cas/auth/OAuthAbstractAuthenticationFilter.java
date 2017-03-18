@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -120,7 +119,7 @@ public abstract class OAuthAbstractAuthenticationFilter extends GenericFilterBea
      * <p>
      * Copied from BasicAuthenticationFilter
      *
-     * @throws org.springframework.security.authentication.BadCredentialsException if the Basic header is not present or is not valid Base64
+     * @throws OAuthInvalidRequestException if the Basic header is not present or is not valid Base64
      */
     private String[] extractAndDecodeHeader(String header) throws IOException {
 
@@ -129,7 +128,7 @@ public abstract class OAuthAbstractAuthenticationFilter extends GenericFilterBea
         try {
             decoded = Base64.decode(base64Token);
         } catch (IllegalArgumentException e) {
-            throw new BadCredentialsException("Failed to decode basic authentication token");
+            throw new OAuthInvalidRequestException("oauth.exception.clientId.bad");
         }
 
         String token = new String(decoded, credentialsCharset);
@@ -137,7 +136,7 @@ public abstract class OAuthAbstractAuthenticationFilter extends GenericFilterBea
         int delim = token.indexOf(":");
 
         if (delim == -1) {
-            throw new BadCredentialsException("Invalid basic authentication token");
+            throw new OAuthInvalidRequestException("oauth.exception.clientSecret.bad");
         }
         return new String[]{token.substring(0, delim), token.substring(delim + 1)};
     }
