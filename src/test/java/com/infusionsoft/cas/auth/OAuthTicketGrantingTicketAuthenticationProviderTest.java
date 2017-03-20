@@ -165,8 +165,10 @@ public class OAuthTicketGrantingTicketAuthenticationProviderTest {
 
         if (shouldBeAnonymous) {
             Assert.assertEquals(actualReturnToken.getPrincipal(), "anonymous-" + trackingUUID);
+            Assert.assertFalse(actualReturnToken.isAuthenticated());
         } else {
             Assert.assertEquals(actualReturnToken.getPrincipal(), user);
+            Assert.assertTrue(actualReturnToken.isAuthenticated());
         }
 
         Assert.assertEquals(actualReturnToken.getCredentials(), null);
@@ -178,7 +180,6 @@ public class OAuthTicketGrantingTicketAuthenticationProviderTest {
         Assert.assertEquals(actualReturnToken.getApplication(), expectedReturn.getApplication());
         Assert.assertEquals(actualReturnToken.getTrackingUUID(), expectedReturn.getTrackingUUID());
         Assert.assertEquals(actualReturnToken.getTicketGrantingTicket(), expectedReturn.getTicketGrantingTicket());
-        Assert.assertTrue(actualReturnToken.isAuthenticated());
     }
 
 }
