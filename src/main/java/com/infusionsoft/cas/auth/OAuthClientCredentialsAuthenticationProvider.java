@@ -21,27 +21,22 @@ public class OAuthClientCredentialsAuthenticationProvider implements Authenticat
 
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-        OAuthClientCredentialsAuthenticationToken retVal = null;
         OAuthClientCredentialsAuthenticationToken token = (OAuthClientCredentialsAuthenticationToken) authentication;
 
-        if (token != null) {
-            final String clientId = token.getClientId();
-            if (oAuthService.isClientAuthorizedForClientCredentialsGrantType(clientId)) {
-                final OAuthServiceConfig serviceConfig = token.getServiceConfig();
-                if (serviceConfig == null) {
-                    throw new OAuthInvalidRequestException("oauth.exception.service.key.not.found");
-                }
-
-                final OAuthApplication application = oAuthService.fetchApplication(serviceConfig.getServiceKey(), clientId, null, "code");
-                final UUID applicationUuid = application.getUuid();
-
-                retVal = new OAuthClientCredentialsAuthenticationToken(applicationUuid.toString(), serviceConfig, clientId, token.getClientSecret(), token.getScope(), token.getGrantType(), token.getApplication());
-            } else {
-                throw new OAuthUnauthorizedClientException("oauth.exception.client.not.trusted.service");
+        final String clientId = token.getClientId();
+        if (oAuthService.isClientAuthorizedForClientCredentialsGrantType(clientId)) {
+            final OAuthServiceConfig serviceConfig = token.getServiceConfig();
+            if (serviceConfig == null) {
+                throw new OAuthInvalidRequestException("oauth.exception.service.key.not.found");
             }
-        }
 
-        return retVal;
+            final OAuthApplication application = oAuthService.fetchApplication(serviceConfig.getServiceKey(), clientId, null, "code");
+            final UUID applicationUuid = application.getUuid();
+
+            return new OAuthClientCredentialsAuthenticationToken(applicationUuid.toString(), serviceConfig, clientId, token.getClientSecret(), token.getScope(), token.getGrantType(), token.getApplication(), null);
+        } else {
+            throw new OAuthUnauthorizedClientException("oauth.exception.client.not.trusted.service");
+        }
     }
 
     @Override

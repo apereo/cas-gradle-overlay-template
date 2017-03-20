@@ -1,5 +1,6 @@
 package com.infusionsoft.cas.auth;
 
+import com.infusionsoft.cas.oauth.exceptions.OAuthInvalidRequestException;
 import com.infusionsoft.cas.oauth.exceptions.OAuthUnauthorizedClientException;
 import com.infusionsoft.cas.oauth.services.OAuthService;
 import com.infusionsoft.cas.services.InfusionsoftAuthenticationService;
@@ -13,25 +14,27 @@ import org.springframework.stereotype.Component;
 public class OAuthResourceOwnerAuthenticationProvider implements AuthenticationProvider {
 
     @Autowired
-    InfusionsoftAuthenticationService infusionsoftAuthenticationService;
+    private InfusionsoftAuthenticationService infusionsoftAuthenticationService;
 
     @Autowired
-    OAuthService oAuthService;
+    private OAuthService oAuthService;
 
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
         OAuthResourceOwnerAuthenticationToken retVal = null;
-        OAuthResourceOwnerAuthenticationToken oAuthResourceOwnerAuthenticationToken = (OAuthResourceOwnerAuthenticationToken) authentication;
+        OAuthResourceOwnerAuthenticationToken token = (OAuthResourceOwnerAuthenticationToken) authentication;
 
-        if (oAuthResourceOwnerAuthenticationToken != null) {
-            if (oAuthService.isClientAuthorizedForResourceOwnerGrantType(oAuthResourceOwnerAuthenticationToken.getClientId())) {
-                LoginResult loginResult = infusionsoftAuthenticationService.attemptLogin(oAuthResourceOwnerAuthenticationToken.getPrincipal().toString(), oAuthResourceOwnerAuthenticationToken.getCredentials().toString());
-                if (loginResult.getLoginStatus().isSuccessful()) {
-                    retVal = new OAuthResourceOwnerAuthenticationToken(loginResult.getUser(), null, oAuthResourceOwnerAuthenticationToken.getServiceConfig(), oAuthResourceOwnerAuthenticationToken.getClientId(), oAuthResourceOwnerAuthenticationToken.getClientSecret(), oAuthResourceOwnerAuthenticationToken.getScope(), oAuthResourceOwnerAuthenticationToken.getGrantType(), oAuthResourceOwnerAuthenticationToken.getApplication(), loginResult.getUser().getAuthorities());
-                }
-            } else {
-                throw new OAuthUnauthorizedClientException("oauth.exception.client.not.trusted.mobile");
+        if (token.getServiceConfig() == null) {
+            throw new OAuthInvalidRequestException("oauth.exception.service.key.not.found");
+        }
+
+        if (oAuthService.isClientAuthorizedForResourceOwnerGrantType(token.getClientId())) {
+            LoginResult loginResult = infusionsoftAuthenticationService.attemptLogin(token.getPrincipal().toString(), token.getCredentials().toString());
+            if (loginResult.getLoginStatus().isSuccessful()) {
+                retVal = new OAuthResourceOwnerAuthenticationToken(loginResult.getUser(), null, token.getServiceConfig(), token.getClientId(), token.getClientSecret(), token.getScope(), token.getGrantType(), token.getApplication(), loginResult.getUser().getAuthorities());
             }
+        } else {
+            throw new OAuthUnauthorizedClientException("oauth.exception.client.not.trusted.mobile");
         }
 
         return retVal;

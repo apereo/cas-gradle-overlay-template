@@ -1,6 +1,5 @@
 package com.infusionsoft.cas.auth;
 
-import com.infusionsoft.cas.domain.OAuthClient;
 import com.infusionsoft.cas.domain.OAuthServiceConfig;
 import com.infusionsoft.cas.domain.User;
 import com.infusionsoft.cas.oauth.exceptions.OAuthAccessDeniedException;
@@ -39,7 +38,6 @@ public class OAuthTicketGrantingTicketAuthenticationProviderTest {
     @Mock
     private OAuthServiceConfig oAuthServiceConfig;
 
-    private static final OAuthClient oAuthClient = new OAuthClient();
     private static final String scope = "scope";
     private static final String application = "application";
     private static final String grantType = "urn:infusionsoft:params:oauth:grant-type:ticket-granting-ticket";
@@ -180,6 +178,7 @@ public class OAuthTicketGrantingTicketAuthenticationProviderTest {
         Assert.assertEquals(actualReturnToken.getApplication(), expectedReturn.getApplication());
         Assert.assertEquals(actualReturnToken.getTrackingUUID(), expectedReturn.getTrackingUUID());
         Assert.assertEquals(actualReturnToken.getTicketGrantingTicket(), expectedReturn.getTicketGrantingTicket());
+        Assert.assertTrue(actualReturnToken.isAuthenticated());
     }
 
 }
