@@ -16,7 +16,7 @@ import javax.servlet.http.HttpServletResponse;
 public class OAuthClientCredentialsTokenProvider implements OAuthFilterTokenProvider {
 
     @Override
-    public OAuthAuthenticationToken createAuthenticationToken(HttpServletRequest request, HttpServletResponse response, String scope, String application, String grantType, OAuthServiceConfig oAuthServiceConfig, String clientId, String clientSecret) {
+    public OAuthClientCredentialsAuthenticationToken createAuthenticationToken(HttpServletRequest request, HttpServletResponse response, String scope, String application, String grantType, OAuthServiceConfig oAuthServiceConfig, String clientId, String clientSecret) {
 
         if (!OAuthGrantType.CLIENT_CREDENTIALS.isValueEqual(grantType)) {
             return null;

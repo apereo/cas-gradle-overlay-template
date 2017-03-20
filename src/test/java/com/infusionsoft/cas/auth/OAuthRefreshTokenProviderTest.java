@@ -42,26 +42,30 @@ public class OAuthRefreshTokenProviderTest {
 
     @Test
     public void testValidToken() {
-        OAuthAuthenticationToken authToken = tokenProviderToTest.createAuthenticationToken(req, resp, scope, application, grantType, null, clientId, clientSecret);
+        doReturn(" refresh_token ").when(req).getParameter("refresh_token");
+        OAuthRefreshAuthenticationToken authToken = tokenProviderToTest.createAuthenticationToken(req, resp, scope, application, grantType, null, clientId, clientSecret);
         Assert.assertEquals(clientId, authToken.getClientId());
         Assert.assertNull(authToken.getScope());
         Assert.assertNull(authToken.getApplication());
         Assert.assertEquals(grantType, authToken.getGrantType());
         Assert.assertNull(authToken.getPrincipal());
         Assert.assertEquals(clientSecret, authToken.getClientSecret());
+        Assert.assertEquals("refresh_token", authToken.getRefreshToken());
         verify(resp, never()).setHeader(anyString(), anyString());
     }
 
     @Test
     public void testValidTokenWithOrigin() {
+        doReturn(" refresh_token ").when(req).getParameter("refresh_token");
         doReturn("originHeader").when(req).getHeader("Origin");
-        OAuthAuthenticationToken authToken = tokenProviderToTest.createAuthenticationToken(req, resp, scope, application, grantType, null, clientId, clientSecret);
+        OAuthRefreshAuthenticationToken authToken = tokenProviderToTest.createAuthenticationToken(req, resp, scope, application, grantType, null, clientId, clientSecret);
         Assert.assertEquals(clientId, authToken.getClientId());
         Assert.assertNull(authToken.getScope());
         Assert.assertNull(authToken.getApplication());
         Assert.assertEquals(grantType, authToken.getGrantType());
         Assert.assertNull(authToken.getPrincipal());
         Assert.assertEquals(clientSecret, authToken.getClientSecret());
+        Assert.assertEquals("refresh_token", authToken.getRefreshToken());
 
         verify(resp, times(1)).setHeader("Access-Control-Allow-Origin", "originHeader");
         verify(resp, times(1)).setHeader("Access-Control-Allow-Credentials", "true");
@@ -72,30 +76,39 @@ public class OAuthRefreshTokenProviderTest {
 
     @Test
     public void testValidTokenFromRegisteredClient() {
+        doReturn(" refresh_token ").when(req).getParameter("refresh_token");
         doReturn(oAuthClient).when(oAuthClientService).loadOAuthClient(clientId);
         doReturn("lookedUpClientSecret").when(oAuthClient).getClientSecret();
-        OAuthAuthenticationToken authToken = tokenProviderToTest.createAuthenticationToken(req, resp, scope, application, grantType, null, clientId, "");
+        OAuthRefreshAuthenticationToken authToken = tokenProviderToTest.createAuthenticationToken(req, resp, scope, application, grantType, null, clientId, "");
         Assert.assertEquals(clientId, authToken.getClientId());
         Assert.assertNull(authToken.getScope());
         Assert.assertNull(authToken.getApplication());
         Assert.assertEquals(grantType, authToken.getGrantType());
         Assert.assertNull(authToken.getPrincipal());
         Assert.assertEquals("lookedUpClientSecret", authToken.getClientSecret());
+        Assert.assertEquals("refresh_token", authToken.getRefreshToken());
     }
 
     @Test
     public void testInvalidGrantType() {
-        OAuthAuthenticationToken authToken = tokenProviderToTest.createAuthenticationToken(req, resp, scope, application, "invalid_grant_type", null, clientId, clientSecret);
+        OAuthRefreshAuthenticationToken authToken = tokenProviderToTest.createAuthenticationToken(req, resp, scope, application, "invalid_grant_type", null, clientId, clientSecret);
         Assert.assertTrue(authToken == null);
     }
 
     @Test(expected = OAuthInvalidRequestException.class)
+    public void testMissingRefreshToken() {
+        tokenProviderToTest.createAuthenticationToken(req, resp, scope, application, grantType, null, clientId, clientSecret);
+    }
+
+    @Test(expected = OAuthInvalidRequestException.class)
     public void testMissingClientId() {
+        doReturn("refresh_token").when(req).getParameter("refresh_token");
         tokenProviderToTest.createAuthenticationToken(req, resp, scope, application, grantType, null, "", clientSecret);
     }
 
     @Test(expected = OAuthInvalidClientException.class)
     public void testMissingClientSecret() {
+        doReturn("refresh_token").when(req).getParameter("refresh_token");
         tokenProviderToTest.createAuthenticationToken(req, resp, scope, application, grantType, null, clientId, "");
     }
 

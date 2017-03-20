@@ -33,7 +33,7 @@ public class OAuthRefreshTokenProvider implements OAuthFilterTokenProvider {
      * @param clientSecret       clientSecret
      */
     @Override
-    public OAuthAuthenticationToken createAuthenticationToken(HttpServletRequest request, HttpServletResponse response, String scope, String application, String grantType, OAuthServiceConfig oAuthServiceConfig, String clientId, String clientSecret) {
+    public OAuthRefreshAuthenticationToken createAuthenticationToken(HttpServletRequest request, HttpServletResponse response, String scope, String application, String grantType, OAuthServiceConfig oAuthServiceConfig, String clientId, String clientSecret) {
         String refreshToken = StringUtils.defaultString(request.getParameter("refresh_token")).trim();
 
         if (!OAuthGrantType.REFRESH.isValueEqual(grantType)) {
@@ -42,6 +42,9 @@ public class OAuthRefreshTokenProvider implements OAuthFilterTokenProvider {
 
         if (StringUtils.isBlank(clientId)) {
             throw new OAuthInvalidRequestException("oauth.exception.clientId.missing");
+        }
+        if (StringUtils.isBlank(refreshToken)) {
+            throw new OAuthInvalidRequestException("oauth.exception.refreshToken.missing");
         }
 
         if (StringUtils.isEmpty(clientSecret)) {

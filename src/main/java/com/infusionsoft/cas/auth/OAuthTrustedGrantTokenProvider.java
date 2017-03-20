@@ -21,9 +21,7 @@ public class OAuthTrustedGrantTokenProvider implements OAuthFilterTokenProvider 
     protected OAuthService oAuthService;
 
     @Override
-    public OAuthAuthenticationToken createAuthenticationToken(HttpServletRequest request, HttpServletResponse response, String scope, String application, String grantType, OAuthServiceConfig oAuthServiceConfig, String clientId, String clientSecret) {
-        final String globalUserIdString = request.getParameter("global_user_id");
-
+    public OAuthTrustedGrantAuthenticationToken createAuthenticationToken(HttpServletRequest request, HttpServletResponse response, String scope, String application, String grantType, OAuthServiceConfig oAuthServiceConfig, String clientId, String clientSecret) {
         if (!OAuthGrantType.EXTENDED_TRUSTED.isValueEqual(grantType)) {
             return null;
         }
@@ -35,6 +33,7 @@ public class OAuthTrustedGrantTokenProvider implements OAuthFilterTokenProvider 
             throw new OAuthInvalidRequestException("oauth.exception.clientSecret.missing");
         }
 
+        final String globalUserIdString = request.getParameter("global_user_id");
         if (StringUtils.isBlank(globalUserIdString)) {
             throw new OAuthInvalidRequestException("oauth.exception.userId.missing");
         }

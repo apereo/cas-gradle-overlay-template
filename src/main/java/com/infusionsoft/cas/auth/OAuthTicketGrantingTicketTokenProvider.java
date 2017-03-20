@@ -33,7 +33,7 @@ public class OAuthTicketGrantingTicketTokenProvider implements OAuthFilterTokenP
     private static final String USER_TRACKING_COOKIE_NAME = "userUUID";
 
     @Override
-    public OAuthAuthenticationToken createAuthenticationToken(HttpServletRequest request, HttpServletResponse response, String scope, String application, String grantType, OAuthServiceConfig oAuthServiceConfig, String clientId, String clientSecret) {
+    public OAuthTicketGrantingTicketAuthenticationToken createAuthenticationToken(HttpServletRequest request, HttpServletResponse response, String scope, String application, String grantType, OAuthServiceConfig oAuthServiceConfig, String clientId, String clientSecret) {
         TicketGrantingTicket ticketGrantingTicket = infusionsoftAuthenticationService.getTicketGrantingTicket(request);
 
         if (!OAuthGrantType.EXTENDED_TICKET_GRANTING_TICKET.isValueEqual(grantType)) {

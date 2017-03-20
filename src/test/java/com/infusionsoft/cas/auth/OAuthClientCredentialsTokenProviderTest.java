@@ -31,7 +31,7 @@ public class OAuthClientCredentialsTokenProviderTest {
 
     @Test
     public void testValidToken() {
-        OAuthAuthenticationToken authToken = tokenProviderToTest.createAuthenticationToken(req, resp, scope, application, grantType, null, clientId, clientSecret);
+        OAuthClientCredentialsAuthenticationToken authToken = tokenProviderToTest.createAuthenticationToken(req, resp, scope, application, grantType, null, clientId, clientSecret);
         Assert.assertEquals(clientId, authToken.getClientId());
         Assert.assertEquals(scope, authToken.getScope());
         Assert.assertEquals(application, authToken.getApplication());

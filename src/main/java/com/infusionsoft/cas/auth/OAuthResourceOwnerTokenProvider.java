@@ -16,7 +16,7 @@ import javax.servlet.http.HttpServletResponse;
 public class OAuthResourceOwnerTokenProvider implements OAuthFilterTokenProvider {
 
     @Override
-    public OAuthAuthenticationToken createAuthenticationToken(HttpServletRequest request, HttpServletResponse response, String scope, String application, String grantType, OAuthServiceConfig oAuthServiceConfig, String clientId, String clientSecret) {
+    public OAuthResourceOwnerAuthenticationToken createAuthenticationToken(HttpServletRequest request, HttpServletResponse response, String scope, String application, String grantType, OAuthServiceConfig oAuthServiceConfig, String clientId, String clientSecret) {
         String username = StringUtils.defaultString(request.getParameter("username")).trim();
         String password = StringUtils.defaultString(request.getParameter("password"));
 
@@ -30,10 +30,10 @@ public class OAuthResourceOwnerTokenProvider implements OAuthFilterTokenProvider
         if (StringUtils.isBlank(clientId)) {
             throw new OAuthInvalidRequestException("oauth.exception.clientId.missing");
         }
-        if (StringUtils.isBlank(clientId)) {
+        if (StringUtils.isBlank(username)) {
             throw new OAuthInvalidRequestException("oauth.exception.username.missing");
         }
-        if (StringUtils.isBlank(clientId)) {
+        if (StringUtils.isBlank(password)) {
             throw new OAuthInvalidRequestException("oauth.exception.password.missing");
         }
 
