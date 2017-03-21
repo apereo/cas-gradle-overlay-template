@@ -1,5 +1,6 @@
 package com.infusionsoft.cas.oauth.mashery.api.client;
 
+import com.infusionsoft.cas.oauth.dto.OAuthGrantType;
 import com.infusionsoft.cas.oauth.exceptions.OAuthException;
 import com.infusionsoft.cas.oauth.exceptions.OAuthInvalidClientException;
 import com.infusionsoft.cas.oauth.exceptions.OAuthServerErrorException;
@@ -233,6 +234,11 @@ public class MasheryApiClientService {
         MasheryJsonRpcRequest masheryJsonRpcRequest = new MasheryJsonRpcRequest();
         masheryJsonRpcRequest.setMethod("oauth2.createAccessToken");
 
+        // Mashery does not support extend grants, so we are faking it by using the password
+        if (isExtendedGrantType(grant_type)) {
+            grant_type = OAuthGrantType.RESOURCE_OWNER_CREDENTIALS.getValue();
+        }
+
         masheryJsonRpcRequest.getParams().add(serviceKey);
         masheryJsonRpcRequest.getParams().add(new MasheryClient(clientId, clientSecret));
         masheryJsonRpcRequest.getParams().add(new MasheryTokenData(grant_type, scope, null, null, refreshToken));
@@ -252,6 +258,10 @@ public class MasheryApiClientService {
         }
 
         return wrappedMasheryCreateAccessTokenResponse != null ? wrappedMasheryCreateAccessTokenResponse.getResult() : null;
+    }
+
+    private static boolean isExtendedGrantType(String grantType) {
+        return OAuthGrantType.EXTENDED_TRUSTED.isValueEqual(grantType) || OAuthGrantType.EXTENDED_TICKET_GRANTING_TICKET.isValueEqual(grantType);
     }
 
     public MasheryAccessToken fetchAccessToken(String serviceKey, String accessToken) throws OAuthException {

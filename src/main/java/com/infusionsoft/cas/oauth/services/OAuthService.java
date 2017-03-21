@@ -98,14 +98,19 @@ public class OAuthService implements ApplicationListener<UserAccountRemovedEvent
         if (devMode) {
             return new OAuthAccessToken(userContext, "bearer", 0, null, scope);
         } else {
-            // Mashery does not support extend grants, so we are faking it by using the password
-            if (isExtendedGrantType(grantType)) {
-                grantType = OAuthGrantType.RESOURCE_OWNER_CREDENTIALS.getValue();
-            }
-
             MasheryCreateAccessTokenResponse masheryCreateAccessTokenResponse = masheryApiClientService.createAccessToken(providedServiceKey, clientId, clientSecret, grantType, scope, userContext, refreshToken);
-            return new OAuthAccessToken(masheryCreateAccessTokenResponse.getAccess_token(), masheryCreateAccessTokenResponse.getToken_type(), masheryCreateAccessTokenResponse.getExpires_in(), masheryCreateAccessTokenResponse.getRefresh_token(), masheryCreateAccessTokenResponse.getScope());
+            return new OAuthAccessToken(
+                    masheryCreateAccessTokenResponse.getAccess_token(),
+                    masheryCreateAccessTokenResponse.getToken_type(),
+                    masheryCreateAccessTokenResponse.getExpires_in(),
+                    shouldIncludeRefreshToken(grantType) ? masheryCreateAccessTokenResponse.getRefresh_token() : null,
+                    masheryCreateAccessTokenResponse.getScope()
+            );
         }
+    }
+
+    private static boolean shouldIncludeRefreshToken(String grantType) {
+        return !(OAuthGrantType.CLIENT_CREDENTIALS.isValueEqual(grantType) || OAuthGrantType.EXTENDED_TICKET_GRANTING_TICKET.isValueEqual(grantType));
     }
 
     public Boolean revokeAccessToken(String serviceKey, String clientId, String accessToken) throws OAuthException {
@@ -168,10 +173,6 @@ public class OAuthService implements ApplicationListener<UserAccountRemovedEvent
         }
 
         return revokeSuccessful;
-    }
-
-    public boolean isExtendedGrantType(String grantType) {
-        return OAuthGrantType.EXTENDED_TRUSTED.isValueEqual(grantType) || OAuthGrantType.EXTENDED_TICKET_GRANTING_TICKET.isValueEqual(grantType);
     }
 
     public boolean isClientAuthorizedForTrustedGrantType(String clientId) throws OAuthException {
