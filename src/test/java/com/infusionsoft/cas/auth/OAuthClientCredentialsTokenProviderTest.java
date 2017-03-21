@@ -3,7 +3,9 @@ package com.infusionsoft.cas.auth;
 import com.infusionsoft.cas.oauth.exceptions.OAuthInvalidRequestException;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
@@ -19,8 +21,12 @@ public class OAuthClientCredentialsTokenProviderTest {
 
     @Mock
     private HttpServletRequest req;
+
     @Mock
     private HttpServletResponse resp;
+
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
 
     private OAuthClientCredentialsTokenProvider tokenProviderToTest = new OAuthClientCredentialsTokenProvider();
 
@@ -46,13 +52,19 @@ public class OAuthClientCredentialsTokenProviderTest {
         Assert.assertTrue(authToken == null);
     }
 
-    @Test(expected = OAuthInvalidRequestException.class)
+    @Test
     public void testMissingClientId() {
+        thrown.expect(OAuthInvalidRequestException.class);
+        thrown.expectMessage("oauth.exception.clientId.missing");
+
         tokenProviderToTest.createAuthenticationToken(req, resp, scope, application, grantType, null, "", clientSecret);
     }
 
-    @Test(expected = OAuthInvalidRequestException.class)
+    @Test
     public void testMissingClientSecret() {
+        thrown.expect(OAuthInvalidRequestException.class);
+        thrown.expectMessage("oauth.exception.clientSecret.missing");
+
         tokenProviderToTest.createAuthenticationToken(req, resp, scope, application, grantType, null, clientId, "");
     }
 

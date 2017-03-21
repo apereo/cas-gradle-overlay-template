@@ -16,15 +16,14 @@ public class OAuthRefreshAuthenticationProvider implements AuthenticationProvide
         String clientId = token.getClientId();
 
         if (token.getServiceConfig() == null) {
-            throw new OAuthInvalidRequestException("oauth.exception.service.key.not.found");
+            throw new OAuthInvalidRequestException("oauth.exception.service.missing");
         }
 
         String refreshToken = token.getRefreshToken();
-        if (StringUtils.isNotBlank(refreshToken)) {
-            return new OAuthRefreshAuthenticationToken(null, null, token.getServiceConfig(), clientId, token.getClientSecret(), token.getGrantType(), refreshToken, null);
-        } else {
-            return null;
+        if (StringUtils.isBlank(refreshToken)) {
+            throw new OAuthInvalidRequestException("oauth.exception.refreshToken.missing");
         }
+        return new OAuthRefreshAuthenticationToken(null, null, token.getServiceConfig(), clientId, token.getClientSecret(), token.getGrantType(), refreshToken, null);
     }
 
     @Override

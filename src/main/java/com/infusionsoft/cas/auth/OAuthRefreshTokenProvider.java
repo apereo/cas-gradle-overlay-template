@@ -47,13 +47,14 @@ public class OAuthRefreshTokenProvider implements OAuthFilterTokenProvider {
             throw new OAuthInvalidRequestException("oauth.exception.refreshToken.missing");
         }
 
-        if (StringUtils.isEmpty(clientSecret)) {
+        if (StringUtils.isBlank(clientSecret)) {
             OAuthClient oAuthClient = oAuthClientService.loadOAuthClient(clientId);
-            if (oAuthClient == null) {
-                throw new OAuthInvalidClientException();
-            } else {
+            if (oAuthClient != null) {
                 clientSecret = oAuthClient.getClientSecret();
             }
+        }
+        if (StringUtils.isBlank(clientSecret)) {
+            throw new OAuthInvalidRequestException("oauth.exception.clientSecret.missing");
         }
 
         String originHeader = request.getHeader("Origin");

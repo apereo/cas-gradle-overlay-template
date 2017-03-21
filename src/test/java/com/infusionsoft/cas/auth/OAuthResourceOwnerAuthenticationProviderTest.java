@@ -9,7 +9,9 @@ import com.infusionsoft.cas.oauth.services.OAuthService;
 import com.infusionsoft.cas.services.InfusionsoftAuthenticationService;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -28,6 +30,9 @@ public class OAuthResourceOwnerAuthenticationProviderTest {
 
     @Mock
     private OAuthService oAuthService;
+
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
 
     private static final String scope = "scope";
     private static final String application = "application";
@@ -70,32 +75,43 @@ public class OAuthResourceOwnerAuthenticationProviderTest {
         Assert.assertTrue(actualToken.isAuthenticated());
     }
 
-    @Test(expected = OAuthUnauthorizedClientException.class)
+    @Test
     public void testAuthenticateFailClientNotAuthorized() throws Exception {
         OAuthResourceOwnerAuthenticationToken token = new OAuthResourceOwnerAuthenticationToken(username, password, oAuthServiceConfig, clientId, clientSecret, scope, grantType, application);
         doReturn(false).when(oAuthService).isClientAuthorizedForResourceOwnerGrantType(clientId);
 
+        thrown.expect(OAuthUnauthorizedClientException.class);
+        thrown.expectMessage("oauth.exception.client.not.trusted.mobile");
+
         providerToTest.authenticate(token);
     }
 
-    @Test(expected = OAuthInvalidGrantException.class)
+    @Test
     public void testAuthenticateFailFailedLogin() throws Exception {
         OAuthResourceOwnerAuthenticationToken token = new OAuthResourceOwnerAuthenticationToken(username, password, oAuthServiceConfig, clientId, clientSecret, scope, grantType, application);
         doReturn(true).when(oAuthService).isClientAuthorizedForResourceOwnerGrantType(clientId);
         doReturn(LoginResult.BadPassword(user)).when(infusionsoftAuthenticationService).attemptLogin(username, password);
 
+        thrown.expect(OAuthInvalidGrantException.class);
+        thrown.expectMessage("oauth.exception.invalid.grant");
+
         providerToTest.authenticate(token);
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void testAuthenticateFailNullToken() throws Exception {
+        thrown.expect(NullPointerException.class);
+
         providerToTest.authenticate(null);
     }
 
-    @Test(expected = OAuthInvalidRequestException.class)
+    @Test
     public void testAuthenticateFailBadService() throws Exception {
         OAuthResourceOwnerAuthenticationToken token = new OAuthResourceOwnerAuthenticationToken(username, password, null, clientId, clientSecret, scope, grantType, application);
         doReturn(false).when(oAuthService).isClientAuthorizedForResourceOwnerGrantType(clientId);
+
+        thrown.expect(OAuthInvalidRequestException.class);
+        thrown.expectMessage("oauth.exception.service.missing");
 
         providerToTest.authenticate(token);
     }
@@ -122,8 +138,10 @@ public class OAuthResourceOwnerAuthenticationProviderTest {
         Assert.assertFalse(providerToTest.supports(Object.class));
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void testSupportsFailNull() throws Exception {
+        thrown.expect(NullPointerException.class);
+
         providerToTest.supports(null);
     }
 

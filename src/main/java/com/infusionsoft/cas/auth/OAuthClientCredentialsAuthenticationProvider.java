@@ -27,7 +27,7 @@ public class OAuthClientCredentialsAuthenticationProvider implements Authenticat
         if (oAuthService.isClientAuthorizedForClientCredentialsGrantType(clientId)) {
             final OAuthServiceConfig serviceConfig = token.getServiceConfig();
             if (serviceConfig == null) {
-                throw new OAuthInvalidRequestException("oauth.exception.service.key.not.found");
+                throw new OAuthInvalidRequestException("oauth.exception.service.missing");
             }
 
             final OAuthApplication application = oAuthService.fetchApplication(serviceConfig.getServiceKey(), clientId, null, "code");

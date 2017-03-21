@@ -8,7 +8,9 @@ import com.infusionsoft.cas.oauth.services.OAuthService;
 import com.infusionsoft.cas.services.UserService;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -29,6 +31,9 @@ public class OAuthTrustedGrantAuthenticationProviderTest {
 
     @Mock
     private UserService userService;
+
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
 
     private static final String scope = "scope";
     private static final String application = "application";
@@ -71,30 +76,41 @@ public class OAuthTrustedGrantAuthenticationProviderTest {
         Assert.assertTrue(actualToken.isAuthenticated());
     }
 
-    @Test(expected = OAuthUnauthorizedClientException.class)
+    @Test
     public void testAuthenticateFailClientNotAuthorized() throws Exception {
         OAuthTrustedGrantAuthenticationToken token = new OAuthTrustedGrantAuthenticationToken(null, null, oAuthServiceConfig, clientId, clientSecret, scope, grantType, application, globalUserId);
         doReturn(false).when(oAuthService).isClientAuthorizedForTrustedGrantType(clientId);
 
+        thrown.expect(OAuthUnauthorizedClientException.class);
+        thrown.expectMessage("oauth.exception.client.not.trusted");
+
         providerToTest.authenticate(token);
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void testAuthenticateFailNullToken() throws Exception {
+        thrown.expect(NullPointerException.class);
+
         providerToTest.authenticate(null);
     }
 
-    @Test(expected = OAuthInvalidRequestException.class)
+    @Test
     public void testAuthenticateFailBadService() throws Exception {
         OAuthTrustedGrantAuthenticationToken token = new OAuthTrustedGrantAuthenticationToken(null, null, null, clientId, clientSecret, scope, grantType, application, globalUserId);
+
+        thrown.expect(OAuthInvalidRequestException.class);
+        thrown.expectMessage("oauth.exception.service.missing");
 
         providerToTest.authenticate(token);
     }
 
-    @Test(expected = OAuthInvalidRequestException.class)
+    @Test
     public void testAuthenticateFailNoUser() throws Exception {
         OAuthTrustedGrantAuthenticationToken token = new OAuthTrustedGrantAuthenticationToken(null, null, oAuthServiceConfig, clientId, clientSecret, scope, grantType, application, globalUserId);
         doReturn(true).when(oAuthService).isClientAuthorizedForTrustedGrantType(clientId);
+
+        thrown.expect(OAuthInvalidRequestException.class);
+        thrown.expectMessage("oauth.exception.user.not.found");
 
         providerToTest.authenticate(token);
     }
@@ -121,8 +137,10 @@ public class OAuthTrustedGrantAuthenticationProviderTest {
         Assert.assertFalse(providerToTest.supports(Object.class));
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void testSupportsFailNull() throws Exception {
+        thrown.expect(NullPointerException.class);
+
         providerToTest.supports(null);
     }
 

@@ -1,12 +1,13 @@
 package com.infusionsoft.cas.auth;
 
 import com.infusionsoft.cas.domain.OAuthClient;
-import com.infusionsoft.cas.oauth.exceptions.OAuthInvalidClientException;
 import com.infusionsoft.cas.oauth.exceptions.OAuthInvalidRequestException;
 import com.infusionsoft.cas.services.OAuthClientService;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -26,14 +27,21 @@ public class OAuthRefreshTokenProviderTest {
 
     @Mock
     private HttpServletRequest req;
+
     @Mock
     private HttpServletResponse resp;
+
     @Mock
     private OAuthClientService oAuthClientService;
+
     @Mock
     private OAuthClient oAuthClient;
+
     @InjectMocks
     private OAuthRefreshTokenProvider tokenProviderToTest = new OAuthRefreshTokenProvider();
+
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
 
     @Before
     public void beforeMethod() {
@@ -95,20 +103,31 @@ public class OAuthRefreshTokenProviderTest {
         Assert.assertTrue(authToken == null);
     }
 
-    @Test(expected = OAuthInvalidRequestException.class)
+    @Test
     public void testMissingRefreshToken() {
+        thrown.expect(OAuthInvalidRequestException.class);
+        thrown.expectMessage("oauth.exception.refreshToken.missing");
+
         tokenProviderToTest.createAuthenticationToken(req, resp, scope, application, grantType, null, clientId, clientSecret);
     }
 
-    @Test(expected = OAuthInvalidRequestException.class)
+    @Test
     public void testMissingClientId() {
         doReturn("refresh_token").when(req).getParameter("refresh_token");
+
+        thrown.expect(OAuthInvalidRequestException.class);
+        thrown.expectMessage("oauth.exception.clientId.missing");
+
         tokenProviderToTest.createAuthenticationToken(req, resp, scope, application, grantType, null, "", clientSecret);
     }
 
-    @Test(expected = OAuthInvalidClientException.class)
+    @Test
     public void testMissingClientSecret() {
         doReturn("refresh_token").when(req).getParameter("refresh_token");
+
+        thrown.expect(OAuthInvalidRequestException.class);
+        thrown.expectMessage("oauth.exception.clientSecret.missing");
+
         tokenProviderToTest.createAuthenticationToken(req, resp, scope, application, grantType, null, clientId, "");
     }
 

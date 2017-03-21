@@ -26,7 +26,7 @@ public class OAuthResourceOwnerAuthenticationProvider implements AuthenticationP
         OAuthResourceOwnerAuthenticationToken token = (OAuthResourceOwnerAuthenticationToken) authentication;
 
         if (token.getServiceConfig() == null) {
-            throw new OAuthInvalidRequestException("oauth.exception.service.key.not.found");
+            throw new OAuthInvalidRequestException("oauth.exception.service.missing");
         }
 
         if (oAuthService.isClientAuthorizedForResourceOwnerGrantType(token.getClientId())) {

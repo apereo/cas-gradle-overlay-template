@@ -11,7 +11,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.jasig.cas.ticket.TicketGrantingTicket;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -43,6 +45,9 @@ public class OAuthTicketGrantingTicketTokenProviderTest {
 
     @Mock
     private TicketGrantingTicket ticketGrantingTicket;
+
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
 
     private static final OAuthClient oAuthClient = new OAuthClient();
     private static final String scope = "scope";
@@ -136,7 +141,7 @@ public class OAuthTicketGrantingTicketTokenProviderTest {
         Assert.assertNull(actualReturn);
     }
 
-    @Test(expected = OAuthInvalidRequestException.class)
+    @Test
     public void testCreateAuthenticationTokenFailNullClientId() throws Exception {
         doReturn(ticketGrantingTicket).when(infusionsoftAuthenticationService).getTicketGrantingTicket(request);
         doReturn(oAuthClient).when(oAuthClientService).loadOAuthClient(clientId);
@@ -144,10 +149,13 @@ public class OAuthTicketGrantingTicketTokenProviderTest {
         doReturn(new Cookie[0]).when(request).getCookies();
         doReturn(true).when(oAuthClientService).isOriginAllowedByOAuthClient(oAuthClient, originHeaderValue);
 
+        thrown.expect(OAuthInvalidRequestException.class);
+        thrown.expectMessage("oauth.exception.clientId.missing");
+
         tokenProviderToTest.createAuthenticationToken(request, response, scope, application, grantType, oAuthServiceConfig, null, clientSecret);
     }
 
-    @Test(expected = OAuthInvalidClientException.class)
+    @Test
     public void testCreateAuthenticationTokenFailBadClientId() throws Exception {
         doReturn(ticketGrantingTicket).when(infusionsoftAuthenticationService).getTicketGrantingTicket(request);
         doReturn(null).when(oAuthClientService).loadOAuthClient(clientId);
@@ -155,10 +163,13 @@ public class OAuthTicketGrantingTicketTokenProviderTest {
         doReturn(new Cookie[0]).when(request).getCookies();
         doReturn(true).when(oAuthClientService).isOriginAllowedByOAuthClient(oAuthClient, originHeaderValue);
 
+        thrown.expect(OAuthInvalidClientException.class);
+        thrown.expectMessage("oauth.exception.invalid.client");
+
         tokenProviderToTest.createAuthenticationToken(request, response, scope, application, grantType, oAuthServiceConfig, clientId, clientSecret);
     }
 
-    @Test(expected = OAuthAccessDeniedException.class)
+    @Test
     public void testCreateAuthenticationTokenFailOriginNotAllowedForClientId() throws Exception {
         doReturn(ticketGrantingTicket).when(infusionsoftAuthenticationService).getTicketGrantingTicket(request);
         doReturn(oAuthClient).when(oAuthClientService).loadOAuthClient(clientId);
@@ -166,10 +177,13 @@ public class OAuthTicketGrantingTicketTokenProviderTest {
         doReturn(new Cookie[0]).when(request).getCookies();
         doReturn(false).when(oAuthClientService).isOriginAllowedByOAuthClient(oAuthClient, originHeaderValue);
 
+        thrown.expect(OAuthAccessDeniedException.class);
+        thrown.expectMessage("oauth.exception.origin.not.authorized");
+
         tokenProviderToTest.createAuthenticationToken(request, response, scope, application, grantType, oAuthServiceConfig, clientId, clientSecret);
     }
 
-    @Test(expected = OAuthInvalidRequestException.class)
+    @Test
     public void testCreateAuthenticationTokenFailNoOriginHeader() throws Exception {
         doReturn(ticketGrantingTicket).when(infusionsoftAuthenticationService).getTicketGrantingTicket(request);
         doReturn(oAuthClient).when(oAuthClientService).loadOAuthClient(clientId);
@@ -177,16 +191,22 @@ public class OAuthTicketGrantingTicketTokenProviderTest {
         doReturn(new Cookie[0]).when(request).getCookies();
         doReturn(true).when(oAuthClientService).isOriginAllowedByOAuthClient(oAuthClient, originHeaderValue);
 
+        thrown.expect(OAuthInvalidRequestException.class);
+        thrown.expectMessage("oauth.exception.origin.missing");
+
         tokenProviderToTest.createAuthenticationToken(request, response, scope, application, grantType, oAuthServiceConfig, clientId, clientSecret);
     }
 
-    @Test(expected = OAuthInvalidRequestException.class)
+    @Test
     public void testCreateAuthenticationTokenFailBlankOriginHeader() throws Exception {
         doReturn(ticketGrantingTicket).when(infusionsoftAuthenticationService).getTicketGrantingTicket(request);
         doReturn(oAuthClient).when(oAuthClientService).loadOAuthClient(clientId);
         doReturn(" ").when(request).getHeader(ORIGIN_HEADER);
         doReturn(new Cookie[0]).when(request).getCookies();
         doReturn(true).when(oAuthClientService).isOriginAllowedByOAuthClient(oAuthClient, originHeaderValue);
+
+        thrown.expect(OAuthInvalidRequestException.class);
+        thrown.expectMessage("oauth.exception.origin.missing");
 
         tokenProviderToTest.createAuthenticationToken(request, response, scope, application, grantType, oAuthServiceConfig, clientId, clientSecret);
     }

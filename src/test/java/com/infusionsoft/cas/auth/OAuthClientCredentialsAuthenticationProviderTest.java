@@ -7,7 +7,9 @@ import com.infusionsoft.cas.oauth.exceptions.OAuthUnauthorizedClientException;
 import com.infusionsoft.cas.oauth.services.OAuthService;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -25,6 +27,9 @@ public class OAuthClientCredentialsAuthenticationProviderTest {
 
     @Mock
     private OAuthService oAuthService;
+
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
 
     private static final String scope = "scope";
     private static final String application = "application";
@@ -66,23 +71,31 @@ public class OAuthClientCredentialsAuthenticationProviderTest {
         Assert.assertTrue(actualToken.isAuthenticated());
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void testAuthenticateFailNullToken() throws Exception {
+        thrown.expect(NullPointerException.class);
+
         providerToTest.authenticate(null);
     }
 
-    @Test(expected = OAuthUnauthorizedClientException.class)
+    @Test
     public void testAuthenticateFailClientNotAuthorized() throws Exception {
         OAuthClientCredentialsAuthenticationToken token = new OAuthClientCredentialsAuthenticationToken(null, oAuthServiceConfig, clientId, clientSecret, scope, grantType, application);
         doReturn(false).when(oAuthService).isClientAuthorizedForClientCredentialsGrantType(clientId);
 
+        thrown.expect(OAuthUnauthorizedClientException.class);
+        thrown.expectMessage("oauth.exception.client.not.trusted.service");
+
         providerToTest.authenticate(token);
     }
 
-    @Test(expected = OAuthInvalidRequestException.class)
+    @Test
     public void testAuthenticateFailBadService() throws Exception {
         OAuthClientCredentialsAuthenticationToken token = new OAuthClientCredentialsAuthenticationToken(null, null, clientId, clientSecret, scope, grantType, application);
         doReturn(true).when(oAuthService).isClientAuthorizedForClientCredentialsGrantType(clientId);
+
+        thrown.expect(OAuthInvalidRequestException.class);
+        thrown.expectMessage("oauth.exception.service.missing");
 
         providerToTest.authenticate(token);
     }
@@ -109,8 +122,10 @@ public class OAuthClientCredentialsAuthenticationProviderTest {
         Assert.assertFalse(providerToTest.supports(Object.class));
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void testSupportsFailNull() throws Exception {
+        thrown.expect(NullPointerException.class);
+
         providerToTest.supports(null);
     }
 

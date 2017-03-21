@@ -1,9 +1,12 @@
 package com.infusionsoft.cas.auth;
 
 import com.infusionsoft.cas.oauth.exceptions.OAuthInvalidRequestException;
+import com.infusionsoft.cas.oauth.exceptions.OAuthUnauthorizedClientException;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
@@ -13,10 +16,15 @@ import javax.servlet.http.HttpServletResponse;
 import static org.mockito.Mockito.doReturn;
 
 public class OAuthTrustedGrantTokenProviderTest {
+
     @Mock
     private HttpServletRequest req;
+
     @Mock
     private HttpServletResponse resp;
+
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
 
     private OAuthTrustedGrantTokenProvider tokenProviderToTest = new OAuthTrustedGrantTokenProvider();
 
@@ -38,26 +46,41 @@ public class OAuthTrustedGrantTokenProviderTest {
         Assert.assertEquals(new Long(1234L), authToken.getGlobalUserId());
     }
 
-    @Test(expected = OAuthInvalidRequestException.class)
+    @Test
     public void testMissingGlobalUserId() {
+        thrown.expect(OAuthInvalidRequestException.class);
+        thrown.expectMessage("oauth.exception.userId.missing");
+
         tokenProviderToTest.createAuthenticationToken(req, resp, "full", "application", "urn:infusionsoft:params:oauth:grant-type:trusted", null, "clientId", "clientSecret");
     }
 
-    @Test(expected = OAuthInvalidRequestException.class)
+    @Test
     public void testBadGlobalUserId() {
         doReturn("not a number").when(req).getParameter("global_user_id");
+
+        thrown.expect(OAuthInvalidRequestException.class);
+        thrown.expectMessage("oauth.exception.userId.bad");
+
         tokenProviderToTest.createAuthenticationToken(req, resp, "full", "application", "urn:infusionsoft:params:oauth:grant-type:trusted", null, "clientId", "clientSecret");
     }
 
-    @Test(expected = OAuthInvalidRequestException.class)
+    @Test
     public void testMissingClientId() {
         doReturn("1234").when(req).getParameter("global_user_id");
+
+        thrown.expect(OAuthInvalidRequestException.class);
+        thrown.expectMessage("oauth.exception.clientId.missing");
+
         tokenProviderToTest.createAuthenticationToken(req, resp, "full", "application", "urn:infusionsoft:params:oauth:grant-type:trusted", null, "", "clientSecret");
     }
 
-    @Test(expected = OAuthInvalidRequestException.class)
+    @Test
     public void testMissingClientSecret() {
         doReturn("1234").when(req).getParameter("global_user_id");
+
+        thrown.expect(OAuthInvalidRequestException.class);
+        thrown.expectMessage("oauth.exception.clientSecret.missing");
+
         tokenProviderToTest.createAuthenticationToken(req, resp, "full", "application", "urn:infusionsoft:params:oauth:grant-type:trusted", null, "clientId", "");
     }
 

@@ -25,7 +25,7 @@ public class OAuthTrustedGrantAuthenticationProvider implements AuthenticationPr
         OAuthTrustedGrantAuthenticationToken token = (OAuthTrustedGrantAuthenticationToken) authentication;
 
         if (token.getServiceConfig() == null) {
-            throw new OAuthInvalidRequestException("oauth.exception.service.key.not.found");
+            throw new OAuthInvalidRequestException("oauth.exception.service.missing");
         }
 
         if (oAuthService.isClientAuthorizedForTrustedGrantType(token.getClientId())) {

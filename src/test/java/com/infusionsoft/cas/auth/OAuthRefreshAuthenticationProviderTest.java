@@ -4,7 +4,9 @@ import com.infusionsoft.cas.domain.OAuthServiceConfig;
 import com.infusionsoft.cas.oauth.exceptions.OAuthInvalidRequestException;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.mockito.InjectMocks;
 import org.mockito.MockitoAnnotations;
 import org.springframework.security.core.Authentication;
@@ -15,6 +17,9 @@ public class OAuthRefreshAuthenticationProviderTest {
 
     @InjectMocks
     private OAuthRefreshAuthenticationProvider providerToTest = new OAuthRefreshAuthenticationProvider();
+
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
 
     private static final String grantType = "refresh";
     private static final String clientId = "clientId";
@@ -52,14 +57,19 @@ public class OAuthRefreshAuthenticationProviderTest {
         Assert.assertTrue(actualToken.isAuthenticated());
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void testAuthenticateFailNullToken() throws Exception {
+        thrown.expect(NullPointerException.class);
+
         providerToTest.authenticate(null);
     }
 
-    @Test(expected = OAuthInvalidRequestException.class)
+    @Test
     public void testAuthenticateFailBadService() throws Exception {
         OAuthRefreshAuthenticationToken token = new OAuthRefreshAuthenticationToken(null, null, null, clientId, clientSecret, grantType, refreshToken);
+
+        thrown.expect(OAuthInvalidRequestException.class);
+        thrown.expectMessage("oauth.exception.service.missing");
 
         providerToTest.authenticate(token);
     }
@@ -68,9 +78,10 @@ public class OAuthRefreshAuthenticationProviderTest {
     public void testAuthenticateFailMissingRefresh() throws Exception {
         OAuthRefreshAuthenticationToken token = new OAuthRefreshAuthenticationToken(null, null, oAuthServiceConfig, clientId, clientSecret, grantType, "");
 
-        final Authentication actualReturn = providerToTest.authenticate(token);
+        thrown.expect(OAuthInvalidRequestException.class);
+        thrown.expectMessage("oauth.exception.refreshToken.missing");
 
-        Assert.assertNull(actualReturn);
+        providerToTest.authenticate(token);
     }
 
     @Test
@@ -95,8 +106,10 @@ public class OAuthRefreshAuthenticationProviderTest {
         Assert.assertFalse(providerToTest.supports(Object.class));
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void testSupportsFailNull() throws Exception {
+        thrown.expect(NullPointerException.class);
+
         providerToTest.supports(null);
     }
 
