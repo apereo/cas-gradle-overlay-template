@@ -7,31 +7,31 @@
         </Console>
 
         <RollingFile name="file" fileName="cas.log" append="true"
-                     filePattern="cas-%d{yyyy-MM-dd-HH}-%i.log">
+                     filePattern="cas.log">
             <PatternLayout pattern="%d %p [%c] - &lt;%m&gt;%n"/>
             <Policies>
-                <OnStartupTriggeringPolicy />
-                <SizeBasedTriggeringPolicy size="10 MB"/>
-                <TimeBasedTriggeringPolicy />
+                <!--<OnStartupTriggeringPolicy />-->
+                <SizeBasedTriggeringPolicy size="100 MB"/>
+                <!--<TimeBasedTriggeringPolicy />-->
             </Policies>
         </RollingFile>
         <RollingFile name="auditlogfile" fileName="cas_audit.log" append="true"
-                     filePattern="cas_audit-%d{yyyy-MM-dd-HH}-%i.log">
+                     filePattern="cas_audit.log">
             <PatternLayout pattern="%d %p [%c] - %m%n"/>
             <Policies>
-                <OnStartupTriggeringPolicy />
-                <SizeBasedTriggeringPolicy size="10 MB"/>
-                <TimeBasedTriggeringPolicy />
+                <!--<OnStartupTriggeringPolicy />-->
+                <SizeBasedTriggeringPolicy size="100 MB"/>
+                <!--<TimeBasedTriggeringPolicy />-->
             </Policies>
         </RollingFile>
 
         <RollingFile name="perfFileAppender" fileName="perfStats.log" append="true"
-                     filePattern="perfStats-%d{yyyy-MM-dd-HH}-%i.log">
+                     filePattern="perfStats.log">
             <PatternLayout pattern="%m%n"/>
             <Policies>
-                <OnStartupTriggeringPolicy />
-                <SizeBasedTriggeringPolicy size="10 MB"/>
-                <TimeBasedTriggeringPolicy />
+                <!--<OnStartupTriggeringPolicy />-->
+                <SizeBasedTriggeringPolicy size="100 MB"/>
+                <!--<TimeBasedTriggeringPolicy />-->
             </Policies>
         </RollingFile>
 
@@ -93,6 +93,10 @@
             <AppenderRef ref="casConsole"/>
         </AsyncLogger>
         <AsyncLogger name="org.springframework.webflow" level="warn" additivity="false">
+            <AppenderRef ref="casConsole"/>
+            <AppenderRef ref="casFile"/>
+        </AsyncLogger>
+        <AsyncLogger name="org.springframework.security" level="debug" additivity="false">
             <AppenderRef ref="casConsole"/>
             <AppenderRef ref="casFile"/>
         </AsyncLogger>
