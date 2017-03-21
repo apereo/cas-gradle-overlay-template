@@ -2,7 +2,9 @@ package com.infusionsoft.cas.oauth.services;
 
 import com.infusionsoft.cas.domain.User;
 import com.infusionsoft.cas.domain.UserAccount;
+import com.infusionsoft.cas.oauth.dto.OAuthAccessToken;
 import com.infusionsoft.cas.oauth.dto.OAuthApplication;
+import com.infusionsoft.cas.oauth.dto.OAuthGrantType;
 import com.infusionsoft.cas.oauth.exceptions.OAuthAccessDeniedException;
 import com.infusionsoft.cas.oauth.mashery.api.client.MasheryApiClientService;
 import com.infusionsoft.cas.oauth.mashery.api.domain.*;
@@ -214,4 +216,169 @@ public class OAuthServiceTest {
         verify(masheryApiClientService, times(1)).revokeAccessToken(SERVICE_KEY, CLIENT_ID, TOKEN_3);
     }
 
+    @Test
+    public void testCreateAccessTokenAuthorizationCode() throws Exception {
+        final String clientId = "clientId";
+        final String clientSecret = "clientSecret";
+        final String grantType = OAuthGrantType.AUTHORIZATION_CODE.getValue();
+        final String providedScope = "scope";
+        final String application = "application";
+        final String userId = "userId";
+        final String refreshToken = "refreshToken";
+
+        final String scope = providedScope + "|" + application;
+        final String userContext = userId + "|" + application;
+        final MasheryCreateAccessTokenResponse response = createAccessTokenResponse();
+        doReturn(response).when(masheryApiClientService).createAccessToken(anyString(), anyString(), anyString(), anyString(), anyString(), anyString(), anyString());
+
+        final OAuthAccessToken accessToken = oAuthServiceToTest.createAccessToken(SERVICE_KEY, clientId, clientSecret, grantType, providedScope, application, userId, refreshToken);
+        Assert.assertNotNull(accessToken);
+        Assert.assertEquals(accessToken.getAccessToken(), response.getAccess_token());
+        Assert.assertEquals(accessToken.getTokenType(), response.getToken_type());
+        Assert.assertEquals(accessToken.getExpiresIn(), response.getExpires_in());
+        Assert.assertEquals(accessToken.getRefreshToken(), response.getRefresh_token());
+        Assert.assertEquals(accessToken.getScope(), response.getScope());
+
+        verify(masheryApiClientService, times(1)).createAccessToken(SERVICE_KEY, clientId, clientSecret, grantType, scope, userContext, refreshToken);
+    }
+
+    @Test
+    public void testCreateAccessTokenTrusted() throws Exception {
+        final String clientId = "clientId";
+        final String clientSecret = "clientSecret";
+        final String grantType = OAuthGrantType.EXTENDED_TRUSTED.getValue();
+        final String providedScope = "scope";
+        final String application = "application";
+        final String userId = "userId";
+        final String refreshToken = "refreshToken";
+
+        final String scope = providedScope + "|" + application;
+        final String userContext = userId + "|" + application;
+        final MasheryCreateAccessTokenResponse response = createAccessTokenResponse();
+        doReturn(response).when(masheryApiClientService).createAccessToken(anyString(), anyString(), anyString(), anyString(), anyString(), anyString(), anyString());
+
+        final OAuthAccessToken accessToken = oAuthServiceToTest.createAccessToken(SERVICE_KEY, clientId, clientSecret, grantType, providedScope, application, userId, refreshToken);
+        Assert.assertNotNull(accessToken);
+        Assert.assertEquals(accessToken.getAccessToken(), response.getAccess_token());
+        Assert.assertEquals(accessToken.getTokenType(), response.getToken_type());
+        Assert.assertEquals(accessToken.getExpiresIn(), response.getExpires_in());
+        Assert.assertEquals(accessToken.getRefreshToken(), response.getRefresh_token());
+        Assert.assertEquals(accessToken.getScope(), response.getScope());
+
+        verify(masheryApiClientService, times(1)).createAccessToken(SERVICE_KEY, clientId, clientSecret, grantType, scope, userContext, refreshToken);
+    }
+
+    @Test
+    public void testCreateAccessTokenRefresh() throws Exception {
+        final String clientId = "clientId";
+        final String clientSecret = "clientSecret";
+        final String grantType = OAuthGrantType.REFRESH.getValue();
+        final String providedScope = "scope";
+        final String application = "application";
+        final String userId = "userId";
+        final String refreshToken = "refreshToken";
+
+        final String scope = providedScope + "|" + application;
+        final String userContext = userId + "|" + application;
+        final MasheryCreateAccessTokenResponse response = createAccessTokenResponse();
+        doReturn(response).when(masheryApiClientService).createAccessToken(anyString(), anyString(), anyString(), anyString(), anyString(), anyString(), anyString());
+
+        final OAuthAccessToken accessToken = oAuthServiceToTest.createAccessToken(SERVICE_KEY, clientId, clientSecret, grantType, providedScope, application, userId, refreshToken);
+        Assert.assertNotNull(accessToken);
+        Assert.assertEquals(accessToken.getAccessToken(), response.getAccess_token());
+        Assert.assertEquals(accessToken.getTokenType(), response.getToken_type());
+        Assert.assertEquals(accessToken.getExpiresIn(), response.getExpires_in());
+        Assert.assertEquals(accessToken.getRefreshToken(), response.getRefresh_token());
+        Assert.assertEquals(accessToken.getScope(), response.getScope());
+
+        verify(masheryApiClientService, times(1)).createAccessToken(SERVICE_KEY, clientId, clientSecret, grantType, scope, userContext, refreshToken);
+    }
+
+    @Test
+    public void testCreateAccessTokenResourceOwner() throws Exception {
+        final String clientId = "clientId";
+        final String clientSecret = "clientSecret";
+        final String grantType = OAuthGrantType.RESOURCE_OWNER_CREDENTIALS.getValue();
+        final String providedScope = "scope";
+        final String application = "application";
+        final String userId = "userId";
+        final String refreshToken = "refreshToken";
+
+        final String scope = providedScope + "|" + application;
+        final String userContext = userId + "|" + application;
+        final MasheryCreateAccessTokenResponse response = createAccessTokenResponse();
+        doReturn(response).when(masheryApiClientService).createAccessToken(anyString(), anyString(), anyString(), anyString(), anyString(), anyString(), anyString());
+
+        final OAuthAccessToken accessToken = oAuthServiceToTest.createAccessToken(SERVICE_KEY, clientId, clientSecret, grantType, providedScope, application, userId, refreshToken);
+        Assert.assertNotNull(accessToken);
+        Assert.assertEquals(accessToken.getAccessToken(), response.getAccess_token());
+        Assert.assertEquals(accessToken.getTokenType(), response.getToken_type());
+        Assert.assertEquals(accessToken.getExpiresIn(), response.getExpires_in());
+        Assert.assertEquals(accessToken.getRefreshToken(), response.getRefresh_token());
+        Assert.assertEquals(accessToken.getScope(), response.getScope());
+
+        verify(masheryApiClientService, times(1)).createAccessToken(SERVICE_KEY, clientId, clientSecret, grantType, scope, userContext, refreshToken);
+    }
+
+    @Test
+    public void testCreateAccessTokenClientCredentials() throws Exception {
+        final String clientId = "clientId";
+        final String clientSecret = "clientSecret";
+        final String grantType = OAuthGrantType.CLIENT_CREDENTIALS.getValue();
+        final String providedScope = "scope";
+        final String application = "application";
+        final String userId = "userId";
+        final String refreshToken = "refreshToken";
+
+        final String scope = providedScope + "|" + application;
+        final String userContext = userId + "|" + application;
+        final MasheryCreateAccessTokenResponse response = createAccessTokenResponse();
+        doReturn(response).when(masheryApiClientService).createAccessToken(anyString(), anyString(), anyString(), anyString(), anyString(), anyString(), anyString());
+
+        final OAuthAccessToken accessToken = oAuthServiceToTest.createAccessToken(SERVICE_KEY, clientId, clientSecret, grantType, providedScope, application, userId, refreshToken);
+        Assert.assertNotNull(accessToken);
+        Assert.assertEquals(accessToken.getAccessToken(), response.getAccess_token());
+        Assert.assertEquals(accessToken.getTokenType(), response.getToken_type());
+        Assert.assertEquals(accessToken.getExpiresIn(), response.getExpires_in());
+        Assert.assertNull(accessToken.getRefreshToken());
+        Assert.assertEquals(accessToken.getScope(), response.getScope());
+
+        verify(masheryApiClientService, times(1)).createAccessToken(SERVICE_KEY, clientId, clientSecret, grantType, scope, userContext, refreshToken);
+    }
+
+    @Test
+    public void testCreateAccessTokenTicketGrantingTicket() throws Exception {
+        final String clientId = "clientId";
+        final String clientSecret = "clientSecret";
+        final String grantType = OAuthGrantType.EXTENDED_TICKET_GRANTING_TICKET.getValue();
+        final String providedScope = "scope";
+        final String application = "application";
+        final String userId = "userId";
+        final String refreshToken = "refreshToken";
+
+        final String scope = providedScope + "|" + application;
+        final String userContext = userId + "|" + application;
+        final MasheryCreateAccessTokenResponse response = createAccessTokenResponse();
+        doReturn(response).when(masheryApiClientService).createAccessToken(anyString(), anyString(), anyString(), anyString(), anyString(), anyString(), anyString());
+
+        final OAuthAccessToken accessToken = oAuthServiceToTest.createAccessToken(SERVICE_KEY, clientId, clientSecret, grantType, providedScope, application, userId, refreshToken);
+        Assert.assertNotNull(accessToken);
+        Assert.assertEquals(accessToken.getAccessToken(), response.getAccess_token());
+        Assert.assertEquals(accessToken.getTokenType(), response.getToken_type());
+        Assert.assertEquals(accessToken.getExpiresIn(), response.getExpires_in());
+        Assert.assertNull(accessToken.getRefreshToken());
+        Assert.assertEquals(accessToken.getScope(), response.getScope());
+
+        verify(masheryApiClientService, times(1)).createAccessToken(SERVICE_KEY, clientId, clientSecret, grantType, scope, userContext, refreshToken);
+    }
+
+    private MasheryCreateAccessTokenResponse createAccessTokenResponse() {
+        MasheryCreateAccessTokenResponse response = new MasheryCreateAccessTokenResponse();
+        response.setAccess_token("access_token");
+        response.setToken_type("token_type");
+        response.setExpires_in(123456);
+        response.setRefresh_token("refresh_token");
+        response.setScope("returned scope");
+        return response;
+    }
 }

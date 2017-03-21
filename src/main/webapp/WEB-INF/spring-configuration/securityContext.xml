@@ -44,17 +44,13 @@
     </sec:http>
 
     <sec:http pattern="/app/oauth/service/*/token" authentication-manager-ref="oauthAuthenticationManager" entry-point-ref="oAuthAuthenticationEntryPoint" use-expressions="true" disable-url-rewriting="true">
-        <sec:custom-filter ref="OAuthRefreshAuthenticationFilter" after="REMEMBER_ME_FILTER"/>
-        <sec:custom-filter ref="OAuthResourceOwnerAuthenticationFilter" before="ANONYMOUS_FILTER"/>
+        <sec:custom-filter ref="OAuthLegacyAuthenticationFilter" before="ANONYMOUS_FILTER"/>
         <sec:intercept-url pattern="/app/oauth/service/*/token" access="isAuthenticated()"/>
     </sec:http>
 
     <sec:http pattern="/app/oauth/token" authentication-manager-ref="oauthAuthenticationManager" entry-point-ref="oAuthAuthenticationEntryPoint" use-expressions="true" security-context-repository-ref="nullSecurityContextRepository" disable-url-rewriting="true">
         <sec:custom-filter ref="corsPreflightFilter" after="FIRST"/>
-        <sec:custom-filter ref="OAuthRefreshAuthenticationFilter" after="REMEMBER_ME_FILTER"/>
-        <sec:custom-filter ref="OAuthTrustedGrantAuthenticationFilter" before="ANONYMOUS_FILTER"/>
-        <sec:custom-filter ref="OAuthTicketGrantingTicketAuthenticationFilter" after="ANONYMOUS_FILTER"/>
-        <sec:custom-filter ref="OAuthResourceOwnerAuthenticationFilter" before="EXCEPTION_TRANSLATION_FILTER"/>
+        <sec:custom-filter ref="OAuthAuthenticationFilter" before="ANONYMOUS_FILTER"/>
         <sec:intercept-url pattern="/app/oauth/token" access="isAuthenticated()"/>
     </sec:http>
 
@@ -87,6 +83,7 @@
         <sec:authentication-provider ref="OAuthTicketGrantingTicketAuthenticationProvider"/>
         <sec:authentication-provider ref="OAuthTrustedGrantAuthenticationProvider"/>
         <sec:authentication-provider ref="OAuthResourceOwnerAuthenticationProvider"/>
+        <sec:authentication-provider ref="OAuthClientCredentialsAuthenticationProvider"/>
         <sec:authentication-provider ref="OAuthRefreshAuthenticationProvider"/>
     </sec:authentication-manager>
 

@@ -1,13 +1,15 @@
 package com.infusionsoft.cas.auth;
 
 import com.infusionsoft.cas.domain.OAuthServiceConfig;
+import com.infusionsoft.cas.oauth.exceptions.OAuthException;
+import com.infusionsoft.cas.oauth.exceptions.OAuthInvalidRequestException;
+import com.infusionsoft.cas.oauth.exceptions.OAuthServerErrorException;
 import com.infusionsoft.cas.services.OAuthServiceConfigService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -34,7 +36,7 @@ public abstract class OAuthAbstractAuthenticationFilter extends GenericFilterBea
     private AuthenticationManager authenticationManager;
 
     @Autowired
-    OAuthAuthenticationEntryPoint oAuthAuthenticationEntryPoint;
+    private OAuthAuthenticationEntryPoint oAuthAuthenticationEntryPoint;
 
     @Autowired
     private OAuthServiceConfigService oAuthServiceConfigService;
@@ -97,17 +99,25 @@ public abstract class OAuthAbstractAuthenticationFilter extends GenericFilterBea
             clientSecret = clientCredentials[1];
         }
 
-        return createAuthenticationToken(request, response, scope, application, grantType, oAuthServiceConfig, clientId, clientSecret);
+        if (StringUtils.isBlank(grantType)) {
+            throw new OAuthInvalidRequestException("oauth.exception.grantType.missing");
+        }
+
+        try {
+            return createAuthenticationToken(request, response, scope, application, grantType, oAuthServiceConfig, clientId, clientSecret);
+        } catch (OAuthException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new OAuthServerErrorException(e);
+        }
     }
 
     protected abstract OAuthAuthenticationToken createAuthenticationToken(HttpServletRequest request, HttpServletResponse response, String scope, String application, String grantType, OAuthServiceConfig oAuthServiceConfig, String clientId, String clientSecret);
 
     /**
-     * Decodes the header into a username and password.
+     * Decodes the header into a username and password. Copied from BasicAuthenticationFilter.
      *
-     * Copied from BasicAuthenticationFilter
-     *
-     * @throws org.springframework.security.authentication.BadCredentialsException if the Basic header is not present or is not valid Base64
+     * @throws OAuthInvalidRequestException if the Basic header is not present or is not valid Base64
      */
     private String[] extractAndDecodeHeader(String header) throws IOException {
 
@@ -116,7 +126,7 @@ public abstract class OAuthAbstractAuthenticationFilter extends GenericFilterBea
         try {
             decoded = Base64.decode(base64Token);
         } catch (IllegalArgumentException e) {
-            throw new BadCredentialsException("Failed to decode basic authentication token");
+            throw new OAuthInvalidRequestException("oauth.exception.clientId.bad");
         }
 
         String token = new String(decoded, credentialsCharset);
@@ -124,7 +134,7 @@ public abstract class OAuthAbstractAuthenticationFilter extends GenericFilterBea
         int delim = token.indexOf(":");
 
         if (delim == -1) {
-            throw new BadCredentialsException("Invalid basic authentication token");
+            throw new OAuthInvalidRequestException("oauth.exception.clientSecret.bad");
         }
         return new String[]{token.substring(0, delim), token.substring(delim + 1)};
     }

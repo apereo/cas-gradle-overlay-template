@@ -1,6 +1,5 @@
 package com.infusionsoft.cas.auth;
 
-import com.infusionsoft.cas.domain.OAuthClient;
 import com.infusionsoft.cas.domain.OAuthServiceConfig;
 import com.infusionsoft.cas.domain.User;
 import com.infusionsoft.cas.oauth.exceptions.OAuthAccessDeniedException;
@@ -10,7 +9,9 @@ import org.jasig.cas.authentication.principal.Principal;
 import org.jasig.cas.ticket.TicketGrantingTicket;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -39,7 +40,9 @@ public class OAuthTicketGrantingTicketAuthenticationProviderTest {
     @Mock
     private OAuthServiceConfig oAuthServiceConfig;
 
-    private static final OAuthClient oAuthClient = new OAuthClient();
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
+
     private static final String scope = "scope";
     private static final String application = "application";
     private static final String grantType = "urn:infusionsoft:params:oauth:grant-type:ticket-granting-ticket";
@@ -94,34 +97,45 @@ public class OAuthTicketGrantingTicketAuthenticationProviderTest {
         validateToken(actualReturn, false, token.getTicketGrantingTicket());
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void testAuthenticateFailNullToken() throws Exception {
+        thrown.expect(NullPointerException.class);
+
         providerToTest.authenticate(null);
     }
 
-    @Test(expected = OAuthInvalidRequestException.class)
+    @Test
     public void testAuthenticateFailBadService() throws Exception {
         OAuthTicketGrantingTicketAuthenticationToken token = new OAuthTicketGrantingTicketAuthenticationToken(new Object(), new Object(), null, clientId, clientSecret, scope, grantType, application, trackingUUID, ticketGrantingTicket);
         mockUser();
 
+        thrown.expect(OAuthInvalidRequestException.class);
+        thrown.expectMessage("oauth.exception.service.missing");
+
         providerToTest.authenticate(token);
     }
 
-    @Test(expected = OAuthAccessDeniedException.class)
+    @Test
     public void testAuthenticateFailAnonymousNoTicketGrantingTicketAnonymousNotAllowedForService() throws Exception {
         doReturn(false).when(oAuthServiceConfig).getAllowAnonymous();
         OAuthTicketGrantingTicketAuthenticationToken token = new OAuthTicketGrantingTicketAuthenticationToken(new Object(), new Object(), oAuthServiceConfig, clientId, clientSecret, scope, grantType, application, trackingUUID, null);
         mockUser();
 
+        thrown.expect(OAuthAccessDeniedException.class);
+        thrown.expectMessage("oauth.exception.anonymous.not.allowed");
+
         providerToTest.authenticate(token);
     }
 
-    @Test(expected = OAuthAccessDeniedException.class)
+    @Test
     public void testAuthenticateFailAnonymousExpiredTicketGrantingTicketAnonymousNotAllowedForService() throws Exception {
         doReturn(false).when(oAuthServiceConfig).getAllowAnonymous();
         doReturn(true).when(ticketGrantingTicket).isExpired();
         OAuthTicketGrantingTicketAuthenticationToken token = new OAuthTicketGrantingTicketAuthenticationToken(new Object(), new Object(), oAuthServiceConfig, clientId, clientSecret, scope, grantType, application, trackingUUID, ticketGrantingTicket);
         mockUser();
+
+        thrown.expect(OAuthAccessDeniedException.class);
+        thrown.expectMessage("oauth.exception.anonymous.not.allowed");
 
         providerToTest.authenticate(token);
     }
@@ -148,8 +162,10 @@ public class OAuthTicketGrantingTicketAuthenticationProviderTest {
         Assert.assertFalse(providerToTest.supports(Object.class));
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void testSupportsFailNull() throws Exception {
+        thrown.expect(NullPointerException.class);
+
         providerToTest.supports(null);
     }
 
@@ -167,8 +183,10 @@ public class OAuthTicketGrantingTicketAuthenticationProviderTest {
 
         if (shouldBeAnonymous) {
             Assert.assertEquals(actualReturnToken.getPrincipal(), "anonymous-" + trackingUUID);
+            Assert.assertFalse(actualReturnToken.isAuthenticated());
         } else {
             Assert.assertEquals(actualReturnToken.getPrincipal(), user);
+            Assert.assertTrue(actualReturnToken.isAuthenticated());
         }
 
         Assert.assertEquals(actualReturnToken.getCredentials(), null);

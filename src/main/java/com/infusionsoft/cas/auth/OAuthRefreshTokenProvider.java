@@ -4,6 +4,7 @@ import com.infusionsoft.cas.domain.OAuthClient;
 import com.infusionsoft.cas.domain.OAuthServiceConfig;
 import com.infusionsoft.cas.oauth.dto.OAuthGrantType;
 import com.infusionsoft.cas.oauth.exceptions.OAuthInvalidClientException;
+import com.infusionsoft.cas.oauth.exceptions.OAuthInvalidRequestException;
 import com.infusionsoft.cas.services.OAuthClientService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,17 +14,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
- * <p>
- * A Spring Security Filter that is responsible for extracting client credentials and user credentials
- * to be authenticated via CAS and Mashery.
- * </p>
- * The filter was original copied from BasicAuthenticationFilter and modified from there.
+ * A refresh token provider
  */
 @Component
-public class OAuthRefreshAuthenticationFilter extends OAuthAbstractAuthenticationFilter {
+public class OAuthRefreshTokenProvider implements OAuthFilterTokenProvider {
 
     @Autowired
-    OAuthClientService oAuthClientService;
+    private OAuthClientService oAuthClientService;
 
     /**
      * @param request            request
@@ -36,20 +33,28 @@ public class OAuthRefreshAuthenticationFilter extends OAuthAbstractAuthenticatio
      * @param clientSecret       clientSecret
      */
     @Override
-    protected OAuthAuthenticationToken createAuthenticationToken(HttpServletRequest request, HttpServletResponse response, String scope, String application, String grantType, OAuthServiceConfig oAuthServiceConfig, String clientId, String clientSecret) {
+    public OAuthRefreshAuthenticationToken createAuthenticationToken(HttpServletRequest request, HttpServletResponse response, String scope, String application, String grantType, OAuthServiceConfig oAuthServiceConfig, String clientId, String clientSecret) {
         String refreshToken = StringUtils.defaultString(request.getParameter("refresh_token")).trim();
 
-        if (!OAuthGrantType.REFRESH.isValueEqual(grantType) || clientId == null) {
+        if (!OAuthGrantType.REFRESH.isValueEqual(grantType)) {
             return null;
         }
 
-        if (StringUtils.isEmpty(clientSecret)) {
+        if (StringUtils.isBlank(clientId)) {
+            throw new OAuthInvalidRequestException("oauth.exception.clientId.missing");
+        }
+        if (StringUtils.isBlank(refreshToken)) {
+            throw new OAuthInvalidRequestException("oauth.exception.refreshToken.missing");
+        }
+
+        if (StringUtils.isBlank(clientSecret)) {
             OAuthClient oAuthClient = oAuthClientService.loadOAuthClient(clientId);
-            if (oAuthClient == null) {
-                throw new OAuthInvalidClientException();
-            } else {
+            if (oAuthClient != null) {
                 clientSecret = oAuthClient.getClientSecret();
             }
+        }
+        if (StringUtils.isBlank(clientSecret)) {
+            throw new OAuthInvalidRequestException("oauth.exception.clientSecret.missing");
         }
 
         String originHeader = request.getHeader("Origin");

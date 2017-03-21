@@ -27,7 +27,7 @@ public class OAuthTicketGrantingTicketAuthenticationProvider implements Authenti
         String clientId = token.getClientId();
 
         if (token.getServiceConfig() == null) {
-            throw new OAuthInvalidRequestException("oauth.exception.service.key.not.found");
+            throw new OAuthInvalidRequestException("oauth.exception.service.missing");
         }
 
         TicketGrantingTicket ticketGrantingTicket = token.getTicketGrantingTicket();
@@ -38,7 +38,9 @@ public class OAuthTicketGrantingTicketAuthenticationProvider implements Authenti
             }
 
             // Create an anonymous authentication token
-            return new OAuthTicketGrantingTicketAuthenticationToken("anonymous-" + token.getTrackingUUID(), null, token.getServiceConfig(), clientId, token.getClientSecret(), token.getScope(), token.getGrantType(), token.getApplication(), token.getTrackingUUID(), ticketGrantingTicket, Collections.singletonList(new SimpleGrantedAuthority("ROLE_ANONYMOUS")));
+            final OAuthTicketGrantingTicketAuthenticationToken returnToken = new OAuthTicketGrantingTicketAuthenticationToken("anonymous-" + token.getTrackingUUID(), null, token.getServiceConfig(), clientId, token.getClientSecret(), token.getScope(), token.getGrantType(), token.getApplication(), token.getTrackingUUID(), ticketGrantingTicket, Collections.singletonList(new SimpleGrantedAuthority("ROLE_ANONYMOUS")));
+            returnToken.setAuthenticated(false);
+            return returnToken;
         } else {
             // Create authentication token for a particular user
             Principal principal = ticketGrantingTicket.getAuthentication().getPrincipal();

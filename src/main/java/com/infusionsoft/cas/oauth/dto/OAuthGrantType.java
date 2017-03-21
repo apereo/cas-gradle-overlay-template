@@ -6,6 +6,7 @@ package com.infusionsoft.cas.oauth.dto;
 public enum OAuthGrantType {
 
     AUTHORIZATION_CODE("code"),
+    CLIENT_CREDENTIALS("client_credentials"),
     RESOURCE_OWNER_CREDENTIALS("password"),
     REFRESH("refresh_token"),
     EXTENDED_TRUSTED("urn:infusionsoft:params:oauth:grant-type:trusted"),

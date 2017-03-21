@@ -31,6 +31,7 @@ public class OAuthService implements ApplicationListener<UserAccountRemovedEvent
     private static final Logger log = Logger.getLogger(OAuthService.class);
     private static final String TRUSTED_INTERNAL_SYSTEM_ROLE = "Trusted Internal System";
     private static final String TRUSTED_MOBILE_SYSTEM_ROLE = "Trusted Mobile System";
+    private static final String TRUSTED_SERVICE_ACCOUNT_ROLE = "Trusted Service Account";
 
     @Autowired
     private MasheryApiClientService masheryApiClientService;
@@ -97,16 +98,19 @@ public class OAuthService implements ApplicationListener<UserAccountRemovedEvent
         if (devMode) {
             return new OAuthAccessToken(userContext, "bearer", 0, null, scope);
         } else {
-            /**
-             * Mashery does not support extend grants, so we are faking it by using a password
-             */
-            if (isExtendedGrantType(grantType)) {
-                grantType = OAuthGrantType.RESOURCE_OWNER_CREDENTIALS.getValue();
-            }
-
             MasheryCreateAccessTokenResponse masheryCreateAccessTokenResponse = masheryApiClientService.createAccessToken(providedServiceKey, clientId, clientSecret, grantType, scope, userContext, refreshToken);
-            return new OAuthAccessToken(masheryCreateAccessTokenResponse.getAccess_token(), masheryCreateAccessTokenResponse.getToken_type(), masheryCreateAccessTokenResponse.getExpires_in(), masheryCreateAccessTokenResponse.getRefresh_token(), masheryCreateAccessTokenResponse.getScope());
+            return new OAuthAccessToken(
+                    masheryCreateAccessTokenResponse.getAccess_token(),
+                    masheryCreateAccessTokenResponse.getToken_type(),
+                    masheryCreateAccessTokenResponse.getExpires_in(),
+                    shouldIncludeRefreshToken(grantType) ? masheryCreateAccessTokenResponse.getRefresh_token() : null,
+                    masheryCreateAccessTokenResponse.getScope()
+            );
         }
+    }
+
+    private static boolean shouldIncludeRefreshToken(String grantType) {
+        return !(OAuthGrantType.CLIENT_CREDENTIALS.isValueEqual(grantType) || OAuthGrantType.EXTENDED_TICKET_GRANTING_TICKET.isValueEqual(grantType));
     }
 
     public Boolean revokeAccessToken(String serviceKey, String clientId, String accessToken) throws OAuthException {
@@ -114,7 +118,7 @@ public class OAuthService implements ApplicationListener<UserAccountRemovedEvent
     }
 
     public Set<OAuthUserApplication> fetchUserApplicationsByUserAccount(String serviceKey, UserAccount userAccount) throws OAuthException {
-        Set<OAuthUserApplication> retVal = new HashSet<OAuthUserApplication>();
+        Set<OAuthUserApplication> retVal = new HashSet<>();
 
         if (userAccount != null) {
             User user = userAccount.getUser();
@@ -171,10 +175,6 @@ public class OAuthService implements ApplicationListener<UserAccountRemovedEvent
         return revokeSuccessful;
     }
 
-    public boolean isExtendedGrantType(String grantType) {
-        return OAuthGrantType.EXTENDED_TRUSTED.isValueEqual(grantType) || OAuthGrantType.EXTENDED_TICKET_GRANTING_TICKET.isValueEqual(grantType);
-    }
-
     public boolean isClientAuthorizedForTrustedGrantType(String clientId) throws OAuthException {
         MasheryMember masheryMember = masheryApiClientService.fetchMemberByClientId(clientId);
         for (MasheryRole masheryRole : masheryMember.getRoles()) {
@@ -190,6 +190,17 @@ public class OAuthService implements ApplicationListener<UserAccountRemovedEvent
         MasheryMember masheryMember = masheryApiClientService.fetchMemberByClientId(clientId);
         for (MasheryRole masheryRole : masheryMember.getRoles()) {
             if (TRUSTED_MOBILE_SYSTEM_ROLE.equals(masheryRole.getName())) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public boolean isClientAuthorizedForClientCredentialsGrantType(String clientId) throws OAuthException {
+        MasheryMember masheryMember = masheryApiClientService.fetchMemberByClientId(clientId);
+        for (MasheryRole masheryRole : masheryMember.getRoles()) {
+            if (TRUSTED_SERVICE_ACCOUNT_ROLE.equals(masheryRole.getName())) {
                 return true;
             }
         }

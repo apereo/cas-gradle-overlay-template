@@ -4,7 +4,6 @@ import com.infusionsoft.cas.domain.User;
 import com.infusionsoft.cas.oauth.exceptions.OAuthInvalidRequestException;
 import com.infusionsoft.cas.oauth.exceptions.OAuthUnauthorizedClientException;
 import com.infusionsoft.cas.oauth.services.OAuthService;
-import com.infusionsoft.cas.services.InfusionsoftAuthenticationService;
 import com.infusionsoft.cas.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -16,35 +15,30 @@ import org.springframework.stereotype.Component;
 public class OAuthTrustedGrantAuthenticationProvider implements AuthenticationProvider {
 
     @Autowired
-    InfusionsoftAuthenticationService infusionsoftAuthenticationService;
+    private OAuthService oAuthService;
 
     @Autowired
-    OAuthService oAuthService;
-
-    @Autowired
-    UserService userService;
+    private UserService userService;
 
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-        OAuthTrustedGrantAuthenticationToken retVal = null;
-        OAuthTrustedGrantAuthenticationToken oAuthTrustedGrantAuthenticationToken = (OAuthTrustedGrantAuthenticationToken) authentication;
+        OAuthTrustedGrantAuthenticationToken token = (OAuthTrustedGrantAuthenticationToken) authentication;
 
-        if (oAuthTrustedGrantAuthenticationToken != null) {
-
-            if (oAuthService.isClientAuthorizedForTrustedGrantType(oAuthTrustedGrantAuthenticationToken.getClientId())) {
-                User user = userService.loadUser(oAuthTrustedGrantAuthenticationToken.getGlobalUserId());
-
-                if (user != null) {
-                    retVal = new OAuthTrustedGrantAuthenticationToken(user, null, oAuthTrustedGrantAuthenticationToken.getServiceConfig(), oAuthTrustedGrantAuthenticationToken.getClientId(), oAuthTrustedGrantAuthenticationToken.getClientSecret(), oAuthTrustedGrantAuthenticationToken.getScope(), oAuthTrustedGrantAuthenticationToken.getGrantType(), oAuthTrustedGrantAuthenticationToken.getApplication(), oAuthTrustedGrantAuthenticationToken.getGlobalUserId(), user.getAuthorities());
-                } else {
-                    throw new OAuthInvalidRequestException("oauth.exception.user.not.found");
-                }
-            } else {
-                throw new OAuthUnauthorizedClientException("oauth.exception.client.not.trusted");
-            }
+        if (token.getServiceConfig() == null) {
+            throw new OAuthInvalidRequestException("oauth.exception.service.missing");
         }
 
-        return retVal;
+        if (oAuthService.isClientAuthorizedForTrustedGrantType(token.getClientId())) {
+            User user = userService.loadUser(token.getGlobalUserId());
+
+            if (user != null) {
+                return new OAuthTrustedGrantAuthenticationToken(user, null, token.getServiceConfig(), token.getClientId(), token.getClientSecret(), token.getScope(), token.getGrantType(), token.getApplication(), token.getGlobalUserId(), user.getAuthorities());
+            } else {
+                throw new OAuthInvalidRequestException("oauth.exception.user.not.found");
+            }
+        } else {
+            throw new OAuthUnauthorizedClientException("oauth.exception.client.not.trusted");
+        }
     }
 
     @Override
