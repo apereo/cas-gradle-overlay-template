@@ -115,9 +115,7 @@ public abstract class OAuthAbstractAuthenticationFilter extends GenericFilterBea
     protected abstract OAuthAuthenticationToken createAuthenticationToken(HttpServletRequest request, HttpServletResponse response, String scope, String application, String grantType, OAuthServiceConfig oAuthServiceConfig, String clientId, String clientSecret);
 
     /**
-     * Decodes the header into a username and password.
-     * <p>
-     * Copied from BasicAuthenticationFilter
+     * Decodes the header into a username and password. Copied from BasicAuthenticationFilter.
      *
      * @throws OAuthInvalidRequestException if the Basic header is not present or is not valid Base64
      */
