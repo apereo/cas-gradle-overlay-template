@@ -5,7 +5,6 @@ import com.infusionsoft.cas.domain.UserAccount;
 import com.infusionsoft.cas.events.UserAccountRemovedEvent;
 import com.infusionsoft.cas.oauth.dto.OAuthAccessToken;
 import com.infusionsoft.cas.oauth.dto.OAuthApplication;
-import com.infusionsoft.cas.oauth.dto.OAuthGrantType;
 import com.infusionsoft.cas.oauth.dto.OAuthUserApplication;
 import com.infusionsoft.cas.oauth.exceptions.OAuthAccessDeniedException;
 import com.infusionsoft.cas.oauth.exceptions.OAuthException;
@@ -103,14 +102,10 @@ public class OAuthService implements ApplicationListener<UserAccountRemovedEvent
                     masheryCreateAccessTokenResponse.getAccess_token(),
                     masheryCreateAccessTokenResponse.getToken_type(),
                     masheryCreateAccessTokenResponse.getExpires_in(),
-                    shouldIncludeRefreshToken(grantType) ? masheryCreateAccessTokenResponse.getRefresh_token() : null,
+                    masheryCreateAccessTokenResponse.getRefresh_token(),
                     masheryCreateAccessTokenResponse.getScope()
             );
         }
-    }
-
-    private static boolean shouldIncludeRefreshToken(String grantType) {
-        return !(OAuthGrantType.CLIENT_CREDENTIALS.isValueEqual(grantType) || OAuthGrantType.EXTENDED_TICKET_GRANTING_TICKET.isValueEqual(grantType));
     }
 
     public Boolean revokeAccessToken(String serviceKey, String clientId, String accessToken) throws OAuthException {

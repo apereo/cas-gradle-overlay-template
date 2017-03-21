@@ -58,7 +58,7 @@ public class MasheryApiClientService {
     private void init() {
         restTemplate = new RestTemplate();
 
-        List<HttpMessageConverter<?>> httpMessageConverters = new ArrayList<HttpMessageConverter<?>>();
+        List<HttpMessageConverter<?>> httpMessageConverters = new ArrayList<>();
 
         MappingJackson2HttpMessageConverter converter = new MappingJackson2HttpMessageConverter();
         converter.setObjectMapper(infusionsoftObjectMapper);
@@ -90,7 +90,7 @@ public class MasheryApiClientService {
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        HttpEntity<MasheryJsonRpcRequest> request = new HttpEntity<MasheryJsonRpcRequest>(masheryJsonRpcRequest, headers);
+        HttpEntity<MasheryJsonRpcRequest> request = new HttpEntity<>(masheryJsonRpcRequest, headers);
 
         WrappedMasheryUserApplication wrappedMasheryUserApplication;
 
@@ -108,14 +108,14 @@ public class MasheryApiClientService {
         masheryJsonRpcRequest.setMethod("oauth2.revokeAccessToken");
 
         masheryJsonRpcRequest.getParams().add(serviceKey);
-        Map<String, String> clientMap = new HashMap<String, String>();
+        Map<String, String> clientMap = new HashMap<>();
         clientMap.put("client_id", clientId);
         masheryJsonRpcRequest.getParams().add(clientMap);
         masheryJsonRpcRequest.getParams().add(accessToken);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        HttpEntity<MasheryJsonRpcRequest> request = new HttpEntity<MasheryJsonRpcRequest>(masheryJsonRpcRequest, headers);
+        HttpEntity<MasheryJsonRpcRequest> request = new HttpEntity<>(masheryJsonRpcRequest, headers);
 
         WrappedMasheryBoolean wrappedBooleanResult;
 
@@ -143,7 +143,7 @@ public class MasheryApiClientService {
 
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
-            HttpEntity<MasheryJsonRpcRequest> request = new HttpEntity<MasheryJsonRpcRequest>(masheryJsonRpcRequest, headers);
+            HttpEntity<MasheryJsonRpcRequest> request = new HttpEntity<>(masheryJsonRpcRequest, headers);
 
             WrappedMasheryOAuthApplication wrappedMasheryOAuthApplication = restTemplate.postForObject(buildUrl(), request, WrappedMasheryOAuthApplication.class);
 
@@ -163,7 +163,7 @@ public class MasheryApiClientService {
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        HttpEntity<MasheryJsonRpcRequest> request = new HttpEntity<MasheryJsonRpcRequest>(masheryJsonRpcRequest, headers);
+        HttpEntity<MasheryJsonRpcRequest> request = new HttpEntity<>(masheryJsonRpcRequest, headers);
 
         WrappedMasheryApplication wrappedMasheryOAuthApplication;
 
@@ -186,7 +186,7 @@ public class MasheryApiClientService {
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        HttpEntity<MasheryJsonRpcRequest> request = new HttpEntity<MasheryJsonRpcRequest>(masheryJsonRpcRequest, headers);
+        HttpEntity<MasheryJsonRpcRequest> request = new HttpEntity<>(masheryJsonRpcRequest, headers);
 
         WrappedMasheryMemberQueryResult wrappedMasheryMember;
 
@@ -213,7 +213,7 @@ public class MasheryApiClientService {
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        HttpEntity<MasheryJsonRpcRequest> request = new HttpEntity<MasheryJsonRpcRequest>(masheryJsonRpcRequest, headers);
+        HttpEntity<MasheryJsonRpcRequest> request = new HttpEntity<>(masheryJsonRpcRequest, headers);
 
         WrappedMasheryMemberListQueryResult wrappedMasheryMember;
 
@@ -234,6 +234,8 @@ public class MasheryApiClientService {
         MasheryJsonRpcRequest masheryJsonRpcRequest = new MasheryJsonRpcRequest();
         masheryJsonRpcRequest.setMethod("oauth2.createAccessToken");
 
+        final boolean shouldIncludeRefreshToken = shouldIncludeRefreshToken(grant_type);
+
         // Mashery does not support extend grants, so we are faking it by using the password
         if (isExtendedGrantType(grant_type)) {
             grant_type = OAuthGrantType.RESOURCE_OWNER_CREDENTIALS.getValue();
@@ -247,7 +249,7 @@ public class MasheryApiClientService {
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        HttpEntity<MasheryJsonRpcRequest> request = new HttpEntity<MasheryJsonRpcRequest>(masheryJsonRpcRequest, headers);
+        HttpEntity<MasheryJsonRpcRequest> request = new HttpEntity<>(masheryJsonRpcRequest, headers);
 
         WrappedMasheryCreateAccessTokenResponse wrappedMasheryCreateAccessTokenResponse;
 
@@ -257,11 +259,20 @@ public class MasheryApiClientService {
             throw convertException(e);
         }
 
-        return wrappedMasheryCreateAccessTokenResponse != null ? wrappedMasheryCreateAccessTokenResponse.getResult() : null;
+        final MasheryCreateAccessTokenResponse response = wrappedMasheryCreateAccessTokenResponse.getResult();
+        if (!shouldIncludeRefreshToken) {
+            response.setRefresh_token(null);
+        }
+
+        return response;
     }
 
     private static boolean isExtendedGrantType(String grantType) {
         return OAuthGrantType.EXTENDED_TRUSTED.isValueEqual(grantType) || OAuthGrantType.EXTENDED_TICKET_GRANTING_TICKET.isValueEqual(grantType);
+    }
+
+    private static boolean shouldIncludeRefreshToken(String grantType) {
+        return !(OAuthGrantType.CLIENT_CREDENTIALS.isValueEqual(grantType) || OAuthGrantType.EXTENDED_TICKET_GRANTING_TICKET.isValueEqual(grantType));
     }
 
     public MasheryAccessToken fetchAccessToken(String serviceKey, String accessToken) throws OAuthException {
@@ -273,7 +284,7 @@ public class MasheryApiClientService {
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        HttpEntity<MasheryJsonRpcRequest> request = new HttpEntity<MasheryJsonRpcRequest>(masheryJsonRpcRequest, headers);
+        HttpEntity<MasheryJsonRpcRequest> request = new HttpEntity<>(masheryJsonRpcRequest, headers);
 
         WrappedMasheryAccessToken wrappedMasheryAccessToken;
 
@@ -299,7 +310,7 @@ public class MasheryApiClientService {
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        HttpEntity<MasheryJsonRpcRequest> request = new HttpEntity<MasheryJsonRpcRequest>(masheryJsonRpcRequest, headers);
+        HttpEntity<MasheryJsonRpcRequest> request = new HttpEntity<>(masheryJsonRpcRequest, headers);
 
         WrappedMasheryAuthorizationCode wrappedMasheryAuthorizationCode;
 

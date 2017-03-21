@@ -1,5 +1,6 @@
 package com.infusionsoft.cas.oauth.mashery.api.client;
 
+import com.infusionsoft.cas.oauth.dto.OAuthGrantType;
 import com.infusionsoft.cas.oauth.exceptions.OAuthServerErrorException;
 import com.infusionsoft.cas.oauth.mashery.api.domain.*;
 import com.infusionsoft.cas.oauth.mashery.api.wrappers.*;
@@ -11,7 +12,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
+import org.mockito.*;
 import org.mockito.internal.util.reflection.Whitebox;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
@@ -40,30 +41,40 @@ public class MasheryApiClientServiceTest {
     private static final String TOKEN_2 = "token2";
     private static final String TOKEN_3 = "token3";
     private static final String CLIENT_ID = "client_id";
+    private static final String CLIENT_SECRET = "clientSecret";
     private static final String ACCESS_TOKEN = "accessToken";
     private static final String TEST_REDIRECT_URI = "redirectUri";
+    private static final String TOKEN_TYPE = "token_type";
+    private static final Integer EXPIRES_IN = 123456;
+    private static final String REFRESH_TOKEN = "refresh_token";
+    private static final String SCOPE = "scope";
 
+    @InjectMocks
     private MasheryApiClientService masheryServiceToTest;
+
+    @Mock
     private RestTemplate restTemplate;
+
+    @Captor
+    private ArgumentCaptor<HttpEntity<MasheryJsonRpcRequest>> requestCaptor;
+
     private WrappedMasheryUserApplication wrappedMasheryUserApplication;
 
     @Before
     public void beforeMethod() {
         createWrappedMasheryUserApplication();
 
-        restTemplate = mock(RestTemplate.class);
-
         masheryServiceToTest = new MasheryApiClientService();
-        Whitebox.setInternalState(masheryServiceToTest, "restTemplate", restTemplate);
+        MockitoAnnotations.initMocks(this);
     }
 
     private void createWrappedMasheryUserApplication() {
         wrappedMasheryUserApplication = new WrappedMasheryUserApplication();
-        Set<MasheryUserApplication> userApps = new HashSet<MasheryUserApplication>();
+        Set<MasheryUserApplication> userApps = new HashSet<>();
         MasheryUserApplication app = new MasheryUserApplication();
         app.setName("ACME");
         app.setClient_id(CLIENT_ID);
-        Set<String> accessTokens = new HashSet<String>();
+        Set<String> accessTokens = new HashSet<>();
         accessTokens.add(TOKEN_1);
         accessTokens.add(TOKEN_2);
         accessTokens.add(TOKEN_3);
@@ -237,4 +248,160 @@ public class MasheryApiClientServiceTest {
         String expectedUrl = StringUtils.join(apiUrl, "/", siteId, "?apikey=", apiKey, "&sig=", DigestUtils.md5Hex(StringUtils.join(apiKey, apiSecret, epoch)));
         Assert.assertEquals(actualUrl, expectedUrl);
     }
+
+    @Test
+    public void testCreateAccessTokenAuthorizationCode() throws Exception {
+        final String grantType = OAuthGrantType.AUTHORIZATION_CODE.getValue();
+
+        final WrappedMasheryCreateAccessTokenResponse generatedResponseWrapper = createAccessTokenResponse();
+        doReturn(generatedResponseWrapper).when(restTemplate).postForObject(anyString(), any(), any());
+
+        final MasheryCreateAccessTokenResponse returnedResponse = masheryServiceToTest.createAccessToken(SERVICE_KEY, CLIENT_ID, CLIENT_SECRET, grantType, SCOPE, USER_CONTEXT, REFRESH_TOKEN);
+        Assert.assertNotNull(returnedResponse);
+        Assert.assertSame(generatedResponseWrapper.getResult(), returnedResponse);
+        Assert.assertEquals(returnedResponse.getAccess_token(), ACCESS_TOKEN);
+        Assert.assertEquals(returnedResponse.getToken_type(), TOKEN_TYPE);
+        Assert.assertEquals(returnedResponse.getExpires_in(), EXPIRES_IN);
+        Assert.assertEquals(returnedResponse.getRefresh_token(), REFRESH_TOKEN);
+        Assert.assertEquals(returnedResponse.getScope(), SCOPE);
+
+        verifyRequest(grantType);
+    }
+
+    @Test
+    public void testCreateAccessTokenTrusted() throws Exception {
+        final String grantType = OAuthGrantType.EXTENDED_TRUSTED.getValue();
+
+        final WrappedMasheryCreateAccessTokenResponse generatedResponseWrapper = createAccessTokenResponse();
+        doReturn(generatedResponseWrapper).when(restTemplate).postForObject(anyString(), any(), any());
+
+        final MasheryCreateAccessTokenResponse returnedResponse = masheryServiceToTest.createAccessToken(SERVICE_KEY, CLIENT_ID, CLIENT_SECRET, grantType, SCOPE, USER_CONTEXT, REFRESH_TOKEN);
+        Assert.assertNotNull(returnedResponse);
+        Assert.assertSame(generatedResponseWrapper.getResult(), returnedResponse);
+        Assert.assertEquals(returnedResponse.getAccess_token(), ACCESS_TOKEN);
+        Assert.assertEquals(returnedResponse.getToken_type(), TOKEN_TYPE);
+        Assert.assertEquals(returnedResponse.getExpires_in(), EXPIRES_IN);
+        Assert.assertEquals(returnedResponse.getRefresh_token(), REFRESH_TOKEN);
+        Assert.assertEquals(returnedResponse.getScope(), SCOPE);
+
+        // Spoof password grant type for extended grants
+        verifyRequest(OAuthGrantType.RESOURCE_OWNER_CREDENTIALS.getValue());
+    }
+
+    @Test
+    public void testCreateAccessTokenRefresh() throws Exception {
+        final String grantType = OAuthGrantType.REFRESH.getValue();
+
+        final WrappedMasheryCreateAccessTokenResponse generatedResponseWrapper = createAccessTokenResponse();
+        doReturn(generatedResponseWrapper).when(restTemplate).postForObject(anyString(), any(), any());
+
+        final MasheryCreateAccessTokenResponse returnedResponse = masheryServiceToTest.createAccessToken(SERVICE_KEY, CLIENT_ID, CLIENT_SECRET, grantType, SCOPE, USER_CONTEXT, REFRESH_TOKEN);
+        Assert.assertNotNull(returnedResponse);
+        Assert.assertSame(generatedResponseWrapper.getResult(), returnedResponse);
+        Assert.assertEquals(returnedResponse.getAccess_token(), ACCESS_TOKEN);
+        Assert.assertEquals(returnedResponse.getToken_type(), TOKEN_TYPE);
+        Assert.assertEquals(returnedResponse.getExpires_in(), EXPIRES_IN);
+        Assert.assertEquals(returnedResponse.getRefresh_token(), REFRESH_TOKEN);
+        Assert.assertEquals(returnedResponse.getScope(), SCOPE);
+
+        verifyRequest(grantType);
+    }
+
+    @Test
+    public void testCreateAccessTokenResourceOwner() throws Exception {
+        final String grantType = OAuthGrantType.RESOURCE_OWNER_CREDENTIALS.getValue();
+
+        final WrappedMasheryCreateAccessTokenResponse generatedResponseWrapper = createAccessTokenResponse();
+        doReturn(generatedResponseWrapper).when(restTemplate).postForObject(anyString(), any(), any());
+
+        final MasheryCreateAccessTokenResponse returnedResponse = masheryServiceToTest.createAccessToken(SERVICE_KEY, CLIENT_ID, CLIENT_SECRET, grantType, SCOPE, USER_CONTEXT, REFRESH_TOKEN);
+        Assert.assertNotNull(returnedResponse);
+        Assert.assertSame(generatedResponseWrapper.getResult(), returnedResponse);
+        Assert.assertEquals(returnedResponse.getAccess_token(), ACCESS_TOKEN);
+        Assert.assertEquals(returnedResponse.getToken_type(), TOKEN_TYPE);
+        Assert.assertEquals(returnedResponse.getExpires_in(), EXPIRES_IN);
+        Assert.assertEquals(returnedResponse.getRefresh_token(), REFRESH_TOKEN);
+        Assert.assertEquals(returnedResponse.getScope(), SCOPE);
+
+        verifyRequest(grantType);
+    }
+
+    @Test
+    public void testCreateAccessTokenClientCredentials() throws Exception {
+        final String grantType = OAuthGrantType.CLIENT_CREDENTIALS.getValue();
+
+        final WrappedMasheryCreateAccessTokenResponse generatedResponseWrapper = createAccessTokenResponse();
+        doReturn(generatedResponseWrapper).when(restTemplate).postForObject(anyString(), any(), any());
+
+        final MasheryCreateAccessTokenResponse returnedResponse = masheryServiceToTest.createAccessToken(SERVICE_KEY, CLIENT_ID, CLIENT_SECRET, grantType, SCOPE, USER_CONTEXT, REFRESH_TOKEN);
+        Assert.assertNotNull(returnedResponse);
+        Assert.assertSame(generatedResponseWrapper.getResult(), returnedResponse);
+        Assert.assertEquals(returnedResponse.getAccess_token(), ACCESS_TOKEN);
+        Assert.assertEquals(returnedResponse.getToken_type(), TOKEN_TYPE);
+        Assert.assertEquals(returnedResponse.getExpires_in(), EXPIRES_IN);
+        Assert.assertNull(returnedResponse.getRefresh_token());
+        Assert.assertEquals(returnedResponse.getScope(), SCOPE);
+
+        verifyRequest(grantType);
+    }
+
+    @Test
+    public void testCreateAccessTokenTicketGrantingTicket() throws Exception {
+        final String grantType = OAuthGrantType.EXTENDED_TICKET_GRANTING_TICKET.getValue();
+
+        final WrappedMasheryCreateAccessTokenResponse generatedResponseWrapper = createAccessTokenResponse();
+        doReturn(generatedResponseWrapper).when(restTemplate).postForObject(anyString(), any(), any());
+
+        final MasheryCreateAccessTokenResponse returnedResponse = masheryServiceToTest.createAccessToken(SERVICE_KEY, CLIENT_ID, CLIENT_SECRET, grantType, SCOPE, USER_CONTEXT, REFRESH_TOKEN);
+        Assert.assertNotNull(returnedResponse);
+        Assert.assertSame(generatedResponseWrapper.getResult(), returnedResponse);
+        Assert.assertEquals(returnedResponse.getAccess_token(), ACCESS_TOKEN);
+        Assert.assertEquals(returnedResponse.getToken_type(), TOKEN_TYPE);
+        Assert.assertEquals(returnedResponse.getExpires_in(), EXPIRES_IN);
+        Assert.assertNull(returnedResponse.getRefresh_token());
+        Assert.assertEquals(returnedResponse.getScope(), SCOPE);
+
+        // Spoof password grant type for extended grants
+        verifyRequest(OAuthGrantType.RESOURCE_OWNER_CREDENTIALS.getValue());
+    }
+
+    private WrappedMasheryCreateAccessTokenResponse createAccessTokenResponse() {
+        MasheryCreateAccessTokenResponse masheryCreateAccessTokenResponse = new MasheryCreateAccessTokenResponse();
+        masheryCreateAccessTokenResponse.setAccess_token(ACCESS_TOKEN);
+        masheryCreateAccessTokenResponse.setToken_type(TOKEN_TYPE);
+        masheryCreateAccessTokenResponse.setExpires_in(EXPIRES_IN);
+        masheryCreateAccessTokenResponse.setRefresh_token(REFRESH_TOKEN);
+        masheryCreateAccessTokenResponse.setScope(SCOPE);
+
+        WrappedMasheryCreateAccessTokenResponse wrappedMasheryCreateAccessTokenResponse = new WrappedMasheryCreateAccessTokenResponse();
+        wrappedMasheryCreateAccessTokenResponse.setResult(masheryCreateAccessTokenResponse);
+        return wrappedMasheryCreateAccessTokenResponse;
+    }
+
+    private void verifyRequest(String grantType) {
+        verify(restTemplate, times(1)).postForObject(anyString(), requestCaptor.capture(), eq(WrappedMasheryCreateAccessTokenResponse.class));
+
+        final HttpEntity<MasheryJsonRpcRequest> requestHttpEntity = requestCaptor.getValue();
+        final MasheryJsonRpcRequest masheryJsonRpcRequest = requestHttpEntity.getBody();
+        Assert.assertEquals("oauth2.createAccessToken", masheryJsonRpcRequest.getMethod());
+
+        final List<Object> params = masheryJsonRpcRequest.getParams();
+        Assert.assertEquals(SERVICE_KEY, params.get(0));
+        Assert.assertTrue(params.get(1) instanceof MasheryClient);
+        final MasheryClient masheryClient = (MasheryClient) params.get(1);
+        Assert.assertEquals(CLIENT_ID, masheryClient.getClientId());
+        Assert.assertEquals(CLIENT_SECRET, masheryClient.getClientSecret());
+        Assert.assertTrue(SERVICE_KEY, params.get(2) instanceof MasheryTokenData);
+        final MasheryTokenData masheryTokenData = (MasheryTokenData) params.get(2);
+        Assert.assertEquals(grantType, masheryTokenData.getGrant_type());
+        Assert.assertEquals(SCOPE, masheryTokenData.getScope());
+        Assert.assertNull(masheryTokenData.getCode());
+        Assert.assertNull(masheryTokenData.getResponse_type());
+        Assert.assertEquals(REFRESH_TOKEN, masheryTokenData.getRefresh_token());
+        Assert.assertTrue(SERVICE_KEY, params.get(3) instanceof MasheryUri);
+        Assert.assertEquals(USER_CONTEXT, params.get(4));
+
+        Assert.assertEquals(MediaType.APPLICATION_JSON, requestHttpEntity.getHeaders().getContentType());
+    }
+
 }
