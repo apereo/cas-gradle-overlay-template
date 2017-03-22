@@ -250,25 +250,6 @@ public class MasheryApiClientServiceTest {
     }
 
     @Test
-    public void testCreateAccessTokenAuthorizationCode() throws Exception {
-        final String grantType = OAuthGrantType.AUTHORIZATION_CODE.getValue();
-
-        final WrappedMasheryCreateAccessTokenResponse generatedResponseWrapper = createAccessTokenResponse();
-        doReturn(generatedResponseWrapper).when(restTemplate).postForObject(anyString(), any(), any());
-
-        final MasheryCreateAccessTokenResponse returnedResponse = masheryServiceToTest.createAccessToken(SERVICE_KEY, CLIENT_ID, CLIENT_SECRET, grantType, SCOPE, USER_CONTEXT, REFRESH_TOKEN);
-        Assert.assertNotNull(returnedResponse);
-        Assert.assertSame(generatedResponseWrapper.getResult(), returnedResponse);
-        Assert.assertEquals(returnedResponse.getAccess_token(), ACCESS_TOKEN);
-        Assert.assertEquals(returnedResponse.getToken_type(), TOKEN_TYPE);
-        Assert.assertEquals(returnedResponse.getExpires_in(), EXPIRES_IN);
-        Assert.assertEquals(returnedResponse.getRefresh_token(), REFRESH_TOKEN);
-        Assert.assertEquals(returnedResponse.getScope(), SCOPE);
-
-        verifyRequest(grantType);
-    }
-
-    @Test
     public void testCreateAccessTokenTrusted() throws Exception {
         final String grantType = OAuthGrantType.EXTENDED_TRUSTED.getValue();
 

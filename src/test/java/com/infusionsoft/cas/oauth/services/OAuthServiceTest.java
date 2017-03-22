@@ -220,7 +220,7 @@ public class OAuthServiceTest {
     public void testCreateAccessToken() throws Exception {
         final String clientId = "clientId";
         final String clientSecret = "clientSecret";
-        final String grantType = OAuthGrantType.AUTHORIZATION_CODE.getValue();
+        final String grantType = OAuthGrantType.RESOURCE_OWNER_CREDENTIALS.getValue();
         final String providedScope = "scope";
         final String application = "application";
         final String userId = "userId";

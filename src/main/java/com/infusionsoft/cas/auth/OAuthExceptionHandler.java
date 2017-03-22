@@ -1,6 +1,6 @@
 package com.infusionsoft.cas.auth;
 
-import com.infusionsoft.cas.oauth.dto.OAuthGrantType;
+import com.infusionsoft.cas.oauth.dto.OAuthResponseType;
 import com.infusionsoft.cas.oauth.exceptions.OAuthException;
 import com.infusionsoft.cas.oauth.exceptions.OAuthServerErrorException;
 import org.apache.commons.lang3.StringUtils;
@@ -65,9 +65,9 @@ public class OAuthExceptionHandler extends AbstractHandlerExceptionResolver {
             model.put(ERROR__URI_PARAMETER, oAuthException.getErrorUri());
         }
 
-        OAuthGrantType grantType = OAuthGrantType.fromValue(request.getParameter(RESPONSE_TYPE_PARAMETER));
+        OAuthResponseType responseType = OAuthResponseType.fromValue(request.getParameter(RESPONSE_TYPE_PARAMETER));
 
-        if (OAuthGrantType.AUTHORIZATION_CODE.equals(grantType)) {
+        if (OAuthResponseType.CODE.equals(responseType)) {
             model.put(STATE_PARAMETER, request.getParameter(STATE_PARAMETER));
             modelAndView.setViewName("redirect:" + request.getParameter(REDIRECT_URI_PARAMETER));
         } else {
