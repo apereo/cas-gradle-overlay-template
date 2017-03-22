@@ -8,6 +8,7 @@ import edu.emory.mathcs.backport.java.util.Arrays;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -37,6 +38,7 @@ public class MasheryApiClientServiceTest {
     private static final String TEST_APP_HOST_NAME = "testApp.infusionsoft.com";
     private static final String TEST_STATE = "testState";
     private static final String TEST_USERNAME = "jojo@infusionsoft.com";
+    private static final String TEST_APIKEY = "6jeand9dk2rx5br8eu2rehem";
     private static final String TOKEN_1 = "token1";
     private static final String TOKEN_2 = "token2";
     private static final String TOKEN_3 = "token3";
@@ -247,6 +249,26 @@ public class MasheryApiClientServiceTest {
         String actualUrl = masheryServiceToTest.buildUrl(epoch);
         String expectedUrl = StringUtils.join(apiUrl, "/", siteId, "?apikey=", apiKey, "&sig=", DigestUtils.md5Hex(StringUtils.join(apiKey, apiSecret, epoch)));
         Assert.assertEquals(actualUrl, expectedUrl);
+    }
+
+    @Test
+    public void testFetchApplicationsByAPIKey() throws Exception {
+        Set<MasheryApplication> masheryApplications = new HashSet<>();
+        masheryApplications.add(new MasheryApplication());
+
+        MasheryQueryResult<MasheryApplication> masheryQueryResult = new MasheryQueryResult<>();
+        masheryQueryResult.setItems(masheryApplications);
+        masheryQueryResult.setTotalItems(masheryApplications.size());
+
+        WrappedMasheryApplicationQueryResult wrappedMasheryApplicationQueryResult = new WrappedMasheryApplicationQueryResult();
+        wrappedMasheryApplicationQueryResult.setResult(masheryQueryResult);
+        when(restTemplate.postForObject(anyString(), anyObject(), any(Class.class))).thenReturn(wrappedMasheryApplicationQueryResult);
+
+        // verify result
+        Set<MasheryApplication> methodTestResults = masheryServiceToTest.fetchApplicationsByClientId(TEST_APIKEY);
+        Assert.assertEquals(methodTestResults,masheryApplications);
+
+        verifyCallToMashery("object.query", Arrays.asList(new Object[]{"SELECT * FROM applications REQUIRE RELATED keys WITH apikey ='" + TEST_APIKEY + "'"}));
     }
 
     @Test

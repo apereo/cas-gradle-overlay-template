@@ -60,7 +60,28 @@ public class OAuthService implements ApplicationListener<UserAccountRemovedEvent
         MasheryOAuthApplication masheryOAuthApplication = masheryApiClientService.fetchOAuthApplication(serviceKey, clientId, redirectUri, responseType);
         MasheryApplication masheryApplication = masheryApiClientService.fetchApplication(masheryOAuthApplication.getId());
         MasheryMember masheryMember = masheryApiClientService.fetchMember(masheryApplication.getUsername());
-        return new OAuthApplication(Objects.toString(masheryOAuthApplication.getId(), null), masheryApplication.getUuid(), masheryApplication.getName(), masheryApplication.getDescription(), masheryMember.getDisplayName(), masheryMember.getUsername());
+        return new OAuthApplication(
+                Objects.toString(masheryOAuthApplication.getId(), null),
+                masheryApplication.getUuid(),
+                masheryApplication.getName(),
+                masheryApplication.getDescription(),
+                masheryMember.getDisplayName(),
+                masheryMember.getUsername());
+    }
+
+    public Set<OAuthApplication> fetchApplications(String clientId){
+        final Set<MasheryApplication> applications = masheryApiClientService.fetchApplicationsByClientId(clientId);
+        Set<OAuthApplication> dtos = new HashSet<>();
+        for(MasheryApplication application : applications){
+            dtos.add(new OAuthApplication(
+                    Objects.toString(application.getId(), null),
+                    application.getUuid(),
+                    application.getName(),
+                    application.getDescription(),
+                    null,
+                    application.getUsername()));
+        }
+        return dtos;
     }
 
     public String createAuthorizationCode(String serviceKey, String clientId, String requestedScope, String application, String redirectUri, Long globalUserId, String state) throws OAuthException {
