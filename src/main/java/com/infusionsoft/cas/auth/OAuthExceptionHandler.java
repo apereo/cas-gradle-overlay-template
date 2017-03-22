@@ -13,6 +13,7 @@ import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.handler.AbstractHandlerExceptionResolver;
+import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -72,6 +73,7 @@ public class OAuthExceptionHandler extends AbstractHandlerExceptionResolver {
             modelAndView.setViewName("redirect:" + request.getParameter(REDIRECT_URI_PARAMETER));
         } else {
             response.setStatus(oAuthException.getHttpStatus().value());
+            modelAndView.setView(new MappingJackson2JsonView());
         }
 
         modelAndView.addAllObjects(model);
