@@ -24,7 +24,6 @@ import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import java.lang.reflect.Method;
-import java.net.URI;
 import java.util.*;
 
 import static org.mockito.Matchers.any;
@@ -103,18 +102,9 @@ public class MasheryApiClientServiceTest {
     }
 
     private void verifyCallToMashery(String expectedMethod, List<Object> expectedParams) throws NoSuchMethodException {
-        verifyCallToMashery(expectedMethod, expectedParams, String.class);
-    }
-
-    private void verifyCallToMashery(String expectedMethod, List<Object> expectedParams, Class type) throws NoSuchMethodException {
         // Verify the restTemplate call and capture the request object passed in
         ArgumentCaptor<HttpEntity> requestArgumentCaptor = ArgumentCaptor.forClass(HttpEntity.class);
-        // Two different methods, need to make sure that we're checking the one that is mocked for a given test
-        if(type == URI.class) {
-            verify(restTemplate, times(1)).postForObject(any(URI.class), requestArgumentCaptor.capture(), any(Class.class));
-        } else {
-            verify(restTemplate, times(1)).postForObject(anyString(), requestArgumentCaptor.capture(), any(Class.class));
-        }
+        verify(restTemplate, times(1)).postForObject(anyString(), requestArgumentCaptor.capture(), any(Class.class));
         // Verify that the JSON header was set
         HttpEntity<MasheryJsonRpcRequest> requestHttpEntity = (HttpEntity<MasheryJsonRpcRequest>) requestArgumentCaptor.getValue();
         Assert.assertEquals(requestHttpEntity.getHeaders().getContentType(), MediaType.APPLICATION_JSON);
@@ -272,13 +262,13 @@ public class MasheryApiClientServiceTest {
 
         WrappedMasheryApplicationQueryResult wrappedMasheryApplicationQueryResult = new WrappedMasheryApplicationQueryResult();
         wrappedMasheryApplicationQueryResult.setResult(masheryQueryResult);
-        when(restTemplate.postForObject(any(URI.class), anyObject(), any(Class.class))).thenReturn(wrappedMasheryApplicationQueryResult);
+        when(restTemplate.postForObject(anyString(), anyObject(), any(Class.class))).thenReturn(wrappedMasheryApplicationQueryResult);
 
         // verify result
         Set<MasheryApplication> methodTestResults = masheryServiceToTest.fetchApplicationsByClientId(TEST_APIKEY);
         Assert.assertEquals(methodTestResults,masheryApplications);
 
-        verifyCallToMashery("object.query", Arrays.asList(new Object[]{"SELECT * FROM applications REQUIRE RELATED keys WITH apikey ='" + TEST_APIKEY + "'"}), URI.class);
+        verifyCallToMashery("object.query", Arrays.asList(new Object[]{"SELECT * FROM applications REQUIRE RELATED keys WITH apikey ='" + TEST_APIKEY + "'"}));
     }
 
     @Test

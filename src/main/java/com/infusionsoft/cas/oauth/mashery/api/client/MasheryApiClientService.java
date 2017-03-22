@@ -189,7 +189,7 @@ public class MasheryApiClientService {
         WrappedMasheryApplicationQueryResult wrappedMasheryApplicationQueryResult;
 
         try {
-            wrappedMasheryApplicationQueryResult = restTemplate.postForObject(java.net.URI.create(buildUrl()), request, WrappedMasheryApplicationQueryResult.class);
+            wrappedMasheryApplicationQueryResult = restTemplate.postForObject(buildUrl(), request, WrappedMasheryApplicationQueryResult.class);
         } catch (RestClientException e) {
             throw convertException(e);
         }
