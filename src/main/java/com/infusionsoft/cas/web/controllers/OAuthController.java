@@ -9,7 +9,7 @@ import com.infusionsoft.cas.domain.OAuthServiceConfig;
 import com.infusionsoft.cas.domain.User;
 import com.infusionsoft.cas.domain.UserAccount;
 import com.infusionsoft.cas.oauth.dto.OAuthAccessToken;
-import com.infusionsoft.cas.oauth.dto.OAuthGrantType;
+import com.infusionsoft.cas.oauth.dto.OAuthResponseType;
 import com.infusionsoft.cas.oauth.exceptions.*;
 import com.infusionsoft.cas.oauth.services.OAuthService;
 import com.infusionsoft.cas.services.CrmService;
@@ -87,12 +87,12 @@ public class OAuthController {
         model.addAttribute("response_type", response_type);
         model.addAttribute("state", state);
 
-        OAuthGrantType grantType = OAuthGrantType.fromValue(response_type);
+        OAuthResponseType responseType = OAuthResponseType.fromValue(response_type);
 
         try {
             if (StringUtils.isBlank(client_id) || StringUtils.isBlank(redirect_uri) || StringUtils.isBlank(response_type)) {
                 throw new OAuthInvalidRequestException("oauth.exception.authorization.code.invalid.input");
-            } else if (grantType != OAuthGrantType.AUTHORIZATION_CODE) {
+            } else if (responseType != OAuthResponseType.CODE) {
                 throw new OAuthUnsupportedResponseTypeException();
             } else {
                 model.addAttribute("oauthApplication", oauthService.fetchApplication(crmServiceKey, client_id, redirect_uri, response_type));
