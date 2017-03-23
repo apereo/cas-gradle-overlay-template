@@ -22,7 +22,8 @@ public class OAuthAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException e) throws IOException, ServletException {
-        ModelAndView modelAndView = oAuthExceptionHandler.doResolveException(request, response, null, e);
+        ModelAndView modelAndView = oAuthExceptionHandler.resolveException(request, response, null, e);
+        response.setContentType("application/json");
         OutputStream outputStream = response.getOutputStream();
         objectMapper.writeValue(outputStream, modelAndView.getModel());
     }

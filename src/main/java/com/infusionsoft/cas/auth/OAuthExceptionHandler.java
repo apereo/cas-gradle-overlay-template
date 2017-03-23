@@ -33,12 +33,16 @@ public class OAuthExceptionHandler extends AbstractHandlerExceptionResolver {
     private Logger logger = LoggerFactory.getLogger(OAuthExceptionHandler.class);
 
     @Autowired
-    MessageSource messageSource;
+    private MessageSource messageSource;
+
+    public OAuthExceptionHandler() {
+        this.setPreventResponseCaching(true);
+    }
 
     @Override
     protected ModelAndView doResolveException(HttpServletRequest request, HttpServletResponse response, Object o, Exception e) {
         ModelAndView modelAndView = new ModelAndView();
-        Map<String, String> model = new HashMap<String, String>();
+        Map<String, String> model = new HashMap<>();
 
         OAuthException oAuthException;
         if(e instanceof OAuthException) {
