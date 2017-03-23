@@ -257,8 +257,7 @@ public class MasheryApiClientService {
 
         final boolean shouldIncludeRefreshToken = shouldIncludeRefreshToken(grant_type);
 
-        // Mashery does not support extend grants, so we are faking it by using the password
-        if (isExtendedGrantType(grant_type)) {
+        if (shouldSpoofGrantType(grant_type)) {
             grant_type = OAuthGrantType.RESOURCE_OWNER_CREDENTIALS.getValue();
         }
 
@@ -288,8 +287,11 @@ public class MasheryApiClientService {
         return response;
     }
 
-    private static boolean isExtendedGrantType(String grantType) {
-        return OAuthGrantType.EXTENDED_TRUSTED.isValueEqual(grantType) || OAuthGrantType.EXTENDED_TICKET_GRANTING_TICKET.isValueEqual(grantType);
+    private static boolean shouldSpoofGrantType(String grantType) {
+        // Mashery does not support extend grants, so we are faking it by using the password.
+        // Also, we don't want to enable the client_credentials grant type on Mashery token endpoints (because
+        // that would allow tokens to be created by any client for any flagship application), so spoof that too.
+        return OAuthGrantType.EXTENDED_TRUSTED.isValueEqual(grantType) || OAuthGrantType.EXTENDED_TICKET_GRANTING_TICKET.isValueEqual(grantType) || OAuthGrantType.CLIENT_CREDENTIALS.isValueEqual(grantType);
     }
 
     private static boolean shouldIncludeRefreshToken(String grantType) {
