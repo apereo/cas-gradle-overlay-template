@@ -1,7 +1,7 @@
 package com.infusionsoft.cas.auth;
 
+import com.infusionsoft.cas.domain.OAuthServiceConfig;
 import com.infusionsoft.cas.oauth.exceptions.OAuthInvalidRequestException;
-import com.infusionsoft.cas.oauth.exceptions.OAuthUnauthorizedClientException;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -36,7 +36,7 @@ public class OAuthTrustedGrantTokenProviderTest {
     @Test
     public void testValidToken() {
         doReturn("1234").when(req).getParameter("global_user_id");
-        OAuthTrustedGrantAuthenticationToken authToken = tokenProviderToTest.createAuthenticationToken(req, resp, "full", "application", "urn:infusionsoft:params:oauth:grant-type:trusted", null, "clientId", "clientSecret");
+        OAuthTrustedGrantAuthenticationToken authToken = tokenProviderToTest.createAuthenticationToken(req, resp, "full", "application", "urn:infusionsoft:params:oauth:grant-type:trusted", new OAuthServiceConfig(), "clientId", "clientSecret");
         Assert.assertEquals("clientId", authToken.getClientId());
         Assert.assertEquals("full", authToken.getScope());
         Assert.assertEquals("application", authToken.getApplication());
@@ -51,7 +51,7 @@ public class OAuthTrustedGrantTokenProviderTest {
         thrown.expect(OAuthInvalidRequestException.class);
         thrown.expectMessage("oauth.exception.userId.missing");
 
-        tokenProviderToTest.createAuthenticationToken(req, resp, "full", "application", "urn:infusionsoft:params:oauth:grant-type:trusted", null, "clientId", "clientSecret");
+        tokenProviderToTest.createAuthenticationToken(req, resp, "full", "application", "urn:infusionsoft:params:oauth:grant-type:trusted", new OAuthServiceConfig(), "clientId", "clientSecret");
     }
 
     @Test
@@ -61,7 +61,7 @@ public class OAuthTrustedGrantTokenProviderTest {
         thrown.expect(OAuthInvalidRequestException.class);
         thrown.expectMessage("oauth.exception.userId.bad");
 
-        tokenProviderToTest.createAuthenticationToken(req, resp, "full", "application", "urn:infusionsoft:params:oauth:grant-type:trusted", null, "clientId", "clientSecret");
+        tokenProviderToTest.createAuthenticationToken(req, resp, "full", "application", "urn:infusionsoft:params:oauth:grant-type:trusted", new OAuthServiceConfig(), "clientId", "clientSecret");
     }
 
     @Test
@@ -71,7 +71,7 @@ public class OAuthTrustedGrantTokenProviderTest {
         thrown.expect(OAuthInvalidRequestException.class);
         thrown.expectMessage("oauth.exception.clientId.missing");
 
-        tokenProviderToTest.createAuthenticationToken(req, resp, "full", "application", "urn:infusionsoft:params:oauth:grant-type:trusted", null, "", "clientSecret");
+        tokenProviderToTest.createAuthenticationToken(req, resp, "full", "application", "urn:infusionsoft:params:oauth:grant-type:trusted", new OAuthServiceConfig(), "", "clientSecret");
     }
 
     @Test
@@ -81,12 +81,12 @@ public class OAuthTrustedGrantTokenProviderTest {
         thrown.expect(OAuthInvalidRequestException.class);
         thrown.expectMessage("oauth.exception.clientSecret.missing");
 
-        tokenProviderToTest.createAuthenticationToken(req, resp, "full", "application", "urn:infusionsoft:params:oauth:grant-type:trusted", null, "clientId", "");
+        tokenProviderToTest.createAuthenticationToken(req, resp, "full", "application", "urn:infusionsoft:params:oauth:grant-type:trusted", new OAuthServiceConfig(), "clientId", "");
     }
 
     @Test
     public void testInvalidGrantType() {
-        OAuthTrustedGrantAuthenticationToken authToken = tokenProviderToTest.createAuthenticationToken(req, resp, "full", "application", "invalid_grant_type", null, "clientId", "clientSecret");
+        OAuthTrustedGrantAuthenticationToken authToken = tokenProviderToTest.createAuthenticationToken(req, resp, "full", "application", "invalid_grant_type", new OAuthServiceConfig(), "clientId", "clientSecret");
         Assert.assertTrue(authToken == null);
     }
 }

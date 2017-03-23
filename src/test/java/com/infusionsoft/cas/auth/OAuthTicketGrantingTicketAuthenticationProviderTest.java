@@ -3,7 +3,6 @@ package com.infusionsoft.cas.auth;
 import com.infusionsoft.cas.domain.OAuthServiceConfig;
 import com.infusionsoft.cas.domain.User;
 import com.infusionsoft.cas.oauth.exceptions.OAuthAccessDeniedException;
-import com.infusionsoft.cas.oauth.exceptions.OAuthInvalidRequestException;
 import com.infusionsoft.cas.services.UserService;
 import org.jasig.cas.authentication.principal.Principal;
 import org.jasig.cas.ticket.TicketGrantingTicket;
@@ -102,17 +101,6 @@ public class OAuthTicketGrantingTicketAuthenticationProviderTest {
         thrown.expect(NullPointerException.class);
 
         providerToTest.authenticate(null);
-    }
-
-    @Test
-    public void testAuthenticateFailBadService() throws Exception {
-        OAuthTicketGrantingTicketAuthenticationToken token = new OAuthTicketGrantingTicketAuthenticationToken(new Object(), new Object(), null, clientId, clientSecret, scope, grantType, application, trackingUUID, ticketGrantingTicket);
-        mockUser();
-
-        thrown.expect(OAuthInvalidRequestException.class);
-        thrown.expectMessage("oauth.exception.service.missing");
-
-        providerToTest.authenticate(token);
     }
 
     @Test

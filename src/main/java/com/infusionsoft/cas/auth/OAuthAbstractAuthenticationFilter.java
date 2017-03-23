@@ -115,6 +115,9 @@ public abstract class OAuthAbstractAuthenticationFilter extends GenericFilterBea
                 oAuthServiceConfig.setServiceKey(legacyServiceKey);
             }
         }
+        if (oAuthServiceConfig == null) {
+            throw new OAuthInvalidRequestException("oauth.exception.service.missing");
+        }
 
         try {
             return createAuthenticationToken(request, response, scope, application, grantType, oAuthServiceConfig, clientId, clientSecret);

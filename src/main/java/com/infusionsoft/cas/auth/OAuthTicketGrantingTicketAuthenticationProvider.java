@@ -2,7 +2,6 @@ package com.infusionsoft.cas.auth;
 
 import com.infusionsoft.cas.domain.User;
 import com.infusionsoft.cas.oauth.exceptions.OAuthAccessDeniedException;
-import com.infusionsoft.cas.oauth.exceptions.OAuthInvalidRequestException;
 import com.infusionsoft.cas.services.UserService;
 import org.jasig.cas.authentication.principal.Principal;
 import org.jasig.cas.ticket.TicketGrantingTicket;
@@ -25,10 +24,6 @@ public class OAuthTicketGrantingTicketAuthenticationProvider implements Authenti
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
         OAuthTicketGrantingTicketAuthenticationToken token = (OAuthTicketGrantingTicketAuthenticationToken) authentication;
         String clientId = token.getClientId();
-
-        if (token.getServiceConfig() == null) {
-            throw new OAuthInvalidRequestException("oauth.exception.service.missing");
-        }
 
         TicketGrantingTicket ticketGrantingTicket = token.getTicketGrantingTicket();
         if ((ticketGrantingTicket == null || ticketGrantingTicket.isExpired())) {

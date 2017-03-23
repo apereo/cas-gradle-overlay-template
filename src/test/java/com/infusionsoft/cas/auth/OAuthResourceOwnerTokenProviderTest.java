@@ -1,5 +1,6 @@
 package com.infusionsoft.cas.auth;
 
+import com.infusionsoft.cas.domain.OAuthServiceConfig;
 import com.infusionsoft.cas.oauth.exceptions.OAuthInvalidRequestException;
 import org.junit.Assert;
 import org.junit.Before;
@@ -35,7 +36,7 @@ public class OAuthResourceOwnerTokenProviderTest {
     public void testValidToken() {
         Mockito.when(req.getParameter("username")).thenReturn("User123");
         Mockito.when(req.getParameter("password")).thenReturn("Password123");
-        OAuthResourceOwnerAuthenticationToken authToken = tokenProviderToTest.createAuthenticationToken(req, resp, "full", "application", "password", null, "clientId", "clientSecret");
+        OAuthResourceOwnerAuthenticationToken authToken = tokenProviderToTest.createAuthenticationToken(req, resp, "full", "application", "password", new OAuthServiceConfig(), "clientId", "clientSecret");
         Assert.assertEquals("clientId", authToken.getClientId());
         Assert.assertEquals("full", authToken.getScope());
         Assert.assertEquals("application", authToken.getApplication());
@@ -52,7 +53,7 @@ public class OAuthResourceOwnerTokenProviderTest {
         thrown.expect(OAuthInvalidRequestException.class);
         thrown.expectMessage("oauth.exception.clientId.missing");
 
-        tokenProviderToTest.createAuthenticationToken(req, resp, "full", "application", "password", null, "", "clientSecret");
+        tokenProviderToTest.createAuthenticationToken(req, resp, "full", "application", "password", new OAuthServiceConfig(), "", "clientSecret");
     }
 
     @Test
@@ -63,7 +64,7 @@ public class OAuthResourceOwnerTokenProviderTest {
         thrown.expect(OAuthInvalidRequestException.class);
         thrown.expectMessage("oauth.exception.clientSecret");
 
-        tokenProviderToTest.createAuthenticationToken(req, resp, "full", "application", "password", null, "clientId", "");
+        tokenProviderToTest.createAuthenticationToken(req, resp, "full", "application", "password", new OAuthServiceConfig(), "clientId", "");
     }
 
     @Test
@@ -73,7 +74,7 @@ public class OAuthResourceOwnerTokenProviderTest {
         thrown.expect(OAuthInvalidRequestException.class);
         thrown.expectMessage("oauth.exception.username.missing");
 
-        tokenProviderToTest.createAuthenticationToken(req, resp, "full", "application", "password", null, "clientId", "clientSecret");
+        tokenProviderToTest.createAuthenticationToken(req, resp, "full", "application", "password", new OAuthServiceConfig(), "clientId", "clientSecret");
     }
 
     @Test
@@ -83,14 +84,14 @@ public class OAuthResourceOwnerTokenProviderTest {
         thrown.expect(OAuthInvalidRequestException.class);
         thrown.expectMessage("oauth.exception.password.missing");
 
-        tokenProviderToTest.createAuthenticationToken(req, resp, "full", "application", "password", null, "clientId", "clientSecret");
+        tokenProviderToTest.createAuthenticationToken(req, resp, "full", "application", "password", new OAuthServiceConfig(), "clientId", "clientSecret");
     }
 
     @Test
     public void testInvalidGrantType() {
         Mockito.when(req.getParameter("username")).thenReturn("User123");
         Mockito.when(req.getParameter("password")).thenReturn("Password123");
-        OAuthResourceOwnerAuthenticationToken authToken = tokenProviderToTest.createAuthenticationToken(req, resp, "full", "application", "invalid_grant_type", null, "clientId", "clientSecret");
+        OAuthResourceOwnerAuthenticationToken authToken = tokenProviderToTest.createAuthenticationToken(req, resp, "full", "application", "invalid_grant_type", new OAuthServiceConfig(), "clientId", "clientSecret");
         Assert.assertTrue(authToken == null);
     }
 }

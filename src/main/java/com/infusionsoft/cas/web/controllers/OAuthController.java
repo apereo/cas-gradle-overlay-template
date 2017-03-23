@@ -155,9 +155,6 @@ public class OAuthController {
             String userId;
             String refreshToken = null;
             final OAuthServiceConfig serviceConfig = token.getServiceConfig();
-            if (serviceConfig == null) {
-                throw new OAuthInvalidRequestException("oauth.exception.service.missing");
-            }
 
             if (token instanceof OAuthRefreshAuthenticationToken) {
                 refreshToken = ((OAuthRefreshAuthenticationToken) token).getRefreshToken();

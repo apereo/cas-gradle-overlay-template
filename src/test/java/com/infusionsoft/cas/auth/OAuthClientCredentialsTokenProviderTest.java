@@ -1,5 +1,6 @@
 package com.infusionsoft.cas.auth;
 
+import com.infusionsoft.cas.domain.OAuthServiceConfig;
 import com.infusionsoft.cas.oauth.exceptions.OAuthInvalidRequestException;
 import org.junit.Assert;
 import org.junit.Before;
@@ -37,7 +38,7 @@ public class OAuthClientCredentialsTokenProviderTest {
 
     @Test
     public void testValidToken() {
-        OAuthClientCredentialsAuthenticationToken authToken = tokenProviderToTest.createAuthenticationToken(req, resp, scope, application, grantType, null, clientId, clientSecret);
+        OAuthClientCredentialsAuthenticationToken authToken = tokenProviderToTest.createAuthenticationToken(req, resp, scope, application, grantType, new OAuthServiceConfig(), clientId, clientSecret);
         Assert.assertEquals(clientId, authToken.getClientId());
         Assert.assertEquals(scope, authToken.getScope());
         Assert.assertEquals(application, authToken.getApplication());
@@ -48,7 +49,7 @@ public class OAuthClientCredentialsTokenProviderTest {
 
     @Test
     public void testInvalidGrantType() {
-        OAuthAuthenticationToken authToken = tokenProviderToTest.createAuthenticationToken(req, resp, scope, application, "invalid_grant_type", null, clientId, clientSecret);
+        OAuthAuthenticationToken authToken = tokenProviderToTest.createAuthenticationToken(req, resp, scope, application, "invalid_grant_type", new OAuthServiceConfig(), clientId, clientSecret);
         Assert.assertTrue(authToken == null);
     }
 
@@ -57,7 +58,7 @@ public class OAuthClientCredentialsTokenProviderTest {
         thrown.expect(OAuthInvalidRequestException.class);
         thrown.expectMessage("oauth.exception.clientId.missing");
 
-        tokenProviderToTest.createAuthenticationToken(req, resp, scope, application, grantType, null, "", clientSecret);
+        tokenProviderToTest.createAuthenticationToken(req, resp, scope, application, grantType, new OAuthServiceConfig(), "", clientSecret);
     }
 
     @Test
@@ -65,7 +66,7 @@ public class OAuthClientCredentialsTokenProviderTest {
         thrown.expect(OAuthInvalidRequestException.class);
         thrown.expectMessage("oauth.exception.clientSecret.missing");
 
-        tokenProviderToTest.createAuthenticationToken(req, resp, scope, application, grantType, null, clientId, "");
+        tokenProviderToTest.createAuthenticationToken(req, resp, scope, application, grantType, new OAuthServiceConfig(), clientId, "");
     }
 
 }

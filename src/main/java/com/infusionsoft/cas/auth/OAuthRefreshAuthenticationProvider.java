@@ -14,11 +14,6 @@ public class OAuthRefreshAuthenticationProvider implements AuthenticationProvide
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
         OAuthRefreshAuthenticationToken token = (OAuthRefreshAuthenticationToken) authentication;
         String clientId = token.getClientId();
-
-        if (token.getServiceConfig() == null) {
-            throw new OAuthInvalidRequestException("oauth.exception.service.missing");
-        }
-
         String refreshToken = token.getRefreshToken();
         if (StringUtils.isBlank(refreshToken)) {
             throw new OAuthInvalidRequestException("oauth.exception.refreshToken.missing");

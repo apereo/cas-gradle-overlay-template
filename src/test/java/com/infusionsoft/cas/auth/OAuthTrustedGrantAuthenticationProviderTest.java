@@ -95,16 +95,6 @@ public class OAuthTrustedGrantAuthenticationProviderTest {
     }
 
     @Test
-    public void testAuthenticateFailBadService() throws Exception {
-        OAuthTrustedGrantAuthenticationToken token = new OAuthTrustedGrantAuthenticationToken(null, null, null, clientId, clientSecret, scope, grantType, application, globalUserId);
-
-        thrown.expect(OAuthInvalidRequestException.class);
-        thrown.expectMessage("oauth.exception.service.missing");
-
-        providerToTest.authenticate(token);
-    }
-
-    @Test
     public void testAuthenticateFailNoUser() throws Exception {
         OAuthTrustedGrantAuthenticationToken token = new OAuthTrustedGrantAuthenticationToken(null, null, oAuthServiceConfig, clientId, clientSecret, scope, grantType, application, globalUserId);
         doReturn(true).when(oAuthService).isClientAuthorizedForTrustedGrantType(clientId);
