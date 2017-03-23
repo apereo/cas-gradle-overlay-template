@@ -345,7 +345,8 @@ public class MasheryApiClientServiceTest {
         Assert.assertNull(returnedResponse.getRefresh_token());
         Assert.assertEquals(returnedResponse.getScope(), SCOPE);
 
-        verifyRequest(grantType);
+        // Spoof password grant type since we don't want to enable client_credentials grants via the Mashery token endpoint
+        verifyRequest(OAuthGrantType.RESOURCE_OWNER_CREDENTIALS.getValue());
     }
 
     @Test
