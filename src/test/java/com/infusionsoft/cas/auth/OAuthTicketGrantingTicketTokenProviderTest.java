@@ -67,7 +67,7 @@ public class OAuthTicketGrantingTicketTokenProviderTest {
     }
 
     @Test
-    public void testCreateAuthenticationTokenSuccessNoCookie() throws Exception {
+    public void testSuccessNoCookie() throws Exception {
         doReturn(ticketGrantingTicket).when(infusionsoftAuthenticationService).getTicketGrantingTicket(request);
         doReturn(oAuthClient).when(oAuthClientService).loadOAuthClient(clientId);
         doReturn(originHeaderValue).when(request).getHeader(ORIGIN_HEADER);
@@ -82,7 +82,7 @@ public class OAuthTicketGrantingTicketTokenProviderTest {
     }
 
     @Test
-    public void testCreateAuthenticationTokenSuccessHadCookie() throws Exception {
+    public void testSuccessHadCookie() throws Exception {
         doReturn(ticketGrantingTicket).when(infusionsoftAuthenticationService).getTicketGrantingTicket(request);
         doReturn(oAuthClient).when(oAuthClientService).loadOAuthClient(clientId);
         doReturn(originHeaderValue).when(request).getHeader(ORIGIN_HEADER);
@@ -97,7 +97,7 @@ public class OAuthTicketGrantingTicketTokenProviderTest {
     }
 
     @Test
-    public void testCreateAuthenticationTokenSuccessAnonymousNoCookie() throws Exception {
+    public void testSuccessAnonymousNoCookie() throws Exception {
         doReturn(null).when(infusionsoftAuthenticationService).getTicketGrantingTicket(request);
         doReturn(oAuthClient).when(oAuthClientService).loadOAuthClient(clientId);
         doReturn(originHeaderValue).when(request).getHeader(ORIGIN_HEADER);
@@ -112,7 +112,7 @@ public class OAuthTicketGrantingTicketTokenProviderTest {
     }
 
     @Test
-    public void testCreateAuthenticationTokenSuccessAnonymousHadCookie() throws Exception {
+    public void testSuccessAnonymousHadCookie() throws Exception {
         doReturn(null).when(infusionsoftAuthenticationService).getTicketGrantingTicket(request);
         doReturn(oAuthClient).when(oAuthClientService).loadOAuthClient(clientId);
         doReturn(originHeaderValue).when(request).getHeader(ORIGIN_HEADER);
@@ -127,7 +127,7 @@ public class OAuthTicketGrantingTicketTokenProviderTest {
     }
 
     @Test
-    public void testCreateAuthenticationTokenFailBadGrantType() throws Exception {
+    public void testBadGrantType() throws Exception {
         doReturn(ticketGrantingTicket).when(infusionsoftAuthenticationService).getTicketGrantingTicket(request);
         doReturn(oAuthClient).when(oAuthClientService).loadOAuthClient(clientId);
         doReturn(originHeaderValue).when(request).getHeader(ORIGIN_HEADER);
@@ -142,7 +142,7 @@ public class OAuthTicketGrantingTicketTokenProviderTest {
     }
 
     @Test
-    public void testCreateAuthenticationTokenFailNullClientId() throws Exception {
+    public void testMissingClientId() throws Exception {
         doReturn(ticketGrantingTicket).when(infusionsoftAuthenticationService).getTicketGrantingTicket(request);
         doReturn(oAuthClient).when(oAuthClientService).loadOAuthClient(clientId);
         doReturn(originHeaderValue).when(request).getHeader(ORIGIN_HEADER);
@@ -156,7 +156,7 @@ public class OAuthTicketGrantingTicketTokenProviderTest {
     }
 
     @Test
-    public void testCreateAuthenticationTokenFailBadClientId() throws Exception {
+    public void testBadClientId() throws Exception {
         doReturn(ticketGrantingTicket).when(infusionsoftAuthenticationService).getTicketGrantingTicket(request);
         doReturn(null).when(oAuthClientService).loadOAuthClient(clientId);
         doReturn(originHeaderValue).when(request).getHeader(ORIGIN_HEADER);
@@ -170,7 +170,7 @@ public class OAuthTicketGrantingTicketTokenProviderTest {
     }
 
     @Test
-    public void testCreateAuthenticationTokenFailOriginNotAllowedForClientId() throws Exception {
+    public void testOriginNotAllowedForClientId() throws Exception {
         doReturn(ticketGrantingTicket).when(infusionsoftAuthenticationService).getTicketGrantingTicket(request);
         doReturn(oAuthClient).when(oAuthClientService).loadOAuthClient(clientId);
         doReturn(originHeaderValue).when(request).getHeader(ORIGIN_HEADER);
@@ -184,7 +184,7 @@ public class OAuthTicketGrantingTicketTokenProviderTest {
     }
 
     @Test
-    public void testCreateAuthenticationTokenFailNoOriginHeader() throws Exception {
+    public void testNoOriginHeader() throws Exception {
         doReturn(ticketGrantingTicket).when(infusionsoftAuthenticationService).getTicketGrantingTicket(request);
         doReturn(oAuthClient).when(oAuthClientService).loadOAuthClient(clientId);
         doReturn(null).when(request).getHeader(ORIGIN_HEADER);
@@ -198,7 +198,7 @@ public class OAuthTicketGrantingTicketTokenProviderTest {
     }
 
     @Test
-    public void testCreateAuthenticationTokenFailBlankOriginHeader() throws Exception {
+    public void testBlankOriginHeader() throws Exception {
         doReturn(ticketGrantingTicket).when(infusionsoftAuthenticationService).getTicketGrantingTicket(request);
         doReturn(oAuthClient).when(oAuthClientService).loadOAuthClient(clientId);
         doReturn(" ").when(request).getHeader(ORIGIN_HEADER);

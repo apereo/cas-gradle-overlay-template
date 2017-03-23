@@ -6,6 +6,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.SpringSecurityCoreVersion;
 
 import java.util.Collection;
+import java.util.Objects;
 
 /**
  * This is a copy of UsernamePasswordAuthenticationToken,
@@ -47,7 +48,7 @@ public class OAuthAuthenticationToken extends AbstractAuthenticationToken {
         super(null);
         this.principal = principal;
         this.credentials = credentials;
-        this.serviceConfig = serviceConfig;
+        this.serviceConfig = Objects.requireNonNull(serviceConfig, "serviceConfig must not be null");
         this.clientId = clientId;
         this.clientSecret = clientSecret;
         this.scope = scope;
@@ -78,7 +79,7 @@ public class OAuthAuthenticationToken extends AbstractAuthenticationToken {
         super(authorities);
         this.principal = principal;
         this.credentials = credentials;
-        this.serviceConfig = serviceConfig;
+        this.serviceConfig = Objects.requireNonNull(serviceConfig, "serviceConfig must not be null");
         this.clientId = clientId;
         this.clientSecret = clientSecret;
         this.scope = scope;

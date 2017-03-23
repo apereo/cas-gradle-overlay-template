@@ -65,16 +65,6 @@ public class OAuthRefreshAuthenticationProviderTest {
     }
 
     @Test
-    public void testAuthenticateFailBadService() throws Exception {
-        OAuthRefreshAuthenticationToken token = new OAuthRefreshAuthenticationToken(null, null, null, clientId, clientSecret, grantType, refreshToken);
-
-        thrown.expect(OAuthInvalidRequestException.class);
-        thrown.expectMessage("oauth.exception.service.missing");
-
-        providerToTest.authenticate(token);
-    }
-
-    @Test
     public void testAuthenticateFailMissingRefresh() throws Exception {
         OAuthRefreshAuthenticationToken token = new OAuthRefreshAuthenticationToken(null, null, oAuthServiceConfig, clientId, clientSecret, grantType, "");
 

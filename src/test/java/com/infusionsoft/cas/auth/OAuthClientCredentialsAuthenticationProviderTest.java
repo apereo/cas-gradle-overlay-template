@@ -2,7 +2,6 @@ package com.infusionsoft.cas.auth;
 
 import com.infusionsoft.cas.domain.OAuthServiceConfig;
 import com.infusionsoft.cas.oauth.dto.OAuthApplication;
-import com.infusionsoft.cas.oauth.exceptions.OAuthInvalidRequestException;
 import com.infusionsoft.cas.oauth.exceptions.OAuthUnauthorizedClientException;
 import com.infusionsoft.cas.oauth.services.OAuthService;
 import org.junit.Assert;
@@ -85,17 +84,6 @@ public class OAuthClientCredentialsAuthenticationProviderTest {
 
         thrown.expect(OAuthUnauthorizedClientException.class);
         thrown.expectMessage("oauth.exception.client.not.trusted.service");
-
-        providerToTest.authenticate(token);
-    }
-
-    @Test
-    public void testAuthenticateFailBadService() throws Exception {
-        OAuthClientCredentialsAuthenticationToken token = new OAuthClientCredentialsAuthenticationToken(null, null, clientId, clientSecret, scope, grantType, application);
-        doReturn(true).when(oAuthService).isClientAuthorizedForClientCredentialsGrantType(clientId);
-
-        thrown.expect(OAuthInvalidRequestException.class);
-        thrown.expectMessage("oauth.exception.service.missing");
 
         providerToTest.authenticate(token);
     }

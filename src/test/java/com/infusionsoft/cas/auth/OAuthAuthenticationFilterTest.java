@@ -82,6 +82,7 @@ public class OAuthAuthenticationFilterTest {
         when(request.getParameter("client_id")).thenReturn(clientId);
         when(request.getParameter("client_secret")).thenReturn(clientSecret);
         when(request.getParameter("service_name")).thenReturn(serviceName);
+        when(request.getRequestURI()).thenReturn("/app/oauth/token");
         when(oAuthServiceConfigService.loadOAuthServiceConfig(serviceName)).thenReturn(oAuthServiceConfig);
         when(dummyTokenProvider.createAuthenticationToken(request, response, scope, "", grantType, oAuthServiceConfig, clientId, clientSecret)).thenReturn(token);
         when(oauthAuthenticationManager.authenticate(token)).thenReturn(authToken);
@@ -102,6 +103,7 @@ public class OAuthAuthenticationFilterTest {
         when(request.getParameter("client_id")).thenReturn(clientId);
         when(request.getParameter("client_secret")).thenReturn(clientSecret);
         when(request.getParameter("service_name")).thenReturn(serviceName);
+        when(request.getRequestURI()).thenReturn("/app/oauth/token");
         when(oAuthServiceConfigService.loadOAuthServiceConfig(serviceName)).thenReturn(oAuthServiceConfig);
         when(dummyTokenProvider.createAuthenticationToken(request, response, scope, application, grantType, oAuthServiceConfig, clientId, clientSecret)).thenReturn(token);
         when(oauthAuthenticationManager.authenticate(token)).thenReturn(authToken);
@@ -122,6 +124,7 @@ public class OAuthAuthenticationFilterTest {
         when(request.getParameter("client_id")).thenReturn(clientId);
         when(request.getParameter("client_secret")).thenReturn(clientSecret);
         when(request.getParameter("service_name")).thenReturn(serviceName);
+        when(request.getRequestURI()).thenReturn("/app/oauth/token");
         when(oAuthServiceConfigService.loadOAuthServiceConfig(serviceName)).thenReturn(oAuthServiceConfig);
         when(dummyTokenProvider.createAuthenticationToken(request, response, "", application, grantType, oAuthServiceConfig, clientId, clientSecret)).thenReturn(token);
         when(oauthAuthenticationManager.authenticate(token)).thenReturn(authToken);
@@ -141,6 +144,7 @@ public class OAuthAuthenticationFilterTest {
         when(request.getParameter("client_id")).thenReturn("bugus");
         when(request.getParameter("client_secret")).thenReturn("bugus");
         when(request.getParameter("service_name")).thenReturn(serviceName);
+        when(request.getRequestURI()).thenReturn("/app/oauth/token");
         when(request.getHeader("Authorization")).thenReturn("Basic " + new String(Base64.encode((clientId + ":" + clientSecret).getBytes("UTF-8")), "UTF-8"));
         when(oAuthServiceConfigService.loadOAuthServiceConfig(serviceName)).thenReturn(oAuthServiceConfig);
         when(dummyTokenProvider.createAuthenticationToken(request, response, scope, "", grantType, oAuthServiceConfig, clientId, clientSecret)).thenReturn(token);
@@ -161,6 +165,7 @@ public class OAuthAuthenticationFilterTest {
         when(request.getParameter("client_id")).thenReturn("bugus");
         when(request.getParameter("client_secret")).thenReturn("bugus");
         when(request.getParameter("service_name")).thenReturn(serviceName);
+        when(request.getRequestURI()).thenReturn("/app/oauth/token");
         when(request.getHeader("Authorization")).thenReturn("Basic zz");
         when(oAuthServiceConfigService.loadOAuthServiceConfig(serviceName)).thenReturn(oAuthServiceConfig);
         when(dummyTokenProvider.createAuthenticationToken(request, response, scope, "", grantType, oAuthServiceConfig, clientId, clientSecret)).thenReturn(token);
@@ -184,6 +189,7 @@ public class OAuthAuthenticationFilterTest {
         when(request.getParameter("client_id")).thenReturn("bugus");
         when(request.getParameter("client_secret")).thenReturn("bugus");
         when(request.getParameter("service_name")).thenReturn(serviceName);
+        when(request.getRequestURI()).thenReturn("/app/oauth/token");
         when(request.getHeader("Authorization")).thenReturn("Basic " + new String(Base64.encode((clientId + clientSecret).getBytes("UTF-8")), "UTF-8"));
         when(oAuthServiceConfigService.loadOAuthServiceConfig(serviceName)).thenReturn(oAuthServiceConfig);
         when(dummyTokenProvider.createAuthenticationToken(request, response, scope, "", grantType, oAuthServiceConfig, clientId, clientSecret)).thenReturn(token);
@@ -202,7 +208,13 @@ public class OAuthAuthenticationFilterTest {
 
     @Test
     public void testDoFilterNoGrantType() throws Exception {
-        tokenProviders.clear();
+        when(request.getParameter("scope")).thenReturn(scope);
+        when(request.getParameter("client_id")).thenReturn(clientId);
+        when(request.getParameter("client_secret")).thenReturn(clientSecret);
+        when(request.getParameter("service_name")).thenReturn(serviceName);
+        when(request.getRequestURI()).thenReturn("/app/oauth/token");
+        when(oAuthServiceConfigService.loadOAuthServiceConfig(serviceName)).thenReturn(oAuthServiceConfig);
+
         filterToTest.doFilter(request, response, chain);
 
         verify(dummyTokenProvider, never()).createAuthenticationToken(any(), any(), any(), any(), any(), any(), any(), any());
@@ -215,9 +227,55 @@ public class OAuthAuthenticationFilterTest {
     }
 
     @Test
+    public void testDoFilterNoServiceName() throws Exception {
+        when(request.getParameter("scope")).thenReturn(scope);
+        when(request.getParameter("grant_type")).thenReturn(grantType);
+        when(request.getParameter("client_id")).thenReturn(clientId);
+        when(request.getParameter("client_secret")).thenReturn(clientSecret);
+        when(request.getRequestURI()).thenReturn("/app/oauth/token");
+
+        filterToTest.doFilter(request, response, chain);
+
+        verify(dummyTokenProvider, never()).createAuthenticationToken(any(), any(), any(), any(), any(), any(), any(), any());
+        verify(oauthAuthenticationManager, never()).authenticate(any());
+        Assert.assertNull(SecurityContextHolder.getContext().getAuthentication());
+        verify(oAuthAuthenticationEntryPoint, times(1)).commence(any(), any(), authenticationExceptionArgumentCaptor.capture());
+        final AuthenticationException authenticationException = authenticationExceptionArgumentCaptor.getValue();
+        Assert.assertEquals(OAuthInvalidRequestException.class, authenticationException.getClass());
+        Assert.assertEquals("oauth.exception.service.missing", ((OAuthInvalidRequestException) authenticationException).getErrorDescription());
+    }
+
+    @Test
+    public void testDoFilterNoServiceNameLegacy() throws Exception {
+        when(request.getParameter("scope")).thenReturn(scope + "|" + application);
+        when(request.getParameter("grant_type")).thenReturn(grantType);
+        when(request.getParameter("client_id")).thenReturn(clientId);
+        when(request.getParameter("client_secret")).thenReturn(clientSecret);
+        when(request.getParameter("service_name")).thenReturn(serviceName);
+        when(request.getRequestURI()).thenReturn("/app/oauth/service/serviceKey/token");
+        when(dummyTokenProvider.createAuthenticationToken(any(), any(), any(), any(), any(), any(), any(), any())).thenReturn(token);
+        when(oauthAuthenticationManager.authenticate(token)).thenReturn(authToken);
+
+        filterToTest.doFilter(request, response, chain);
+
+        ArgumentCaptor<OAuthServiceConfig> serviceConfigArgumentCaptor = ArgumentCaptor.forClass(OAuthServiceConfig.class);
+        verify(dummyTokenProvider, times(1)).createAuthenticationToken(same(request), same(response), eq(scope), eq(application), eq(grantType), serviceConfigArgumentCaptor.capture(), eq(clientId), eq(clientSecret));
+        Assert.assertEquals("serviceKey", serviceConfigArgumentCaptor.getValue().getServiceKey());
+        verify(oauthAuthenticationManager, times(1)).authenticate(token);
+        Assert.assertEquals(authToken, SecurityContextHolder.getContext().getAuthentication());
+        verify(oAuthAuthenticationEntryPoint, never()).commence(any(), any(), any());
+    }
+
+    @Test
     public void testDoFilterNoProvider() throws Exception {
         tokenProviders.clear();
-        when(request.getParameter("grant_type")).thenReturn("grantType");
+        when(request.getParameter("scope")).thenReturn(scope);
+        when(request.getParameter("grant_type")).thenReturn(grantType);
+        when(request.getParameter("client_id")).thenReturn(clientId);
+        when(request.getParameter("client_secret")).thenReturn(clientSecret);
+        when(request.getParameter("service_name")).thenReturn(serviceName);
+        when(request.getRequestURI()).thenReturn("/app/oauth/token");
+        when(oAuthServiceConfigService.loadOAuthServiceConfig(serviceName)).thenReturn(oAuthServiceConfig);
 
         filterToTest.doFilter(request, response, chain);
 
@@ -232,7 +290,12 @@ public class OAuthAuthenticationFilterTest {
 
     @Test
     public void testDoFilterUnknownException() throws Exception {
+        when(request.getParameter("scope")).thenReturn(scope);
         when(request.getParameter("grant_type")).thenReturn(grantType);
+        when(request.getParameter("client_id")).thenReturn(clientId);
+        when(request.getParameter("client_secret")).thenReturn(clientSecret);
+        when(request.getParameter("service_name")).thenReturn(serviceName);
+        when(request.getRequestURI()).thenReturn("/app/oauth/token");
         when(oAuthServiceConfigService.loadOAuthServiceConfig(serviceName)).thenReturn(oAuthServiceConfig);
         doThrow(Exception.class).when(dummyTokenProvider).createAuthenticationToken(any(), any(), any(), any(), any(), any(), any(), any());
         when(oauthAuthenticationManager.authenticate(token)).thenReturn(authToken);

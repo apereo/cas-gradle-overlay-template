@@ -24,10 +24,13 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public abstract class OAuthAbstractAuthenticationFilter extends GenericFilterBean {
 
     private static final String credentialsCharset = "UTF-8";
+    private static final Pattern LEGACY_TOKEN_ENDPOINT_SERVICE_KEY_PATTERN = Pattern.compile("/app/oauth/service/([^/]+)/token");
 
     private AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource = new WebAuthenticationDetailsSource();
 
@@ -101,6 +104,19 @@ public abstract class OAuthAbstractAuthenticationFilter extends GenericFilterBea
 
         if (StringUtils.isBlank(grantType)) {
             throw new OAuthInvalidRequestException("oauth.exception.grantType.missing");
+        }
+
+        if (oAuthServiceConfig == null) {
+            // Take this out when the legacy token endpoint is removed
+            final Matcher matcher = LEGACY_TOKEN_ENDPOINT_SERVICE_KEY_PATTERN.matcher(request.getRequestURI());
+            String legacyServiceKey = matcher.matches() && matcher.groupCount() == 1 ? matcher.group(1) : "";
+            if (StringUtils.isNotBlank(legacyServiceKey)) {
+                oAuthServiceConfig = new OAuthServiceConfig();
+                oAuthServiceConfig.setServiceKey(legacyServiceKey);
+            }
+        }
+        if (oAuthServiceConfig == null) {
+            throw new OAuthInvalidRequestException("oauth.exception.service.missing");
         }
 
         try {

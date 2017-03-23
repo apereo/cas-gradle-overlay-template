@@ -2,7 +2,6 @@ package com.infusionsoft.cas.auth;
 
 import com.infusionsoft.cas.domain.OAuthServiceConfig;
 import com.infusionsoft.cas.oauth.dto.OAuthApplication;
-import com.infusionsoft.cas.oauth.exceptions.OAuthInvalidRequestException;
 import com.infusionsoft.cas.oauth.exceptions.OAuthUnauthorizedClientException;
 import com.infusionsoft.cas.oauth.services.OAuthService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,10 +25,6 @@ public class OAuthClientCredentialsAuthenticationProvider implements Authenticat
         final String clientId = token.getClientId();
         if (oAuthService.isClientAuthorizedForClientCredentialsGrantType(clientId)) {
             final OAuthServiceConfig serviceConfig = token.getServiceConfig();
-            if (serviceConfig == null) {
-                throw new OAuthInvalidRequestException("oauth.exception.service.missing");
-            }
-
             final OAuthApplication application = oAuthService.fetchApplication(serviceConfig.getServiceKey(), clientId, null, "code");
             final UUID applicationUuid = application.getUuid();
 
