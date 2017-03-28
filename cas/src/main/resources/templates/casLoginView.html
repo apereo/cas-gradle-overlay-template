@@ -93,7 +93,8 @@
     </div>
 </div>
 
-<script th:replace="local_script" type="text/javascript" src="@{/infusionsoft/js/login.js}"></script>
-
+<div layout:fragment="local_script">
+    <script type="text/javascript" th:src="@{/infusionsoft/js/login.js}"></script>
+</div>
 </body>
 </html>

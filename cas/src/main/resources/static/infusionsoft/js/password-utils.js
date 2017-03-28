@@ -8,7 +8,7 @@ function resetCheckPassword() {
 }
 
 function checkPasswordReq() {
-    var currPass = $('#password1').val();
+    var currPass = $('#password').val();
     resetCheckPassword();
     if (currPass.length >= 7) {
         $("#pw_length").addClass('valid');

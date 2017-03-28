@@ -39,6 +39,7 @@ dependencies {
     compile "org.apereo.cas:cas-server-support-hazelcast-ticket-registry:${project.'cas.version'}"
     compile "org.apereo.cas:cas-server-support-jdbc-drivers:${project.'cas.version'}"
     compile "org.apereo.cas:cas-server-support-json-service-registry:${project.'cas.version'}"
+    compile "org.apereo.cas:cas-server-support-pm:${project.'cas.version'}"
     compile "org.apereo.cas:cas-server-support-rest:${project.'cas.version'}"
 //    compile "org.apereo.cas:cas-server-webapp-session-hazelcast:${project.'cas.version'}"
     compile "org.apache.velocity:velocity"

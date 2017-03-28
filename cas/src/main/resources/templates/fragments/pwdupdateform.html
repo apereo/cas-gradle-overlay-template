@@ -1,0 +1,70 @@
+<div class="rounded-box-wide">
+    <div class="row">
+        <div class="col-sm-8">
+            <object type="image/svg+xml" tabindex="-1" th:data="@{/infusionsoft/img/is_logo.svg}" width="159" height="26" class="logo">Infusionsoft</object>
+
+            <h2>Your Password Expired</h2>
+
+            <p class="text-info">
+                <object type="image/svg+xml" tabindex="-1" th:data="@{/infusionsoft/img/ic-message-info.svg}" width="16" height="16"></object>
+                <span th:text="#{password.expired.page.instructions}"></span>
+            </p>
+
+            <form id="resetPasswordForm" class="form-horizontal" th:object="${password}">
+                <p class="text-error" th:if="${#fields.hasErrors('*')}">
+                    <object type="image/svg+xml" tabindex="-1" th:data="@{/infusionsoft/img/ic-exclamation-circle.svg}" width="16" height="16"></object>
+                    <span th:each="err : ${#fields.errors('*')}" th:utext="${err}"></span>
+                </p>
+
+                <input id="username" name="username" type="hidden" th:value="${credential.username}"/>
+                <input id="currentPassword" name="currentPassword" type="hidden" th:value="${credential.password}"/>
+
+                <input type="hidden" name="execution" th:value="${flowExecutionKey}"/>
+                <input type="hidden" name="_eventId" value="submit"/>
+
+                <!--<input id="redirectFrom" name="redirectFrom" value="expirePassword" type="hidden"/>-->
+                <!--<input id="service" name="service" th:value="${service}" type="hidden"/>-->
+
+                <div class="form-group">
+                    <div class="col-md-12">
+                        <span class="ic-lock"></span>
+                        <input id="password" class="form-control" name="password" value="" type="password" placeholder="new password" autocomplete="off"/>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="col-md-12">
+                        <span class="ic-lock"></span>
+                        <input id="confirmedPassword" class="form-control" name="confirmedPassword" value="" type="password" placeholder="retype new password" autocomplete="off"/>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-md-12">
+                        <button class="btn btn-success btn-block" type="submit">Change Password</button>
+                    </div>
+                </div>
+            </form>
+            <a th:href="@{~/login}">Back to Sign In</a>
+        </div>
+
+        <div class="col-sm-4 pw-requirements">
+            <ul>
+                <!-- Simply toggle/remove the 'valid' class as needed -->
+                <li id="pw_length" th:text="#{password.criteria.length}"></li>
+                <li id="pw_number" th:text="#{password.criteria.number}"></li>
+                <li id="pw_upper" th:text="#{password.criteria.uppercase}"></li>
+                <li id="pw_lower" th:text="#{password.criteria.lowercase}"></li>
+                <li id="pw_previous" th:text="#{password.criteria.previous}"></li>
+            </ul>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="need-help col-md-12">
+        <p>Need help? Call toll free:
+            <span th:each="supportPhoneNumber : ${supportPhoneNumbers}">
+                    <br><span th:text="${supportPhoneNumber}"></span>
+                </span>
+        </p>
+    </div>
+</div>

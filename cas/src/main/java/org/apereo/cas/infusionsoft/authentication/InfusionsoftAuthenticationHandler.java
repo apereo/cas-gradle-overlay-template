@@ -1,15 +1,15 @@
 package org.apereo.cas.infusionsoft.authentication;
 
-import org.apereo.cas.infusionsoft.services.InfusionsoftAuthenticationService;
-import org.apereo.cas.authentication.AccountPasswordMustChangeException;
 import org.apereo.cas.authentication.HandlerResult;
 import org.apereo.cas.authentication.UsernamePasswordCredential;
 import org.apereo.cas.authentication.handler.support.AbstractUsernamePasswordAuthenticationHandler;
+import org.apereo.cas.infusionsoft.services.InfusionsoftAuthenticationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import javax.security.auth.login.AccountLockedException;
+import javax.security.auth.login.CredentialExpiredException;
 import javax.security.auth.login.FailedLoginException;
 import java.security.GeneralSecurityException;
 
@@ -51,7 +51,7 @@ public class InfusionsoftAuthenticationHandler extends AbstractUsernamePasswordA
                         }
                     }
                 case PasswordExpired:
-                    throw new AccountPasswordMustChangeException("login.passwordExpired");
+                    throw new CredentialExpiredException("login.passwordExpired");
                 case Success:
                     return this.createHandlerResult(credentials, this.principalFactory.createPrincipal(credentials.getUsername()), null);
                 default:

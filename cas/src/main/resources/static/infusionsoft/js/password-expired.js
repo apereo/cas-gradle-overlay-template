@@ -12,8 +12,8 @@ function wrapCriteriaPart(skipWrap, message) {
 
 $(document).ready(function() {
 
-    console.log("focus password");
-    $("#password1").focus();
+    // console.log("focus password");
+    $("#password").focus();
 
     jQuery.validator.addMethod("password", function(value, element) {
         console.log('password validate');
@@ -28,38 +28,38 @@ $(document).ready(function() {
             errorElement: "span",
             errorClass: "help-block",
             errorPlacement: function(error, element) {
-                console.log('errorPlacement');
-                console.log(error);
-                console.log(element);
+                // console.log('errorPlacement');
+                // console.log(error);
+                // console.log(element);
 
-                element.after('<span class="is-icon is-icon-error form-control-feedback"><object type="image/svg+xml" tabindex="-1" data="/img/ic-message-danger.svg" width="4" height="16"></object></span>');
+                element.after('<span class="is-icon is-icon-error form-control-feedback"><object type="image/svg+xml" tabindex="-1" data="infusionsoft/img/ic-message-danger.svg" width="4" height="16"></object></span>');
                 element.after(error);
             },
             rules: {
-                password1: {
+                password: {
                     required: true,
-                    password: true
-                    // remote: {
-                    //     url: "app/registration/checkPasswordForLast4WithOldPassword",
-                    //     type: "post",
-                    //     data: {
-                    //         username: function () {
-                    //             return $("#username").val();
-                    //         },
-                    //         currentPassword: function () {
-                    //             return $("#currentPassword").val();
-                    //         }
-                    //     }
-                    // }
+                    password: true,
+                    remote: {
+                        url: "https://dev-account-central.infusiontest.com:6443/app/registration/checkPasswordForLast4WithOldPassword",
+                        type: "post",
+                        data: {
+                            username: function () {
+                                return $("#username").val();
+                            },
+                            currentPassword: function () {
+                                return $("#currentPassword").val();
+                            }
+                        }
+                    }
                 },
-                password2: {
+                confirmedPassword: {
                     required: true,
                     password: false,
-                    equalTo: "#password1"
+                    equalTo: "#password"
                 }
             },
             messages: {
-                password1: {
+                password: {
                     required: "Password is required.",
                     password: function(params, element) {
                         console.log('password custom');
@@ -78,15 +78,15 @@ $(document).ready(function() {
                     },
                     remote: "Password must not match any of your last 4 passwords."
                 },
-                password2: {
+                confirmedPassword: {
                     required: "Password is required.",
                     equalTo: "Passwords don't match."
                 }
             },
             highlight: function(element) {
                 //element is the input failing validation
-                console.log('highlight');
-                console.log(element);
+                // console.log('highlight');
+                // console.log(element);
 
                 //Unhide error message
                 $(element).next().removeClass("hidden");
@@ -96,17 +96,17 @@ $(document).ready(function() {
 
                 //add span icon error classes
                 $(element).next().next().addClass('is-icon is-icon-error form-control-feedback');
-                $(element).next().next().html('<object type="image/svg+xml" tabindex="-1" data="/img/ic-message-danger.svg" width="4" height="16">');
+                $(element).next().next().html('<object type="image/svg+xml" tabindex="-1" data="infusionsoft/img/ic-message-danger.svg" width="4" height="16">');
 
                 //remove span icon success classes
                 $(element).next().next().removeClass('is-icon-ok');
             },
             success: function(element) {
                 //element is the error element created by the framework
-                console.log('success');
-                console.log(element);
-                console.log($(element).next());
-                console.log($(element).next().next());
+                // console.log('success');
+                // console.log(element);
+                // console.log($(element).next());
+                // console.log($(element).next().next());
 
                 $(element).closest('.form-group').addClass('has-success has-feedback');
                 $(element).closest('.form-group').removeClass('has-error');
@@ -116,7 +116,7 @@ $(document).ready(function() {
 
                 //remove span icon error classes
                 $(element).next().removeClass('is-icon-error form-control-feedback');
-                $(element).next().html('<object type="image/svg+xml" tabindex="-1" data="/img/ic-message-success.svg" width="16" height="16">');
+                $(element).next().html('<object type="image/svg+xml" tabindex="-1" data="infusionsoft/img/ic-message-success.svg" width="16" height="16">');
 
                 //add span icon success classes
                 $(element).next().addClass('is-icon-ok form-control-feedback');
@@ -124,36 +124,12 @@ $(document).ready(function() {
 
         });
 
-    // $("#resetPasswordForm").submit(function() {
     form.validate({
         submitHandler: function(form) {
-            console.log("trying to submit password");
+            // console.log("trying to submit password");
             form.submit();
         }
     });
 
-    // if (form.valid()) {
-    //     form.submit();
-    //         console.log(form.serialize());
-    //         $.post("/app/profile/ajaxUpdatePassword", form.serialize(), "json")
-    //             .done(function () {
-    //                 var service = $("#service").val();
-    //                 window.location = "/login?service=" + service;
-    //             })
-    //             .fail(function (data) {
-    //                 var myData = $.parseJSON(data.responseText);
-    //                 // the error message is actually an embedded string that must be parsed again...
-    //                 if(myData) {
-    //                     var errorMessage = $.parseJSON(myData)
-    //                     if(errorMessage) {
-    //                         $("#error").html(errorMessage.errorMessage);
-    //                         $("#error").removeClass("hide");
-    //                     }
-    //                 }
-    //             });
-    //     }
-
-    // return false;
-// });
 })
 ;
