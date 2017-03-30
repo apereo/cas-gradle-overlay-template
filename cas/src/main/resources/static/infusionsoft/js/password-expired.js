@@ -40,7 +40,7 @@ $(document).ready(function() {
                     required: true,
                     password: true,
                     remote: {
-                        url: "/password/check",
+                        url: "/cas/password/check",
                         type: "post",
                         data: {
                             username: function() {
