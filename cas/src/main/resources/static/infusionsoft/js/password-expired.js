@@ -40,13 +40,13 @@ $(document).ready(function() {
                     required: true,
                     password: true,
                     remote: {
-                        url: /*@{"[[${accountCentralPath}/registration/checkPasswordForLast4WithOldPassword]]*/ "https://dev-account-central.infusiontest.com:6443/app/registration/checkPasswordForLast4WithOldPassword",
+                        url: "/password/check",
                         type: "post",
                         data: {
-                            username: function () {
+                            username: function() {
                                 return $("#username").val();
                             },
-                            currentPassword: function () {
+                            currentPassword: function() {
                                 return $("#currentPassword").val();
                             }
                         }

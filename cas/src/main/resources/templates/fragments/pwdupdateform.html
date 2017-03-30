@@ -1,4 +1,4 @@
-<div class="rounded-box-wide" xmlns:th="http://www.thymeleaf.org">
+<div class="rounded-box-wide" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" xmlns:th="http://www.thymeleaf.org">
     <div class="row">
         <div class="col-sm-8">
             <object type="image/svg+xml" tabindex="-1" th:data="@{/infusionsoft/img/is_logo.svg}" width="159" height="26" class="logo">Infusionsoft</object>
@@ -12,8 +12,8 @@
 
             <form id="resetPasswordForm" class="form-horizontal" th:object="${password}">
                 <!--<p class="text-error" th:if="${#fields.hasErrors('*')}">-->
-                    <!--<object type="image/svg+xml" tabindex="-1" th:data="@{/infusionsoft/img/ic-exclamation-circle.svg}" width="16" height="16"></object>-->
-                    <!--<span th:each="err : ${#fields.errors('*')}" th:utext="${err}"></span>-->
+                <!--<object type="image/svg+xml" tabindex="-1" th:data="@{/infusionsoft/img/ic-exclamation-circle.svg}" width="16" height="16"></object>-->
+                <!--<span th:each="err : ${#fields.errors('*')}" th:utext="${err}"></span>-->
                 <!--</p>-->
 
                 <input id="username" name="username" type="hidden" th:value="${credential.username}"/>
@@ -68,6 +68,3 @@
         </p>
     </div>
 </div>
-
-<script type="text/javascript" th:inline="javascript" th:src="@{/infusionsoft/js/password-utils.js}"></script>
-<script type="text/javascript" th:inline="javascript" th:src="@{/infusionsoft/js/password-expired.js}"></script>
