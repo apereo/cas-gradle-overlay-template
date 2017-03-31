@@ -1,6 +1,7 @@
 package com.infusionsoft.cas.auth;
 
 import com.infusionsoft.cas.domain.OAuthServiceConfig;
+import com.infusionsoft.cas.domain.User;
 import org.springframework.security.core.GrantedAuthority;
 
 import java.util.Collection;
@@ -17,8 +18,6 @@ public class OAuthTrustedGrantAuthenticationToken extends OAuthAuthenticationTok
      * <code>OAuthTrustedGrantAuthenticationToken</code>, as the {@link
      * #isAuthenticated()} will return <code>false</code>.
      *
-     * @param principal          principal
-     * @param credentials        credentials
      * @param oAuthServiceConfig oAuthServiceConfig
      * @param clientId           clientId
      * @param clientSecret       clientSecret
@@ -27,8 +26,8 @@ public class OAuthTrustedGrantAuthenticationToken extends OAuthAuthenticationTok
      * @param application        application
      * @param globalUserId       globalUserId
      */
-    public OAuthTrustedGrantAuthenticationToken(Object principal, Object credentials, OAuthServiceConfig oAuthServiceConfig, String clientId, String clientSecret, String scope, String grantType, String application, Long globalUserId) {
-        super(principal, credentials, oAuthServiceConfig, clientId, clientSecret, scope, grantType, application, null);
+    public OAuthTrustedGrantAuthenticationToken(OAuthServiceConfig oAuthServiceConfig, String clientId, String clientSecret, String scope, String grantType, String application, Long globalUserId) {
+        super(null, null, oAuthServiceConfig, clientId, clientSecret, scope, grantType, application, null);
         this.globalUserId = globalUserId;
     }
 
@@ -37,8 +36,7 @@ public class OAuthTrustedGrantAuthenticationToken extends OAuthAuthenticationTok
      * implementations that are satisfied with producing a trusted (i.e. {@link #isAuthenticated()} = <code>true</code>)
      * authentication token.
      *
-     * @param principal          principal
-     * @param credentials        credentials
+     * @param user               principal
      * @param oAuthServiceConfig oAuthServiceConfig
      * @param clientId           clientId
      * @param clientSecret       clientSecret
@@ -48,8 +46,8 @@ public class OAuthTrustedGrantAuthenticationToken extends OAuthAuthenticationTok
      * @param globalUserId       globalUserId
      * @param authorities        authorities
      */
-    public OAuthTrustedGrantAuthenticationToken(Object principal, Object credentials, OAuthServiceConfig oAuthServiceConfig, String clientId, String clientSecret, String scope, String grantType, String application, Long globalUserId, Collection<? extends GrantedAuthority> authorities) {
-        super(principal, credentials, oAuthServiceConfig, clientId, clientSecret, scope, grantType, application, null, authorities);
+    public OAuthTrustedGrantAuthenticationToken(User user, OAuthServiceConfig oAuthServiceConfig, String clientId, String clientSecret, String scope, String grantType, String application, Long globalUserId, Collection<? extends GrantedAuthority> authorities) {
+        super(user, null, oAuthServiceConfig, clientId, clientSecret, scope, grantType, application, null, authorities);
         this.globalUserId = globalUserId;
     }
 

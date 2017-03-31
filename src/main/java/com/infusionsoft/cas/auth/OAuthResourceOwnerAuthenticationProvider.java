@@ -27,7 +27,7 @@ public class OAuthResourceOwnerAuthenticationProvider implements AuthenticationP
         if (oAuthService.isClientAuthorizedForResourceOwnerGrantType(token.getClientId())) {
             LoginResult loginResult = infusionsoftAuthenticationService.attemptLogin(token.getPrincipal().toString(), token.getCredentials().toString());
             if (loginResult.getLoginStatus().isSuccessful()) {
-                retVal = new OAuthResourceOwnerAuthenticationToken(loginResult.getUser(), null, token.getServiceConfig(), token.getClientId(), token.getClientSecret(), token.getScope(), token.getGrantType(), token.getApplication(), loginResult.getUser().getAuthorities());
+                retVal = new OAuthResourceOwnerAuthenticationToken(loginResult.getUser(), token.getServiceConfig(), token.getClientId(), token.getClientSecret(), token.getScope(), token.getGrantType(), token.getApplication(), loginResult.getUser().getAuthorities());
             } else {
                 throw new OAuthInvalidGrantException();
             }

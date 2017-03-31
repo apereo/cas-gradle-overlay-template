@@ -42,6 +42,6 @@ public class OAuthTrustedGrantTokenProvider implements OAuthFilterTokenProvider 
         }
         Long globalUserId = Long.parseLong(globalUserIdString, 10);
 
-        return new OAuthTrustedGrantAuthenticationToken(null, null, oAuthServiceConfig, clientId, clientSecret, scope, grantType, application, globalUserId);
+        return new OAuthTrustedGrantAuthenticationToken(oAuthServiceConfig, clientId, clientSecret, scope, grantType, application, globalUserId);
     }
 }

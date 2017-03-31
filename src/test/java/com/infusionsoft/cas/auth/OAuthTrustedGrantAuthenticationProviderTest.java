@@ -55,7 +55,7 @@ public class OAuthTrustedGrantAuthenticationProviderTest {
 
     @Test
     public void testAuthenticateSuccess() throws Exception {
-        OAuthTrustedGrantAuthenticationToken token = new OAuthTrustedGrantAuthenticationToken(null, null, oAuthServiceConfig, clientId, clientSecret, scope, grantType, application, globalUserId);
+        OAuthTrustedGrantAuthenticationToken token = new OAuthTrustedGrantAuthenticationToken(oAuthServiceConfig, clientId, clientSecret, scope, grantType, application, globalUserId);
         doReturn(true).when(oAuthService).isClientAuthorizedForTrustedGrantType(clientId);
         doReturn(user).when(userService).loadUser(globalUserId);
 
@@ -78,7 +78,7 @@ public class OAuthTrustedGrantAuthenticationProviderTest {
 
     @Test
     public void testAuthenticateFailClientNotAuthorized() throws Exception {
-        OAuthTrustedGrantAuthenticationToken token = new OAuthTrustedGrantAuthenticationToken(null, null, oAuthServiceConfig, clientId, clientSecret, scope, grantType, application, globalUserId);
+        OAuthTrustedGrantAuthenticationToken token = new OAuthTrustedGrantAuthenticationToken(oAuthServiceConfig, clientId, clientSecret, scope, grantType, application, globalUserId);
         doReturn(false).when(oAuthService).isClientAuthorizedForTrustedGrantType(clientId);
 
         thrown.expect(OAuthUnauthorizedClientException.class);
@@ -96,7 +96,7 @@ public class OAuthTrustedGrantAuthenticationProviderTest {
 
     @Test
     public void testAuthenticateFailNoUser() throws Exception {
-        OAuthTrustedGrantAuthenticationToken token = new OAuthTrustedGrantAuthenticationToken(null, null, oAuthServiceConfig, clientId, clientSecret, scope, grantType, application, globalUserId);
+        OAuthTrustedGrantAuthenticationToken token = new OAuthTrustedGrantAuthenticationToken(oAuthServiceConfig, clientId, clientSecret, scope, grantType, application, globalUserId);
         doReturn(true).when(oAuthService).isClientAuthorizedForTrustedGrantType(clientId);
 
         thrown.expect(OAuthInvalidRequestException.class);

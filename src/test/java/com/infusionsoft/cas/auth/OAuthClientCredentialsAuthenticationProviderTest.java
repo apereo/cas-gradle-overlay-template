@@ -49,7 +49,7 @@ public class OAuthClientCredentialsAuthenticationProviderTest {
 
     @Test
     public void testAuthenticateSuccess() throws Exception {
-        OAuthClientCredentialsAuthenticationToken token = new OAuthClientCredentialsAuthenticationToken(null, oAuthServiceConfig, clientId, clientSecret, scope, grantType, application);
+        OAuthClientCredentialsAuthenticationToken token = new OAuthClientCredentialsAuthenticationToken(oAuthServiceConfig, clientId, clientSecret, scope, grantType, application);
         doReturn(true).when(oAuthService).isClientAuthorizedForClientCredentialsGrantType(clientId);
         doReturn(oAuthApplication).when(oAuthService).fetchApplication(serviceKey, clientId, null, "code");
 
@@ -79,7 +79,7 @@ public class OAuthClientCredentialsAuthenticationProviderTest {
 
     @Test
     public void testAuthenticateFailClientNotAuthorized() throws Exception {
-        OAuthClientCredentialsAuthenticationToken token = new OAuthClientCredentialsAuthenticationToken(null, oAuthServiceConfig, clientId, clientSecret, scope, grantType, application);
+        OAuthClientCredentialsAuthenticationToken token = new OAuthClientCredentialsAuthenticationToken(oAuthServiceConfig, clientId, clientSecret, scope, grantType, application);
         doReturn(false).when(oAuthService).isClientAuthorizedForClientCredentialsGrantType(clientId);
 
         thrown.expect(OAuthUnauthorizedClientException.class);

@@ -59,7 +59,7 @@ public class OAuthTicketGrantingTicketAuthenticationProviderTest {
 
     @Test
     public void testAuthenticateSuccess() throws Exception {
-        OAuthTicketGrantingTicketAuthenticationToken token = new OAuthTicketGrantingTicketAuthenticationToken(new Object(), new Object(), oAuthServiceConfig, clientId, clientSecret, scope, grantType, application, trackingUUID, ticketGrantingTicket);
+        OAuthTicketGrantingTicketAuthenticationToken token = new OAuthTicketGrantingTicketAuthenticationToken(oAuthServiceConfig, clientId, clientSecret, scope, grantType, application, trackingUUID, ticketGrantingTicket);
         mockUser();
 
         Authentication actualReturn = providerToTest.authenticate(token);
@@ -69,7 +69,7 @@ public class OAuthTicketGrantingTicketAuthenticationProviderTest {
     @Test
     public void testAuthenticateSuccessAnonymousNoTicketGrantingTicket() throws Exception {
         doReturn(true).when(oAuthServiceConfig).getAllowAnonymous();
-        OAuthTicketGrantingTicketAuthenticationToken token = new OAuthTicketGrantingTicketAuthenticationToken(new Object(), new Object(), oAuthServiceConfig, clientId, clientSecret, scope, grantType, application, trackingUUID, null);
+        OAuthTicketGrantingTicketAuthenticationToken token = new OAuthTicketGrantingTicketAuthenticationToken(oAuthServiceConfig, clientId, clientSecret, scope, grantType, application, trackingUUID, null);
         mockUser();
 
         Authentication actualReturn = providerToTest.authenticate(token);
@@ -80,7 +80,7 @@ public class OAuthTicketGrantingTicketAuthenticationProviderTest {
     public void testAuthenticateSuccessAnonymousExpiredTicketGrantingTicket() throws Exception {
         doReturn(true).when(oAuthServiceConfig).getAllowAnonymous();
         doReturn(true).when(ticketGrantingTicket).isExpired();
-        OAuthTicketGrantingTicketAuthenticationToken token = new OAuthTicketGrantingTicketAuthenticationToken(new Object(), new Object(), oAuthServiceConfig, clientId, clientSecret, scope, grantType, application, trackingUUID, ticketGrantingTicket);
+        OAuthTicketGrantingTicketAuthenticationToken token = new OAuthTicketGrantingTicketAuthenticationToken(oAuthServiceConfig, clientId, clientSecret, scope, grantType, application, trackingUUID, ticketGrantingTicket);
         mockUser();
 
         Authentication actualReturn = providerToTest.authenticate(token);
@@ -89,7 +89,7 @@ public class OAuthTicketGrantingTicketAuthenticationProviderTest {
 
     @Test
     public void testAuthenticateFail() throws Exception {
-        OAuthTicketGrantingTicketAuthenticationToken token = new OAuthTicketGrantingTicketAuthenticationToken(new Object(), new Object(), oAuthServiceConfig, clientId, clientSecret, scope, grantType, application, trackingUUID, ticketGrantingTicket);
+        OAuthTicketGrantingTicketAuthenticationToken token = new OAuthTicketGrantingTicketAuthenticationToken(oAuthServiceConfig, clientId, clientSecret, scope, grantType, application, trackingUUID, ticketGrantingTicket);
         mockUser();
 
         Authentication actualReturn = providerToTest.authenticate(token);
@@ -106,7 +106,7 @@ public class OAuthTicketGrantingTicketAuthenticationProviderTest {
     @Test
     public void testAuthenticateFailAnonymousNoTicketGrantingTicketAnonymousNotAllowedForService() throws Exception {
         doReturn(false).when(oAuthServiceConfig).getAllowAnonymous();
-        OAuthTicketGrantingTicketAuthenticationToken token = new OAuthTicketGrantingTicketAuthenticationToken(new Object(), new Object(), oAuthServiceConfig, clientId, clientSecret, scope, grantType, application, trackingUUID, null);
+        OAuthTicketGrantingTicketAuthenticationToken token = new OAuthTicketGrantingTicketAuthenticationToken(oAuthServiceConfig, clientId, clientSecret, scope, grantType, application, trackingUUID, null);
         mockUser();
 
         thrown.expect(OAuthAccessDeniedException.class);
@@ -119,7 +119,7 @@ public class OAuthTicketGrantingTicketAuthenticationProviderTest {
     public void testAuthenticateFailAnonymousExpiredTicketGrantingTicketAnonymousNotAllowedForService() throws Exception {
         doReturn(false).when(oAuthServiceConfig).getAllowAnonymous();
         doReturn(true).when(ticketGrantingTicket).isExpired();
-        OAuthTicketGrantingTicketAuthenticationToken token = new OAuthTicketGrantingTicketAuthenticationToken(new Object(), new Object(), oAuthServiceConfig, clientId, clientSecret, scope, grantType, application, trackingUUID, ticketGrantingTicket);
+        OAuthTicketGrantingTicketAuthenticationToken token = new OAuthTicketGrantingTicketAuthenticationToken(oAuthServiceConfig, clientId, clientSecret, scope, grantType, application, trackingUUID, ticketGrantingTicket);
         mockUser();
 
         thrown.expect(OAuthAccessDeniedException.class);
@@ -165,7 +165,7 @@ public class OAuthTicketGrantingTicketAuthenticationProviderTest {
     }
 
     private void validateToken(Authentication actualReturn, boolean shouldBeAnonymous, TicketGrantingTicket expectedTicketGrantingTicket) {
-        OAuthTicketGrantingTicketAuthenticationToken expectedReturn = new OAuthTicketGrantingTicketAuthenticationToken(null, null, oAuthServiceConfig, clientId, clientSecret, scope, grantType, application, trackingUUID, expectedTicketGrantingTicket);
+        OAuthTicketGrantingTicketAuthenticationToken expectedReturn = new OAuthTicketGrantingTicketAuthenticationToken(oAuthServiceConfig, clientId, clientSecret, scope, grantType, application, trackingUUID, expectedTicketGrantingTicket);
         Assert.assertTrue(actualReturn instanceof OAuthTicketGrantingTicketAuthenticationToken);
         OAuthTicketGrantingTicketAuthenticationToken actualReturnToken = (OAuthTicketGrantingTicketAuthenticationToken) actualReturn;
 

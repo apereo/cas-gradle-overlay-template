@@ -18,8 +18,6 @@ public class OAuthTicketGrantingTicketAuthenticationToken extends OAuthAuthentic
      * <code>OAuthTicketGrantingTicketAuthenticationToken</code>, as the {@link
      * #isAuthenticated()} will return <code>false</code>.
      *
-     * @param principal            principal
-     * @param credentials          credentials
      * @param oAuthServiceConfig   oAuthServiceConfig
      * @param clientId             clientId
      * @param clientSecret         clientSecret
@@ -29,8 +27,8 @@ public class OAuthTicketGrantingTicketAuthenticationToken extends OAuthAuthentic
      * @param trackingUUID         trackingUUID
      * @param ticketGrantingTicket ticketGrantingTicket
      */
-    public OAuthTicketGrantingTicketAuthenticationToken(Object principal, Object credentials, OAuthServiceConfig oAuthServiceConfig, String clientId, String clientSecret, String scope, String grantType, String application, String trackingUUID, TicketGrantingTicket ticketGrantingTicket) {
-        super(principal, credentials, oAuthServiceConfig, clientId, clientSecret, scope, grantType, application, trackingUUID);
+    public OAuthTicketGrantingTicketAuthenticationToken(OAuthServiceConfig oAuthServiceConfig, String clientId, String clientSecret, String scope, String grantType, String application, String trackingUUID, TicketGrantingTicket ticketGrantingTicket) {
+        super(null, null, oAuthServiceConfig, clientId, clientSecret, scope, grantType, application, trackingUUID);
         this.ticketGrantingTicket = ticketGrantingTicket;
     }
 
@@ -39,8 +37,7 @@ public class OAuthTicketGrantingTicketAuthenticationToken extends OAuthAuthentic
      * implementations that are satisfied with producing a trusted (i.e. {@link #isAuthenticated()} = <code>true</code>)
      * authentication token.
      *
-     * @param principal            principal
-     * @param credentials          credentials
+     * @param userOrUsername       userOrUsername
      * @param oAuthServiceConfig   oAuthServiceConfig
      * @param clientId             clientId
      * @param clientSecret         clientSecret
@@ -51,8 +48,8 @@ public class OAuthTicketGrantingTicketAuthenticationToken extends OAuthAuthentic
      * @param ticketGrantingTicket ticketGrantingTicket
      * @param authorities          authorities
      */
-    public OAuthTicketGrantingTicketAuthenticationToken(Object principal, Object credentials, OAuthServiceConfig oAuthServiceConfig, String clientId, String clientSecret, String scope, String grantType, String application, String trackingUUID, TicketGrantingTicket ticketGrantingTicket, Collection<? extends GrantedAuthority> authorities) {
-        super(principal, credentials, oAuthServiceConfig, clientId, clientSecret, scope, grantType, application, trackingUUID, authorities);
+    public OAuthTicketGrantingTicketAuthenticationToken(Object userOrUsername, OAuthServiceConfig oAuthServiceConfig, String clientId, String clientSecret, String scope, String grantType, String application, String trackingUUID, TicketGrantingTicket ticketGrantingTicket, Collection<? extends GrantedAuthority> authorities) {
+        super(userOrUsername, null, oAuthServiceConfig, clientId, clientSecret, scope, grantType, application, trackingUUID, authorities);
         this.ticketGrantingTicket = ticketGrantingTicket;
     }
 
