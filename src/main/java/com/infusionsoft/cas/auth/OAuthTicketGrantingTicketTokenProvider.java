@@ -71,7 +71,7 @@ public class OAuthTicketGrantingTicketTokenProvider implements OAuthFilterTokenP
         // Disable caching, since whether the request is allowed or not depends on the client_id passed in, not just the URL
         response.setHeader("Access-Control-Max-Age", "0");
 
-        return new OAuthTicketGrantingTicketAuthenticationToken(null, null, oAuthServiceConfig, clientId, oAuthClient.getClientSecret(), scope, grantType, application, userTrackingCookieValue, ticketGrantingTicket);
+        return new OAuthTicketGrantingTicketAuthenticationToken(oAuthServiceConfig, clientId, oAuthClient.getClientSecret(), scope, grantType, application, userTrackingCookieValue, ticketGrantingTicket);
     }
 
 }

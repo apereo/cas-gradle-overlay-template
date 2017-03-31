@@ -37,7 +37,7 @@ public class OAuthRefreshAuthenticationProviderTest {
 
     @Test
     public void testAuthenticateSuccess() throws Exception {
-        OAuthRefreshAuthenticationToken token = new OAuthRefreshAuthenticationToken(null, null, oAuthServiceConfig, clientId, clientSecret, grantType, refreshToken);
+        OAuthRefreshAuthenticationToken token = new OAuthRefreshAuthenticationToken(oAuthServiceConfig, clientId, clientSecret, grantType, refreshToken);
 
         Authentication actualReturn = providerToTest.authenticate(token);
 
@@ -66,7 +66,7 @@ public class OAuthRefreshAuthenticationProviderTest {
 
     @Test
     public void testAuthenticateFailMissingRefresh() throws Exception {
-        OAuthRefreshAuthenticationToken token = new OAuthRefreshAuthenticationToken(null, null, oAuthServiceConfig, clientId, clientSecret, grantType, "");
+        OAuthRefreshAuthenticationToken token = new OAuthRefreshAuthenticationToken(oAuthServiceConfig, clientId, clientSecret, grantType, "");
 
         thrown.expect(OAuthInvalidRequestException.class);
         thrown.expectMessage("oauth.exception.refreshToken.missing");

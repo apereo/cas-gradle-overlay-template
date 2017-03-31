@@ -1,6 +1,7 @@
 package com.infusionsoft.cas.auth;
 
 import com.infusionsoft.cas.domain.OAuthServiceConfig;
+import com.infusionsoft.cas.domain.User;
 import org.springframework.security.core.GrantedAuthority;
 
 import java.util.Collection;
@@ -15,8 +16,8 @@ public class OAuthResourceOwnerAuthenticationToken extends OAuthAuthenticationTo
      * <code>OAuthResourceOwnerAuthenticationToken</code>, as the {@link
      * #isAuthenticated()} will return <code>false</code>.
      *
-     * @param principal          principal
-     * @param credentials        credentials
+     * @param username           username
+     * @param password           password
      * @param oAuthServiceConfig oAuthServiceConfig
      * @param clientId           clientId
      * @param clientSecret       clientSecret
@@ -24,8 +25,8 @@ public class OAuthResourceOwnerAuthenticationToken extends OAuthAuthenticationTo
      * @param grantType          grantType
      * @param application        application
      */
-    public OAuthResourceOwnerAuthenticationToken(Object principal, Object credentials, OAuthServiceConfig oAuthServiceConfig, String clientId, String clientSecret, String scope, String grantType, String application) {
-        super(principal, credentials, oAuthServiceConfig, clientId, clientSecret, scope, grantType, application, null);
+    public OAuthResourceOwnerAuthenticationToken(String username, String password, OAuthServiceConfig oAuthServiceConfig, String clientId, String clientSecret, String scope, String grantType, String application) {
+        super(username, password, oAuthServiceConfig, clientId, clientSecret, scope, grantType, application, null);
     }
 
     /**
@@ -33,8 +34,7 @@ public class OAuthResourceOwnerAuthenticationToken extends OAuthAuthenticationTo
      * implementations that are satisfied with producing a trusted (i.e. {@link #isAuthenticated()} = <code>true</code>)
      * authentication token.
      *
-     * @param principal          principal
-     * @param credentials        credentials
+     * @param user               user
      * @param oAuthServiceConfig oAuthServiceConfig
      * @param clientId           clientId
      * @param clientSecret       clientSecret
@@ -43,8 +43,8 @@ public class OAuthResourceOwnerAuthenticationToken extends OAuthAuthenticationTo
      * @param application        application
      * @param authorities        authorities
      */
-    public OAuthResourceOwnerAuthenticationToken(Object principal, Object credentials, OAuthServiceConfig oAuthServiceConfig, String clientId, String clientSecret, String scope, String grantType, String application, Collection<? extends GrantedAuthority> authorities) {
-        super(principal, credentials, oAuthServiceConfig, clientId, clientSecret, scope, grantType, application, null, authorities);
+    public OAuthResourceOwnerAuthenticationToken(User user, OAuthServiceConfig oAuthServiceConfig, String clientId, String clientSecret, String scope, String grantType, String application, Collection<? extends GrantedAuthority> authorities) {
+        super(user, null, oAuthServiceConfig, clientId, clientSecret, scope, grantType, application, null, authorities);
     }
 
 }

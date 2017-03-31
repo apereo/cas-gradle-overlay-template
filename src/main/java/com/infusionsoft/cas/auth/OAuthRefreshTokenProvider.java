@@ -3,7 +3,6 @@ package com.infusionsoft.cas.auth;
 import com.infusionsoft.cas.domain.OAuthClient;
 import com.infusionsoft.cas.domain.OAuthServiceConfig;
 import com.infusionsoft.cas.oauth.dto.OAuthGrantType;
-import com.infusionsoft.cas.oauth.exceptions.OAuthInvalidClientException;
 import com.infusionsoft.cas.oauth.exceptions.OAuthInvalidRequestException;
 import com.infusionsoft.cas.services.OAuthClientService;
 import org.apache.commons.lang3.StringUtils;
@@ -66,6 +65,6 @@ public class OAuthRefreshTokenProvider implements OAuthFilterTokenProvider {
             response.setHeader("Access-Control-Max-Age", "300");
         }
 
-        return new OAuthRefreshAuthenticationToken(null, null, oAuthServiceConfig, clientId, clientSecret, grantType, refreshToken);
+        return new OAuthRefreshAuthenticationToken(oAuthServiceConfig, clientId, clientSecret, grantType, refreshToken);
     }
 }

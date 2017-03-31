@@ -28,7 +28,7 @@ public class OAuthTrustedGrantAuthenticationProvider implements AuthenticationPr
             User user = userService.loadUser(token.getGlobalUserId());
 
             if (user != null) {
-                return new OAuthTrustedGrantAuthenticationToken(user, null, token.getServiceConfig(), token.getClientId(), token.getClientSecret(), token.getScope(), token.getGrantType(), token.getApplication(), token.getGlobalUserId(), user.getAuthorities());
+                return new OAuthTrustedGrantAuthenticationToken(user, token.getServiceConfig(), token.getClientId(), token.getClientSecret(), token.getScope(), token.getGrantType(), token.getApplication(), token.getGlobalUserId(), user.getAuthorities());
             } else {
                 throw new OAuthInvalidRequestException("oauth.exception.user.not.found");
             }

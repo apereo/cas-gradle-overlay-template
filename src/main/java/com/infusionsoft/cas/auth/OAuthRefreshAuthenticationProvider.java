@@ -18,7 +18,7 @@ public class OAuthRefreshAuthenticationProvider implements AuthenticationProvide
         if (StringUtils.isBlank(refreshToken)) {
             throw new OAuthInvalidRequestException("oauth.exception.refreshToken.missing");
         }
-        return new OAuthRefreshAuthenticationToken(null, null, token.getServiceConfig(), clientId, token.getClientSecret(), token.getGrantType(), refreshToken, null);
+        return new OAuthRefreshAuthenticationToken(token.getServiceConfig(), clientId, token.getClientSecret(), token.getGrantType(), refreshToken, null);
     }
 
     @Override

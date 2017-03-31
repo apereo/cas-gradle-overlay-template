@@ -33,7 +33,7 @@ public class OAuthTicketGrantingTicketAuthenticationProvider implements Authenti
             }
 
             // Create an anonymous authentication token
-            final OAuthTicketGrantingTicketAuthenticationToken returnToken = new OAuthTicketGrantingTicketAuthenticationToken("anonymous-" + token.getTrackingUUID(), null, token.getServiceConfig(), clientId, token.getClientSecret(), token.getScope(), token.getGrantType(), token.getApplication(), token.getTrackingUUID(), ticketGrantingTicket, Collections.singletonList(new SimpleGrantedAuthority("ROLE_ANONYMOUS")));
+            final OAuthTicketGrantingTicketAuthenticationToken returnToken = new OAuthTicketGrantingTicketAuthenticationToken("anonymous-" + token.getTrackingUUID(), token.getServiceConfig(), clientId, token.getClientSecret(), token.getScope(), token.getGrantType(), token.getApplication(), token.getTrackingUUID(), ticketGrantingTicket, Collections.singletonList(new SimpleGrantedAuthority("ROLE_ANONYMOUS")));
             returnToken.setAuthenticated(false);
             return returnToken;
         } else {
@@ -41,7 +41,7 @@ public class OAuthTicketGrantingTicketAuthenticationProvider implements Authenti
             Principal principal = ticketGrantingTicket.getAuthentication().getPrincipal();
             String username = principal.getId();
             User user = userService.loadUser(username);
-            return new OAuthTicketGrantingTicketAuthenticationToken(user, null, token.getServiceConfig(), clientId, token.getClientSecret(), token.getScope(), token.getGrantType(), token.getApplication(), token.getTrackingUUID(), ticketGrantingTicket, user.getAuthorities());
+            return new OAuthTicketGrantingTicketAuthenticationToken(user, token.getServiceConfig(), clientId, token.getClientSecret(), token.getScope(), token.getGrantType(), token.getApplication(), token.getTrackingUUID(), ticketGrantingTicket, user.getAuthorities());
         }
     }
 

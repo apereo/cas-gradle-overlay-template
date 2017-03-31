@@ -247,7 +247,7 @@ public class OAuthTicketGrantingTicketTokenProviderTest {
     }
 
     private void validateToken(OAuthTicketGrantingTicketAuthenticationToken actualToken, String expectedCookieValue, boolean shouldBeAnonymous) {
-        OAuthTicketGrantingTicketAuthenticationToken expectedToken = new OAuthTicketGrantingTicketAuthenticationToken(null, null, oAuthServiceConfig, clientId, oAuthClient.getClientSecret(), scope, grantType, application, expectedCookieValue, shouldBeAnonymous ? null : ticketGrantingTicket);
+        OAuthTicketGrantingTicketAuthenticationToken expectedToken = new OAuthTicketGrantingTicketAuthenticationToken(oAuthServiceConfig, clientId, oAuthClient.getClientSecret(), scope, grantType, application, expectedCookieValue, shouldBeAnonymous ? null : ticketGrantingTicket);
 
         Assert.assertEquals(expectedToken.getPrincipal(), actualToken.getPrincipal());
         Assert.assertEquals(expectedToken.getServiceConfig(), actualToken.getServiceConfig());

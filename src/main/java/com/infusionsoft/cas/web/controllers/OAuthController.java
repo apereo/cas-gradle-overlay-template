@@ -170,14 +170,16 @@ public class OAuthController {
                 userId = (principal == null ? null : principal.toString());
             }
 
-            if (StringUtils.isBlank(userId)) {
-                throw new OAuthAccessDeniedException();
+            if (StringUtils.isBlank(userId) && StringUtils.isBlank(refreshToken)) {
+                // Protect against empty user context. These should already be validated before here, so this is a server error
+                throw new OAuthServerErrorException();
             }
 
             // The scope is the application for these grant types
             return oauthService.createAccessToken(serviceConfig.getServiceKey(), token.getClientId(), token.getClientSecret(), token.getGrantType(), token.getScope(), token.getApplication(), userId, refreshToken);
         } else {
-            throw new OAuthInvalidRequestException();
+            // Shouldn't be able to get here, so this is a server error
+            throw new OAuthServerErrorException();
         }
     }
 
