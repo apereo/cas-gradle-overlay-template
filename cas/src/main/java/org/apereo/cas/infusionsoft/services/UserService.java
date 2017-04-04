@@ -70,8 +70,6 @@ public interface UserService {
 
     boolean isDuplicateUsername(User user);
 
-    String resetPassword(User user);
-
     void changeAssociatedAppUsername(User user, String appName, AppType appType, String newAppUsername) throws InfusionsoftAccountException;
 
     List<Authority> findAllAuthorities();

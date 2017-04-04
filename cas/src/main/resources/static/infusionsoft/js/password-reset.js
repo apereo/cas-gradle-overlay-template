@@ -27,7 +27,7 @@ $(document).ready(function () {
                 console.log(error);
                 console.log(element);
 
-                element.after('<span class="is-icon is-icon-error form-control-feedback"><object type="image/svg+xml" tabindex="-1" data="/img/ic-message-danger.svg" width="4" height="16"></object></span>');
+                element.after('<span class="is-icon is-icon-error form-control-feedback"><img src="/infusionsoft/img/ic-message-danger.svg" width="4" height="16"></span>');
                 element.after(error);
             },
             rules: {
@@ -88,7 +88,7 @@ $(document).ready(function () {
 
                 //add span icon error classes
                 $(element).next().next().addClass('is-icon is-icon-error form-control-feedback');
-                $(element).next().next().html('<object type="image/svg+xml" tabindex="-1" data="/img/ic-message-danger.svg" width="4" height="16">');
+                $(element).next().next().html('<img src="/infusionsoft/img/ic-message-danger.svg" width="4" height="16">');
 
                 //remove span icon success classes
                 $(element).next().next().removeClass('is-icon-ok');
@@ -110,7 +110,7 @@ $(document).ready(function () {
                 console.log("remove is-icon-error on");
                 console.log($(element).next());
                 $(element).next().removeClass('is-icon-error form-control-feedback');
-                $(element).next().html('<object type="image/svg+xml" tabindex="-1" data="/img/ic-message-success.svg" width="16" height="16">');
+                $(element).next().html('<img src="/infusionsoft/img/ic-message-success.svg" width="16" height="16">');
 
                 //add span icon success classes
                 $(element).next().addClass('is-icon-ok form-control-feedback');

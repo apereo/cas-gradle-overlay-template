@@ -1,5 +1,6 @@
 package org.apereo.cas.infusionsoft.config;
 
+import org.apereo.cas.services.DefaultRegisteredServiceProperty;
 import org.apereo.cas.services.RegexRegisteredService;
 import org.apereo.cas.services.RegisteredService;
 import org.springframework.context.annotation.Bean;
@@ -8,7 +9,7 @@ import org.springframework.context.annotation.Configuration;
 import java.util.ArrayList;
 import java.util.List;
 
-//@Configuration
+@Configuration
 public class InfusionsoftRegisteredServicesConfiguration {
 
     @Bean
@@ -21,13 +22,14 @@ public class InfusionsoftRegisteredServicesConfiguration {
         services.add(serviceMarketplaceUI());
         services.add(serviceCAM());
         services.add(serviceLocalhost());
+        services.add(serviceFoundations());
 
         return services;
     }
 
     @Bean
     RegisteredService serviceCAS() {
-        return buildService(1, "Infusionsoft CAS", "https://(signin|devcas)\\.infusion(test|soft)\\.com(:[0-9]+)?/.*", 1);
+        return buildService(1, "Account Central", "https://(signin|devcas)\\.infusion(test|soft)\\.com(:[0-9]+)?/.*", 1);
     }
 
     @Bean
@@ -58,6 +60,18 @@ public class InfusionsoftRegisteredServicesConfiguration {
     @Bean
     RegisteredService serviceLocalhost() {
         return buildService(7, "Localhost", "https?://localhost(:[0-9]+)?/.*", 7);
+    }
+
+    @Bean
+    RegisteredService serviceFoundations() {
+        RegexRegisteredService service = buildService(8, "Foundations", "https://.+\\.goldfishapp\\.co(:[0-9]+)?/.*", 8);
+
+        DefaultRegisteredServiceProperty property = new DefaultRegisteredServiceProperty();
+        property.getValues().add("true");
+
+        service.getProperties().put("jwtAsResponse", property);
+
+        return service;
     }
 
     private RegexRegisteredService buildService(long id, String name, String serviceId, int evaluationOrder) {

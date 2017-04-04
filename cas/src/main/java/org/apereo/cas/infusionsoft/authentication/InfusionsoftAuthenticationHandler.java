@@ -5,7 +5,6 @@ import org.apereo.cas.authentication.UsernamePasswordCredential;
 import org.apereo.cas.authentication.handler.support.AbstractUsernamePasswordAuthenticationHandler;
 import org.apereo.cas.infusionsoft.services.InfusionsoftAuthenticationService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import javax.security.auth.login.AccountLockedException;
@@ -19,17 +18,19 @@ import java.security.GeneralSecurityException;
 @Component
 public class InfusionsoftAuthenticationHandler extends AbstractUsernamePasswordAuthenticationHandler {
 
-    @Autowired
-    InfusionsoftAuthenticationService infusionsoftAuthenticationService;
+    public InfusionsoftAuthenticationHandler() {
+        super("Infusionsoft Authentication Handler", null, null, null);
+    }
 
     @Autowired
-    PasswordEncoder passwordEncoder;
+    private InfusionsoftAuthenticationService infusionsoftAuthenticationService;
 
-    protected HandlerResult authenticateUsernamePasswordInternal(UsernamePasswordCredential credentials) throws GeneralSecurityException {
+    @Override
+    protected HandlerResult authenticateUsernamePasswordInternal(UsernamePasswordCredential credentials, String originalPassword) throws GeneralSecurityException {
         if (credentials instanceof LetMeInCredentials) {
             return this.createHandlerResult(credentials, this.principalFactory.createPrincipal(credentials.getUsername()), null);
         } else {
-            LoginResult loginResult = infusionsoftAuthenticationService.attemptLogin(credentials.getUsername(), credentials.getPassword());
+            LoginResult loginResult = infusionsoftAuthenticationService.attemptLogin(credentials.getUsername(), originalPassword);
 
             switch (loginResult.getLoginStatus()) {
                 case AccountLocked:

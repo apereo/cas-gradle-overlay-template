@@ -16,11 +16,11 @@
         </div>
 
         <div class="col-md-6 login-form" th:classappend="${!enableAds}? 'noImage'">
-            <object type="image/svg+xml" tabindex="-1" th:data="@{/infusionsoft/img/is_logo.svg}" width="159" height="26" class="logo">Infusionsoft</object>
+            <img src="../static/infusionsoft/img/is_logo.svg" th:src="@{/infusionsoft/img/is_logo.svg}" width="159" height="26" class="logo">
 
             <form method="post" id="loginForm" class="form-horizontal" th:object="${credential}" role="form" data-toggle="validator">
                 <p class="text-error" th:if="${#fields.hasErrors('*')}">
-                    <object type="image/svg+xml" tabindex="-1" th:data="@{/infusionsoft/img/ic-exclamation-circle.svg}" width="16" height="16"></object>
+                    <img src="../static/infusionsoft/img/ic-exclamation-circle.svg" th:src="@{/infusionsoft/img/ic-exclamation-circle.svg}" width="16" height="16">
                     <span th:each="err : ${#fields.errors('*')}" th:utext="${err}"></span>
                 </p>
 
@@ -64,7 +64,7 @@
             <a th:href="@{~/app/registration/forgot}">Forgot your password?</a>
 
             <div class="row infusionsoftID">
-                <object type="image/svg+xml" tabindex="-1" th:data="@{/infusionsoft/img/isID_logo.svg}" width="60" height="30" class="isIDlogo">Infusionsoft ID</object>
+                <img src="../static/infusionsoft/img/isID_logo.svg" th:src="@{/infusionsoft/img/isID_logo.svg}" width="60" height="30" class="isIDlogo">
                 <p>Haven't created your Infusionsoft ID?</p>
 
                 <p><a th:href="@{~/app/registration/createInfusionsoftId}">Click here to get started</a></p>
@@ -88,7 +88,7 @@
     </div>
     <div class="navbar navbar-default navbar-fixed-bottom" th:if="${enableAds}">
         <a th:href="@{${adLinkHref}}">
-            <img th:src="@{${adMobileImageUrl}}" class="iconAdSm img-responsive"/>
+            <img src="" th:src="@{${adMobileImageUrl}}" class="iconAdSm img-responsive"/>
         </a>
     </div>
 </div>

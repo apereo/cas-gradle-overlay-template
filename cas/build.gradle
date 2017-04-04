@@ -1,8 +1,8 @@
 apply plugin: 'org.springframework.boot'
 apply from: 'http://dl.bintray.com/scalding/generic/waroverlay.gradle'
-apply from: 'https://raw.githubusercontent.com/apereo/cas/5.0.x/gradle/overrides.gradle'
+apply from: 'https://raw.githubusercontent.com/apereo/cas/v5.1.0-RC3/gradle/overrides.gradle'
 
-version =  "${project.'cas.version'}.0-SNAPSHOT"
+version = "${project.'cas.version'}.0-SNAPSHOT"
 
 bootRepackage {
     enabled = false
@@ -26,10 +26,10 @@ repositories {
 
 dependencies {
     compile "com.googlecode.json-simple:json-simple:${project.'json.simple.version'}"
-    compile "org.jsoup:jsoup:${project.'jsoup.version'}"
-    compile "org.apereo.cas:cas-server-webapp:${project.'cas.version'}@war"
+//    compile "org.apereo.cas:cas-server-webapp:${project.'cas.version'}@war"
     compile "org.apereo.cas:cas-server-webapp-config:${project.'cas.version'}"
     compile "org.apereo.cas:cas-server-webapp-init:${project.'cas.version'}"
+    compile "org.apereo.cas:cas-server-webapp-tomcat:${project.'cas.version'}@war"
     compile "org.apereo.cas:cas-server-core-authentication:${project.'cas.version'}"
     compile "org.apereo.cas:cas-server-core-configuration:${project.'cas.version'}"
     compile "org.apereo.cas:cas-server-core-services:${project.'cas.version'}"
@@ -38,18 +38,18 @@ dependencies {
     compile "org.apereo.cas:cas-server-support-hazelcast-monitor:${project.'cas.version'}"
     compile "org.apereo.cas:cas-server-support-hazelcast-ticket-registry:${project.'cas.version'}"
     compile "org.apereo.cas:cas-server-support-jdbc-drivers:${project.'cas.version'}"
-    compile "org.apereo.cas:cas-server-support-json-service-registry:${project.'cas.version'}"
     compile "org.apereo.cas:cas-server-support-pm:${project.'cas.version'}"
     compile "org.apereo.cas:cas-server-support-rest:${project.'cas.version'}"
-//    compile "org.apereo.cas:cas-server-webapp-session-hazelcast:${project.'cas.version'}"
-    compile "org.apache.velocity:velocity"
-    compile "org.apache.velocity:velocity-tools"
+    compile "org.apereo.cas:cas-server-support-token:${project.'cas.version'}"
+    compile "org.jadira.usertype:usertype.core:${project.'jadira.version'}"
+    compile "org.jsoup:jsoup:${project.'jsoup.version'}"
     compile "org.springframework:spring-core:${project.'spring.version'}"
     compile "org.springframework.data:spring-data-commons:${project.'springDataCommons.version'}"
     compile "org.springframework.data:spring-data-jpa:${project.'springDataJpa.version'}"
-    compile "org.jadira.usertype:usertype.core:${project.'jadira.version'}"
 
     providedCompile "javax.servlet:javax.servlet-api:3.1.0"
+
+    runtime "mysql:mysql-connector-java:${project.'mysql.version'}"
 }
 
 processResources {

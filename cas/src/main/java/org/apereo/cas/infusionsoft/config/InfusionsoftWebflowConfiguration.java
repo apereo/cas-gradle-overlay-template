@@ -7,6 +7,7 @@ import org.apereo.cas.infusionsoft.services.MarketingOptionsService;
 import org.apereo.cas.infusionsoft.support.AppHelper;
 import org.apereo.cas.infusionsoft.webflow.InfusionsoftFlowSetupAction;
 import org.apereo.cas.infusionsoft.webflow.InfusionsoftWebflowConfigurer;
+import org.apereo.cas.web.flow.AbstractCasWebflowConfigurer;
 import org.apereo.cas.web.flow.CasWebflowConfigurer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -38,23 +39,14 @@ public class InfusionsoftWebflowConfiguration {
     private FlowDefinitionRegistry loginFlowDefinitionRegistry;
 
     @Autowired
-    @Qualifier("logoutFlowRegistry")
-    private FlowDefinitionRegistry logoutFlowDefinitionRegistry;
-
-    @Autowired
     private FlowBuilderServices flowBuilderServices;
 
     @Autowired
     private MarketingOptionsService marketingOptionsService;
 
-    @ConditionalOnMissingBean(name = "oauth20LogoutWebflowConfigurer")
     @Bean
     public CasWebflowConfigurer infusionsoftWebflowConfigurer() {
-        final InfusionsoftWebflowConfigurer c = new InfusionsoftWebflowConfigurer(infusionsoftFlowSetupAction());
-        c.setFlowBuilderServices(this.flowBuilderServices);
-        c.setLoginFlowDefinitionRegistry(this.loginFlowDefinitionRegistry);
-        c.setLogoutFlowDefinitionRegistry(this.logoutFlowDefinitionRegistry);
-        return c;
+        return new InfusionsoftWebflowConfigurer(flowBuilderServices, loginFlowDefinitionRegistry, infusionsoftFlowSetupAction());
     }
 
     @Bean

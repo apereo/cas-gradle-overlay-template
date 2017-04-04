@@ -1,5 +1,7 @@
 package org.apereo.cas.infusionsoft.config;
 
+import org.apereo.cas.authentication.AuthenticationEventExecutionPlan;
+import org.apereo.cas.authentication.AuthenticationEventExecutionPlanConfigurer;
 import org.apereo.cas.infusionsoft.authentication.InfusionsoftAuthenticationHandler;
 import org.apereo.cas.authentication.principal.PrincipalResolver;
 import org.apereo.cas.configuration.CasConfigurationProperties;
@@ -11,7 +13,15 @@ import javax.annotation.PostConstruct;
 import java.util.Map;
 
 @Configuration("infusionsoftCasConfiguration")
-public class InfusionsoftCasConfiguration {
+@ComponentScan("org.apereo.cas.infusionsoft.*")
+//@Import({
+//        InfusionsoftDataConfiguration.class,
+//        InfusionsoftMailConfiguration.class,
+//        InfusionsoftRegisteredServicesConfiguration.class,
+//        InfusionsoftSecurityConfiguration.class,
+//        InfusionsoftWebflowConfiguration.class
+//})
+public class InfusionsoftCasConfiguration implements AuthenticationEventExecutionPlanConfigurer {
 
     @Autowired
     private CasConfigurationProperties casProperties;
@@ -19,31 +29,9 @@ public class InfusionsoftCasConfiguration {
     @Autowired
     private InfusionsoftAuthenticationHandler infusionsoftAuthenticationHandler;
 
-    @Autowired
-    @Qualifier("personDirectoryPrincipalResolver")
-    private PrincipalResolver personDirectoryPrincipalResolver;
-
-    @Autowired
-    @Qualifier("authenticationHandlersResolvers")
-    private Map authenticationHandlersResolvers;
-
-    @PostConstruct
-    public void initializeInfusionsoftAuthenticationHandlers() {
-        authenticationHandlersResolvers.put(infusionsoftAuthenticationHandler, personDirectoryPrincipalResolver);
+    @Override
+    public void configureAuthenticationExecutionPlan(final AuthenticationEventExecutionPlan plan) {
+        plan.registerAuthenticationHandler(infusionsoftAuthenticationHandler);
     }
 
-
-
-
-//    @Autowired
-//    InfusionsoftAuthenticationHandler infusionsoftAuthenticationHandler;
-
-//    @Bean
-//    public Collection<AuthenticationHandler> infusionsoftAuthenticationHandlers() {
-//        final Collection<AuthenticationHandler> handlers = new HashSet<>();
-//
-//        handlers.add(infusionsoftAuthenticationHandler);
-//
-//        return handlers;
-//    }
 }

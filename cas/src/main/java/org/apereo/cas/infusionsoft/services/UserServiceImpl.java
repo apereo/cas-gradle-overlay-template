@@ -1,5 +1,8 @@
 package org.apereo.cas.infusionsoft.services;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apereo.cas.infusionsoft.dao.AuthorityDAO;
 import org.apereo.cas.infusionsoft.dao.LoginAttemptDAO;
 import org.apereo.cas.infusionsoft.dao.UserAccountDAO;
@@ -10,16 +13,12 @@ import org.apereo.cas.infusionsoft.exceptions.DuplicateAccountException;
 import org.apereo.cas.infusionsoft.exceptions.InfusionsoftAccountException;
 import org.apereo.cas.infusionsoft.exceptions.InfusionsoftValidationException;
 import org.apereo.cas.infusionsoft.web.ValidationUtils;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.RandomStringUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -45,12 +44,6 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private LoginAttemptDAO loginAttemptDAO;
-
-    @Autowired
-    private MailService mailService;
-
-    @Autowired
-    private MessageSource messageSource;
 
     @Autowired
     private PasswordService passwordService;
@@ -162,18 +155,6 @@ public class UserServiceImpl implements UserService {
     @Override
     public User loadUser(Long id) {
         return userDAO.findOne(id);
-    }
-
-    @Override
-    public String resetPassword(User user) {
-        user = updatePasswordRecoveryCode(user.getId());
-        String recoveryCode = user.getPasswordRecoveryCode();
-
-        log.info("password recovery code " + recoveryCode + " created for user " + user);
-
-        mailService.sendPasswordResetEmail(user);
-
-        return recoveryCode;
     }
 
     /**
