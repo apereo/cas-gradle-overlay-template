@@ -48,9 +48,6 @@ public class OAuthController {
     @Autowired
     private UserService userService;
 
-    @Autowired
-    private OAuthExceptionHandler oAuthExceptionHandler;
-
     @Value("${mashery.api.crm.service.key}")
     private String crmServiceKey;
 
@@ -59,11 +56,6 @@ public class OAuthController {
 
     private String getViewBase() {
         return "default_views".equals(viewResolverBaseName) ? "" : viewResolverBaseName + "/";
-    }
-
-    @ExceptionHandler(Exception.class)
-    public ModelAndView handleOAuthException(Exception e, HttpServletRequest request, HttpServletResponse response) {
-        return oAuthExceptionHandler.resolveException(request, response, null, e);
     }
 
     /**

@@ -3,6 +3,7 @@ package com.infusionsoft.cas.auth;
 import com.infusionsoft.cas.oauth.dto.OAuthResponseType;
 import com.infusionsoft.cas.oauth.exceptions.OAuthException;
 import com.infusionsoft.cas.oauth.exceptions.OAuthServerErrorException;
+import com.infusionsoft.cas.web.controllers.OAuthController;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,15 +34,20 @@ public class OAuthExceptionHandler extends AbstractHandlerExceptionResolver {
     private Logger logger = LoggerFactory.getLogger(OAuthExceptionHandler.class);
 
     @Autowired
-    MessageSource messageSource;
+    private MessageSource messageSource;
+
+    public OAuthExceptionHandler() {
+        // Only handle exceptions from these sources
+        setMappedHandlerClasses(new Class[]{OAuthController.class, OAuthAuthenticationEntryPoint.class});
+    }
 
     @Override
-    protected ModelAndView doResolveException(HttpServletRequest request, HttpServletResponse response, Object o, Exception e) {
+    protected ModelAndView doResolveException(HttpServletRequest request, HttpServletResponse response, Object handler, Exception e) {
         ModelAndView modelAndView = new ModelAndView();
-        Map<String, String> model = new HashMap<String, String>();
+        Map<String, String> model = new HashMap<>();
 
         OAuthException oAuthException;
-        if(e instanceof OAuthException) {
+        if (e instanceof OAuthException) {
             oAuthException = (OAuthException) e;
         } else {
             oAuthException = new OAuthServerErrorException(e);
