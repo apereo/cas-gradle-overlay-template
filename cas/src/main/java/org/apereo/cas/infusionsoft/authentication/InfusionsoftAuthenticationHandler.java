@@ -85,7 +85,7 @@ public class InfusionsoftAuthenticationHandler extends AbstractUsernamePasswordA
 
         Map<String, Object> attributes = new HashMap<>();
 
-        if (user != null) {
+        if (user != null && user.getId() != null) {
             attributes.put("id", user.getId());
             attributes.put("displayName", user.getFirstName() + " " + user.getLastName());
             attributes.put("firstName", user.getFirstName());
@@ -96,11 +96,14 @@ public class InfusionsoftAuthenticationHandler extends AbstractUsernamePasswordA
             List<UserAccount> accounts = userService.findActiveUserAccounts(user);
             attributes.put("accounts", getAccountsJSON(accounts));
             attributes.put("authorities", user.getAuthorities());
+
+            String principalId = user.getId().toString();
+            return this.createHandlerResult(credential, this.principalFactory.createPrincipal(principalId, attributes) , null);
         } else {
             LOGGER.error("User is missing on login result");
+            throw new IllegalStateException("User is missing from login result");
         }
 
-        return this.createHandlerResult(credential, this.principalFactory.createPrincipal(credential.getUsername(), attributes) , null);
     }
 
     /**
