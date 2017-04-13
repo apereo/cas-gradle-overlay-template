@@ -104,7 +104,10 @@ java -jar cas/build/libs/cas.war
 Run the CAS web application as an executable WAR via Spring Boot. This is most useful during development and testing.
 
 ```bash
-./gradlew[.bat] bootRun
+// Spring boot run, see warning below
+./gradlew[.bat] bootrun
+// Run as a java exec command
+./gradlew[.bat] runit
 ```
 
 ### Warning!
