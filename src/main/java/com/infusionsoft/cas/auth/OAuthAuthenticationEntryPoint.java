@@ -15,14 +15,14 @@ import java.io.OutputStream;
 public class OAuthAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
     @Autowired
-    OAuthExceptionHandler oAuthExceptionHandler;
+    private OAuthExceptionHandler oAuthExceptionHandler;
 
     @Autowired
-    ObjectMapper objectMapper;
+    private ObjectMapper objectMapper;
 
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException e) throws IOException, ServletException {
-        ModelAndView modelAndView = oAuthExceptionHandler.resolveException(request, response, null, e);
+        ModelAndView modelAndView = oAuthExceptionHandler.resolveException(request, response, this, e);
         response.setContentType("application/json");
         OutputStream outputStream = response.getOutputStream();
         objectMapper.writeValue(outputStream, modelAndView.getModel());
