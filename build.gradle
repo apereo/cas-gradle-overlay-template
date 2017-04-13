@@ -33,3 +33,16 @@ task generateKeys {
     }
   }
 }
+
+task runit {    
+    doLast{
+        javaexec { 
+            main="-jar";
+            args = [
+                "cas/build/libs/cas.war",
+                "-Xmx256M"
+            ]
+        }
+        println '---- Runs and flys (Maybe crashes...) ! ----'
+    }  
+}
