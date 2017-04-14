@@ -33,3 +33,14 @@ task generateKeys {
     }
   }
 }
+
+task runit {    
+    doLast{
+        javaexec { 
+            main="-jar";
+            args = [
+                "cas/build/libs/cas.war"
+            ]
+        }
+    }  
+}
