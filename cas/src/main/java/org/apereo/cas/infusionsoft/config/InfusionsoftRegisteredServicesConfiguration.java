@@ -16,13 +16,13 @@ public class InfusionsoftRegisteredServicesConfiguration {
     List<RegisteredService> inMemoryRegisteredServices() {
         List<RegisteredService> services = new ArrayList<>();
         services.add(serviceCAS());
-        services.add(serviceCRM());
         services.add(serviceCustomerHub());
         services.add(serviceMarketplaceAPI());
         services.add(serviceMarketplaceUI());
         services.add(serviceCAM());
         services.add(serviceLocalhost());
         services.add(serviceFoundations());
+        services.add(serviceCRM());
 
         return services;
     }
@@ -30,11 +30,6 @@ public class InfusionsoftRegisteredServicesConfiguration {
     @Bean
     RegisteredService serviceCAS() {
         return buildService(1, "Account Central", "https://(signin|devcas)\\.infusion(test|soft)\\.com(:[0-9]+)?/.*", 1);
-    }
-
-    @Bean
-    RegisteredService serviceCRM() {
-        return buildService(2, "Infusionsoft CRM", "https://.+\\.infusion(soft|test)\\.com(:[0-9]+)?/.*", 2);
     }
 
     @Bean
@@ -64,7 +59,7 @@ public class InfusionsoftRegisteredServicesConfiguration {
 
     @Bean
     RegisteredService serviceFoundations() {
-        RegexRegisteredService service = buildService(8, "Foundations", "https://.+\\.goldfishapp\\.co(:[0-9]+)?/.*", 8);
+        RegexRegisteredService service = buildService(8, "Foundations", "https?://.+\\.goldfishapp\\.co(:[0-9]+)?/.*", 8);
 
         DefaultRegisteredServiceProperty property = new DefaultRegisteredServiceProperty();
         property.getValues().add("true");
@@ -72,6 +67,12 @@ public class InfusionsoftRegisteredServicesConfiguration {
         service.getProperties().put("jwtAsResponse", property);
 
         return service;
+    }
+
+    @Bean
+    RegisteredService serviceCRM() {
+        // Must be last, because it's a wildcard on infusionsoft/test.com
+        return buildService(9999, "Infusionsoft CRM", "https://.+\\.infusion(soft|test)\\.com(:[0-9]+)?/.*", 9999);
     }
 
     private RegexRegisteredService buildService(long id, String name, String serviceId, int evaluationOrder) {
