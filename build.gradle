@@ -39,10 +39,8 @@ task runit {
         javaexec { 
             main="-jar";
             args = [
-                "cas/build/libs/cas.war",
-                "-Xmx256M"
+                "cas/build/libs/cas.war"
             ]
         }
-        println '---- Runs and flys (Maybe crashes...) ! ----'
     }  
 }
