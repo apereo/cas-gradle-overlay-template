@@ -13,7 +13,7 @@ buildscript {
 }
 
 subprojects {
-    task allDependenciesInsight(type: DependencyInsightReportTask, description: "Produce insight information for all dependencies") << {}
+    task allDependenciesInsight(type: DependencyInsightReportTask, description: "Produce insight information for all dependencies") {}
     task allDependencies(type: DependencyReportTask, description: "Display a graph of all project dependencies") {}
 }
 
@@ -23,7 +23,7 @@ task wrapper(type: Wrapper, description: "Update the Gradle wrapper") {
 
 task generateKeys {
   group = 'CAS'
-  description = 'generate keys for CAS. These keys can be added to your application.properties file'
+  description = 'generate keys for CAS. These keys can be added to your cas.properties file'
   doLast {
     println 'Generating keys for CAS...'
     ['cas.tgc.encryptionKey': 256, 'cas.tgc.signingKey': 512, 'cas.webflow.encryption.key': 96, 'cas.webflow.signing.key': 512].each { key, size ->
@@ -32,15 +32,4 @@ task generateKeys {
         println "${key}=${params.get('k')}"
     }
   }
-}
-
-task runit {    
-    doLast{
-        javaexec { 
-            main="-jar";
-            args = [
-                "cas/build/libs/cas.war"
-            ]
-        }
-    }  
 }
