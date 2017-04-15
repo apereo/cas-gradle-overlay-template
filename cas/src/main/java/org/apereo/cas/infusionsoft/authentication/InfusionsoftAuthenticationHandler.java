@@ -5,49 +5,49 @@ import org.apereo.cas.api.UserAccountDTO;
 import org.apereo.cas.authentication.HandlerResult;
 import org.apereo.cas.authentication.UsernamePasswordCredential;
 import org.apereo.cas.authentication.handler.support.AbstractUsernamePasswordAuthenticationHandler;
+import org.apereo.cas.authentication.principal.PrincipalFactory;
 import org.apereo.cas.infusionsoft.domain.User;
 import org.apereo.cas.infusionsoft.domain.UserAccount;
 import org.apereo.cas.infusionsoft.services.InfusionsoftAuthenticationService;
 import org.apereo.cas.infusionsoft.services.UserService;
 import org.apereo.cas.infusionsoft.support.AppHelper;
+import org.apereo.cas.services.ServicesManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import javax.security.auth.login.AccountLockedException;
-import javax.security.auth.login.CredentialExpiredException;
 import javax.security.auth.login.FailedLoginException;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Infusionsoft implementation of the authentication handler.
  */
-@Component
 public class InfusionsoftAuthenticationHandler extends AbstractUsernamePasswordAuthenticationHandler {
-
     private static final Logger LOGGER = LoggerFactory.getLogger(InfusionsoftAuthenticationHandler.class);
 
-    public InfusionsoftAuthenticationHandler() {
-        super("Infusionsoft Authentication Handler", null, null, null);
-    }
-
-    @Autowired
     private AppHelper appHelper;
 
-    @Autowired
     private InfusionsoftAuthenticationService infusionsoftAuthenticationService;
 
-    @Autowired
     private UserService userService;
+
+    public InfusionsoftAuthenticationHandler(String name, ServicesManager servicesManager, PrincipalFactory principalFactory, int order, InfusionsoftAuthenticationService infusionsoftAuthenticationService, AppHelper appHelper, UserService userService) {
+        super(name, servicesManager, principalFactory, order);
+        this.infusionsoftAuthenticationService = infusionsoftAuthenticationService;
+        this.appHelper = appHelper;
+        this.userService = userService;
+    }
+
 
     @Override
     protected HandlerResult authenticateUsernamePasswordInternal(UsernamePasswordCredential credentials, String originalPassword) throws GeneralSecurityException {
         if (credentials instanceof LetMeInCredentials) {
-            return this.createHandlerResult(credentials, this.principalFactory.createPrincipal(credentials.getUsername()), null);
+            return buildHandlerResult(credentials, false);
         } else {
             LoginResult loginResult = infusionsoftAuthenticationService.attemptLogin(credentials.getUsername(), originalPassword);
 
@@ -71,17 +71,17 @@ public class InfusionsoftAuthenticationHandler extends AbstractUsernamePasswordA
                         }
                     }
                 case PasswordExpired:
-                    throw new CredentialExpiredException("login.passwordExpired");
+                    return buildHandlerResult(credentials, true);
                 case Success:
-                    return buildHandlerResult(loginResult, credentials);
+                    return buildHandlerResult(credentials, false);
                 default:
                     throw new IllegalStateException("Unknown value for loginResult: " + loginResult);
             }
         }
     }
 
-    private HandlerResult buildHandlerResult(LoginResult loginResult, UsernamePasswordCredential credential) {
-        User user = loginResult.getUser();
+    private HandlerResult buildHandlerResult(UsernamePasswordCredential credential, boolean expired) {
+        User user = userService.loadUser(credential.getUsername());
 
         Map<String, Object> attributes = new HashMap<>();
 
@@ -91,6 +91,7 @@ public class InfusionsoftAuthenticationHandler extends AbstractUsernamePasswordA
             attributes.put("firstName", user.getFirstName());
             attributes.put("lastName", user.getLastName());
             attributes.put("email", user.getUsername());
+            attributes.put("passwordExpired", expired);
 
             // We use a query instead of user.getAccounts() so that we only include enabled accounts
             List<UserAccount> accounts = userService.findActiveUserAccounts(user);
@@ -98,10 +99,10 @@ public class InfusionsoftAuthenticationHandler extends AbstractUsernamePasswordA
             attributes.put("authorities", user.getAuthorities());
 
             String principalId = user.getId().toString();
-            return this.createHandlerResult(credential, this.principalFactory.createPrincipal(principalId, attributes) , null);
+            return this.createHandlerResult(credential, this.principalFactory.createPrincipal(principalId, attributes), null);
         } else {
             LOGGER.error("User is missing on login result");
-            throw new IllegalStateException("User is missing from login result");
+            throw new IllegalStateException("User not found");
         }
 
     }

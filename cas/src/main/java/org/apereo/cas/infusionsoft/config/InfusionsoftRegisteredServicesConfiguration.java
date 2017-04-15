@@ -1,5 +1,6 @@
 package org.apereo.cas.infusionsoft.config;
 
+import org.apereo.cas.infusionsoft.authentication.InfusionsoftRegisteredServiceAccessStrategy;
 import org.apereo.cas.services.DefaultRegisteredServiceProperty;
 import org.apereo.cas.services.RegexRegisteredService;
 import org.apereo.cas.services.RegisteredService;
@@ -60,6 +61,7 @@ public class InfusionsoftRegisteredServicesConfiguration {
     @Bean
     RegisteredService serviceFoundations() {
         RegexRegisteredService service = buildService(8, "Foundations", "https?://.+\\.goldfishapp\\.co(:[0-9]+)?/.*", 8);
+        service.setAccessStrategy(new InfusionsoftRegisteredServiceAccessStrategy(true, true, false, true));
 
         DefaultRegisteredServiceProperty property = new DefaultRegisteredServiceProperty();
         property.getValues().add("true");
@@ -81,6 +83,7 @@ public class InfusionsoftRegisteredServicesConfiguration {
         service.setName(name);
         service.setServiceId(serviceId);
         service.setEvaluationOrder(evaluationOrder);
+        service.setAccessStrategy(new InfusionsoftRegisteredServiceAccessStrategy(true, true, true, false));
 
         return service;
     }

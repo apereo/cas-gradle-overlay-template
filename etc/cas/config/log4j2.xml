@@ -57,6 +57,10 @@
             <AppenderRef ref="casConsole"/>
             <AppenderRef ref="casFile"/>
         </AsyncLogger>
+        <AsyncLogger name="org.apereo.cas.infusionsoft" level="info" additivity="false" includeLocation="true">
+            <AppenderRef ref="casConsole"/>
+            <AppenderRef ref="casFile"/>
+        </AsyncLogger>
         <AsyncLogger name="org.apereo.services.persondir" level="warn" additivity="false" includeLocation="true">
             <AppenderRef ref="casConsole"/>
             <AppenderRef ref="casFile"/>
@@ -92,7 +96,7 @@
         <AsyncLogger name="org.springframework.boot.actuate.autoconfigure" level="warn" additivity="false">
             <AppenderRef ref="casConsole"/>
         </AsyncLogger>
-        <AsyncLogger name="org.springframework.webflow" level="warn" additivity="false">
+        <AsyncLogger name="org.springframework.webflow" level="debug" additivity="false">
             <AppenderRef ref="casConsole"/>
             <AppenderRef ref="casFile"/>
         </AsyncLogger>

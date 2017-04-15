@@ -26,7 +26,6 @@ repositories {
 
 dependencies {
     compile "com.googlecode.json-simple:json-simple:${project.'json.simple.version'}"
-//    compile "org.apereo.cas:cas-server-webapp:${project.'cas.version'}@war"
     compile "org.apereo.cas:cas-server-webapp-config:${project.'cas.version'}"
     compile "org.apereo.cas:cas-server-webapp-init:${project.'cas.version'}"
     compile "org.apereo.cas:cas-server-webapp-tomcat:${project.'cas.version'}@war"
