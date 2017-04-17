@@ -9,7 +9,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
 
-    <title layout:title-pattern="$LAYOUT_TITLE - $CONTENT_TITLE">CAS &#8211; Central Authentication Service</title>
+    <title layout:title-pattern="$CONTENT_TITLE">CAS &#8211; Central Authentication Service</title>
 
     <link rel="shortcut icon" th:href="@{/infusionsoft/images/favicon.ico}" />
     <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
@@ -20,16 +20,11 @@
     <link rel="stylesheet" th:href="@{/infusionsoft/bootstrap-chosen/bootstrap-chosen.css}">
     <link rel="stylesheet" th:href="@{/infusionsoft/css/typeahead-bootstrap-fix.css}">
     <link rel="stylesheet" th:href="@{/infusionsoft/css/bootstrap-app-central.css}">
+    <link rel="stylesheet" th:href="@{${#themes.code('standard.custom.css.file')}}" />
 
     <link type="text/css" rel="stylesheet" th:href="@{/infusionsoft/css/bootstrap-infusionsoft.css}"/>
 
-
-
-
     <!--<link rel="stylesheet" th:href="@{/infusionsoft/css/chosen.min.css}">-->
-
-
-
 
     <script th:inline="javascript">
         //Necessary to overcome the known Microsoft Mobile IE bug
@@ -51,46 +46,10 @@
 <div layout:fragment="content"></div>
 <!--</section>-->
 
-<!-- global java script files -->
-<script type="text/javascript" th:src="@{/infusionsoft/js/jquery-2.1.3/jquery-2.1.3.min.js}"></script>
-<script type="text/javascript" th:src="@{/infusionsoft/js/animo-1.0.3/animo.min.js}"></script>
-<script type="text/javascript" th:src="@{/infusionsoft/bootstrap-3.2.0-dist/js/bootstrap.min.js}"></script>
-<script type="text/javascript" th:src="@{/infusionsoft/js/jquery-plugins/placeholder-0.2.4/jquery.placeholder.js}"></script>
-<script type="text/javascript" th:src="@{/infusionsoft/js/jquery-plugins/chosen-1.1.0/chosen.jquery.min.js}"></script>
-<script type="text/javascript" th:src="@{/infusionsoft/js/jquery-plugins/validate-1.11.1/jquery.validate.min.js}"></script>
-<script type="text/javascript" th:src="@{/infusionsoft/js/infusionsoft-chosen.js}"></script>
-<script type="text/javascript" th:src="@{/infusionsoft/js/handlerbars-2.0.0/handlebars-v2.0.0.js}"></script>
-<script type="text/javascript" th:src="@{/infusionsoft/js/typeahead-0.10.5/typeahead.bundle.js}"></script>
+<div th:insert="fragments/bottom"/>
 
 <!--<script th:inline="javascript" layout:fragment="local_script"></script>-->
 <div layout:fragment="local_script"></div>
 
-<script type="text/javascript">
-    (function(i, s, o, g, r, a, m) {
-        i['GoogleAnalyticsObject'] = r;
-        i[r] = i[r] || function() {
-                (i[r].q = i[r].q || []).push(arguments)
-            }, i[r].l = 1 * new Date();
-        a = s.createElement(o),
-            m = s.getElementsByTagName(o)[0];
-        a.async = 1;
-        a.src = g;
-        m.parentNode.insertBefore(a, m)
-    })(window, document, 'script', '//www.google-analytics.com/analytics.js', 'ga');
-
-    ga('create', 'UA-53595407-1', 'auto');
-    ga('send', 'pageview');
-</script>
-
-<script type="text/javascript">
-    (function() {
-        var walkme = document.createElement('script');
-        walkme.type = 'text/javascript';
-        walkme.async = true;
-        walkme.src = 'https://d3b3ehuo35wzeh.cloudfront.net/users/6543/walkme_6543_https.js';
-        var s = document.getElementsByTagName('script')[0];
-        s.parentNode.insertBefore(walkme, s);
-    })();
-</script>
 </body>
 </html>

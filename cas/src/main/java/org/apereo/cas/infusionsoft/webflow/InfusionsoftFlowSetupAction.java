@@ -3,6 +3,7 @@ package org.apereo.cas.infusionsoft.webflow;
 import org.apereo.cas.authentication.principal.WebApplicationService;
 import org.apereo.cas.infusionsoft.authentication.InfusionsoftRegisteredServiceAccessStrategy;
 import org.apereo.cas.infusionsoft.domain.AppType;
+import org.apereo.cas.infusionsoft.domain.MarketingOptions;
 import org.apereo.cas.infusionsoft.services.BuildServiceImpl;
 import org.apereo.cas.infusionsoft.services.InfusionsoftAuthenticationService;
 import org.apereo.cas.infusionsoft.services.MarketingOptionsService;
@@ -45,6 +46,7 @@ public class InfusionsoftFlowSetupAction extends AbstractAction {
         WebApplicationService service = (WebApplicationService) context.getFlowScope().get("service");
         String appName = null;
         AppType appType = null;
+        final MarketingOptions marketingOptions = marketingOptionsService.fetch();
 
         if (service != null) {
             appName = infusionsoftAuthenticationService.guessAppName(service.getOriginalUrl());
@@ -61,10 +63,10 @@ public class InfusionsoftFlowSetupAction extends AbstractAction {
         context.getFlowScope().put("appType", appType);
         context.getFlowScope().put("appUrl", appHelper.buildAppUrl(appType, appName));
         context.getFlowScope().put("appVersion", buildService.getBuildVersion());
-        context.getFlowScope().put("enableAds", marketingOptionsService.fetch().getEnableAds());
-        context.getFlowScope().put("adDesktopImageSrcUrl", marketingOptionsService.fetch().getDesktopImageSrcUrl());
-        context.getFlowScope().put("adMobileImageSrcUrl", marketingOptionsService.fetch().getMobileImageSrcUrl());
-        context.getFlowScope().put("adLinkUrl", marketingOptionsService.fetch().getHref());
+        context.getFlowScope().put("enableAds", marketingOptions.getEnableAds());
+        context.getFlowScope().put("adDesktopImageSrcUrl", marketingOptions.getDesktopImageSrcUrl());
+        context.getFlowScope().put("adMobileImageSrcUrl", marketingOptions.getMobileImageSrcUrl());
+        context.getFlowScope().put("adLinkUrl", marketingOptions.getHref());
         context.getFlowScope().put("supportPhoneNumbers", supportPhoneNumbers);
 
         return success();
