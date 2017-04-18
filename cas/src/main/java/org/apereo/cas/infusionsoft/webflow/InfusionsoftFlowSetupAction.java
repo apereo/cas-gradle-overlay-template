@@ -10,7 +10,13 @@ import org.apereo.cas.infusionsoft.services.MarketingOptionsService;
 import org.apereo.cas.infusionsoft.support.AppHelper;
 import org.apereo.cas.services.RegisteredService;
 import org.apereo.cas.services.ServicesManager;
+import org.apereo.cas.util.EncodingUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.webflow.action.AbstractAction;
+import org.springframework.webflow.core.collection.MutableAttributeMap;
 import org.springframework.webflow.execution.Event;
 import org.springframework.webflow.execution.RequestContext;
 
@@ -24,6 +30,12 @@ public class InfusionsoftFlowSetupAction extends AbstractAction {
     private MarketingOptionsService marketingOptionsService;
     private ServicesManager servicesManager;
     private List<String> supportPhoneNumbers;
+
+    @Autowired
+    private MessageSource messageSource;
+
+    @Value("${infusionsoft.account-central.baseUrl}")
+    private String accountCentralUrl;
 
     public InfusionsoftFlowSetupAction(
             AppHelper appHelper,
@@ -43,7 +55,8 @@ public class InfusionsoftFlowSetupAction extends AbstractAction {
 
     @Override
     protected Event doExecute(RequestContext context) throws Exception {
-        WebApplicationService service = (WebApplicationService) context.getFlowScope().get("service");
+        final MutableAttributeMap<Object> flowScope = context.getFlowScope();
+        final WebApplicationService service = (WebApplicationService) flowScope.get("service");
         String appName = null;
         AppType appType = null;
         final MarketingOptions marketingOptions = marketingOptionsService.fetch();
@@ -52,22 +65,31 @@ public class InfusionsoftFlowSetupAction extends AbstractAction {
             appName = infusionsoftAuthenticationService.guessAppName(service.getOriginalUrl());
             appType = infusionsoftAuthenticationService.guessAppType(service.getOriginalUrl());
         }
+        final String appUrl = appHelper.buildAppUrl(appType, appName);
+        final String registrationUrl;
+        if (appType == AppType.CRM) {
+            final String redirectMessage = messageSource.getMessage("login.redirect.message", null, LocaleContextHolder.getLocale());
+            registrationUrl = appUrl + "/app/authentication/login?msg=" + EncodingUtils.urlEncode(redirectMessage);
+        } else {
+            registrationUrl = accountCentralUrl + "/app/registration/createInfusionsoftId";
+        }
 
         final RegisteredService registeredService = this.servicesManager.findServiceBy(service);
         if (registeredService != null && registeredService.getAccessStrategy() instanceof InfusionsoftRegisteredServiceAccessStrategy) {
             InfusionsoftRegisteredServiceAccessStrategy strategy = (InfusionsoftRegisteredServiceAccessStrategy) registeredService.getAccessStrategy();
-            context.getFlowScope().put("allowSocialLogin", strategy.isAllowSocialLogin());
+            flowScope.put("allowSocialLogin", strategy.isAllowSocialLogin());
         }
 
-        context.getFlowScope().put("appName", appName);
-        context.getFlowScope().put("appType", appType);
-        context.getFlowScope().put("appUrl", appHelper.buildAppUrl(appType, appName));
-        context.getFlowScope().put("appVersion", buildService.getBuildVersion());
-        context.getFlowScope().put("enableAds", marketingOptions.getEnableAds());
-        context.getFlowScope().put("adDesktopImageSrcUrl", marketingOptions.getDesktopImageSrcUrl());
-        context.getFlowScope().put("adMobileImageSrcUrl", marketingOptions.getMobileImageSrcUrl());
-        context.getFlowScope().put("adLinkUrl", marketingOptions.getHref());
-        context.getFlowScope().put("supportPhoneNumbers", supportPhoneNumbers);
+        flowScope.put("appName", appName);
+        flowScope.put("appType", appType);
+        flowScope.put("appUrl", appUrl);
+        flowScope.put("appVersion", buildService.getBuildVersion());
+        flowScope.put("enableAds", marketingOptions.getEnableAds());
+        flowScope.put("adDesktopImageSrcUrl", marketingOptions.getDesktopImageSrcUrl());
+        flowScope.put("adMobileImageSrcUrl", marketingOptions.getMobileImageSrcUrl());
+        flowScope.put("adLinkUrl", marketingOptions.getHref());
+        flowScope.put("supportPhoneNumbers", supportPhoneNumbers);
+        flowScope.put("registrationUrl", registrationUrl);
 
         return success();
     }
