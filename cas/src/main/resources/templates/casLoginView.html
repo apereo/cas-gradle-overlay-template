@@ -67,7 +67,7 @@
                 <img src="../static/infusionsoft/img/isID_logo.svg" th:src="@{/infusionsoft/img/isID_logo.svg}" width="60" height="30" class="isIDlogo">
                 <p>Haven't created your Infusionsoft ID?</p>
 
-                <p><a th:href="${registrationUrl}">Click here to get started</a></p>
+                <p><a th:href="@{${registrationUrl}}">Click here to get started</a></p>
             </div>
         </div>
     </div>
@@ -80,8 +80,8 @@
                 </span>
             </p>
 
-            <p th:if="${!#strings.isEmpty(appUrl) && appType == 'CRM'}">
-                <a th:href="@{${appUrl}/Affiliate/}">Referral Partner Sign-in</a>
+            <p th:if="${!#strings.isEmpty(appUrl) && appType == T(org.apereo.cas.infusionsoft.domain.AppType).CRM}">
+                <a th:href="@{|${appUrl}/Affiliate/|}">Referral Partner Sign-in</a>
             </p>
         </div>
 
