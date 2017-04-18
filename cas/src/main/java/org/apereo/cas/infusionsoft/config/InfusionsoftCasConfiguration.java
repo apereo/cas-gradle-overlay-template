@@ -5,6 +5,7 @@ import org.apereo.cas.authentication.AuthenticationEventExecutionPlanConfigurer;
 import org.apereo.cas.authentication.principal.PrincipalFactory;
 import org.apereo.cas.configuration.CasConfigurationProperties;
 import org.apereo.cas.infusionsoft.authentication.InfusionsoftAuthenticationHandler;
+import org.apereo.cas.infusionsoft.authentication.InfusionsoftSocialLoginPrincipalFactory;
 import org.apereo.cas.infusionsoft.config.properties.InfusionsoftConfigurationProperties;
 import org.apereo.cas.infusionsoft.dao.*;
 import org.apereo.cas.infusionsoft.services.*;
@@ -15,7 +16,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -57,6 +57,11 @@ public class InfusionsoftCasConfiguration implements AuthenticationEventExecutio
     @Bean
     public AppHelper appHelper() {
         return new AppHelper(crmService(), customerHubService());
+    }
+
+    @Bean
+    public PrincipalFactory clientPrincipalFactory() {
+        return new InfusionsoftSocialLoginPrincipalFactory(userService);
     }
 
     @Bean

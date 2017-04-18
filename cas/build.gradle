@@ -35,6 +35,7 @@ dependencies {
     compile "org.apereo.cas:cas-server-support-hazelcast-monitor:${project.'cas.version'}"
     compile "org.apereo.cas:cas-server-support-hazelcast-ticket-registry:${project.'cas.version'}"
     compile "org.apereo.cas:cas-server-support-jdbc-drivers:${project.'cas.version'}"
+    compile "org.apereo.cas:cas-server-support-pac4j-webflow:${project.'cas.version'}"
     compile "org.apereo.cas:cas-server-support-pm:${project.'cas.version'}"
     compile "org.apereo.cas:cas-server-support-rest:${project.'cas.version'}"
     compile "org.apereo.cas:cas-server-support-token:${project.'cas.version'}"
