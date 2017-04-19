@@ -84,20 +84,9 @@ public class InfusionsoftAuthenticationHandler extends AbstractUsernamePasswordA
     private HandlerResult buildHandlerResult(UsernamePasswordCredential credential, boolean expired) {
         User user = userService.loadUser(credential.getUsername());
 
-        Map<String, Object> attributes = new HashMap<>();
-
         if (user != null && user.getId() != null) {
-            attributes.put("id", user.getId());
-            attributes.put("displayName", user.getFirstName() + " " + user.getLastName());
-            attributes.put("firstName", user.getFirstName());
-            attributes.put("lastName", user.getLastName());
-            attributes.put("email", user.getUsername());
+            Map<String, Object> attributes = userService.createAttributeMapForUser(user);
             attributes.put("passwordExpired", expired);
-
-            // We use a query instead of user.getAccounts() so that we only include enabled accounts
-            List<UserAccount> accounts = userService.findActiveUserAccounts(user);
-            attributes.put("accounts", getAccountsJSON(accounts));
-            attributes.put("authorities", user.getAuthorities());
 
             String principalId = user.getId().toString();
             return this.createHandlerResult(credential, this.principalFactory.createPrincipal(principalId, attributes), null);
@@ -105,35 +94,5 @@ public class InfusionsoftAuthenticationHandler extends AbstractUsernamePasswordA
             LOGGER.error("User is missing on login result");
             throw new IllegalStateException("User not found");
         }
-
-    }
-
-    /**
-     * *************************************************************************************************
-     * * * WARNING * * *
-     * If the format/content of this JSON ever changes in a way that affects parsing on the receiving end,
-     * the TICKETGRANTINGTICKET table needs to be completely cleared, since the old tickets stored there
-     * will still have the old format
-     * **************************************************************************************************
-     */
-    private String getAccountsJSON(List<UserAccount> accounts) {
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        String json;
-
-        try {
-            ObjectMapper objectMapper = new ObjectMapper();
-            UserAccountDTO[] userAccounts = UserAccountDTO.convertFromCollection(accounts, appHelper);
-            objectMapper.writeValue(outputStream, userAccounts);
-        } catch (IOException e) {
-            LOGGER.error("Error while serializing accounts to JSON", e);
-        }
-
-        try {
-            json = outputStream.toString("UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            json = null;
-        }
-
-        return json;
     }
 }

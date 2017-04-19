@@ -35,7 +35,7 @@ public class UserIdentity implements Serializable {
     }
 
     @NotNull
-    @Column(name = "externalId", length = 255, nullable = false)
+    @Column(name = "external_id", length = 255, nullable = false)
     public String getExternalId() {
         return externalId;
     }

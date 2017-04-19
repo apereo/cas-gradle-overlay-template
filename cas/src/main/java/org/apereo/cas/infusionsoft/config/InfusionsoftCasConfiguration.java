@@ -24,6 +24,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 public class InfusionsoftCasConfiguration implements AuthenticationEventExecutionPlanConfigurer {
 
     @Autowired
+    private AuthorityDAO authorityDAO;
+
+    @Autowired
     private CasConfigurationProperties casConfigurationProperties;
 
     @Autowired
@@ -52,6 +55,9 @@ public class InfusionsoftCasConfiguration implements AuthenticationEventExecutio
     private UserAccountDAO userAccountDAO;
 
     @Autowired
+    private UserIdentityDAO userIdentityDAO;
+
+    @Autowired
     private UserPasswordDAO userPasswordDAO;
 
     @Bean
@@ -61,7 +67,7 @@ public class InfusionsoftCasConfiguration implements AuthenticationEventExecutio
 
     @Bean
     public PrincipalFactory clientPrincipalFactory() {
-        return new InfusionsoftSocialLoginPrincipalFactory(userService);
+        return new InfusionsoftSocialLoginPrincipalFactory(userService());
     }
 
     @Bean
@@ -101,7 +107,7 @@ public class InfusionsoftCasConfiguration implements AuthenticationEventExecutio
 
     @Bean
     public UserService userService() {
-        return new UserServiceImpl(userDAO, userAccountDAO);
+        return new UserServiceImpl(appHelper(), authorityDAO, userDAO, userAccountDAO, userIdentityDAO);
     }
 
     @Override
@@ -109,4 +115,16 @@ public class InfusionsoftCasConfiguration implements AuthenticationEventExecutio
         plan.registerAuthenticationHandler(infusionsoftAuthenticationHandler());
     }
 
+//    @Autowired
+//    @RefreshScope
+//    @Bean
+//    public PrincipalResolver personDirectoryPrincipalResolver(@Qualifier("attributeRepository") final IPersonAttributeDao attributeRepository,
+//                                                              @Qualifier("principalFactory") final PrincipalFactory principalFactory) {
+//        final PersonDirectoryPrincipalResolver bean = new PersonDirectoryPrincipalResolver();
+//        bean.setAttributeRepository(attributeRepository);
+//        bean.setPrincipalAttributeName(casProperties.getPersonDirectory().getPrincipalAttribute());
+//        bean.setReturnNullIfNoAttributes(casProperties.getPersonDirectory().isReturnNull());
+//        bean.setPrincipalFactory(principalFactory);
+//        return bean;
+//    }
 }
