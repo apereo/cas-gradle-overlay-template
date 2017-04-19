@@ -16,7 +16,7 @@
         </div>
 
         <div class="col-md-6 login-form" th:classappend="${!enableAds}? 'noImage'">
-            <img src="../static/infusionsoft/img/is_logo.svg" th:src="@{/infusionsoft/img/is_logo.svg}" width="159" height="26" class="logo">
+            <div class="logo"></div>
 
             <form method="post" id="loginForm" class="form-horizontal" th:object="${credential}" role="form" data-toggle="validator">
                 <p class="text-error" th:if="${#fields.hasErrors('*')}">
@@ -29,6 +29,10 @@
                 <input type="hidden" name="geolocation"/>
                 <input type="hidden" name="app_version" th:value="${appVersion}"/>
 
+                <div class="row signUpRow">
+                    <p>Don't have an account? <a th:href="@{${registrationUrl}(service=${service.originalUrl})}">Sign Up</a></p>
+                </div>
+
                 <div class="form-group">
                     <div class="col-md-10">
                         <span class="ic-envelope"></span>
@@ -39,7 +43,7 @@
                                type="email"
                                th:field="*{username}"
                                th:accesskey="#{screen.welcome.label.netid.accesskey}"
-                               placeholder="email@example.com"/>
+                               placeholder="Email Address"/>
                     </div>
                 </div>
                 <div class="form-group">
@@ -52,7 +56,7 @@
                                type="password"
                                th:field="*{password}"
                                th:accesskey="#{screen.welcome.label.password.accesskey}"
-                               placeholder="password"/>
+                               placeholder="Password"/>
                     </div>
                 </div>
                 <div class="form-group">
@@ -63,12 +67,6 @@
             </form>
             <a th:href="@{~/app/registration/forgot}">Forgot your password?</a>
 
-            <div class="row infusionsoftID">
-                <img src="../static/infusionsoft/img/isID_logo.svg" th:src="@{/infusionsoft/img/isID_logo.svg}" width="60" height="30" class="isIDlogo">
-                <p>Haven't created your Infusionsoft ID?</p>
-
-                <p><a th:href="@{${registrationUrl}}">Click here to get started</a></p>
-            </div>
         </div>
     </div>
     <div class="row">
@@ -87,8 +85,8 @@
 
     </div>
     <div class="navbar navbar-default navbar-fixed-bottom" th:if="${enableAds}">
-        <a th:href="@{${adLinkHref}}">
-            <img src="" th:src="@{${adMobileImageUrl}}" class="iconAdSm img-responsive"/>
+        <a th:href="@{${adLinkUrl}}">
+            <img src="" th:src="@{${adMobileImageSrcUrl}}" class="iconAdSm img-responsive"/>
         </a>
     </div>
 </div>

@@ -5,6 +5,7 @@ body {
     margin-bottom: 60px;
     font-family: "Open Sans", Arial, Helvetica, Verdana, sans-serif;
     color: #5E5E5E;
+    padding: 8px;
 }
 
 a {
@@ -34,23 +35,26 @@ h2 {
     text-align: center;
 }
 .logo {
-    margin: 10px 0 30px 0;
+    margin: 10px auto 30px auto;
+    padding: 0;
     text-indent: -9999px;
+    width: 159px;
+    height: 26px;
+    background: transparent url('/infusionsoft/img/is_logo.svg') no-repeat top center;
 }
 .navbar.navbar-default.navbar-fixed-bottom {
     height: 51px;
     background-color: #000;
+    text-align: center;
 }
-.infusionsoftID {
-    margin: 20px auto 0 auto;
+.signUpRow {
+    margin: 15px 0;
     overflow: hidden;
+    padding: 0;
 }
-.infusionsoftID .isIDlogo {
-    margin-bottom: 5px;
-}
-.infusionsoftID p {
-    margin-bottom: 0;
-    font-size: 13px;
+.signUpRow p {
+    margin: 0 auto 10px auto;
+    font-size: 14px;
     text-align: center;
 }
 .login-footer {
@@ -90,7 +94,7 @@ img.iconAd {
     width: 275px;
 }
 img.iconAdSm {
-    display: block;
+    display: inline-block;
     height: 51px;
     width: 320px;
 }
@@ -117,7 +121,7 @@ input.form-control {
 .login-form {
     text-align: center;
     margin: 0 auto;
-
+    border-radius: 5px;
 }
 .is-icon {
     /*position: relative;*/
@@ -160,10 +164,6 @@ input.form-control {
     padding: 0 15px;
 }
 .rounded-box-wide {
-    padding: 0;
-}
-.rounded-box-wide .logo {
-    margin: 10px 0 15px 0;
     padding: 0;
 }
 .rounded-box object {
@@ -313,23 +313,6 @@ select.form-control {
         float: left;
         width: 50%;
     }
-    .logo {
-        background-position: left;
-        margin-top: 0;
-    }
-    .infusionsoftID {
-        margin: 20px 0 0 0;
-        padding: 0;
-    }
-    .infusionsoftID .isIDlogo {
-        float: left;
-        margin: 5px 15px 0 0;
-        padding: 0;
-    }
-    .infusionsoftID p {
-        font-size: 14px;
-        text-align: left;
-    }
     .rounded-box,
     .rounded-box-wide {
         width: 400px;
@@ -341,9 +324,6 @@ select.form-control {
     }
     .rounded-box object {
         margin: 25px 0 10px 0;
-    }
-    .rounded-box-wide .logo {
-        margin: 15px 0 15px 0;
     }
     .rounded-box h2,
     .rounded-box-wide h2 {
@@ -454,7 +434,6 @@ select.form-control {
         width: 60%;
         float: none;
         border: 1px solid #DDD;
-        border-radius: 4px;
         padding: 30px 40px 35px;
         text-align: center;
     }
@@ -468,9 +447,23 @@ select.form-control {
     .col-md-12.login-footer.noImage p {
         background: none;
     }
-    .noImage .infusionsoftID {
-        width: 323px;
-        margin: 25px auto 0 auto;
+    .signUpRow {
+        margin: 25px 0 15px 0;
+    }
+    .noImage .signUpRow {
+        min-width: 323px;
+    }
+    .signUpRow p {
+        text-align: left;
+    }
+    .noImage .signUpRow p {
+        text-align: center;
+    }
+    .logo {
+        margin: 0 0 20px 0;
+    }
+    .noImage .logo {
+        margin: 0 auto 20px auto;
     }
 }
 
@@ -489,19 +482,12 @@ select.form-control {
         display: block;
         width: 375px;
     }
-    .logo {
-        margin: 10px 0 40px 0;
-    }
     .login-form {
         text-align: left;
         padding-left: 40px;
     }
-    .infusionsoftID {
-        margin-top: 25px;
-    }
-    .infusionsoftID p {
-        font-size: 14px;
-        text-align: left;
+    .signUpRow {
+        margin: 25px 0;
     }
     .rounded-box,
     .rounded-box-wide {
@@ -514,9 +500,6 @@ select.form-control {
     .rounded-box object,
     .rounded-box-wide object {
         margin: 25px 0 10px 0;
-    }
-    .rounded-box-wide .logo {
-        margin: 25px 0 15px 0;
     }
     .rounded-box h2,
     .rounded-box-wide h2 {
@@ -606,6 +589,12 @@ select.form-control {
     }
     .col-md-12.login-footer.noImage {
         background: none;
+    }
+    .logo {
+        margin: 10px 0 30px 0;
+    }
+    .noImage .logo {
+        margin: 10px auto 30px auto;
     }
 }
 

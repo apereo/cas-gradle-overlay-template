@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"  width="1440" height="1024" viewBox="0 0 1440 1024">
+     <defs>
+       <rect id="onboard-bg-a" width="1440" height="1024"/>
+     </defs>
+     <g fill="none" fill-rule="evenodd">
+       <mask id="onboard-bg-b" fill="#fff">
+         <use xlink:href="#onboard-bg-a"/>
+       </mask>
+       <use fill="#D8D8D8" xlink:href="#onboard-bg-a"/>
+       <g mask="url(#onboard-bg-b)">
+         <g transform="translate(-43.185 -133)">
+           <rect width="1496.79" height="1462.645" x=".185" y="124.812" fill="#58A1D8"/>
+           <polygon fill="#4086BB" points="1527.084 .551 47.56 872.139 1284.533 1293.834 1527.084 1151.034" opacity=".2"/>
+           <polygon fill="#4086BB" points="47.783 2022.262 1284.757 1293.686 47.783 871.885" opacity=".5"/>
+         </g>
+       </g>
+     </g>
+</svg>
