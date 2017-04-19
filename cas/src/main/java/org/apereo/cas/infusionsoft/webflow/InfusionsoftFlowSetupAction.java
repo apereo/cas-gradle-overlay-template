@@ -9,6 +9,7 @@ import org.apereo.cas.infusionsoft.services.InfusionsoftAuthenticationService;
 import org.apereo.cas.infusionsoft.services.MarketingOptionsService;
 import org.apereo.cas.infusionsoft.support.AppHelper;
 import org.apereo.cas.services.RegisteredService;
+import org.apereo.cas.services.RegisteredServiceProperty;
 import org.apereo.cas.services.ServicesManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -71,12 +72,14 @@ public class InfusionsoftFlowSetupAction extends AbstractAction {
             InfusionsoftRegisteredServiceAccessStrategy strategy = (InfusionsoftRegisteredServiceAccessStrategy) registeredService.getAccessStrategy();
             flowScope.put("allowSocialLogin", strategy.isAllowSocialLogin());
         }
+        final RegisteredServiceProperty disableAds = registeredService.getProperties().get("disableAds");
+        final boolean enableAds = marketingOptions.getEnableAds() && (disableAds == null || !"true".equals(disableAds.getValue()));
 
         flowScope.put("appName", appName);
         flowScope.put("appType", appType);
         flowScope.put("appUrl", appUrl);
         flowScope.put("appVersion", buildService.getBuildVersion());
-        flowScope.put("enableAds", marketingOptions.getEnableAds());
+        flowScope.put("enableAds", enableAds);
         flowScope.put("adDesktopImageSrcUrl", marketingOptions.getDesktopImageSrcUrl());
         flowScope.put("adMobileImageSrcUrl", marketingOptions.getMobileImageSrcUrl());
         flowScope.put("adLinkUrl", marketingOptions.getHref());

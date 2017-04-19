@@ -30,10 +30,6 @@ public interface InfusionsoftAuthenticationService {
 
     void verifyAppCredentials(AppType appType, String appName, String appUsername, String appPassword) throws AppCredentialsInvalidException, AppCredentialsExpiredException;
 
-    User getCurrentUser(HttpServletRequest request);
-
-    TicketGrantingTicket getTicketGrantingTicket(HttpServletRequest request);
-
     boolean hasCommunityAccount(User user);
 
     void unlockUser(String username);

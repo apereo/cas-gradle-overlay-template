@@ -1,0 +1,84 @@
+/**
+PROXIMA NOVA REGULAR
+**/
+@font-face {
+    font-family: 'ProximaNova';
+    src: url('https://javascript_library.s3.amazonaws.com/inf-styles/fonts/mark_simonson-proxima_nova/mark_simonson_-_proxima_nova_regular-webfont.eot');
+    src: url('https://javascript_library.s3.amazonaws.com/inf-styles/fonts/mark_simonson-proxima_nova/mark_simonson_-_proxima_nova_regular-webfont.eot?#iefix') format('embedded-opentype'),
+    url('https://javascript_library.s3.amazonaws.com/inf-styles/fonts/mark_simonson-proxima_nova/mark_simonson_-_proxima_nova_regular-webfont.woff') format('woff'),
+    url('https://javascript_library.s3.amazonaws.com/inf-styles/fonts/mark_simonson-proxima_nova/mark_simonson_-_proxima_nova_regular-webfont.ttf') format('truetype'),
+    url('https://javascript_library.s3.amazonaws.com/inf-styles/fonts/mark_simonson-proxima_nova/mark_simonson_-_proxima_nova_regular-webfont.svg#proxima_nova_rgregular') format('svg');
+    font-weight: 400;
+    font-style: normal;
+}
+
+/**
+PROXIMA NOVA REGULAR SEMI-BOLD
+**/
+@font-face {
+    font-family: 'ProximaNova';
+    src: url('https://javascript_library.s3.amazonaws.com/inf-styles/fonts/mark_simonson-proxima_nova/mark_simonson_-_proxima_nova_semibold-webfont.eot');
+    src: url('https://javascript_library.s3.amazonaws.com/inf-styles/fonts/mark_simonson-proxima_nova/mark_simonson_-_proxima_nova_semibold-webfont.eot?#iefix') format('embedded-opentype'),
+    url('https://javascript_library.s3.amazonaws.com/inf-styles/fonts/mark_simonson-proxima_nova/mark_simonson_-_proxima_nova_semibold-webfont.woff') format('woff'),
+    url('https://javascript_library.s3.amazonaws.com/inf-styles/fonts/mark_simonson-proxima_nova/mark_simonson_-_proxima_nova_semibold-webfont.ttf') format('truetype'),
+    url('https://javascript_library.s3.amazonaws.com/inf-styles/fonts/mark_simonson-proxima_nova/mark_simonson_-_proxima_nova_semibold-webfont.svg#proxima_nova_ltsemibold') format('svg');
+    font-weight: 600;
+    font-style: normal;
+}
+
+body {
+    background: #58a1d8 url('/themes/foundations/img/onboard-bg.svg') no-repeat top center;
+    margin-top: 0;
+    margin-bottom: 0;
+    color: #58595B;
+    font-family: 'ProximaNova', 'ProximaNova Regular', sans-serif, Helvetica, Arial;
+    font-size: 14px;
+    font-weight: 400;
+}
+
+.login-form {
+    background: white;
+    padding: 30px 40px 35px;
+}
+
+.signUpRow {
+    margin: 25px 0;
+}
+
+@media (min-width: 768px) {
+    .login-form {
+        margin-top: 50px;
+    }
+}
+
+@media (min-width: 992px) {
+    .signUpRow {
+        margin: 25px 0;
+    }
+}
+
+input[type="email"],
+input[type="password"] {
+    padding: 8px;
+}
+
+.ic-envelope, .ic-lock, .login-footer {
+    display: none;
+    background: none;
+}
+
+button.btn {
+    text-transform: uppercase;
+    background-color: #58a1d8;
+    height: 44px;
+    padding: 11px calc(3 * 8px);
+    border-radius: 5px;
+}
+
+.noImage .logo {
+    margin: 16px auto;
+    width: 94px;
+    height: 94px;
+    background: transparent url('/themes/foundations/img/IS-dark-logo.svg') no-repeat top center;
+    border-radius: 100%;
+}

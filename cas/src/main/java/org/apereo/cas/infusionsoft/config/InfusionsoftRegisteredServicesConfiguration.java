@@ -4,11 +4,13 @@ import org.apereo.cas.infusionsoft.authentication.InfusionsoftRegisteredServiceA
 import org.apereo.cas.services.DefaultRegisteredServiceProperty;
 import org.apereo.cas.services.RegexRegisteredService;
 import org.apereo.cas.services.RegisteredService;
+import org.apereo.cas.services.RegisteredServiceProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Configuration
 public class InfusionsoftRegisteredServicesConfiguration {
@@ -62,11 +64,17 @@ public class InfusionsoftRegisteredServicesConfiguration {
     RegisteredService serviceFoundations() {
         RegexRegisteredService service = buildService(8, "Foundations", "https?://.+\\.goldfishapp\\.co(:[0-9]+)?/.*", 8);
         service.setAccessStrategy(new InfusionsoftRegisteredServiceAccessStrategy(true, true, false, true));
+        service.setTheme("cas-theme-foundations");
+
+        final Map<String, RegisteredServiceProperty> serviceProperties = service.getProperties();
 
         DefaultRegisteredServiceProperty property = new DefaultRegisteredServiceProperty();
         property.getValues().add("true");
+        serviceProperties.put("jwtAsResponse", property);
 
-        service.getProperties().put("jwtAsResponse", property);
+        property = new DefaultRegisteredServiceProperty();
+        property.getValues().add("true");
+        serviceProperties.put("disableAds", property);
 
         return service;
     }
