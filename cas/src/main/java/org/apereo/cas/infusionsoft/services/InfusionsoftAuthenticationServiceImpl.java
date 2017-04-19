@@ -111,10 +111,10 @@ public class InfusionsoftAuthenticationServiceImpl implements InfusionsoftAuthen
                 log.info("it's us");
             } else if (host.equals(marketplaceProperties.getHost().getDomain())) {
                 appName = "marketplace";
-            } else if (host.endsWith(infusionsoftProperties.getCrm().getDomain())) {
-                appName = host.replace("." + infusionsoftProperties.getCrm().getDomain(), "");
             } else if (host.endsWith(customerHubProperties.getHost().getDomain())) {
                 appName = host.replace("." + customerHubProperties.getHost().getDomain(), "");
+            } else if (host.endsWith(infusionsoftProperties.getCrm().getDomain())) {
+                appName = host.replace("." + infusionsoftProperties.getCrm().getDomain(), "");
             } else {
                 log.warn("unable to guess app name for url " + url);
             }
@@ -341,57 +341,6 @@ public class InfusionsoftAuthenticationServiceImpl implements InfusionsoftAuthen
         } else {
             throw new AppCredentialsInvalidException("we don't know how to verify credentials for app type " + appType);
         }
-    }
-
-    /**
-     * Looks at the CAS cookies to determine the current user.
-     */
-    @Override
-    public User getCurrentUser(HttpServletRequest request) {
-        User retVal = null;
-        TicketGrantingTicket tgt = getTicketGrantingTicket(request);
-        Principal principal = tgt.getAuthentication().getPrincipal();
-        User user = userService.loadUser(principal.getId());
-
-        if (user != null) {
-            retVal = user;
-
-            log.info("resolved user id=" + retVal.getId() + " for ticket " + tgt);
-        } else {
-            log.warn("couldn't find a user for ticket " + tgt);
-        }
-        return retVal;
-    }
-
-    @Override
-    public TicketGrantingTicket getTicketGrantingTicket(HttpServletRequest request) {
-        TicketGrantingTicket tgt = null;
-
-        if (request.getCookies() == null) {
-            return null;
-        }
-
-        String tgtCookieName = tgtCookieGenerator.getCookieName();
-        Cookie cookie = CookieUtil.extractCookie(request, tgtCookieName);
-        if (cookie != null) {
-            log.debug("found a valid " + tgtCookieName + " cookie with value " + cookie.getValue());
-
-            Ticket ticket = ticketRegistry.getTicket(cookie.getValue());
-
-            if (ticket == null) {
-                log.warn("found a " + tgtCookieName + " cookie, but it doesn't match any known ticket!");
-            } else if (ticket instanceof TicketGrantingTicket) {
-                tgt = (TicketGrantingTicket) ticket;
-            } else {
-                tgt = ticket.getGrantingTicket();
-            }
-
-            if (tgt != null && tgt.isExpired()) {
-                tgt = null;
-            }
-        }
-
-        return tgt;
     }
 
     /**
