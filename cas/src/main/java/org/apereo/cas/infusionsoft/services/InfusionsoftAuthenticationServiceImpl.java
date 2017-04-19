@@ -265,7 +265,7 @@ public class InfusionsoftAuthenticationServiceImpl implements InfusionsoftAuthen
                 String requestURI = httpServletRequest.getRequestURI();
                 String errorMessage = StringUtils.join("Failed login attempt with status ", loginAttemptStatus, ".\n  username: ", username, "\n  user-agent: ", userAgent, "\n  remoteAddress: ", remoteAddress, "\n  requestURI: ", requestURI, "\n  referrer: ", referrer);
                 // Log with an error if it's the one that caused a lockout or already locked out; otherwise info level
-                if (loginAttemptStatus == null || loginAttemptStatus == LoginAttemptStatus.AccountLocked) {
+                if (loginAttemptStatus == LoginAttemptStatus.AccountLocked) {
                     log.error(errorMessage);
                 } else {
                     log.info(errorMessage);

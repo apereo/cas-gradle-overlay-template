@@ -1,0 +1,31 @@
+machine:
+  timezone: America/Phoenix
+  services:
+    - mysql
+  java:
+    version: oraclejdk8
+  environment:
+    GRADLE_OPTS: "-Xms64m -Xmx2g -XX:MaxMetaspaceSize=512m"
+dependencies:
+  pre:
+    - curl "https://storage.googleapis.com/circle-scripts/latest/init.sh" | bash
+  override:
+#    - ${HOME}/bin/circle-install mvn 3.3.3 ${M2_HOME}
+#    - ${MVN} install -T1C -Dmaven.test.skip.exec=true
+#    - ./gradlew compileTestJava # Download all dependencies before they are cached
+test:
+  override:
+#    - ${MVN} verify -P regression
+#    - ./bin/gatherTests.sh #run after coverage so if script dies we still gather reports
+  post:
+#    - mkdir -p $CIRCLE_TEST_REPORTS/junit/
+#    - find . -type f -regex ".*/target/surefire-reports/.*xml" -exec cp {} $CIRCLE_TEST_REPORTS/junit/ \;
+deployment:
+  devSnapshot:
+    branch: master
+    commands:
+      - pancakes_deployment cas
+  release:
+    tag: /v[0-9]+(\.[0-9]+)*/
+    commands:
+      - pancakes_deployment cas
