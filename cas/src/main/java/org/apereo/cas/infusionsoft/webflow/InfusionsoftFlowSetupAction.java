@@ -58,22 +58,30 @@ public class InfusionsoftFlowSetupAction extends AbstractAction {
         final WebApplicationService service = (WebApplicationService) flowScope.get("service");
         String appName = null;
         AppType appType = null;
-        final MarketingOptions marketingOptions = marketingOptionsService.fetch();
+        String serviceUrl = null;
 
         if (service != null) {
             appName = infusionsoftAuthenticationService.guessAppName(service.getOriginalUrl());
             appType = infusionsoftAuthenticationService.guessAppType(service.getOriginalUrl());
+            serviceUrl = service.getOriginalUrl();
         }
         final String appUrl = appHelper.buildAppUrl(appType, appName);
         final String registrationUrl = accountCentralUrl + "/app/registration/createInfusionsoftId";
 
+        final MarketingOptions marketingOptions = marketingOptionsService.fetch();
+        boolean enableAds = marketingOptions.getEnableAds();
         final RegisteredService registeredService = this.servicesManager.findServiceBy(service);
-        if (registeredService != null && registeredService.getAccessStrategy() instanceof InfusionsoftRegisteredServiceAccessStrategy) {
-            InfusionsoftRegisteredServiceAccessStrategy strategy = (InfusionsoftRegisteredServiceAccessStrategy) registeredService.getAccessStrategy();
-            flowScope.put("allowSocialLogin", strategy.isAllowSocialLogin());
+        if (registeredService != null) {
+            if (registeredService.getAccessStrategy() instanceof InfusionsoftRegisteredServiceAccessStrategy) {
+                InfusionsoftRegisteredServiceAccessStrategy strategy = (InfusionsoftRegisteredServiceAccessStrategy) registeredService.getAccessStrategy();
+                flowScope.put("allowSocialLogin", strategy.isAllowSocialLogin());
+            }
+
+            final RegisteredServiceProperty disableAds = registeredService.getProperties().get("disableAds");
+            if (disableAds != null) {
+                enableAds = enableAds && !Boolean.parseBoolean(disableAds.getValue());
+            }
         }
-        final RegisteredServiceProperty disableAds = registeredService.getProperties().get("disableAds");
-        final boolean enableAds = marketingOptions.getEnableAds() && (disableAds == null || !"true".equals(disableAds.getValue()));
 
         flowScope.put("appName", appName);
         flowScope.put("appType", appType);
@@ -85,6 +93,7 @@ public class InfusionsoftFlowSetupAction extends AbstractAction {
         flowScope.put("adLinkUrl", marketingOptions.getHref());
         flowScope.put("supportPhoneNumbers", supportPhoneNumbers);
         flowScope.put("registrationUrl", registrationUrl);
+        flowScope.put("serviceUrl", serviceUrl);
 
         return success();
     }
