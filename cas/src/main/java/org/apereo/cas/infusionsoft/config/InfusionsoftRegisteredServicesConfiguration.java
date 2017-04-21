@@ -32,17 +32,17 @@ public class InfusionsoftRegisteredServicesConfiguration {
 
     @Bean
     RegisteredService serviceCAS() {
-        return buildService(1, "Account Central", "https://(signin|devcas)\\.infusion(test|soft)\\.com(:[0-9]+)?/.*", 1);
+        return buildService(1, "Account Central", "https://(signin|devcas)\\.infusion(test|soft)\\.com(:[0-9]+)?((/.*)|$)", 1);
     }
 
     @Bean
     RegisteredService serviceCustomerHub() {
-        return buildService(3, "CustomerHub", "((https://.+\\.customerhub(\\.net|test\\.com))|(http://.+\\.customerhub.(dev|local)))(:[0-9]+)?/.*", 3);
+        return buildService(3, "CustomerHub", "((https://.+\\.customerhub(\\.net|test\\.com))|(http://.+\\.customerhub.(dev|local)))(:[0-9]+)?((/.*)|$)", 3);
     }
 
     @Bean
     RegisteredService serviceMarketplaceAPI() {
-        return buildService(4, "Marketplace API", "https://marketplace3(dev)?\\.infusion(soft|test)\\.com(:[0-9]+)?/.*", 4);
+        return buildService(4, "Marketplace API", "https://marketplace3(dev)?\\.infusion(soft|test)\\.com(:[0-9]+)?((/.*)|$)", 4);
     }
 
     @Bean
@@ -52,17 +52,17 @@ public class InfusionsoftRegisteredServicesConfiguration {
 
     @Bean
     RegisteredService serviceCAM() {
-        return buildService(6, "CAM", "https://cam\\.infusion(soft|test)\\.com/.*", 6);
+        return buildService(6, "CAM", "https://cam\\.infusion(soft|test)\\.com((/.*)|$)", 6);
     }
 
     @Bean
     RegisteredService serviceLocalhost() {
-        return buildService(7, "Localhost", "https?://localhost(:[0-9]+)?/.*", 7);
+        return buildService(7, "Localhost", "https?://localhost(:[0-9]+)?((/.*)|$)", 7);
     }
 
     @Bean
     RegisteredService serviceFoundations() {
-        RegexRegisteredService service = buildService(8, "Foundations", "https?://.+\\.goldfishapp\\.co(:[0-9]+)?/.*", 8);
+        RegexRegisteredService service = buildService(8, "Foundations", "https?://([^\\.]+\\.goldfishapp\\.co|propel\\.infusion(soft|test)\\.com)(:[0-9]+)?((/.*)|$)", 8);
         service.setAccessStrategy(new InfusionsoftRegisteredServiceAccessStrategy(true, true, false, true));
         service.setTheme("cas-theme-foundations");
 
@@ -82,7 +82,7 @@ public class InfusionsoftRegisteredServicesConfiguration {
     @Bean
     RegisteredService serviceCRM() {
         // Must be last, because it's a wildcard on infusionsoft/test.com
-        return buildService(9999, "Infusionsoft CRM", "https://.+\\.infusion(soft|test)\\.com(:[0-9]+)?/.*", 9999);
+        return buildService(9999, "Infusionsoft CRM", "https://.+\\.infusion(soft|test)\\.com(:[0-9]+)?((/.*)|$)", 9999);
     }
 
     private RegexRegisteredService buildService(long id, String name, String serviceId, int evaluationOrder) {
