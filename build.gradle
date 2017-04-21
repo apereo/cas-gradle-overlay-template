@@ -38,7 +38,16 @@ task generateKeys {
     description = 'generate keys for CAS. These keys can be added to your application.properties file'
     doLast {
         println 'Generating keys for CAS...'
-        ['cas.tgc.encryptionKey': 256, 'cas.tgc.signingKey': 512, 'cas.webflow.encryption.key': 96, 'cas.webflow.signing.key': 512].each { key, size ->
+        [
+                'cas.authn.pm.reset.security.encryptionKey': 256,
+                'cas.authn.pm.reset.security.signingKey'   : 512,
+                'cas.authn.token.crypto.encryption.key'    : 256,
+                'cas.authn.token.crypto.signing.key'       : 512,
+                'cas.tgc.encryptionKey'                    : 256,
+                'cas.tgc.signingKey'                       : 512,
+                'cas.webflow.encryption.key'               : 96,
+                'cas.webflow.signing.key'                  : 512
+        ].each { key, size ->
             def octetKey = OctJwkGenerator.generateJwk(size)
             def params = octetKey.toParams(JsonWebKey.OutputControlLevel.INCLUDE_SYMMETRIC)
             println "${key}=${params.get('k')}"
