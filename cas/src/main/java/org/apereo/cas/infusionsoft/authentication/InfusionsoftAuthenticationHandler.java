@@ -1,13 +1,10 @@
 package org.apereo.cas.infusionsoft.authentication;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apereo.cas.api.UserAccountDTO;
 import org.apereo.cas.authentication.HandlerResult;
 import org.apereo.cas.authentication.UsernamePasswordCredential;
 import org.apereo.cas.authentication.handler.support.AbstractUsernamePasswordAuthenticationHandler;
 import org.apereo.cas.authentication.principal.PrincipalFactory;
 import org.apereo.cas.infusionsoft.domain.User;
-import org.apereo.cas.infusionsoft.domain.UserAccount;
 import org.apereo.cas.infusionsoft.services.InfusionsoftAuthenticationService;
 import org.apereo.cas.infusionsoft.services.UserService;
 import org.apereo.cas.infusionsoft.support.AppHelper;
@@ -17,12 +14,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.security.auth.login.AccountLockedException;
 import javax.security.auth.login.FailedLoginException;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.security.GeneralSecurityException;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
