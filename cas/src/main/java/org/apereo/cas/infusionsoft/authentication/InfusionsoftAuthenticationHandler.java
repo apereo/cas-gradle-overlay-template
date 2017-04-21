@@ -19,6 +19,7 @@ import javax.security.auth.login.AccountLockedException;
 import javax.security.auth.login.FailedLoginException;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.security.GeneralSecurityException;
 import java.util.HashMap;
 import java.util.List;
@@ -117,6 +118,8 @@ public class InfusionsoftAuthenticationHandler extends AbstractUsernamePasswordA
      */
     private String getAccountsJSON(List<UserAccount> accounts) {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        String json;
+
         try {
             ObjectMapper objectMapper = new ObjectMapper();
             UserAccountDTO[] userAccounts = UserAccountDTO.convertFromCollection(accounts, appHelper);
@@ -124,6 +127,13 @@ public class InfusionsoftAuthenticationHandler extends AbstractUsernamePasswordA
         } catch (IOException e) {
             LOGGER.error("Error while serializing accounts to JSON", e);
         }
-        return outputStream.toString();
+
+        try {
+            json = outputStream.toString("UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            json = null;
+        }
+
+        return json;
     }
 }

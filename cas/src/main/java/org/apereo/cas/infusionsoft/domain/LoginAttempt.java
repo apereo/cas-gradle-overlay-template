@@ -40,11 +40,11 @@ public class LoginAttempt implements Serializable {
     @Column(name = "date")
     @Index(name = "login_attempt_date_index", columnNames = { "date_attempted" })
     public Date getDateAttempted() {
-        return dateAttempted;
+        return new Date(dateAttempted.getTime());
     }
 
     public void setDateAttempted(Date dateAttempted) {
-        this.dateAttempted = dateAttempted;
+        this.dateAttempted = new Date(dateAttempted.getTime());
     }
 
     @Column(name = "status")

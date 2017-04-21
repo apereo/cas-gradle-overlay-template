@@ -3,16 +3,28 @@ import org.jose4j.jwk.OctJwkGenerator
 
 buildscript {
     repositories {
-        mavenLocal()
-        jcenter()
+        maven {
+            url 'https://infusionsoft.jfrog.io/infusionsoft/mvn-clean'
+            credentials {
+                username System.properties['externalProxyRepositoryUsername']
+                password System.properties['externalProxyRepositoryPassword']
+            }
+        }
     }
     dependencies {
         classpath "org.bitbucket.b_c:jose4j:0.5.2"
         classpath "org.springframework.boot:spring-boot-gradle-plugin:${project.'springboot.version'}"
+        classpath 'com.infusionsoft.pancakes:pancakes-google-cloud-build-plugin:3.+'
     }
 }
 
+allprojects {
+    group 'com.infusionsoft'
+    apply plugin: 'pancakes-library'
+}
+
 subprojects {
+    apply plugin: 'pancakes-library'
     task allDependenciesInsight(type: DependencyInsightReportTask, description: "Produce insight information for all dependencies") << {}
     task allDependencies(type: DependencyReportTask, description: "Display a graph of all project dependencies") {}
 }
