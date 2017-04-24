@@ -2,16 +2,18 @@ package org.apereo.cas.infusionsoft.authentication;
 
 import org.apereo.cas.authentication.principal.DefaultPrincipalFactory;
 import org.apereo.cas.authentication.principal.Principal;
-import org.apereo.cas.authentication.principal.SimplePrincipal;
 import org.apereo.cas.infusionsoft.domain.User;
 import org.apereo.cas.infusionsoft.domain.UserIdentity;
 import org.apereo.cas.infusionsoft.exceptions.InfusionsoftValidationException;
 import org.apereo.cas.infusionsoft.services.UserService;
-import org.apereo.cas.infusionsoft.services.UserServiceImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class InfusionsoftSocialLoginPrincipalFactory extends DefaultPrincipalFactory {
@@ -35,9 +37,9 @@ public class InfusionsoftSocialLoginPrincipalFactory extends DefaultPrincipalFac
 
         if (user == null) {
             user = new User();
-            user.setFirstName((String) attributes.get("first_name"));
-            user.setLastName((String) attributes.get("last_name"));
-            user.setUsername((String) attributes.get("email"));
+            user.setFirstName(extractFirstName(attributes));
+            user.setLastName(extractLastName(attributes));
+            user.setUsername(extractEmail(attributes));
 
             UserIdentity userIdentity = new UserIdentity();
             userIdentity.setUser(user);
@@ -53,6 +55,43 @@ public class InfusionsoftSocialLoginPrincipalFactory extends DefaultPrincipalFac
         }
 
         return super.createPrincipal(user.getId().toString(), attributes);
+    }
+
+    private String extractFirstName(Map<String, Object> attributes) {
+        ArrayList<String> possibleKeys = new ArrayList<>();
+        possibleKeys.add("firstName");
+        possibleKeys.add("first_name");
+
+        return extractFromAttributes(attributes,  possibleKeys);
+    }
+
+    private String extractLastName(Map<String, Object> attributes) {
+        ArrayList<String> possibleKeys = new ArrayList<>();
+        possibleKeys.add("lastName");
+        possibleKeys.add("last_name");
+
+        return extractFromAttributes(attributes,  possibleKeys);
+    }
+
+    private String extractEmail(Map<String, Object> attributes) {
+        ArrayList<String> possibleKeys = new ArrayList<>();
+        possibleKeys.add("email");
+        possibleKeys.add("emailAddress");
+
+        return extractFromAttributes(attributes,  possibleKeys);
+    }
+
+    private String extractFromAttributes(@NotNull Map<String, Object> attributes, @NotNull @Size(min = 1) List<String> possibleKeys) {
+        String retVal = null;
+
+        for(String possibleKey : possibleKeys) {
+            if(attributes.containsKey(possibleKey)) {
+                retVal =  (String) attributes.get(possibleKey);
+                break;
+            }
+        }
+
+        return retVal;
     }
 
     @Override
