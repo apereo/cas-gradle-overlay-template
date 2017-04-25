@@ -20,18 +20,15 @@ public class InfusionsoftPasswordManagementService extends BasePasswordManagemen
     private static final Logger LOGGER = LoggerFactory.getLogger(InfusionsoftPasswordManagementService.class);
 
     private PasswordService passwordService;
-    private SecurityQuestionResponseDAO securityQuestionResponseDAO;
     private UserService userService;
 
     public InfusionsoftPasswordManagementService(final CipherExecutor<Serializable, String> cipherExecutor,
                                                  final String issuer,
                                                  final PasswordManagementProperties passwordManagementProperties,
                                                  final PasswordService passwordService,
-                                                 final SecurityQuestionResponseDAO securityQuestionResponseDAO,
                                                  final UserService userService) {
         super(cipherExecutor, issuer, passwordManagementProperties);
         this.passwordService = passwordService;
-        this.securityQuestionResponseDAO = securityQuestionResponseDAO;
         this.userService = userService;
     }
 
@@ -59,13 +56,6 @@ public class InfusionsoftPasswordManagementService extends BasePasswordManagemen
 
     @Override
     public Map<String, String> getSecurityQuestions(String username) {
-        User user = userService.loadUser(username);
-        Map<String, String> retVal = new HashMap<>();
-
-        securityQuestionResponseDAO.findAllByUser(user).forEach(securityQuestionResponse ->
-                retVal.put(securityQuestionResponse.getSecurityQuestion().getQuestion(), securityQuestionResponse.getResponse())
-        );
-
-        return retVal;
+        return new HashMap<>();
     }
 }

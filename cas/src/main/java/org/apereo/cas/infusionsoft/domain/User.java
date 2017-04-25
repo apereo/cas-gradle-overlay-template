@@ -1,14 +1,11 @@
 package org.apereo.cas.infusionsoft.domain;
 
-import org.hibernate.annotations.LazyCollection;
-import org.hibernate.annotations.LazyCollectionOption;
 import org.hibernate.annotations.Type;
 import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.NotBlank;
 import org.hibernate.validator.constraints.SafeHtml;
 import org.joda.time.DateTime;
-import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -20,7 +17,7 @@ import java.util.Set;
 
 @Entity(name = "User")
 @Table(name = "user")
-public class User implements Serializable, UserDetails {
+public class User implements Serializable {
     private Long id;
     private String firstName;
     private String lastName;
@@ -31,13 +28,6 @@ public class User implements Serializable, UserDetails {
     private Set<Authority> authorities = new HashSet<>();
     private Set<UserAccount> accounts = new HashSet<>();
     private List<UserPassword> passwords = new ArrayList<>();
-    private List<SecurityQuestionResponse> securityQuestionResponses = new ArrayList<>();
-
-    //Spring Security UserDetails fields
-    private String password;
-    private boolean accountNonExpired;
-    private boolean accountNonLocked;
-    private boolean credentialsNonExpired;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -86,7 +76,7 @@ public class User implements Serializable, UserDetails {
         this.username = username;
     }
 
-    @Column(name = "password_recovery_code", length = 32, nullable = true)
+    @Column(name = "password_recovery_code", length = 32)
     public String getPasswordRecoveryCode() {
         return passwordRecoveryCode;
     }
@@ -95,7 +85,7 @@ public class User implements Serializable, UserDetails {
         this.passwordRecoveryCode = passwordRecoveryCode;
     }
 
-    @Column(name = "password_recovery_code_created_time", nullable = true)
+    @Column(name = "password_recovery_code_created_time")
     @Type(type = "org.jadira.usertype.dateandtime.joda.PersistentDateTime")
     public DateTime getPasswordRecoveryCodeCreatedTime() {
         return passwordRecoveryCodeCreatedTime;
@@ -141,60 +131,6 @@ public class User implements Serializable, UserDetails {
 
     public void setPasswords(List<UserPassword> passwords) {
         this.passwords = passwords;
-    }
-
-    @OneToMany(targetEntity = SecurityQuestionResponse.class, cascade = CascadeType.ALL, mappedBy = "user")
-    @LazyCollection(LazyCollectionOption.FALSE)
-    public List<SecurityQuestionResponse> getSecurityQuestionResponses() {
-        return securityQuestionResponses;
-    }
-
-    public void setSecurityQuestionResponses(List<SecurityQuestionResponse> securityQuestionResponses) {
-        this.securityQuestionResponses = securityQuestionResponses;
-    }
-
-    @Transient
-    public String getPassword() {
-        return password;
-    }
-
-    /**
-     * @deprecated This is only to be used in the CasUserDetailsService to populate the encoded password.  Do not use for anything else.
-     */
-    @Transient
-    @Deprecated
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    @Transient
-    public boolean isAccountNonExpired() {
-        return accountNonExpired;
-    }
-
-    @Transient
-    public void setAccountNonExpired(boolean accountNonExpired) {
-        this.accountNonExpired = accountNonExpired;
-    }
-
-    @Transient
-    public boolean isAccountNonLocked() {
-        return accountNonLocked;
-    }
-
-    @Transient
-    public void setAccountNonLocked(boolean accountNonLocked) {
-        this.accountNonLocked = accountNonLocked;
-    }
-
-    @Transient
-    public boolean isCredentialsNonExpired() {
-        return credentialsNonExpired;
-    }
-
-    @Transient
-    public void setCredentialsNonExpired(boolean credentialsNonExpired) {
-        this.credentialsNonExpired = credentialsNonExpired;
     }
 
     public String toString() {

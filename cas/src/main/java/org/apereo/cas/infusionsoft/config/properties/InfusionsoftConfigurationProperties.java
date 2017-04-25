@@ -10,7 +10,13 @@ import java.util.List;
 public class InfusionsoftConfigurationProperties {
 
     @NestedConfigurationProperty
+    private AccountCentralConfigurationProperties accountCentral = new AccountCentralConfigurationProperties();
+
+    @NestedConfigurationProperty
     private InfusionsoftJpaConfigurationProperties jpa = new InfusionsoftJpaConfigurationProperties();
+
+    @NestedConfigurationProperty
+    private HostConfigurationProperties customerhub = new HostConfigurationProperties();
 
     @NestedConfigurationProperty
     private HostConfigurationProperties crm = new HostConfigurationProperties();
@@ -19,9 +25,20 @@ public class InfusionsoftConfigurationProperties {
     private HostConfigurationProperties mail = new HostConfigurationProperties();
 
     @NestedConfigurationProperty
+    private HostConfigurationProperties marketplace = new HostConfigurationProperties();
+
+    @NestedConfigurationProperty
     private PasswordEncoderProperties passwordEncoder = new PasswordEncoderProperties();
 
     private List<String> supportPhoneNumbers;
+
+    public AccountCentralConfigurationProperties getAccountCentral() {
+        return accountCentral;
+    }
+
+    public void setAccountCentral(AccountCentralConfigurationProperties accountCentral) {
+        this.accountCentral = accountCentral;
+    }
 
     public InfusionsoftJpaConfigurationProperties getJpa() {
         return jpa;
@@ -47,12 +64,28 @@ public class InfusionsoftConfigurationProperties {
         this.passwordEncoder = passwordEncoder;
     }
 
+    public HostConfigurationProperties getCustomerhub() {
+        return customerhub;
+    }
+
+    public void setCustomerhub(HostConfigurationProperties customerhub) {
+        this.customerhub = customerhub;
+    }
+
     public HostConfigurationProperties getCrm() {
         return crm;
     }
 
     public void setCrm(HostConfigurationProperties crm) {
         this.crm = crm;
+    }
+
+    public HostConfigurationProperties getMarketplace() {
+        return marketplace;
+    }
+
+    public void setMarketplace(HostConfigurationProperties marketplace) {
+        this.marketplace = marketplace;
     }
 
     public List<String> getSupportPhoneNumbers() {

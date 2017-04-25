@@ -5,7 +5,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties("host")
 public class HostConfigurationProperties {
     private String domain;
-    private String protocol;
+    private String protocol = "https";
     private int port = 443;
 
     public String getDomain() {

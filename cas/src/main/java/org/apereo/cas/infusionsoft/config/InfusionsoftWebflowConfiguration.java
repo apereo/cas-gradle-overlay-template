@@ -3,7 +3,6 @@ package org.apereo.cas.infusionsoft.config;
 import org.apereo.cas.CentralAuthenticationService;
 import org.apereo.cas.authentication.AuthenticationSystemSupport;
 import org.apereo.cas.infusionsoft.config.properties.InfusionsoftConfigurationProperties;
-import org.apereo.cas.infusionsoft.services.BuildServiceImpl;
 import org.apereo.cas.infusionsoft.services.InfusionsoftAuthenticationService;
 import org.apereo.cas.infusionsoft.services.MarketingOptionsService;
 import org.apereo.cas.infusionsoft.support.AppHelper;
@@ -16,13 +15,14 @@ import org.apereo.cas.web.flow.CasWebflowConfigurer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.boot.info.BuildProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.webflow.definition.registry.FlowDefinitionRegistry;
 import org.springframework.webflow.engine.builder.support.FlowBuilderServices;
 
 @Configuration("infusionsoftWebflowConfiguration")
-@EnableConfigurationProperties({InfusionsoftConfigurationProperties.class})
+@EnableConfigurationProperties(InfusionsoftConfigurationProperties.class)
 public class InfusionsoftWebflowConfiguration {
 
     @Autowired
@@ -33,7 +33,7 @@ public class InfusionsoftWebflowConfiguration {
     private AuthenticationSystemSupport authenticationSystemSupport;
 
     @Autowired
-    private BuildServiceImpl buildService;
+    private BuildProperties buildProperties;
 
     @Autowired
     @Qualifier("centralAuthenticationService")
@@ -71,11 +71,12 @@ public class InfusionsoftWebflowConfiguration {
     public InfusionsoftFlowSetupAction infusionsoftFlowSetupAction() {
         return new InfusionsoftFlowSetupAction(
                 appHelper,
-                buildService,
+                buildProperties,
                 infusionsoftAuthenticationService,
                 marketingOptionsService,
                 servicesManager,
-                infusionsoftConfigurationProperties.getSupportPhoneNumbers());
+                infusionsoftConfigurationProperties.getSupportPhoneNumbers(),
+                infusionsoftConfigurationProperties.getAccountCentral().getRegistrationUrl());
     }
 
     @Bean

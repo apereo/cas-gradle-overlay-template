@@ -2,10 +2,8 @@ package org.apereo.cas.infusionsoft.config;
 
 import org.apereo.cas.CipherExecutor;
 import org.apereo.cas.configuration.CasConfigurationProperties;
-import org.apereo.cas.configuration.model.support.pm.PasswordManagementProperties;
 import org.apereo.cas.infusionsoft.services.InfusionsoftPasswordManagementService;
 import org.apereo.cas.infusionsoft.services.PasswordService;
-import org.apereo.cas.infusionsoft.services.SecurityQuestionResponseDAO;
 import org.apereo.cas.infusionsoft.services.UserService;
 import org.apereo.cas.pm.PasswordManagementService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,9 +29,6 @@ public class InfusionsoftPasswordManagementConfiguration {
     CasConfigurationProperties casConfigurationProperties;
 
     @Autowired
-    SecurityQuestionResponseDAO securityQuestionResponseDAO;
-
-    @Autowired
     UserService userService;
 
     @Bean
@@ -43,7 +38,6 @@ public class InfusionsoftPasswordManagementConfiguration {
                 "Infusionsoft",
                 casConfigurationProperties.getAuthn().getPm(),
                 passwordService,
-                securityQuestionResponseDAO,
                 userService);
     }
 }

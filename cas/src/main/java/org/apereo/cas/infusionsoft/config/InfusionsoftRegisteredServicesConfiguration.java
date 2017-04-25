@@ -57,7 +57,22 @@ public class InfusionsoftRegisteredServicesConfiguration {
 
     @Bean
     RegisteredService serviceLocalhost() {
-        return buildService(7, "Localhost", "https?://localhost(:[0-9]+)?((/.*)|$)", 7);
+        RegexRegisteredService service =  buildService(7, "Localhost", "https?://localhost(:[0-9]+)?((/.*)|$)", 7);
+
+        service.setAccessStrategy(new InfusionsoftRegisteredServiceAccessStrategy(true, true, false, true));
+        service.setTheme("cas-theme-foundations");
+
+        final Map<String, RegisteredServiceProperty> serviceProperties = service.getProperties();
+
+        DefaultRegisteredServiceProperty property = new DefaultRegisteredServiceProperty();
+        property.getValues().add("true");
+        serviceProperties.put("jwtAsResponse", property);
+
+        property = new DefaultRegisteredServiceProperty();
+        property.getValues().add("true");
+        serviceProperties.put("disableAds", property);
+
+        return service;
     }
 
     @Bean

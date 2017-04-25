@@ -4,23 +4,24 @@ import org.apache.commons.lang3.StringUtils;
 import org.apereo.cas.infusionsoft.authentication.LoginResult;
 import org.apereo.cas.infusionsoft.services.InfusionsoftAuthenticationService;
 import org.apereo.cas.infusionsoft.services.PasswordService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-@Component
+@Controller
 @RestController("passwordCheckController")
 @RequestMapping(value = "/password/check")
 public class PasswordCheckController {
 
-    @Autowired
-    InfusionsoftAuthenticationService infusionsoftAuthenticationService;
+    private InfusionsoftAuthenticationService infusionsoftAuthenticationService;
+    private PasswordService passwordService;
 
-    @Autowired
-    PasswordService passwordService;
+    public PasswordCheckController(InfusionsoftAuthenticationService infusionsoftAuthenticationService, PasswordService passwordService) {
+        this.infusionsoftAuthenticationService = infusionsoftAuthenticationService;
+        this.passwordService = passwordService;
+    }
 
     @PostMapping
     @ResponseBody

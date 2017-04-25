@@ -1,38 +1,20 @@
 package org.apereo.cas.infusionsoft.services;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apereo.cas.configuration.CasConfigurationProperties;
 import org.apereo.cas.infusionsoft.authentication.LoginResult;
-import org.apereo.cas.infusionsoft.config.properties.CustomerHubConfigurationProperties;
 import org.apereo.cas.infusionsoft.config.properties.InfusionsoftConfigurationProperties;
-import org.apereo.cas.infusionsoft.config.properties.MarketplaceConfigurationProperties;
 import org.apereo.cas.infusionsoft.dao.LoginAttemptDAO;
 import org.apereo.cas.infusionsoft.domain.*;
-import org.apereo.cas.infusionsoft.exceptions.AppCredentialsExpiredException;
-import org.apereo.cas.infusionsoft.exceptions.AppCredentialsInvalidException;
-import org.apereo.cas.infusionsoft.web.CookieUtil;
-import org.apache.commons.lang3.StringUtils;
-import org.apereo.cas.authentication.principal.Principal;
-import org.apereo.cas.ticket.Ticket;
-import org.apereo.cas.ticket.TicketGrantingTicket;
-import org.apereo.cas.ticket.registry.TicketRegistry;
-import org.apereo.cas.web.support.CookieRetrievingCookieGenerator;
 import org.joda.time.DateTime;
 import org.joda.time.Minutes;
 import org.joda.time.base.BaseSingleFieldPeriod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -43,51 +25,24 @@ import java.util.List;
  * Service for anything related to authentication. This includes authentication of CAS users, lock-out-periods, and
  * outbound authentication requests to external apps.
  */
-@Service("infusionsoftAuthenticationService")
 @Transactional(transactionManager = "transactionManager")
-@EnableConfigurationProperties({CasConfigurationProperties.class, CustomerHubConfigurationProperties.class, InfusionsoftConfigurationProperties.class, MarketplaceConfigurationProperties.class})
 public class InfusionsoftAuthenticationServiceImpl implements InfusionsoftAuthenticationService {
     private static final Logger log = LoggerFactory.getLogger(InfusionsoftAuthenticationServiceImpl.class);
-
     private static final Minutes lockoutTimePeriod = Minutes.minutes(30);
 
-    @Autowired
-    CasConfigurationProperties casProperties;
-
-    @Autowired
-    CustomerHubConfigurationProperties customerHubProperties;
-
-    @Autowired
-    InfusionsoftConfigurationProperties infusionsoftProperties;
-
-    @Autowired
-    MarketplaceConfigurationProperties marketplaceProperties;
-
-    @Autowired
-    private CustomerHubService customerHubService;
-
-    @Autowired
-    private TicketRegistry ticketRegistry;
-
-    @Autowired
+    private CasConfigurationProperties casProperties;
+    private InfusionsoftConfigurationProperties infusionsoftProperties;
     private LoginAttemptDAO loginAttemptDAO;
-
-    @Autowired
     private UserService userService;
-
-    @Autowired
     private PasswordService passwordService;
 
-    @Autowired
-    @Qualifier("ticketGrantingTicketCookieGenerator")
-    private CookieRetrievingCookieGenerator tgtCookieGenerator;
-
-    @Value("${infusionsoft.cas.security.questions.force.answer}")
-    private boolean forceSecurityQuestion;
-
-    @Value("${infusionsoft.cas.security.questions.number.required}")
-    private int securityQuestionRequiredResponseCount;
-
+    public InfusionsoftAuthenticationServiceImpl(CasConfigurationProperties casProperties, InfusionsoftConfigurationProperties infusionsoftProperties, LoginAttemptDAO loginAttemptDAO, UserService userService, PasswordService passwordService) {
+        this.casProperties = casProperties;
+        this.infusionsoftProperties = infusionsoftProperties;
+        this.loginAttemptDAO = loginAttemptDAO;
+        this.userService = userService;
+        this.passwordService = passwordService;
+    }
 
     /**
      * Guesses an app name from a URL, or null if there isn't one to be found.
@@ -109,10 +64,10 @@ public class InfusionsoftAuthenticationServiceImpl implements InfusionsoftAuthen
 
             if (url.toString().startsWith(casProperties.getServer().getPrefix())) {
                 log.info("it's us");
-            } else if (host.equals(marketplaceProperties.getHost().getDomain())) {
+            } else if (host.equals(infusionsoftProperties.getMarketplace().getDomain())) {
                 appName = "marketplace";
-            } else if (host.endsWith(customerHubProperties.getHost().getDomain())) {
-                appName = host.replace("." + customerHubProperties.getHost().getDomain(), "");
+            } else if (host.endsWith(infusionsoftProperties.getCustomerhub().getDomain())) {
+                appName = host.replace("." + infusionsoftProperties.getCustomerhub().getDomain(), "");
             } else if (host.endsWith(infusionsoftProperties.getCrm().getDomain())) {
                 appName = host.replace("." + infusionsoftProperties.getCrm().getDomain(), "");
             } else {
@@ -147,11 +102,11 @@ public class InfusionsoftAuthenticationServiceImpl implements InfusionsoftAuthen
 
             if (url.toString().startsWith(casProperties.getServer().getPrefix())) {
                 appType = AppType.CAS;
-            } else if (host.equals(marketplaceProperties.getHost().getDomain())) {
+            } else if (host.equals(infusionsoftProperties.getMarketplace().getDomain())) {
                 appType = AppType.MARKETPLACE;
             } else if (host.endsWith(infusionsoftProperties.getCrm().getDomain())) {
                 appType = AppType.CRM;
-            } else if (host.endsWith(customerHubProperties.getHost().getDomain())) {
+            } else if (host.endsWith(infusionsoftProperties.getCustomerhub().getDomain())) {
                 appType = AppType.CUSTOMERHUB;
             } else {
                 log.warn("unable to guess app type for url " + url);
@@ -166,18 +121,7 @@ public class InfusionsoftAuthenticationServiceImpl implements InfusionsoftAuthen
     }
 
     @Override
-    public LoginResult attemptLoginWithMD5Password(String username, String md5password) {
-        log.debug("Trying to authenticate " + username + " with MD5 password");
-        return attemptLoginInternal(username, null, md5password);
-    }
-
-    @Override
     public LoginResult attemptLogin(String username, String password) {
-        log.debug("Trying to authenticate " + username + " with password");
-        return attemptLoginInternal(username, password, null);
-    }
-
-    private LoginResult attemptLoginInternal(String username, String password, String md5password) {
         LoginResult loginResult = null;
         UserPassword userPassword = null;
 
@@ -188,8 +132,6 @@ public class InfusionsoftAuthenticationServiceImpl implements InfusionsoftAuthen
             loginResult = LoginResult.DisabledUser(user);
         } else if (StringUtils.isNotEmpty(password)) {
             userPassword = passwordService.getMatchingPasswordForUser(user, password);
-        } else if (StringUtils.isNotEmpty(md5password)) {
-            userPassword = passwordService.getMatchingMD5PasswordForUser(user, md5password);
         } else {
             loginResult = LoginResult.BadPassword(user);
         }
@@ -253,7 +195,7 @@ public class InfusionsoftAuthenticationServiceImpl implements InfusionsoftAuthen
         } else if (loginAttemptStatus == LoginAttemptStatus.PasswordExpired) {
             log.info("Authenticated CAS user " + username + " with expired password");
         } else if (loginAttemptStatus.isSuccessful()) {
-            // Already logged elsewhere
+            log.info("Authenticated CAS user " + username + " with password reset ot unlock");
         } else {
             // Write anything to the logs that would help us see where bad logins are coming from
             try {
@@ -310,15 +252,6 @@ public class InfusionsoftAuthenticationServiceImpl implements InfusionsoftAuthen
         return failures;
     }
 
-    /**
-     * Checks if an account is locked due to too many login failures.
-     */
-    @Override
-    public boolean isAccountLocked(String username) {
-        int failedLoginCount = countConsecutiveFailedLogins(username);
-        return isAccountLocked(username, failedLoginCount);
-    }
-
     private boolean isAccountLocked(String username, int failedLoginCount) {
         if (failedLoginCount > ALLOWED_LOGIN_ATTEMPTS) {
             log.info("username " + username + " is locked due to more than " + ALLOWED_LOGIN_ATTEMPTS + " failures in the last " + lockoutTimePeriod.getMinutes() + " minutes");
@@ -327,62 +260,4 @@ public class InfusionsoftAuthenticationServiceImpl implements InfusionsoftAuthen
 
         return false;
     }
-
-    /**
-     * Checks with an app whether a user's legacy credentials are correct. This should be done before we allow them to
-     * link that account to their CAS account. Throws an exception if the credentials are invalid, expired, etc.
-     */
-    @Override
-    public void verifyAppCredentials(AppType appType, String appName, String appUsername, String appPassword) throws AppCredentialsInvalidException, AppCredentialsExpiredException {
-        if (AppType.CUSTOMERHUB.equals(appType)) {
-            if (!customerHubService.authenticateUser(appName, appUsername, appPassword)) {
-                throw new AppCredentialsInvalidException("customerhub credentials are invalid or could not be verified");
-            }
-        } else {
-            throw new AppCredentialsInvalidException("we don't know how to verify credentials for app type " + appType);
-        }
-    }
-
-    /**
-     * Tells if a user has a community account associated.
-     */
-    @Override
-    public boolean hasCommunityAccount(User user) {
-        for (UserAccount account : user.getAccounts()) {
-            if (account.getAppType().equals(AppType.COMMUNITY) && !account.isDisabled()) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    /*
-        TODO: use CAS auditing, something like this:
-        @Audit(
-                action="UNLOCK_USER",
-                actionResolverName="UNLOCK_USER_RESOLVER",
-                resourceResolverName="UNLOCK_USER_RESOURCE_RESOLVER")
-    */
-    @Override
-    public void unlockUser(String username) {
-        recordLoginAttempt(LoginAttemptStatus.UnlockedByAdmin, username);
-
-        final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User user = (User) (authentication == null ? null : authentication.getPrincipal());
-        if (user == null) {
-            // This happens in testing, but it's a real problem if it happens in production!
-            log.error("Unknown user unlocked username " + username);
-        } else {
-            // This is a warning because we want to make sure it gets audited in the logs
-            log.warn("User " + user.getUsername() + " unlocked username " + username);
-        }
-    }
-
-    public void completePasswordReset(User user) {
-        userService.clearPasswordRecoveryCode(user.getId());
-        log.info("Password reset completed by user " + user);
-        recordLoginAttempt(LoginAttemptStatus.PasswordReset, user.getUsername());
-    }
-
 }

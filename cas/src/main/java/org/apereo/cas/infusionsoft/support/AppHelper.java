@@ -5,19 +5,18 @@ import org.apereo.cas.infusionsoft.services.CrmService;
 import org.apereo.cas.infusionsoft.services.CustomerHubService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
-@Component
 public class AppHelper {
 
     private static final Logger log = LoggerFactory.getLogger(AppHelper.class);
 
-    @Autowired
-    public CrmService crmService;
+    private CrmService crmService;
+    private CustomerHubService customerHubService;
 
-    @Autowired
-    public CustomerHubService customerHubService;
+    public AppHelper(CrmService crmService, CustomerHubService customerHubService) {
+        this.crmService = crmService;
+        this.customerHubService = customerHubService;
+    }
 
     /**
      * Builds a URL for redirecting users to an app.
