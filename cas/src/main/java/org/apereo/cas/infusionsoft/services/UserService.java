@@ -15,6 +15,7 @@ public interface UserService {
     List<UserAccount> findActiveUserAccounts(User user);
     Authority findAuthorityByName(String authorityName);
     User findUserByExternalId(String externalId);
+    UserIdentity findUserIdentityByExternalId(String externalId);
     boolean isDuplicateUsername(User user);
     User loadUser(String username);
     User saveUser(User user) throws InfusionsoftValidationException;

@@ -19,7 +19,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.validation.constraints.NotNull;
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -81,6 +80,11 @@ public class UserServiceImpl implements UserService {
         }
 
         return retVal;
+    }
+
+    @Override
+    public UserIdentity findUserIdentityByExternalId(String externalId) {
+        return userIdentityDAO.findByExternalId(externalId);
     }
 
     @Override

@@ -3,6 +3,8 @@ package org.apereo.cas.infusionsoft.config;
 import org.apereo.cas.authentication.AuthenticationEventExecutionPlan;
 import org.apereo.cas.authentication.AuthenticationEventExecutionPlanConfigurer;
 import org.apereo.cas.authentication.principal.PrincipalFactory;
+import org.apereo.cas.authentication.principal.PrincipalResolver;
+import org.apereo.cas.authentication.principal.resolvers.EchoingPrincipalResolver;
 import org.apereo.cas.configuration.CasConfigurationProperties;
 import org.apereo.cas.infusionsoft.authentication.InfusionsoftAuthenticationHandler;
 import org.apereo.cas.infusionsoft.authentication.InfusionsoftSocialLoginPrincipalFactory;
@@ -15,6 +17,7 @@ import org.apereo.cas.services.ServicesManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -115,16 +118,9 @@ public class InfusionsoftCasConfiguration implements AuthenticationEventExecutio
         plan.registerAuthenticationHandler(infusionsoftAuthenticationHandler());
     }
 
-//    @Autowired
-//    @RefreshScope
-//    @Bean
-//    public PrincipalResolver personDirectoryPrincipalResolver(@Qualifier("attributeRepository") final IPersonAttributeDao attributeRepository,
-//                                                              @Qualifier("principalFactory") final PrincipalFactory principalFactory) {
-//        final PersonDirectoryPrincipalResolver bean = new PersonDirectoryPrincipalResolver();
-//        bean.setAttributeRepository(attributeRepository);
-//        bean.setPrincipalAttributeName(casProperties.getPersonDirectory().getPrincipalAttribute());
-//        bean.setReturnNullIfNoAttributes(casProperties.getPersonDirectory().isReturnNull());
-//        bean.setPrincipalFactory(principalFactory);
-//        return bean;
-//    }
+    @RefreshScope
+    @Bean
+    public PrincipalResolver personDirectoryPrincipalResolver() {
+       return new EchoingPrincipalResolver();
+    }
 }

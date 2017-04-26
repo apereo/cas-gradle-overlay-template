@@ -33,28 +33,37 @@ public class InfusionsoftSocialLoginPrincipalFactory extends DefaultPrincipalFac
 
     @Override
     public Principal createPrincipal(String id, Map<String, Object> attributes) {
-        User user = userService.findUserByExternalId(id);
+        String email = extractEmail(attributes);
 
-        if (user == null) {
-            user = new User();
-            user.setFirstName(extractFirstName(attributes));
-            user.setLastName(extractLastName(attributes));
-            user.setUsername(extractEmail(attributes));
+        UserIdentity userIdentity = userService.findUserIdentityByExternalId(id);
 
-            UserIdentity userIdentity = new UserIdentity();
+        if (userIdentity == null) {
+            //Attempt to find existing user with email
+            User user = userService.loadUser(email);
+
+            if (user == null) {
+                //No existing user found create new user and identity
+                user = new User();
+                user.setFirstName(extractFirstName(attributes));
+                user.setLastName(extractLastName(attributes));
+                user.setUsername(email);
+            }
+
+            userIdentity = new UserIdentity();
             userIdentity.setUser(user);
             userIdentity.setExternalId(id);
 
             try {
-                user = userService.saveUser(user);
+                userService.saveUser(user);
                 userService.saveUserIdentity(userIdentity);
-                attributes = userService.createAttributeMapForUser(user);
             } catch (InfusionsoftValidationException e) {
                 LOGGER.error("Unable to create user from social login authentication", e);
             }
         }
 
-        return super.createPrincipal(user.getId().toString(), attributes);
+        attributes = userService.createAttributeMapForUser(userIdentity.getUser());
+
+        return super.createPrincipal(userIdentity.getUser().getId().toString(), attributes);
     }
 
     private String extractFirstName(Map<String, Object> attributes) {
@@ -62,7 +71,7 @@ public class InfusionsoftSocialLoginPrincipalFactory extends DefaultPrincipalFac
         possibleKeys.add("firstName");
         possibleKeys.add("first_name");
 
-        return extractFromAttributes(attributes,  possibleKeys);
+        return extractFromAttributes(attributes, possibleKeys);
     }
 
     private String extractLastName(Map<String, Object> attributes) {
@@ -70,7 +79,7 @@ public class InfusionsoftSocialLoginPrincipalFactory extends DefaultPrincipalFac
         possibleKeys.add("lastName");
         possibleKeys.add("last_name");
 
-        return extractFromAttributes(attributes,  possibleKeys);
+        return extractFromAttributes(attributes, possibleKeys);
     }
 
     private String extractEmail(Map<String, Object> attributes) {
@@ -78,15 +87,15 @@ public class InfusionsoftSocialLoginPrincipalFactory extends DefaultPrincipalFac
         possibleKeys.add("email");
         possibleKeys.add("emailAddress");
 
-        return extractFromAttributes(attributes,  possibleKeys);
+        return extractFromAttributes(attributes, possibleKeys);
     }
 
     private String extractFromAttributes(@NotNull Map<String, Object> attributes, @NotNull @Size(min = 1) List<String> possibleKeys) {
         String retVal = null;
 
-        for(String possibleKey : possibleKeys) {
-            if(attributes.containsKey(possibleKey)) {
-                retVal =  (String) attributes.get(possibleKey);
+        for (String possibleKey : possibleKeys) {
+            if (attributes.containsKey(possibleKey)) {
+                retVal = (String) attributes.get(possibleKey);
                 break;
             }
         }
