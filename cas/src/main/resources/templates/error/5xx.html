@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" xmlns:th="http://www.thymeleaf.org" layout:decorate="../layouts/login">
+
+<head>
+    <title th:text="#{cas.error.5xx.pagetitle}"></title>
+</head>
+
+<body>
+<div layout:fragment="content" class="container">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="logo"></div>
+            <p th:text="#{cas.error.5xx.pagetext}"></p>
+            <p><a th:href="#{cas.server.name}" th:text="#{cas.error.5xx.suggestion}"></a></p>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
