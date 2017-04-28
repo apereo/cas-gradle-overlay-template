@@ -19,11 +19,25 @@ import java.util.Map;
 public class InfusionsoftSocialLoginPrincipalFactory extends DefaultPrincipalFactory {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(InfusionsoftSocialLoginPrincipalFactory.class);
+    private static  ArrayList<String> EMAIL_NAME_KEYS = new ArrayList<>();
+    private static  ArrayList<String> FIRST_NAME_KEYS = new ArrayList<>();
+    private static  ArrayList<String> LAST_NAME_KEYS = new ArrayList<>();
+
 
     private UserService userService;
 
     public InfusionsoftSocialLoginPrincipalFactory(UserService userService) {
         this.userService = userService;
+
+        EMAIL_NAME_KEYS.add("email");
+        EMAIL_NAME_KEYS.add("emailAddress");
+
+        FIRST_NAME_KEYS.add("firstName");
+        FIRST_NAME_KEYS.add("first_name");
+
+        LAST_NAME_KEYS.add("lastName");
+        LAST_NAME_KEYS.add("last_name");
+
     }
 
     @Override
@@ -67,27 +81,15 @@ public class InfusionsoftSocialLoginPrincipalFactory extends DefaultPrincipalFac
     }
 
     private String extractFirstName(Map<String, Object> attributes) {
-        ArrayList<String> possibleKeys = new ArrayList<>();
-        possibleKeys.add("firstName");
-        possibleKeys.add("first_name");
-
-        return extractFromAttributes(attributes, possibleKeys);
+        return extractFromAttributes(attributes, FIRST_NAME_KEYS);
     }
 
     private String extractLastName(Map<String, Object> attributes) {
-        ArrayList<String> possibleKeys = new ArrayList<>();
-        possibleKeys.add("lastName");
-        possibleKeys.add("last_name");
-
-        return extractFromAttributes(attributes, possibleKeys);
+        return extractFromAttributes(attributes, LAST_NAME_KEYS);
     }
 
     private String extractEmail(Map<String, Object> attributes) {
-        ArrayList<String> possibleKeys = new ArrayList<>();
-        possibleKeys.add("email");
-        possibleKeys.add("emailAddress");
-
-        return extractFromAttributes(attributes, possibleKeys);
+        return extractFromAttributes(attributes, EMAIL_NAME_KEYS);
     }
 
     private String extractFromAttributes(@NotNull Map<String, Object> attributes, @NotNull @Size(min = 1) List<String> possibleKeys) {
