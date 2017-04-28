@@ -1,8 +1,5 @@
 package org.apereo.cas.infusionsoft.config.properties;
 
-import org.springframework.boot.context.properties.ConfigurationProperties;
-
-@ConfigurationProperties("host")
 public class HostConfigurationProperties {
     private String domain;
     private String protocol = "https";
