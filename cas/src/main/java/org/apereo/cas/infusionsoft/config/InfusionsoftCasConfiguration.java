@@ -3,8 +3,11 @@ package org.apereo.cas.infusionsoft.config;
 import org.apereo.cas.authentication.AuthenticationEventExecutionPlan;
 import org.apereo.cas.authentication.AuthenticationEventExecutionPlanConfigurer;
 import org.apereo.cas.authentication.principal.PrincipalFactory;
+import org.apereo.cas.authentication.principal.PrincipalResolver;
+import org.apereo.cas.authentication.principal.resolvers.EchoingPrincipalResolver;
 import org.apereo.cas.configuration.CasConfigurationProperties;
 import org.apereo.cas.infusionsoft.authentication.InfusionsoftAuthenticationHandler;
+import org.apereo.cas.infusionsoft.authentication.InfusionsoftSocialLoginPrincipalFactory;
 import org.apereo.cas.infusionsoft.config.properties.InfusionsoftConfigurationProperties;
 import org.apereo.cas.infusionsoft.dao.*;
 import org.apereo.cas.infusionsoft.services.*;
@@ -14,14 +17,17 @@ import org.apereo.cas.services.ServicesManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Configuration("infusionsoftCasConfiguration")
 @EnableConfigurationProperties({CasConfigurationProperties.class, InfusionsoftConfigurationProperties.class})
 public class InfusionsoftCasConfiguration implements AuthenticationEventExecutionPlanConfigurer {
+
+    @Autowired
+    private AuthorityDAO authorityDAO;
 
     @Autowired
     private CasConfigurationProperties casConfigurationProperties;
@@ -52,11 +58,19 @@ public class InfusionsoftCasConfiguration implements AuthenticationEventExecutio
     private UserAccountDAO userAccountDAO;
 
     @Autowired
+    private UserIdentityDAO userIdentityDAO;
+
+    @Autowired
     private UserPasswordDAO userPasswordDAO;
 
     @Bean
     public AppHelper appHelper() {
         return new AppHelper(crmService(), customerHubService());
+    }
+
+    @Bean
+    public PrincipalFactory clientPrincipalFactory() {
+        return new InfusionsoftSocialLoginPrincipalFactory(userService());
     }
 
     @Bean
@@ -96,7 +110,7 @@ public class InfusionsoftCasConfiguration implements AuthenticationEventExecutio
 
     @Bean
     public UserService userService() {
-        return new UserServiceImpl(userDAO, userAccountDAO);
+        return new UserServiceImpl(appHelper(), authorityDAO, userDAO, userAccountDAO, userIdentityDAO);
     }
 
     @Override
@@ -104,4 +118,9 @@ public class InfusionsoftCasConfiguration implements AuthenticationEventExecutio
         plan.registerAuthenticationHandler(infusionsoftAuthenticationHandler());
     }
 
+    @RefreshScope
+    @Bean
+    public PrincipalResolver personDirectoryPrincipalResolver() {
+       return new EchoingPrincipalResolver();
+    }
 }

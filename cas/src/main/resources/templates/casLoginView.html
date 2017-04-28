@@ -64,6 +64,8 @@
                         <button class="btn btn-primary btn-block" type="submit">Log In</button>
                     </div>
                 </div>
+
+                <div th:replace="fragments/loginProviders"/>
             </form>
             <a th:href="@{~/app/registration/forgot}">Forgot your password?</a>
 
