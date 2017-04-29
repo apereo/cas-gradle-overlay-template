@@ -23,7 +23,7 @@
 
     <link type="text/css" rel="stylesheet" th:href="@{/infusionsoft/css/bootstrap-infusionsoft.css}"/>
 
-    <link rel="stylesheet" th:href="@{${#themes.code('standard.custom.css.file')}}" />
+    <link rel="stylesheet" th:href="@{${#themes.code('infusionsoft.css.file')}}" />
 
     <!--<link rel="stylesheet" th:href="@{/infusionsoft/css/chosen.min.css}">-->
 
@@ -47,7 +47,7 @@
 <div layout:fragment="content"></div>
 <!--</section>-->
 
-<div th:insert="fragments/bottom"/>
+<div th:insert="fragments/login-bottom"/>
 
 <!--<script th:inline="javascript" layout:fragment="local_script"></script>-->
 <div layout:fragment="local_script"></div>
