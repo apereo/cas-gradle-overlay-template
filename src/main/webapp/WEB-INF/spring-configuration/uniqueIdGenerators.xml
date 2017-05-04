@@ -65,7 +65,7 @@
                 key="org.jasig.cas.authentication.principal.GoogleAccountsService"
                 value-ref="serviceTicketUniqueIdGenerator"/>
         <entry
-                key="com.infusionsoft.cas.support.InfusionsoftSaml2Service"
+                key="org.apereo.cas.infusionsoft.support.InfusionsoftSaml2Service"
                 value-ref="serviceTicketUniqueIdGenerator"/>
     </util:map>
 

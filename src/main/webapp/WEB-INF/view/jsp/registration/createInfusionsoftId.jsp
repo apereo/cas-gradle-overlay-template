@@ -12,14 +12,14 @@
 <%--@elvariable id="skipUrl" type="java.lang.String"--%>
 <%--@elvariable id="skipWelcomeEmail" type="java.lang.Boolean"--%>
 <%--@elvariable id="error" type="java.lang.String"--%>
-<%--@elvariable id="user" type="com.infusionsoft.cas.domain.User"--%>
+<%--@elvariable id="user" type="org.apereo.cas.infusionsoft.domain.User"--%>
 <%--@elvariable id="securityQuestions" type="java.util.List<SecurityQuestion>"--%>
 
 <c:set var="createInfusionsoftIdJs" value="${pageContext.request.contextPath}/js/createInfusionsoftId.js"/>
 
 <c:set var="infusionsoftIdImage" value="${pageContext.request.contextPath}/img/infusionsoft_Id.png"/>
 
-<c:set var="buildVersion" value="<%=com.infusionsoft.cas.support.BuildVersion.getBuildVersion()%>"/>
+<c:set var="buildVersion" value="<%=org.apereo.cas.infusionsoft.support.BuildVersion.getBuildVersion()%>"/>
 
 <%-- These form elements are used for both linkExisting and register --%>
 <c:set var="commonFormElements">

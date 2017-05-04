@@ -7,7 +7,7 @@
 <%@ taglib prefix="versioned" tagdir="/WEB-INF/tags/common/page" %>
 
 <%--@elvariable id="appUrl" type="java.lang.String"--%>
-<%--@elvariable id="user" type="com.infusionsoft.cas.domain.User"--%>
+<%--@elvariable id="user" type="org.apereo.cas.infusionsoft.domain.User"--%>
 
 <c:set var="centralUrl" value="${pageContext.request.contextPath}/app/central/home"/>
 <c:set var="imageUrl" value="${pageContext.request.contextPath}/images/incognito.png"/>

@@ -11,7 +11,7 @@
 <c:set var="security_questions_js" value="${pageContext.request.contextPath}/js/securityQuestions.js"/>
 
 <%--@elvariable id="supportPhoneNumbers" type="java.util.List<String>"--%>
-<%--@elvariable id="securityQuestions" type="java.util.List<com.infusionsoft.cas.domain.SecurityQuestion>"--%>
+<%--@elvariable id="securityQuestions" type="java.util.List<org.apereo.cas.infusionsoft.domain.SecurityQuestion>"--%>
 <%--@elvariable id="commandName" type="java.lang.String"--%>
 <%--@elvariable id="flowExecutionKey" type="java.lang.String"--%>
 <%--@elvariable id="securityQuestionsRequired" type="java.lang.Boolean"--%>

@@ -1,3 +1,4 @@
+<%@ tag import="org.apereo.cas.infusionsoft.support.BuildVersion" %>
 <%@ tag body-content="empty" %>
 
 <%@ attribute name="type" required="true" description="Type of resource (text/css)" %>
@@ -6,5 +7,5 @@
 
 <link type="${type}"
       rel="${rel}"
-      href="${href}?b=<%=com.infusionsoft.cas.support.BuildVersion.getBuildVersion()%>"
+      href="${href}?b=<%=BuildVersion.getBuildVersion()%>"
 />

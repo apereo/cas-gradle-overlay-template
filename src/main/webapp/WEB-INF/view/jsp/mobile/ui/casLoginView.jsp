@@ -12,7 +12,7 @@
 <%--@elvariable id="adDesktopImageSrcUrl" type="java.lang.String"--%>
 <%--@elvariable id="adMobileImageSrcUrl" type="java.lang.String"--%>
 <%--@elvariable id="enableAds" type="java.lang.Boolean"--%>
-<%--@elvariable id="appType" type="com.infusionsoft.cas.domain.AppType"--%>
+<%--@elvariable id="appType" type="org.apereo.cas.infusionsoft.domain.AppType"--%>
 <%--@elvariable id="appUrl" type="java.lang.String"--%>
 <%--@elvariable id="supportPhoneNumbers" type="java.util.List<String>"--%>
 

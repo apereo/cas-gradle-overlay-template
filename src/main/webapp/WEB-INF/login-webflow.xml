@@ -30,7 +30,7 @@
                           http://www.springframework.org/schema/webflow/spring-webflow-2.0.xsd">
 
     <var name="credentials" class="org.jasig.cas.authentication.principal.UsernamePasswordCredentials"/>
-    <var name="securityQuestionsForm" class="com.infusionsoft.cas.web.controllers.commands.SetSecurityQuestionsForm"/>
+    <var name="securityQuestionsForm" class="org.apereo.cas.infusionsoft.web.controllers.commands.SetSecurityQuestionsForm"/>
 
     <on-start>
         <evaluate expression="initialFlowSetupAction"/>

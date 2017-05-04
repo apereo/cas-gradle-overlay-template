@@ -4,8 +4,8 @@
 <%--@elvariable id="requestedScope" type="java.lang.String"--%>
 <%--@elvariable id="state" type="java.lang.String"--%>
 <%--@elvariable id="error" type="java.lang.String"--%>
-<%--@elvariable id="oauthApplication" type="com.infusionsoft.cas.oauth.dto.OAuthApplication"--%>
-<%--@elvariable id="apps" type="List<com.infusionsoft.cas.domain.UserAccount>"--%>
+<%--@elvariable id="oauthApplication" type="org.apereo.cas.infusionsoft.oauth.dto.OAuthApplication"--%>
+<%--@elvariable id="apps" type="List<org.apereo.cas.infusionsoft.domain.UserAccount>"--%>
 
 <%@ taglib prefix="c" uri="http://java.sun.com/jstl/core_rt" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>

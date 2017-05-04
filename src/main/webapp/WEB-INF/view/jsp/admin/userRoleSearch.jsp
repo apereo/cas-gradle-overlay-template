@@ -14,8 +14,8 @@
 <c:set var="userRoleSearchUrl" value="${pageContext.request.contextPath}/app/admin/userRoleSearch"/>
 
 <%--@elvariable id="users" type="org.springframework.data.domain.Page<User>"--%>
-<%--@elvariable id="authorities" type="java.util.List<com.infusionsoft.cas.domain.Authority>"--%>
-<%--@elvariable id="userRoleSearchForm" type="com.infusionsoft.cas.web.controllers.commands.UserRoleSearchForm"--%>
+<%--@elvariable id="authorities" type="java.util.List<org.apereo.cas.infusionsoft.domain.Authority>"--%>
+<%--@elvariable id="userRoleSearchForm" type="org.apereo.cas.infusionsoft.web.controllers.commands.UserRoleSearchForm"--%>
 
 <html>
 <head>

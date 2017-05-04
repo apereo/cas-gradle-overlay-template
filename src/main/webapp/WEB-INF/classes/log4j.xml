@@ -112,12 +112,12 @@
         <appender-ref ref="cas" />
     </logger>
 
-    <logger name="com.infusionsoft.cas.support.InfusionsoftSaml2ArgumentExtractor">
+    <logger name="org.apereo.cas.infusionsoft.support.InfusionsoftSaml2ArgumentExtractor">
         <level value="DEBUG" />
         <appender-ref ref="cas" />
     </logger>
 
-    <logger name="com.infusionsoft.cas.support.InfusionsoftAuditTrailManager">
+    <logger name="org.apereo.cas.infusionsoft.support.InfusionsoftAuditTrailManager">
         <level value="DEBUG" />
         <appender-ref ref="cas" />
     </logger>

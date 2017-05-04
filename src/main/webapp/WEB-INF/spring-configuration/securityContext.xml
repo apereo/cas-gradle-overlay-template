@@ -124,7 +124,7 @@
 
     <bean id="nullSecurityContextRepository" class="org.springframework.security.web.context.NullSecurityContextRepository"/>
 
-    <bean id="oAuthAuthenticationEntryPoint" class="com.infusionsoft.cas.auth.OAuthAuthenticationEntryPoint"/>
+    <bean id="oAuthAuthenticationEntryPoint" class="org.apereo.cas.infusionsoft.authentication.OAuthAuthenticationEntryPoint"/>
 
     <bean id="casAuthenticationProvider" class="org.springframework.security.cas.authentication.CasAuthenticationProvider"
           p:key="my_password_for_this_auth_provider_only"

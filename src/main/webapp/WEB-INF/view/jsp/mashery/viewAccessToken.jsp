@@ -1,4 +1,4 @@
-<%--@elvariable id="masheryAccessToken" type="com.infusionsoft.cas.oauth.mashery.api.domain.MasheryAccessToken"--%>
+<%--@elvariable id="masheryAccessToken" type="org.apereo.cas.infusionsoft.oauth.mashery.api.domain.MasheryAccessToken"--%>
 
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>

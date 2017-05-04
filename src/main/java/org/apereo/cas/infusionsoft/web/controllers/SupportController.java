@@ -1,0 +1,103 @@
+package org.apereo.cas.infusionsoft.web.controllers;
+
+import org.apereo.cas.infusionsoft.domain.AppType;
+import org.apereo.cas.infusionsoft.domain.User;
+import org.apereo.cas.infusionsoft.domain.UserAccount;
+import org.apereo.cas.infusionsoft.exceptions.InfusionsoftValidationException;
+import org.apereo.cas.infusionsoft.services.CrmService;
+import org.apereo.cas.infusionsoft.services.InfusionsoftAuthenticationService;
+import org.apereo.cas.infusionsoft.services.SecurityQuestionService;
+import org.apereo.cas.infusionsoft.services.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+@Controller
+public class SupportController {
+
+    @Autowired
+    CrmService crmService;
+
+    @Autowired
+    InfusionsoftAuthenticationService infusionsoftAuthenticationService;
+
+    @Autowired
+    SecurityQuestionService securityQuestionService;
+
+    @Autowired
+    UserService userService;
+
+    @Value("${infusionsoft.crm.domain}")
+    private String crmDomain;
+
+    @Value("${infusionsoft.crm.port}")
+    private int crmPort;
+
+    @RequestMapping
+    public String userSearch(Model model, String searchUsername, Integer page) {
+        Page<User> users = userService.findByUsernameLike(searchUsername, new PageRequest(page != null ? page : 0, 10));
+        model.addAttribute("users", users);
+        model.addAttribute("userList", users.getContent());
+        model.addAttribute("searchUsername", searchUsername);
+        model.addAttribute("crmDomain", crmDomain);
+        model.addAttribute("crmPort", crmPort);
+
+        return "support/userSearch";
+    }
+
+    @RequestMapping
+    public String resetPassword(Long id, Model model) {
+        User user = userService.loadUser(id);
+        String recoveryCode = userService.resetPassword(user);
+
+        model.addAttribute("success", "Recovery Code " + recoveryCode + " sent to " + user.getUsername());
+
+        return userSearch(model, null, 0);
+    }
+
+    @RequestMapping
+    public String unlockUser(Model model, Long id) {
+        User user = userService.loadUser(id);
+        infusionsoftAuthenticationService.unlockUser(user.getUsername());
+
+        model.addAttribute("success", "Unlocked " + user.getUsername());
+
+        return userSearch(model, null, 0);
+    }
+
+    @RequestMapping
+    public String resetSecurityQuestion(Long id, Model model) throws InfusionsoftValidationException {
+        User user = userService.loadUser(id);
+        securityQuestionService.deleteResponses(user);
+
+        model.addAttribute("success", "Deleted security question responses for " + user.getUsername());
+
+        return userSearch(model, null, 0);
+    }
+
+    @RequestMapping
+    public void infusionsoftIdSearch(Model model, String query) {
+        List<Map<String, String>> retVal = new ArrayList<Map<String, String>>();
+
+        Page<UserAccount> userAccounts = userService.findUserAccountsByUsernameLikeOrAppNameLikeAndAppType(query, query, AppType.CRM, new PageRequest(0, 20));
+
+        for(UserAccount userAccount : userAccounts.getContent()) {
+            Map<String, String> userAccountMap = new HashMap<String, String>();
+            userAccountMap.put("infusionsoftId", userAccount.getUser().getUsername());
+            userAccountMap.put("appName", userAccount.getAppName());
+            userAccountMap.put("appUrl", crmService.buildCrmUrl(userAccount.getAppName()));
+            retVal.add(userAccountMap);
+        }
+
+        model.addAttribute("userAccounts", retVal);
+    }
+}

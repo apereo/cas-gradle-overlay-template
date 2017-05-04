@@ -89,7 +89,7 @@
     </bean>
 
     <!-- Automatically add a CSRF token in a hidden field on all forms -->
-    <bean name="requestDataValueProcessor" class="com.infusionsoft.cas.web.csrf.CsrfFormProcessor"/>
+    <bean name="requestDataValueProcessor" class="org.apereo.cas.infusionsoft.web.csrf.CsrfFormProcessor"/>
 
     <!-- Intercept form submissions to validate the CSRF token -->
     <mvc:interceptors>
@@ -101,7 +101,7 @@
             <mvc:mapping path="/support/**"/>
             <mvc:mapping path="/mashery/**"/>
             <mvc:mapping path="/marketingoptions/**"/>
-            <bean class="com.infusionsoft.cas.web.csrf.CsrfInterceptor"/>
+            <bean class="org.apereo.cas.infusionsoft.web.csrf.CsrfInterceptor"/>
         </mvc:interceptor>
     </mvc:interceptors>
 </beans>

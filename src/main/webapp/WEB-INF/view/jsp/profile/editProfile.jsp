@@ -9,7 +9,7 @@
 <c:set var="centralUrl" value="${pageContext.request.contextPath}/app/central/home"/>
 <c:set var="changePasswordUrl" value="${pageContext.request.contextPath}/app/profile/changePassword"/>
 
-<%--@elvariable id="user" type="com.infusionsoft.cas.domain.User"--%>
+<%--@elvariable id="user" type="org.apereo.cas.infusionsoft.domain.User"--%>
 
 <html>
 <head>
