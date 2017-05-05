@@ -527,15 +527,6 @@ public class RegistrationController {
         return user != null && StringUtils.isNotBlank(password1) && !passwordService.lastFourPasswordsContains(user, password1);
     }
 
-    @RequestMapping
-    public
-    @ResponseBody
-    boolean checkPasswordForLast4WithOldPassword(String username, String currentPassword, String password1) {
-        LoginResult loginResult = infusionsoftAuthenticationService.attemptLogin(username, currentPassword);
-
-        return loginResult.getLoginStatus().isSuccessful() && StringUtils.isNotBlank(password1) && !passwordService.lastFourPasswordsContains(loginResult.getUser(), password1);
-    }
-
     /**
      * Called from AJAX to get a URL to an app logo, if available.
      *
