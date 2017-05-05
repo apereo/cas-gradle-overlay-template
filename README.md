@@ -96,7 +96,7 @@ On a successful deployment via the following methods, CAS will be available at:
 Run the CAS web application as an executable WAR.
 
 ```bash
-java -jar cas/build/libs/cas.war
+java -jar cas/build/libs/cas.war --cas.standalone.config=etc/cas/config
 ```
 
 ## Spring Boot
@@ -104,7 +104,7 @@ java -jar cas/build/libs/cas.war
 Run the CAS web application as an executable WAR via Spring Boot. This is most useful during development and testing.
 
 ```bash
-./gradlew[.bat] bootRun
+./gradlew[.bat] bootRun --cas.standalone.config=etc/cas/config
 ```
 
 ## External
