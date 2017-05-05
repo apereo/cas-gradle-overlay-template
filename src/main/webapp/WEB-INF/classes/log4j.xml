@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE log4j:configuration SYSTEM "http://logging.apache.org/log4j/1.2/apidocs/org/apache/log4j/xml/doc-files/log4j.dtd">
 
+<!--TODO: upgrade: replace with equivalent-->
+
 <log4j:configuration debug="false">
     <!--
       This default ConsoleAppender is used to log all NON perf4j messages
@@ -109,11 +111,6 @@
 
     <logger name="com.infusionsoft">
         <level value="INFO" />
-        <appender-ref ref="cas" />
-    </logger>
-
-    <logger name="org.apereo.cas.infusionsoft.support.InfusionsoftSaml2ArgumentExtractor">
-        <level value="DEBUG" />
         <appender-ref ref="cas" />
     </logger>
 

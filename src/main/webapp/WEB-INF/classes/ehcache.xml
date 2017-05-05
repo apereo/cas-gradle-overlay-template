@@ -1,9 +1,6 @@
 <ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://ehcache.org/ehcache.xsd">
 
     <!--24 hrs = 86400 sec-->
-    <cache name="masheryOAuthApplications" maxElementsInMemory="10000" eternal="false" overflowToDisk="false" timeToLiveSeconds="86400" timeToIdleSeconds="0"  />
-    <cache name="masheryApplications" maxElementsInMemory="10000" eternal="false" overflowToDisk="false" timeToLiveSeconds="86400" timeToIdleSeconds="0"  />
-    <cache name="masheryMembers" maxElementsInMemory="10000" eternal="false" overflowToDisk="false" timeToLiveSeconds="86400" timeToIdleSeconds="0"  />
-    <cache name="masheryMembersByClientId" maxElementsInMemory="10000" eternal="false" overflowToDisk="false" timeToLiveSeconds="86400" timeToIdleSeconds="0"  />
+    <!--TODO: upgrade: remove if not needed -->
 
 </ehcache>

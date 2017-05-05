@@ -24,6 +24,8 @@ import java.net.URL;
 public class InfusionsoftAuditTrailManager implements AuditTrailManager {
     private static final Logger log = Logger.getLogger(InfusionsoftAuditTrailManager.class);
 
+    // TODO: upgrade: replace with equivalent
+
     @Autowired
     private AuditService auditService;
 

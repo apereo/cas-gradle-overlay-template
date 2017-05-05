@@ -122,6 +122,7 @@ public class MailService {
      *
      * @param user user
      */
+    @Deprecated
     public void sendInfusionsoftIdChanged(User user, String oldInfusionsoftId, boolean sendToOldEmail) {
         try {
             String to = sendToOldEmail ? oldInfusionsoftId : user.getUsername();

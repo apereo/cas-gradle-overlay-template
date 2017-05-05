@@ -11,7 +11,9 @@
 
     <aop:config/>
 
-    <jpa:repositories base-package="com.infusionsoft.cas.dao" entity-manager-factory-ref="entityManagerFactory" transaction-manager-ref="transactionManager"/>
+    <!--TODO: upgrade: replace with equivalent-->
+
+    <jpa:repositories base-package="org.apereo.cas.infusionsoft.dao" entity-manager-factory-ref="entityManagerFactory" transaction-manager-ref="transactionManager"/>
 
     <!--<tx:advice id="transactionAdvice" transaction-manager="transactionManager">-->
         <!--<tx:attributes>-->
@@ -32,7 +34,7 @@
 
     <beans:bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
         <beans:property name="dataSource" ref="dataSource"/>
-        <beans:property name="packagesToScan" value="org.jasig.cas, com.infusionsoft.cas.domain"/>
+        <beans:property name="packagesToScan" value="org.apereo.cas.infusionsoft.domain"/>
         <beans:property name="jpaVendorAdapter">
             <beans:bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter">
                 <beans:property name="generateDdl" value="true"/>

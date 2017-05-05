@@ -1,31 +1,24 @@
 package org.apereo.cas.infusionsoft.services;
 
-import org.apereo.cas.infusionsoft.dao.*;
-import org.apereo.cas.infusionsoft.events.UserAccountRemovedEvent;
-import org.apereo.cas.infusionsoft.exceptions.AccountException;
-import org.apereo.cas.infusionsoft.exceptions.DuplicateAccountException;
-import org.apereo.cas.infusionsoft.exceptions.InfusionsoftValidationException;
-import org.apereo.cas.infusionsoft.web.ValidationUtils;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
+import org.apereo.cas.infusionsoft.dao.AuthorityDAO;
+import org.apereo.cas.infusionsoft.dao.LoginAttemptDAO;
+import org.apereo.cas.infusionsoft.dao.UserAccountDAO;
+import org.apereo.cas.infusionsoft.dao.UserDAO;
 import org.apereo.cas.infusionsoft.domain.*;
+import org.apereo.cas.infusionsoft.exceptions.InfusionsoftValidationException;
+import org.apereo.cas.infusionsoft.web.ValidationUtils;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.context.MessageSource;
-import org.springframework.context.i18n.LocaleContextHolder;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.servlet.LocaleResolver;
 
-import java.util.*;
+import java.util.Date;
+import java.util.List;
 
 @Service
 @Transactional
@@ -34,13 +27,7 @@ public class UserServiceImpl implements UserService {
     private static final Logger log = Logger.getLogger(UserServiceImpl.class);
 
     @Autowired
-    ApplicationEventPublisher applicationEventPublisher;
-
-    @Autowired
     private AuthorityDAO authorityDAO;
-
-    @Autowired
-    private CrmService crmService;
 
     @Autowired
     private LoginAttemptDAO loginAttemptDAO;
@@ -49,13 +36,7 @@ public class UserServiceImpl implements UserService {
     private MailService mailService;
 
     @Autowired
-    private MessageSource messageSource;
-
-    @Autowired
     private PasswordService passwordService;
-
-    @Autowired
-    private PendingUserAccountDAO pendingUserAccountDAO;
 
     @Autowired
     private UserDAO userDAO;
@@ -67,63 +48,8 @@ public class UserServiceImpl implements UserService {
     private long loginAttemptMaxAge = 86400000; // default to 1 day
 
     @Override
-    public List<Authority> findAllAuthorities() {
-        List<Authority> authorities = new LinkedList<Authority>();
-        CollectionUtils.addAll(authorities, authorityDAO.findAll().iterator());
-
-        Collections.sort(authorities, new Comparator<Authority>() {
-            @Override
-            public int compare(Authority o, Authority o2) {
-                return o.getAuthority().compareTo(o2.getAuthority());
-            }
-        });
-
-        return authorities;
-    }
-
-    @Override
     public Authority findAuthorityByName(String authorityName) {
         return authorityDAO.findByAuthority(authorityName);
-    }
-
-    @Override
-    public Page<User> findByUsernameLike(String username, Pageable pageable) {
-        if (StringUtils.isEmpty(username)) {
-            username = "%";
-        } else if (StringUtils.contains(username, "*") || StringUtils.contains(username, "%")) {
-            username = username.replace("*", "%");
-        } else {
-            username = "%" + username + "%";
-        }
-
-        return userDAO.findByUsernameLike(username, pageable);
-    }
-
-    @Override
-    public Page<User> findByAuthority(String authoritySearch, Pageable pageable) {
-        Authority authority  = authorityDAO.findByAuthority(authoritySearch);
-        return userDAO.findByAuthority(authority, pageable);
-    }
-
-    @Override
-    public Page<UserAccount> findUserAccountsByUsernameLikeOrAppNameLikeAndAppType(String username, String appName, AppType appType, Pageable pageable) {
-        if (StringUtils.isEmpty(username)) {
-            username = "%";
-        } else if (StringUtils.contains(username, "*") || StringUtils.contains(username, "%")) {
-            username = username.replace("*", "%");
-        } else {
-            username = "%" + username + "%";
-        }
-
-        if (StringUtils.isEmpty(appName)) {
-            appName = "%";
-        } else if (StringUtils.contains(appName, "*") || StringUtils.contains(appName, "%")) {
-            appName = appName.replace("*", "%");
-        } else {
-            appName = "%" + appName + "%";
-        }
-
-        return userAccountDAO.findByUser_UsernameLikeOrAppNameLikeAndAppType(username, appName, appType, pageable);
     }
 
     @Override
@@ -156,13 +82,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserAccount saveUserAccount(UserAccount userAccount) {
-        // NOTE: this is enforced by the annotation "@SafeHtml(whitelistType = SafeHtml.WhiteListType.NONE)" but this way the tags are just removed instead of throwing an error
-        userAccount.setAlias(ValidationUtils.removeAllHtmlTags(userAccount.getAlias()));
-        return userAccountDAO.save(userAccount);
-    }
-
-    @Override
+    @Deprecated
     public User loadUser(String username) {
         return userDAO.findByUsername(username);
     }
@@ -243,282 +163,28 @@ public class UserServiceImpl implements UserService {
     }
 
     /**
-     * Finds a user account by id, but only if it belongs to a given user.
-     */
-    @Override
-    public UserAccount findUserAccount(User user, Long accountId) {
-        return userAccountDAO.findByUserAndId(user, accountId);
-    }
-
-    /**
      * Finds a user account by for a user.
      */
     @Override
+    @Deprecated
     public UserAccount findUserAccount(User user, String appName, AppType appType) {
         return userAccountDAO.findByUserAndAppNameAndAppType(user, appName, appType);
-    }
-
-    /**
-     * Returns a user's accounts, sorted by type and name for consistency.
-     */
-    @Override
-    public Map<AppType, List<UserAccount>> findSortedUserAccounts(User user) {
-        Map<AppType, List<UserAccount>> retVal = new LinkedHashMap<AppType, List<UserAccount>>();
-
-        UserAccount marketplaceUserAccount = new UserAccount();
-        marketplaceUserAccount.setAppType(AppType.MARKETPLACE);
-
-        List<UserAccount> marketplaceList = new ArrayList<UserAccount>();
-        marketplaceList.add(marketplaceUserAccount);
-
-        retVal.put(AppType.CRM, userAccountDAO.findByUserAndAppTypeAndDisabledOrderByAppNameAsc(user, AppType.CRM, false));
-        retVal.put(AppType.CUSTOMERHUB, userAccountDAO.findByUserAndAppTypeAndDisabledOrderByAppNameAsc(user, AppType.CUSTOMERHUB, false));
-        retVal.put(AppType.COMMUNITY, userAccountDAO.findByUserAndAppTypeAndDisabledOrderByAppNameAsc(user, AppType.COMMUNITY, false));
-        retVal.put(AppType.MARKETPLACE, marketplaceList);
-
-        return retVal;
     }
 
     /**
      * Returns a user's accounts, sorted by type and name for consistency when displaying lists of connected accounts.
      */
     @Override
+    @Deprecated
     public List<UserAccount> findSortedUserAccountsByAppType(User user, AppType appType) {
         return userAccountDAO.findByUserAndAppTypeAndDisabledOrderByAppNameAsc(user, appType, false);
-    }
-
-    /**
-     * Creates a pending user account for someone, so they can come back and complete registration later.
-     * If one is already pending, regurgitate the same code.
-     */
-    @Override
-    public PendingUserAccount createPendingUserAccount(AppType appType, String appName, String appUsername, String
-            firstName, String lastName, String email, boolean passwordVerificationRequired) {
-        PendingUserAccount pendingUserAccount = pendingUserAccountDAO.findByAppTypeAndAppNameAndAppUsername(appType, appName, appUsername);
-
-        if (pendingUserAccount != null) {
-            pendingUserAccount.setFirstName(firstName);
-            pendingUserAccount.setLastName(lastName);
-            pendingUserAccount.setEmail(email);
-            pendingUserAccount.setPasswordVerificationRequired(passwordVerificationRequired);
-
-            pendingUserAccountDAO.save(pendingUserAccount);
-        } else {
-            pendingUserAccount = new PendingUserAccount();
-
-            pendingUserAccount.setAppName(appName);
-            pendingUserAccount.setAppType(appType);
-            pendingUserAccount.setAppUsername(appUsername);
-            pendingUserAccount.setRegistrationCode(appName + "-" + RandomStringUtils.random(16, true, true));
-            pendingUserAccount.setFirstName(firstName);
-            pendingUserAccount.setLastName(lastName);
-            pendingUserAccount.setEmail(email);
-            pendingUserAccount.setPasswordVerificationRequired(passwordVerificationRequired);
-
-            pendingUserAccountDAO.save(pendingUserAccount);
-        }
-
-        return pendingUserAccount;
-    }
-
-    /**
-     * Associates an external account to a CAS user.
-     */
-    @Override
-    public UserAccount associateAccountToUser(User user, AppType appType, String appName, String appUsername) throws AccountException {
-        UserAccount account = findUserAccount(user, appName, appType);
-
-        if (appType.isLinkageAllowed()) {
-            ensureAccountIsNotLinkedToDifferentUser(appName, appType, appUsername, user);
-
-            try {
-                if (account == null) {
-                    account = new UserAccount();
-                    account.setUser(user);
-                    account.setAppType(appType);
-                    account.setAppName(appName);
-                    account.setAppUsername(appUsername);
-                } else {
-                    account.setAppUsername(appUsername);
-                    account.setDisabled(false);
-                }
-
-                userAccountDAO.save(account);
-            } catch (Exception e) {
-                throw new AccountException("Failed to associate user " + user + " to app account " + appUsername + " on " + appName + "/" + appType, e);
-            }
-        }
-
-        return account;
-    }
-
-    /**
-     * Tries to associate a user with a pending registration. If successful, this
-     * will return the newly associated user account. If there's already a disabled user account matching the
-     * registration (unlikely), re-enable it instead of creating a duplicate.
-     */
-    @Override
-    public UserAccount associatePendingAccountToUser(User user, String registrationCode) throws AccountException {
-        PendingUserAccount pendingAccount = findPendingUserAccount(registrationCode);
-        ensureAccountIsNotLinkedToDifferentUser(pendingAccount.getAppName(), pendingAccount.getAppType(), pendingAccount.getAppUsername(), user);
-        UserAccount account = findUserAccount(user, pendingAccount.getAppName(), pendingAccount.getAppType());
-
-        try {
-            if (account == null) {
-                account = new UserAccount();
-
-                account.setUser(user);
-                account.setAppName(pendingAccount.getAppName());
-                account.setAppType(pendingAccount.getAppType());
-                account.setAppUsername(pendingAccount.getAppUsername());
-
-                user.getAccounts().add(account);
-
-                userAccountDAO.save(account);
-                userDAO.save(user);
-            } else {
-                account.setAppUsername(pendingAccount.getAppUsername());
-                account.setDisabled(false);
-
-                userDAO.save(user);
-            }
-
-            log.info("associated user " + user + " to " + account.getAppName() + "/" + account.getAppType());
-
-            pendingUserAccountDAO.delete(pendingAccount);
-        } catch (Exception e) {
-            throw new AccountException("failed to associate user " + user + " to registration code " + registrationCode, e);
-        }
-
-        return account;
-    }
-
-    /**
-     * Finds any linked user accounts to a given app and local username.
-     * If a null or blank appUsername is passed, it will return all linked user accounts for that app name and type.
-     */
-    @Override
-    public List<UserAccount> findEnabledUserAccounts(String appName, AppType appType, String appUsername) {
-        if (StringUtils.isEmpty(appUsername)) {
-            return userAccountDAO.findByAppNameAndAppTypeAndDisabled(appName, appType, false);
-        } else {
-            return userAccountDAO.findByAppNameAndAppTypeAndAppUsernameAndDisabled(appName, appType, appUsername, false);
-        }
-    }
-
-    /**
-     * Finds any linked user accounts to a given app and Global User ID.
-     */
-    @Override
-    public List<UserAccount> findEnabledUserAccounts(String appName, AppType appType, long globalUserId) {
-        return userAccountDAO.findByAppNameAndAppTypeAndUserIdAndDisabled(appName, appType, globalUserId, false);
-    }
-
-    /**
-     * Finds any linked user accounts to a given app and local username.
-     * If a null or blank appUsername is passed, it will return all linked user accounts for that app name and type.
-     */
-    @Override
-    public List<UserAccount> findUserAccounts(String appName, AppType appType, String appUsername) {
-        if (StringUtils.isEmpty(appUsername)) {
-            return userAccountDAO.findByAppNameAndAppType(appName, appType);
-        } else {
-            return userAccountDAO.findByAppNameAndAppTypeAndAppUsername(appName, appType, appUsername);
-        }
-    }
-
-    /**
-     * Finds any linked user accounts to a given app and Global User ID.
-     */
-    @Override
-    public List<UserAccount> findUserAccounts(String appName, AppType appType, long globalUserId) {
-        return userAccountDAO.findByAppNameAndAppTypeAndUserId(appName, appType, globalUserId);
-    }
-
-    /**
-     * Finds any linked user accounts to a given app and Global User ID.
-     */
-    @Override
-    public UserAccount findUserAccountByInfusionsoftId(String appName, AppType appType, String infusionsoftId) {
-        return userAccountDAO.findByAppNameAndAppTypeAndUser_Username(appName, appType, infusionsoftId);
-    }
-
-    /**
-     * Finds any linked user accounts to a given app and local username that have been disabled.
-     */
-    @Override
-    public List<UserAccount> findDisabledUserAccounts(String appName, AppType appType, String appUsername) {
-        if (StringUtils.isEmpty(appUsername)) {
-            return userAccountDAO.findByAppNameAndAppTypeAndDisabled(appName, appType, true);
-        } else {
-            return userAccountDAO.findByAppNameAndAppTypeAndAppUsernameAndDisabled(appName, appType, appUsername, true);
-        }
-    }
-
-    /**
-     * Finds any linked user accounts to a given app and Global User ID that have been disabled.
-     */
-    @Override
-    public List<UserAccount> findDisabledUserAccounts(String appName, AppType appType, long globalUserId) {
-        return userAccountDAO.findByAppNameAndAppTypeAndUserIdAndDisabled(appName, appType, globalUserId, true);
-    }
-
-    /**
-     * Deletes a linked user account.
-     */
-    @Override
-    public void deleteAccount(UserAccount account) {
-        log.info("Deleting user account " + account.toString());
-
-        User accountUser = account.getUser();
-        if (!accountUser.getAccounts().remove(account)) {
-            log.debug("Account not found on user to remove: " + account.toString());
-        }
-        userDAO.save(accountUser);
-        userAccountDAO.delete(account);
-
-        applicationEventPublisher.publishEvent(new UserAccountRemovedEvent(account));
-    }
-
-    /**
-     * Disables a linked user account.
-     */
-    @Override
-    public void disableAccount(UserAccount account) {
-        log.info("Disabling user account " + account.toString());
-
-        account.setDisabled(true);
-        userAccountDAO.save(account);
-        userDAO.save(account.getUser());
-
-        applicationEventPublisher.publishEvent(new UserAccountRemovedEvent(account));
-    }
-
-    /**
-     * Enables a linked user account that was previously disabled.
-     */
-    @Override
-    public void enableUserAccount(UserAccount account) {
-        log.info("Re-enabling user account " + account.toString());
-
-        account.setDisabled(false);
-
-        userAccountDAO.save(account);
-        userDAO.save(account.getUser());
-    }
-
-    /**
-     * Finds a pending user account by its unique registration code.
-     */
-    @Override
-    public PendingUserAccount findPendingUserAccount(String registrationCode) {
-        return pendingUserAccountDAO.findByRegistrationCode(registrationCode);
     }
 
     /**
      * Finds an enabled user by username.
      */
     @Override
+    @Deprecated
     public User findEnabledUser(String username) {
         return userDAO.findByUsernameAndEnabled(username, true);
     }
@@ -536,11 +202,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Deprecated
     public List<UserAccount> findActiveUserAccounts(User user) {
         return userAccountDAO.findByUserAndDisabled(user, false);
     }
 
     @Override
+    @Deprecated
     public boolean isDuplicateUsername(User user) {
         if (user == null) {
             return false;
@@ -551,50 +219,5 @@ public class UserServiceImpl implements UserService {
         }
     }
 
-    /**
-     * Changes the application username that is associated with a user
-     */
-    @Override
-    public void changeAssociatedAppUsername(User user, String appName, AppType appType, String newAppUsername) throws AccountException {
-        if (user != null) {
-            UserAccount account = findUserAccount(user, appName, appType);
-            if (account != null) {
-                ensureAccountIsNotLinkedToDifferentUser(appName, appType, newAppUsername, user);
-                String oldAppUsername = account.getAppUsername();
-                account.setAppUsername(newAppUsername);
-                userAccountDAO.save(account);
-                log.info("Changed application username on " + appName + "/" + appType + " for CAS user " + user + " from " + oldAppUsername + " to " + newAppUsername);
-            }
-        }
-    }
-
-    @Override
-    public boolean validateUserApplication(String application) {
-        boolean retVal = true;
-
-        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        List<UserAccount> accounts = findSortedUserAccountsByAppType(user, AppType.CRM);
-        List<String> crmAccounts = crmService.extractAppNames(accounts);
-
-        if (!crmAccounts.contains(application)) {
-            log.error("User " + SecurityContextHolder.getContext().getAuthentication().getName() + " tried to gain access to the application " + application);
-            retVal = false;
-        }
-
-        return retVal;
-    }
-
-    private void ensureAccountIsNotLinkedToDifferentUser(String appName, AppType appType, String appUsername, User user) throws DuplicateAccountException {
-        List<UserAccount> accounts = userAccountDAO.findByAppNameAndAppTypeAndAppUsernameAndUserNot(appName, appType, appUsername, user);
-
-        if (accounts != null && !accounts.isEmpty()) {
-            List<String> usernames = new ArrayList<String>();
-            for (UserAccount account : accounts) {
-                usernames.add(account.getUser().getUsername());
-            }
-            log.error("Account " + appUsername + " on " + appName + "/" + appType + " could not be linked to " + user + " since it is already linked to a different Infusionsoft ID (" + StringUtils.join(usernames, ", ") + ")");
-            throw new DuplicateAccountException(accounts);
-        }
-    }
 }
 

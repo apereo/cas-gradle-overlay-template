@@ -24,7 +24,7 @@
        xmlns:aop="http://www.springframework.org/schema/aop"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
        http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.1.xsd">
-
+  <!--TODO: upgrade: replace with equivalent-->
   <description>
   Configuration file for the Inspektr package which handles auditing for Java applications.
   If enabled this should be modified to log audit and statistics information the same way

@@ -1,16 +1,15 @@
 package org.apereo.cas.api;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import org.apereo.cas.infusionsoft.domain.UserAccount;
-import org.apereo.cas.infusionsoft.support.AppHelper;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apereo.cas.infusionsoft.domain.UserAccount;
+import org.apereo.cas.infusionsoft.support.AppHelper;
 
 import java.util.Collection;
 
 /**
- * Represents an account record.  Used when the account is nested within a {@link UserDTO} object, so the user
- * information is not included.  If the user information is needed on a per-account basis, use {@link AccountDTO}.
+ * Represents an account record.
  */
 @JsonTypeName("UserAccount")
 public class UserAccountDTO {

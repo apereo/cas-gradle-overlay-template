@@ -6,14 +6,9 @@ import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
-import org.apache.log4j.ConsoleAppender;
-import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.apache.log4j.TTCCLayout;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -28,6 +23,7 @@ import java.io.InputStreamReader;
  * Service for communicating back and forth with CustomerHub.
  */
 @Service
+@Deprecated
 public class CustomerHubService {
     private static final Logger log = Logger.getLogger(CustomerHubService.class);
 
@@ -97,42 +93,6 @@ public class CustomerHubService {
     }
 
     /**
-     * Authenticates a user with CustomerHub.
-     *
-     * @param appName     appName
-     * @param appUsername appUsername
-     * @param appPassword appPassword
-     * @return true if user authenticated
-     */
-    public boolean authenticateUser(String appName, String appUsername, String appPassword) {
-        try {
-            HttpClient client = getHttpClient(appName);
-            HttpPost post = new HttpPost(buildBaseUrl(appName) + "/account/authenticate_user");
-            StringEntity input = new StringEntity(createAuthenticateUserRequest(appUsername, appPassword));
-
-            post.addHeader("Accept", "application/json");
-            post.setHeader("Content-Type", "application/json");
-            input.setContentType("application/json");
-            post.setEntity(input);
-
-            log.debug("authenticating CustomerHub user " + appUsername + " at " + post.getURI());
-
-            HttpResponse response = client.execute(post);
-            int status = response.getStatusLine().getStatusCode();
-
-            log.debug("authentication of CustomerHub user returned status " + status);
-
-            EntityUtils.consume(response.getEntity());
-
-            return status == 200;
-        } catch (Exception e) {
-            log.error("failed to authenticate CustomerHub user", e);
-        }
-
-        return false;
-    }
-
-    /**
      * Fetches a URL to a custom logo for a CustomerHub instance, or null if such a logo is unavailable.
      *
      * @param appName appName
@@ -180,17 +140,6 @@ public class CustomerHubService {
         JSONObject json = (JSONObject) parser.parse(new InputStreamReader(input, "UTF-8"));
 
         return (String) json.get("logo");
-    }
-
-    private String createAuthenticateUserRequest(String appUsername, String appPassword) {
-        JSONObject request = new JSONObject();
-
-        request.put("email", appUsername);
-        request.put("password", appPassword);
-
-        log.debug("authentication request " + request.toJSONString());
-
-        return request.toJSONString();
     }
 
 }

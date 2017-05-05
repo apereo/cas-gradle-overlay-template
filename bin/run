@@ -7,7 +7,7 @@ case ${APP_ENV} in
     production)
         export ENCRYPTION_KEY='<encryption_key>';
         cd /opt/tomcat/newrelic && $JAVA_HOME/bin/java -jar newrelic.jar install
-        export NEW_RELIC_APP_NAME=cc-reader-ordering-service
+        export NEW_RELIC_APP_NAME=cas
         ;;
     development)
         export ENCRYPTION_KEY=dev

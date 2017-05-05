@@ -3,8 +3,6 @@ package org.apereo.cas.infusionsoft.services;
 import org.apereo.cas.infusionsoft.authentication.LoginResult;
 import org.apereo.cas.infusionsoft.dao.LoginAttemptDAO;
 import org.apereo.cas.infusionsoft.domain.*;
-import org.apereo.cas.infusionsoft.exceptions.AppCredentialsExpiredException;
-import org.apereo.cas.infusionsoft.exceptions.AppCredentialsInvalidException;
 import org.apereo.cas.infusionsoft.web.CookieUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
@@ -46,9 +44,6 @@ public class InfusionsoftAuthenticationServiceImpl implements InfusionsoftAuthen
 
     @Autowired
     private CustomerHubService customerHubService;
-
-    @Autowired
-    private CommunityService communityService;
 
     @Autowired
     private TicketRegistry ticketRegistry;
@@ -338,25 +333,6 @@ public class InfusionsoftAuthenticationServiceImpl implements InfusionsoftAuthen
     }
 
     /**
-     * Checks with an app whether a user's legacy credentials are correct. This should be done before we allow them to
-     * link that account to their CAS account. Throws an exception if the credentials are invalid, expired, etc.
-     */
-    @Override
-    public void verifyAppCredentials(AppType appType, String appName, String appUsername, String appPassword) throws AppCredentialsInvalidException, AppCredentialsExpiredException {
-        if (AppType.COMMUNITY.equals(appType)) {
-            if (communityService.authenticateUser(appUsername, appPassword) == null) {
-                throw new AppCredentialsInvalidException("community credentials are invalid or could not be verified");
-            }
-        } else if (AppType.CUSTOMERHUB.equals(appType)) {
-            if (!customerHubService.authenticateUser(appName, appUsername, appPassword)) {
-                throw new AppCredentialsInvalidException("customerhub credentials are invalid or could not be verified");
-            }
-        } else {
-            throw new AppCredentialsInvalidException("we don't know how to verify credentials for app type " + appType);
-        }
-    }
-
-    /**
      * Looks at the CAS cookies to determine the current user.
      */
     @Override
@@ -405,20 +381,6 @@ public class InfusionsoftAuthenticationServiceImpl implements InfusionsoftAuthen
         }
 
         return tgt;
-    }
-
-    /**
-     * Tells if a user has a community account associated.
-     */
-    @Override
-    public boolean hasCommunityAccount(User user) {
-        for (UserAccount account : user.getAccounts()) {
-            if (account.getAppType().equals(AppType.COMMUNITY) && !account.isDisabled()) {
-                return true;
-            }
-        }
-
-        return false;
     }
 
     /*

@@ -8,6 +8,7 @@ import java.io.Serializable;
 
 @Entity
 @Table(name = "pending_user_account", uniqueConstraints = {@UniqueConstraint(columnNames = {"app_name", "app_type", "app_username"})})
+@Deprecated
 public class PendingUserAccount implements Serializable {
     private Long id;
     private String registrationCode;

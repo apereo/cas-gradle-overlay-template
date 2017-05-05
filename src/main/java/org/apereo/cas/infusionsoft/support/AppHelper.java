@@ -1,7 +1,6 @@
 package org.apereo.cas.infusionsoft.support;
 
 import org.apereo.cas.infusionsoft.domain.AppType;
-import org.apereo.cas.infusionsoft.services.CommunityService;
 import org.apereo.cas.infusionsoft.services.CrmService;
 import org.apereo.cas.infusionsoft.services.CustomerHubService;
 import org.apache.log4j.Logger;
@@ -9,15 +8,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
+@Deprecated
 public class AppHelper {
 
     private static final Logger log = Logger.getLogger(AppHelper.class);
 
     @Autowired
     public CrmService crmService;
-
-    @Autowired
-    public CommunityService communityService;
 
     @Autowired
     public CustomerHubService customerHubService;
@@ -29,6 +26,7 @@ public class AppHelper {
      * @param appName appName
      * @return redirect url
      */
+    @Deprecated
     public String buildAppUrl(AppType appType, String appName) {
         String retVal = "";
 
@@ -40,10 +38,6 @@ public class AppHelper {
 
                 case CRM:
                     retVal = crmService.buildCrmUrl(appName);
-                    break;
-
-                case COMMUNITY:
-                    retVal = communityService.buildUrl();
                     break;
 
                 case CUSTOMERHUB:

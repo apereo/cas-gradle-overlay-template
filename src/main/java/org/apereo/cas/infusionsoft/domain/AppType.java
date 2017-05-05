@@ -3,6 +3,7 @@ package org.apereo.cas.infusionsoft.domain;
 /**
  * Constants for certain app type strings that are sometimes sent across the wire in the CAS response.
  */
+// TODO: Keep?
 public enum AppType {
 
     CAS(false, false, false),

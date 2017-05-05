@@ -13,6 +13,8 @@ import java.io.IOException;
 @Component
 public class SecurityFilter implements Filter {
 
+    // TODO: upgrade: either remove account central URLs, replace, or remove
+
     public void init(FilterConfig filterConfig) throws ServletException {
     }
 

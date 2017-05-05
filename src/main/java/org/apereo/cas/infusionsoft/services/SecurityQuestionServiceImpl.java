@@ -4,8 +4,6 @@ import org.apereo.cas.infusionsoft.dao.SecurityQuestionDAO;
 import org.apereo.cas.infusionsoft.dao.SecurityQuestionResponseDAO;
 import org.apereo.cas.infusionsoft.domain.SecurityQuestion;
 import org.apereo.cas.infusionsoft.domain.SecurityQuestionResponse;
-import org.apereo.cas.infusionsoft.domain.User;
-import org.apereo.cas.infusionsoft.exceptions.InfusionsoftValidationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -16,6 +14,7 @@ import java.util.List;
 
 @Service("securityQuestionService")
 @Transactional
+@Deprecated
 public class SecurityQuestionServiceImpl implements SecurityQuestionService {
 
     @Value("${infusionsoft.cas.security.questions.force.answer}")
@@ -30,55 +29,14 @@ public class SecurityQuestionServiceImpl implements SecurityQuestionService {
     @Autowired
     private SecurityQuestionResponseDAO securityQuestionResponseDAO;
 
-    @Autowired
-    UserService userService;
-
-    @Override
-    public SecurityQuestion save(SecurityQuestion securityQuestion) {
-        return securityQuestionDAO.save(securityQuestion);
-    }
-
     @Override
     public SecurityQuestionResponse save(SecurityQuestionResponse securityQuestionResponse) {
         return securityQuestionResponseDAO.save(securityQuestionResponse);
     }
 
     @Override
-    public void delete(Long id) {
-        SecurityQuestion securityQuestion = fetch(id);
-        List<SecurityQuestionResponse> responses = securityQuestionResponseDAO.findAllBySecurityQuestion(securityQuestion);
-
-        if(responses.size() > 0) {
-            securityQuestion.setEnabled(false);
-            securityQuestionDAO.save(securityQuestion);
-        } else {
-            securityQuestionDAO.delete(id);
-        }
-    }
-
-    @Override
-    public void deleteResponses(User user) throws InfusionsoftValidationException {
-        List<SecurityQuestionResponse> securityQuestionResponses = securityQuestionResponseDAO.findAllByUser(user);
-        user.getSecurityQuestionResponses().clear();
-        userService.saveUser(user);
-        securityQuestionResponseDAO.delete(securityQuestionResponses);
-    }
-
-    @Override
     public SecurityQuestion fetch(Long id) {
         return securityQuestionDAO.findOne(id);
-    }
-
-    @Override
-    public List<SecurityQuestion> fetchAll() {
-        Iterable<SecurityQuestion> securityQuestions = securityQuestionDAO.findAll();
-        List<SecurityQuestion> retVal = new ArrayList<SecurityQuestion>();
-
-        for (SecurityQuestion securityQuestion : securityQuestions) {
-            retVal.add(securityQuestion);
-        }
-
-        return retVal;
     }
 
     @Override
@@ -94,22 +52,8 @@ public class SecurityQuestionServiceImpl implements SecurityQuestionService {
     }
 
     @Override
-    public SecurityQuestionResponse findAllResponsesById(Long id) {
-        return securityQuestionResponseDAO.findOne(id);
-    }
-
-    @Override
-    public List<SecurityQuestionResponse> findAllResponsesByUser(User user) {
-        return securityQuestionResponseDAO.findAllByUser(user);
-    }
-
-    @Override
     public int getNumSecurityQuestionsRequired() {
         return numSecurityQuestionsRequired;
     }
 
-    @Override
-    public boolean isForceSecurityQuestion() {
-        return forceSecurityQuestion;
-    }
 }

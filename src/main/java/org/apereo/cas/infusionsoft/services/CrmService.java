@@ -1,12 +1,7 @@
 package org.apereo.cas.infusionsoft.services;
 
-import org.apereo.cas.infusionsoft.domain.AppType;
-import org.apereo.cas.infusionsoft.domain.UserAccount;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-
-import java.util.LinkedList;
-import java.util.List;
 
 /**
  * Service for communicating with the Infusionsoft CRM (aka "the app").
@@ -41,6 +36,7 @@ public class CrmService {
      * @param appName appName
      * @return redirect url
      */
+    @Deprecated
     public String buildCrmUrl(String appName) {
         StringBuilder url = new StringBuilder(crmProtocol + "://" + buildCrmHostName(appName));
 
@@ -53,19 +49,12 @@ public class CrmService {
         return url.toString();
     }
 
+    @Deprecated
     public String buildCrmHostName(String appName) {
         return appName + "." + crmDomain;
     }
 
-    public List<String> extractAppNames(List<UserAccount> userAccounts) {
-        List<String> appNames = new LinkedList<String>();
-
-        for (UserAccount userAccount : userAccounts) {
-            if (userAccount.getAppType().equals(AppType.CRM)) {
-                appNames.add(buildCrmHostName(userAccount.getAppName()));
-            }
-        }
-
-        return appNames;
+    public String getLogoUrl(String appName) {
+        return buildCrmUrl(appName) + "/Logo?logo=weblogo";
     }
 }

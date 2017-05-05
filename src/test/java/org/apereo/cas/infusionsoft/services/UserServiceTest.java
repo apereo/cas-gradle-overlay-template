@@ -2,7 +2,6 @@ package org.apereo.cas.infusionsoft.services;
 
 import org.apereo.cas.infusionsoft.dao.*;
 import org.apereo.cas.infusionsoft.domain.User;
-import org.apereo.cas.infusionsoft.oauth.services.OAuthService;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.mockito.Mock;
@@ -27,13 +26,9 @@ public class UserServiceTest {
     @Mock
     private PasswordService passwordService;
     @Mock
-    private PendingUserAccountDAO pendingUserAccountDAO;
-    @Mock
     private UserDAO userDAO;
     @Mock
     private UserAccountDAO userAccountDAO;
-    @Mock
-    private OAuthService oauthService;
 
     private User user;
     private static final String testUsername = "test.user@infusionsoft.com";
@@ -56,7 +51,6 @@ public class UserServiceTest {
         Whitebox.setInternalState(serviceToTest, "loginAttemptDAO", loginAttemptDAO);
         Whitebox.setInternalState(serviceToTest, "mailService", mailService);
         Whitebox.setInternalState(serviceToTest, "passwordService", passwordService);
-        Whitebox.setInternalState(serviceToTest, "pendingUserAccountDAO", pendingUserAccountDAO);
         Whitebox.setInternalState(serviceToTest, "userDAO", userDAO);
         Whitebox.setInternalState(serviceToTest, "userAccountDAO", userAccountDAO);
 

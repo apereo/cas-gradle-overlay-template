@@ -2,30 +2,22 @@ package org.apereo.cas.infusionsoft.services;
 
 import org.apereo.cas.infusionsoft.domain.SecurityQuestion;
 import org.apereo.cas.infusionsoft.domain.SecurityQuestionResponse;
-import org.apereo.cas.infusionsoft.domain.User;
-import org.apereo.cas.infusionsoft.exceptions.InfusionsoftValidationException;
 
 import java.util.List;
 
+@Deprecated
 public interface SecurityQuestionService {
-    SecurityQuestion save(SecurityQuestion securityQuestion);
+
+    @Deprecated
     SecurityQuestionResponse save(SecurityQuestionResponse securityQuestionResponse);
 
-    void delete(Long id);
-
-    void deleteResponses(User user) throws InfusionsoftValidationException;
-
+    @Deprecated
     SecurityQuestion fetch(Long id);
 
-    List<SecurityQuestion> fetchAll();
-
+    @Deprecated
     List<SecurityQuestion> fetchAllEnabled();
 
-    SecurityQuestionResponse findAllResponsesById(Long id);
-
-    List<SecurityQuestionResponse> findAllResponsesByUser(User user);
-
+    @Deprecated
     int getNumSecurityQuestionsRequired();
 
-    boolean isForceSecurityQuestion();
 }

@@ -8,6 +8,7 @@ import org.jsoup.safety.Whitelist;
 /**
  * Simple utility for validating and sanitizing some of our common input strings.
  */
+@Deprecated
 public class ValidationUtils {
     /**
      * Make sure the app name consists only of alphanumeric and hyphen characters.

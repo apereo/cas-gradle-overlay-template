@@ -7,9 +7,13 @@ import org.springframework.data.repository.PagingAndSortingRepository;
 
 import java.util.List;
 
+@Deprecated
 public interface SecurityQuestionResponseDAO extends PagingAndSortingRepository<SecurityQuestionResponse, Long> {
 
+    @Deprecated
     List<SecurityQuestionResponse> findAllByUser(User user);
+
+    @Deprecated
     List<SecurityQuestionResponse> findAllBySecurityQuestion(SecurityQuestion securityQuestion);
 
 }

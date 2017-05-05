@@ -13,6 +13,7 @@ import java.util.Set;
  * Represents a user
  */
 @JsonTypeName("User")
+@Deprecated
 public class UserDTO {
     private long globalUserId;
     private String username;

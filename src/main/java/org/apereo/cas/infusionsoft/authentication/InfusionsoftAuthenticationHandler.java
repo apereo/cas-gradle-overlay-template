@@ -14,7 +14,6 @@ import org.springframework.stereotype.Component;
 /**
  * Infusionsoft implementation of the authentication handler.
  */
-@Component
 public class InfusionsoftAuthenticationHandler extends AbstractUsernamePasswordAuthenticationHandler {
 
     @Autowired
@@ -24,6 +23,7 @@ public class InfusionsoftAuthenticationHandler extends AbstractUsernamePasswordA
     PasswordEncoder passwordEncoder;
 
     protected boolean authenticateUsernamePasswordInternal(UsernamePasswordCredentials credentials) throws AuthenticationException {
+        //TODO: upgrade
         if (credentials instanceof LetMeInCredentials) {
             return true;
         } else {

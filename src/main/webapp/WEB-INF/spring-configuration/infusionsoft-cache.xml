@@ -6,6 +6,8 @@
 
     <cache:annotation-driven/>
 
+    <!--TODO: upgrade: replace with equivalent-->
+
     <bean id="cacheManager" class="org.springframework.cache.ehcache.EhCacheCacheManager" p:cacheManager-ref="ehcache"/>
 
     <!-- Ehcache library setup -->

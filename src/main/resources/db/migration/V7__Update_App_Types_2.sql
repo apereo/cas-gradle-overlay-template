@@ -1,1 +1,0 @@
-UPDATE user_account set app_type = upper(app_type);

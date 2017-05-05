@@ -11,6 +11,7 @@ import java.util.Locale;
   */
 @JsonTypeName("APIError")
 @JsonSerialize(include = JsonSerialize.Inclusion.NON_EMPTY)
+@Deprecated
 public class APIErrorDTO<T> {
     private String code;
     private String message;
@@ -55,8 +56,6 @@ public class APIErrorDTO<T> {
     @JsonSubTypes({
             @JsonSubTypes.Type(value = UserDTO[].class, name = "User[]"),
             @JsonSubTypes.Type(value = UserDTO.class, name = "User"),
-            @JsonSubTypes.Type(value = AccountDTO[].class, name = "Account[]"),
-            @JsonSubTypes.Type(value = AccountDTO.class, name = "Account"),
             @JsonSubTypes.Type(value = UserAccountDTO[].class, name = "UserAccount[]"),
             @JsonSubTypes.Type(value = UserAccountDTO.class, name = "UserAccount"),
             @JsonSubTypes.Type(value = APIErrorDTO[].class, name = "Error[]"),

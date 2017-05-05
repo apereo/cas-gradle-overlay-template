@@ -2,12 +2,10 @@ package org.apereo.cas.infusionsoft.web.controllers;
 
 import org.apereo.cas.infusionsoft.authentication.LoginResult;
 import org.apereo.cas.infusionsoft.domain.*;
-import org.apereo.cas.infusionsoft.exceptions.AccountException;
 import org.apereo.cas.infusionsoft.exceptions.InfusionsoftValidationException;
 import org.apereo.cas.infusionsoft.services.*;
 import org.apereo.cas.infusionsoft.support.AppHelper;
 import org.apache.commons.lang3.CharEncoding;
-import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.validator.EmailValidator;
 import org.apache.log4j.Logger;
@@ -48,6 +46,9 @@ public class RegistrationController {
 
     @Autowired
     private CustomerHubService customerHubService;
+
+    @Autowired
+    private CrmService crmService;
 
     @Autowired
     private InfusionsoftAuthenticationService infusionsoftAuthenticationService;
@@ -145,17 +146,18 @@ public class RegistrationController {
             user.setLastName(lastName);
             user.setUsername(email);
 
+            // TODO: upgrade: remove support for registration codes?
             // If there's a registration code, pre-populate from that
-            if (StringUtils.isNotEmpty(registrationCode)) {
-                PendingUserAccount pending = userService.findPendingUserAccount(registrationCode);
-
-                if (pending != null) {
-                    //NOTE: these values get escaped by the <form:input htmlEscape=true>
-                    user.setFirstName(pending.getFirstName());
-                    user.setLastName(pending.getLastName());
-                    user.setUsername(pending.getEmail());
-                }
-            }
+//            if (StringUtils.isNotEmpty(registrationCode)) {
+//                PendingUserAccount pending = userService.findPendingUserAccount(registrationCode);
+//
+//                if (pending != null) {
+//                    //NOTE: these values get escaped by the <form:input htmlEscape=true>
+//                    user.setFirstName(pending.getFirstName());
+//                    user.setLastName(pending.getLastName());
+//                    user.setUsername(pending.getEmail());
+//                }
+//            }
 
             buildModelForCreateInfusionsoftId(model, returnUrl, skipUrl, userToken, user, registrationCode, skipWelcomeEmail);
             return "registration/createInfusionsoftId";
@@ -211,27 +213,27 @@ public class RegistrationController {
      * @param request          request
      * @param response         response
      * @return view
-     * @throws AccountException             ae
      * @throws UnsupportedEncodingException ue
      */
     @RequestMapping
-    public String linkToExisting(Model model, String registrationCode, String returnUrl, String userToken, HttpServletRequest request, HttpServletResponse response) throws AccountException, UnsupportedEncodingException {
+    public String linkToExisting(Model model, String registrationCode, String returnUrl, String userToken, HttpServletRequest request, HttpServletResponse response) throws UnsupportedEncodingException {
         String retVal;
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-        if (StringUtils.isNotEmpty(registrationCode)) {
-            PendingUserAccount pending = userService.findPendingUserAccount(registrationCode);
-
-            if (pending != null) {
-                userService.associatePendingAccountToUser(user, registrationCode);
-                autoLoginService.autoLogin(user.getUsername(), request, response);
-
-                retVal = "redirect:/app/central/home";
-            } else {
-                model.addAttribute("error", "Registration Code not found");
-                retVal = "registration/createInfusionsoftId";
-            }
-        } else {
+        // TODO: upgrade: remove support for registration codes?
+//        if (StringUtils.isNotEmpty(registrationCode)) {
+//            PendingUserAccount pending = userService.findPendingUserAccount(registrationCode);
+//
+//            if (pending != null) {
+//                userService.associatePendingAccountToUser(user, registrationCode);
+//                autoLoginService.autoLogin(user.getUsername(), request, response);
+//
+//                retVal = "redirect:/app/central/home";
+//            } else {
+//                model.addAttribute("error", "Registration Code not found");
+//                retVal = "registration/createInfusionsoftId";
+//            }
+//        } else {
             boolean urlIsAllowed = isAllowedUrl(returnUrl, "returnUrl");
             boolean userTokenIsValid = StringUtils.isNotBlank(userToken);
 
@@ -246,7 +248,7 @@ public class RegistrationController {
                 log.warn("Invalid account linkage request for existing user " + user.getUsername() + " (user token missing). Redirecting to app central.");
                 retVal = "redirect:/app/central/home";
             }
-        }
+//        }
 
         return retVal;
     }
@@ -332,7 +334,6 @@ public class RegistrationController {
                 log.warn("couldn't create new user account: " + model.asMap().get("error"));
             } else {
 
-                user.setIpAddress(request.getRemoteAddr());
                 user = userService.createUser(user, password1);
 
                 SecurityQuestion securityQuestion = securityQuestionService.fetch(securityQuestionId);
@@ -346,15 +347,16 @@ public class RegistrationController {
 
                 model.addAttribute("user", user);
 
-                if (StringUtils.isNotEmpty(registrationCode)) {
-                    log.info("processing registration code " + registrationCode);
-
-                    try {
-                        userService.associatePendingAccountToUser(user, registrationCode);
-                    } catch (Exception e) {
-                        log.error("failed to associate new user to registration code " + registrationCode, e);
-                    }
-                }
+                // TODO: upgrade: remove support for registration codes?
+//                if (StringUtils.isNotEmpty(registrationCode)) {
+//                    log.info("processing registration code " + registrationCode);
+//
+//                    try {
+//                        userService.associatePendingAccountToUser(user, registrationCode);
+//                    } catch (Exception e) {
+//                        log.error("failed to associate new user to registration code " + registrationCode, e);
+//                    }
+//                }
 
                 if (!skipWelcomeEmail) {
                     mailService.sendWelcomeEmail(user, request.getLocale());
@@ -390,6 +392,7 @@ public class RegistrationController {
     @RequestMapping
     public ModelAndView success(HttpServletRequest request) {
         Map<String, Object> model = new HashMap<String, Object>();
+        // TODO: upgrade. This looks at the TGT cookie to get the current user. Why not just use the current user from Spring security?
         User user = infusionsoftAuthenticationService.getCurrentUser(request);
 
         if (user == null) {
@@ -549,7 +552,7 @@ public class RegistrationController {
         try {
             if (appType != null && StringUtils.isNotEmpty(appName)) {
                 if (appType.equals(AppType.CRM)) {
-                    url = appHelper.buildAppUrl(appType, appName) + "/Logo?logo=weblogo";
+                    url = crmService.getLogoUrl(appName);
                 } else if (appType.equals(AppType.CUSTOMERHUB)) {
                     url = customerHubService.getLogoUrl(appName);
                 }

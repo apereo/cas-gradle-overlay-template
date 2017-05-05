@@ -9,6 +9,7 @@ import java.io.Serializable;
 
 @Entity(name = "SecurityQuestionResponse")
 @Table(name = "security_question_response", uniqueConstraints = {@UniqueConstraint(name = "security_question_user_unique", columnNames = {"security_question_id", "user_id"})})
+@Deprecated
 public class SecurityQuestionResponse implements Serializable{
 
     private Long id;

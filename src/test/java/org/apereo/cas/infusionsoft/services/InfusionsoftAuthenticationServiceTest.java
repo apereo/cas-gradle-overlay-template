@@ -46,13 +46,9 @@ public class InfusionsoftAuthenticationServiceTest {
         customerHubService.setCustomerHubPort(443);
         customerHubService.setCustomerHubProtocol("https");
 
-        CommunityServiceImpl communityService = new CommunityServiceImpl();
-        communityService.setCommunityBaseUrl("http://community.infusionsoft.com");
-
         appHelper = new AppHelper();
         appHelper.crmService = crmService;
         appHelper.customerHubService = customerHubService;
-        appHelper.communityService = communityService;
 
         infusionsoftAuthenticationService = new InfusionsoftAuthenticationServiceImpl();
         Whitebox.setInternalState(infusionsoftAuthenticationService, "serverPrefix", "https://signin.infusionsoft.com");
@@ -61,7 +57,6 @@ public class InfusionsoftAuthenticationServiceTest {
         Whitebox.setInternalState(infusionsoftAuthenticationService, "crmPort", "443");
         Whitebox.setInternalState(infusionsoftAuthenticationService, "customerHubDomain", "customerhub.net");
         Whitebox.setInternalState(infusionsoftAuthenticationService, "customerHubService", customerHubService);
-        Whitebox.setInternalState(infusionsoftAuthenticationService, "communityService", communityService);
         Whitebox.setInternalState(infusionsoftAuthenticationService, "communityDomain", "community.infusionsoft.com");
         userService = mock(UserService.class);
         Whitebox.setInternalState(infusionsoftAuthenticationService, "userService", userService);
