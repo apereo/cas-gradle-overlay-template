@@ -9,12 +9,10 @@ import org.apereo.cas.ticket.TicketGrantingTicket;
 import org.apereo.cas.ticket.TicketGrantingTicketImpl;
 import org.apereo.cas.ticket.registry.TicketRegistry;
 import org.apereo.cas.web.support.CookieRetrievingCookieGenerator;
-import org.apereo.cas.web.support.TGCCookieRetrievingCookieGenerator;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
@@ -34,7 +32,7 @@ public class AutoLoginServiceTest {
     private CentralAuthenticationService centralAuthenticationService;
 
     @Mock
-    private TGCCookieRetrievingCookieGenerator ticketGrantingTicketCookieGenerator;
+    private CookieRetrievingCookieGenerator ticketGrantingTicketCookieGenerator;
 
     @Mock
     private TicketRegistry ticketRegistry;

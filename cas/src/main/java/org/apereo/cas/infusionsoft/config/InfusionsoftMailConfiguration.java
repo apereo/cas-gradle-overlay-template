@@ -1,6 +1,7 @@
 package org.apereo.cas.infusionsoft.config;
 
 import org.apache.velocity.app.VelocityEngine;
+import org.apereo.cas.configuration.CasConfigurationProperties;
 import org.apereo.cas.infusionsoft.config.properties.InfusionsoftConfigurationProperties;
 import org.apereo.cas.infusionsoft.services.MailService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +25,9 @@ public class InfusionsoftMailConfiguration {
     private InfusionsoftConfigurationProperties infusionsoftProperties;
 
     @Autowired
+    private CasConfigurationProperties casConfigurationProperties;
+
+    @Autowired
     private MessageSource messageSource;
 
     @Bean
@@ -36,7 +40,7 @@ public class InfusionsoftMailConfiguration {
 
     @Bean
     public MailService mailService() throws IOException {
-        return new MailService(mailSender(), velocityEngine(), messageSource, infusionsoftProperties);
+        return new MailService(mailSender(), velocityEngine(), messageSource, infusionsoftProperties, casConfigurationProperties);
     }
 
     @Bean()

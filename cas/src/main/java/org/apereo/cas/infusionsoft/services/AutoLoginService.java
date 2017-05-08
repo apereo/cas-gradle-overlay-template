@@ -6,7 +6,7 @@ import org.apereo.cas.authentication.AuthenticationSystemSupport;
 import org.apereo.cas.infusionsoft.authentication.LetMeInCredentials;
 import org.apereo.cas.ticket.TicketGrantingTicket;
 import org.apereo.cas.ticket.registry.TicketRegistry;
-import org.apereo.cas.web.support.TGCCookieRetrievingCookieGenerator;
+import org.apereo.cas.web.support.CookieRetrievingCookieGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,11 +18,11 @@ public class AutoLoginService {
     private static final Logger log = LoggerFactory.getLogger(AutoLoginService.class);
 
     private CentralAuthenticationService centralAuthenticationService;
-    private TGCCookieRetrievingCookieGenerator ticketGrantingTicketCookieGenerator;
+    private CookieRetrievingCookieGenerator ticketGrantingTicketCookieGenerator;
     private TicketRegistry ticketRegistry;
     private AuthenticationSystemSupport authenticationSystemSupport;
 
-    public AutoLoginService(final CentralAuthenticationService centralAuthenticationService, final TGCCookieRetrievingCookieGenerator ticketGrantingTicketCookieGenerator, final TicketRegistry ticketRegistry, final AuthenticationSystemSupport authenticationSystemSupport) {
+    public AutoLoginService(final CentralAuthenticationService centralAuthenticationService, final CookieRetrievingCookieGenerator ticketGrantingTicketCookieGenerator, final TicketRegistry ticketRegistry, final AuthenticationSystemSupport authenticationSystemSupport) {
         this.centralAuthenticationService = centralAuthenticationService;
         this.ticketGrantingTicketCookieGenerator = ticketGrantingTicketCookieGenerator;
         this.ticketRegistry = ticketRegistry;

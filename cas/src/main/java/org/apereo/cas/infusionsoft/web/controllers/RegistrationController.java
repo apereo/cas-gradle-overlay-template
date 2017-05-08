@@ -1,14 +1,13 @@
 package org.apereo.cas.infusionsoft.web.controllers;
 
-import org.apereo.cas.infusionsoft.authentication.LoginResult;
+import org.apache.commons.lang3.CharEncoding;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.validator.EmailValidator;
 import org.apereo.cas.infusionsoft.config.properties.InfusionsoftConfigurationProperties;
 import org.apereo.cas.infusionsoft.domain.*;
 import org.apereo.cas.infusionsoft.exceptions.InfusionsoftValidationException;
 import org.apereo.cas.infusionsoft.services.*;
 import org.apereo.cas.infusionsoft.support.AppHelper;
-import org.apache.commons.lang3.CharEncoding;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.validator.EmailValidator;
 import org.apereo.cas.services.RegisteredService;
 import org.apereo.cas.services.ServicesManager;
 import org.slf4j.Logger;
@@ -77,6 +76,7 @@ public class RegistrationController {
     @Autowired
     private InfusionsoftConfigurationProperties infusionsoftConfigurationProperties;
 
+    // TODO: upgrade what to do with this controller?
     @Value("${cas.viewResolver.basename}")
     private String viewResolverBaseName;
 

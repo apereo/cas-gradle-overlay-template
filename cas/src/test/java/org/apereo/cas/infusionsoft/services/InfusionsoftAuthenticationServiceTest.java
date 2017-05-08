@@ -9,14 +9,13 @@ import org.apereo.cas.infusionsoft.dao.LoginAttemptDAO;
 import org.apereo.cas.infusionsoft.domain.*;
 import org.apereo.cas.infusionsoft.support.AppHelper;
 import org.apereo.cas.ticket.registry.TicketRegistry;
-import org.apereo.cas.web.support.TGCCookieRetrievingCookieGenerator;
+import org.apereo.cas.web.support.CookieRetrievingCookieGenerator;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.mockito.internal.util.reflection.Whitebox;
 
 import java.net.URL;
 import java.util.ArrayList;
@@ -52,7 +51,7 @@ public class InfusionsoftAuthenticationServiceTest {
     private PasswordService passwordService;
 
     @Mock
-    private TGCCookieRetrievingCookieGenerator tgtCookieGenerator;
+    private CookieRetrievingCookieGenerator ticketGrantingTicketCookieGenerator;
 
     @Before
     public void setupForMethod() {
@@ -94,7 +93,7 @@ public class InfusionsoftAuthenticationServiceTest {
 
         MockitoAnnotations.initMocks(this);
 
-        infusionsoftAuthenticationService = new InfusionsoftAuthenticationServiceImpl(ticketRegistry, loginAttemptDAO, userService, passwordService, tgtCookieGenerator, casProperties, infusionsoftConfigurationProperties);
+        infusionsoftAuthenticationService = new InfusionsoftAuthenticationServiceImpl(ticketRegistry, loginAttemptDAO, userService, passwordService, ticketGrantingTicketCookieGenerator, casProperties, infusionsoftConfigurationProperties);
 
         user = new User();
         when(userService.loadUser(testUsername)).thenReturn(user);

@@ -11,7 +11,7 @@ import org.apereo.cas.infusionsoft.web.CookieUtil;
 import org.apereo.cas.ticket.Ticket;
 import org.apereo.cas.ticket.TicketGrantingTicket;
 import org.apereo.cas.ticket.registry.TicketRegistry;
-import org.apereo.cas.web.support.TGCCookieRetrievingCookieGenerator;
+import org.apereo.cas.web.support.CookieRetrievingCookieGenerator;
 import org.joda.time.DateTime;
 import org.joda.time.Minutes;
 import org.joda.time.base.BaseSingleFieldPeriod;
@@ -43,16 +43,16 @@ public class InfusionsoftAuthenticationServiceImpl implements InfusionsoftAuthen
     private LoginAttemptDAO loginAttemptDAO;
     private UserService userService;
     private PasswordService passwordService;
-    private TGCCookieRetrievingCookieGenerator tgtCookieGenerator;
+    private CookieRetrievingCookieGenerator ticketGrantingTicketCookieGenerator;
     private CasConfigurationProperties casProperties;
     private InfusionsoftConfigurationProperties infusionsoftProperties;
 
-    public InfusionsoftAuthenticationServiceImpl(TicketRegistry ticketRegistry, LoginAttemptDAO loginAttemptDAO, UserService userService, PasswordService passwordService, TGCCookieRetrievingCookieGenerator tgtCookieGenerator, CasConfigurationProperties casProperties, InfusionsoftConfigurationProperties infusionsoftProperties) {
+    public InfusionsoftAuthenticationServiceImpl(TicketRegistry ticketRegistry, LoginAttemptDAO loginAttemptDAO, UserService userService, PasswordService passwordService, CookieRetrievingCookieGenerator ticketGrantingTicketCookieGenerator, CasConfigurationProperties casProperties, InfusionsoftConfigurationProperties infusionsoftProperties) {
         this.ticketRegistry = ticketRegistry;
         this.loginAttemptDAO = loginAttemptDAO;
         this.userService = userService;
         this.passwordService = passwordService;
-        this.tgtCookieGenerator = tgtCookieGenerator;
+        this.ticketGrantingTicketCookieGenerator = ticketGrantingTicketCookieGenerator;
         this.casProperties = casProperties;
         this.infusionsoftProperties = infusionsoftProperties;
     }
@@ -328,7 +328,7 @@ public class InfusionsoftAuthenticationServiceImpl implements InfusionsoftAuthen
             return null;
         }
 
-        String tgtCookieName = tgtCookieGenerator.getCookieName();
+        String tgtCookieName = ticketGrantingTicketCookieGenerator.getCookieName();
         Cookie cookie = CookieUtil.extractCookie(request, tgtCookieName);
         if (cookie != null) {
             log.debug("found a valid " + tgtCookieName + " cookie with value " + cookie.getValue());
