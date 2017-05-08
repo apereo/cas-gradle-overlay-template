@@ -1,11 +1,11 @@
 package org.apereo.cas.infusionsoft.domain;
 
-import com.sun.istack.NotNull;
 import org.hibernate.annotations.Index;
 import org.hibernate.annotations.Type;
 import org.joda.time.DateTime;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 
 /**
  * An entry into our audit log.
@@ -33,7 +33,7 @@ public class AuditEntry {
 
     @Column(name = "date", nullable = true)
     @Type(type = "org.jadira.usertype.dateandtime.joda.PersistentDateTime")
-    @Index(name = "audit_log_date_index", columnNames = { "date" })
+    @Index(name = "audit_log_date_index", columnNames = {"date"})
     public DateTime getDate() {
         return date;
     }

@@ -1,25 +1,24 @@
 package org.apereo.cas.infusionsoft.services;
 
+import org.apache.commons.lang3.StringUtils;
+import org.apereo.cas.authentication.principal.Principal;
+import org.apereo.cas.configuration.CasConfigurationProperties;
 import org.apereo.cas.infusionsoft.authentication.LoginResult;
+import org.apereo.cas.infusionsoft.config.properties.InfusionsoftConfigurationProperties;
 import org.apereo.cas.infusionsoft.dao.LoginAttemptDAO;
 import org.apereo.cas.infusionsoft.domain.*;
 import org.apereo.cas.infusionsoft.web.CookieUtil;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
-import org.jasig.cas.authentication.principal.Principal;
-import org.jasig.cas.ticket.Ticket;
-import org.jasig.cas.ticket.TicketGrantingTicket;
-import org.jasig.cas.ticket.registry.TicketRegistry;
-import org.jasig.cas.web.support.CookieRetrievingCookieGenerator;
+import org.apereo.cas.ticket.Ticket;
+import org.apereo.cas.ticket.TicketGrantingTicket;
+import org.apereo.cas.ticket.registry.TicketRegistry;
+import org.apereo.cas.web.support.TGCCookieRetrievingCookieGenerator;
 import org.joda.time.DateTime;
 import org.joda.time.Minutes;
 import org.joda.time.base.BaseSingleFieldPeriod;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -35,59 +34,28 @@ import java.util.List;
  * Service for anything related to authentication. This includes authentication of CAS users, lock-out-periods, and
  * outbound authentication requests to external apps.
  */
-@Service("infusionsoftAuthenticationService")
-@Transactional
+@Transactional(transactionManager = "transactionManager")
 public class InfusionsoftAuthenticationServiceImpl implements InfusionsoftAuthenticationService {
-    private static final Logger log = Logger.getLogger(InfusionsoftAuthenticationServiceImpl.class);
-
+    private static final Logger log = LoggerFactory.getLogger(InfusionsoftAuthenticationServiceImpl.class);
     private static final Minutes lockoutTimePeriod = Minutes.minutes(30);
 
-    @Autowired
-    private CustomerHubService customerHubService;
-
-    @Autowired
     private TicketRegistry ticketRegistry;
-
-    @Autowired
     private LoginAttemptDAO loginAttemptDAO;
-
-    @Autowired
     private UserService userService;
-
-    @Autowired
     private PasswordService passwordService;
+    private TGCCookieRetrievingCookieGenerator tgtCookieGenerator;
+    private CasConfigurationProperties casProperties;
+    private InfusionsoftConfigurationProperties infusionsoftProperties;
 
-    @Autowired
-    @Qualifier("ticketGrantingTicketCookieGenerator")
-    private CookieRetrievingCookieGenerator tgtCookieGenerator;
-
-    @Value("${server.prefix}")
-    private String serverPrefix;
-
-    @Value("${infusionsoft.crm.protocol}")
-    private String crmProtocol;
-
-    @Value("${infusionsoft.crm.domain}")
-    private String crmDomain;
-
-    @Value("${infusionsoft.crm.port}")
-    private String crmPort;
-
-    @Value("${infusionsoft.customerhub.domain}")
-    private String customerHubDomain;
-
-    @Value("${infusionsoft.community.domain}")
-    private String communityDomain;
-
-    @Value("${infusionsoft.marketplace.domain}")
-    private String marketplaceDomain;
-
-    @Value("${infusionsoft.cas.security.questions.force.answer}")
-    private boolean forceSecurityQuestion;
-
-    @Value("${infusionsoft.cas.security.questions.number.required}")
-    private int securityQuestionRequiredResponseCount;
-
+    public InfusionsoftAuthenticationServiceImpl(TicketRegistry ticketRegistry, LoginAttemptDAO loginAttemptDAO, UserService userService, PasswordService passwordService, TGCCookieRetrievingCookieGenerator tgtCookieGenerator, CasConfigurationProperties casProperties, InfusionsoftConfigurationProperties infusionsoftProperties) {
+        this.ticketRegistry = ticketRegistry;
+        this.loginAttemptDAO = loginAttemptDAO;
+        this.userService = userService;
+        this.passwordService = passwordService;
+        this.tgtCookieGenerator = tgtCookieGenerator;
+        this.casProperties = casProperties;
+        this.infusionsoftProperties = infusionsoftProperties;
+    }
 
     /**
      * Guesses an app name from a URL, or null if there isn't one to be found.
@@ -107,16 +75,16 @@ public class InfusionsoftAuthenticationServiceImpl implements InfusionsoftAuthen
         if (url != null && url.getHost() != null) {
             String host = url.getHost().toLowerCase();
 
-            if (url.toString().startsWith(serverPrefix)) {
+            if (url.toString().startsWith(casProperties.getServer().getPrefix())) {
                 log.info("it's us");
-            } else if (host.equals(communityDomain)) {
+            } else if (host.equals(infusionsoftProperties.getCommunity().getDomain())) {
                 appName = "community";
-            } else if (host.equals(marketplaceDomain)) {
+            } else if (host.equals(infusionsoftProperties.getMarketplace().getDomain())) {
                 appName = "marketplace";
-            } else if (host.endsWith(crmDomain)) {
-                appName = host.replace("." + crmDomain, "");
-            } else if (host.endsWith(customerHubDomain)) {
-                appName = host.replace("." + customerHubDomain, "");
+            } else if (host.endsWith(infusionsoftProperties.getCustomerhub().getDomain())) {
+                appName = host.replace("." + infusionsoftProperties.getCustomerhub().getDomain(), "");
+            } else if (host.endsWith(infusionsoftProperties.getCrm().getDomain())) {
+                appName = host.replace("." + infusionsoftProperties.getCrm().getDomain(), "");
             } else {
                 log.warn("unable to guess app name for url " + url);
             }
@@ -147,15 +115,15 @@ public class InfusionsoftAuthenticationServiceImpl implements InfusionsoftAuthen
         if (url != null && url.getHost() != null) {
             String host = url.getHost().toLowerCase();
 
-            if (url.toString().startsWith(serverPrefix)) {
+            if (url.toString().startsWith(casProperties.getServer().getPrefix())) {
                 appType = AppType.CAS;
-            } else if (host.equals(communityDomain)) {
+            } else if (host.equals(infusionsoftProperties.getCommunity().getDomain())) {
                 appType = AppType.COMMUNITY;
-            } else if (host.equals(marketplaceDomain)) {
+            } else if (host.equals(infusionsoftProperties.getMarketplace().getDomain())) {
                 appType = AppType.MARKETPLACE;
-            } else if (host.endsWith(crmDomain)) {
+            } else if (host.endsWith(infusionsoftProperties.getCrm().getDomain())) {
                 appType = AppType.CRM;
-            } else if (host.endsWith(customerHubDomain)) {
+            } else if (host.endsWith(infusionsoftProperties.getCustomerhub().getDomain())) {
                 appType = AppType.CUSTOMERHUB;
             } else {
                 log.warn("unable to guess app type for url " + url);
@@ -257,7 +225,7 @@ public class InfusionsoftAuthenticationServiceImpl implements InfusionsoftAuthen
         } else if (loginAttemptStatus == LoginAttemptStatus.PasswordExpired) {
             log.info("Authenticated CAS user " + username + " with expired password");
         } else if (loginAttemptStatus.isSuccessful()) {
-            // Already logged elsewhere
+            log.info("Authenticated CAS user " + username + " with password reset ot unlock");
         } else {
             // Write anything to the logs that would help us see where bad logins are coming from
             try {
@@ -269,7 +237,7 @@ public class InfusionsoftAuthenticationServiceImpl implements InfusionsoftAuthen
                 String requestURI = httpServletRequest.getRequestURI();
                 String errorMessage = StringUtils.join("Failed login attempt with status ", loginAttemptStatus, ".\n  username: ", username, "\n  user-agent: ", userAgent, "\n  remoteAddress: ", remoteAddress, "\n  requestURI: ", requestURI, "\n  referrer: ", referrer);
                 // Log with an error if it's the one that caused a lockout or already locked out; otherwise info level
-                if (loginAttemptStatus == null || loginAttemptStatus == LoginAttemptStatus.AccountLocked) {
+                if (loginAttemptStatus == LoginAttemptStatus.AccountLocked) {
                     log.error(errorMessage);
                 } else {
                     log.info(errorMessage);

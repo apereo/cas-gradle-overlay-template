@@ -1,0 +1,24 @@
+<div class="well well-lg" th:if="${pac4jUrls}" xmlns:th="http://www.thymeleaf.org">
+    <div id="list-providers">
+        <h3 th:utext="#{screen.welcome.label.loginwith}" />
+
+        <ul class="list-unstyled">
+            <li th:each="entry: ${pac4jUrls}" th:switch="${entry.type}">
+                <a class="btn btn-block btn-social"
+                   th:classappend="'btn-' + ${entry.type}"
+                   th:href="${entry.redirectUrl}"
+                   th:inline="text"
+                   th:title="${entry.name}">
+
+                    <span th:case="linkedin2" th:remove="tag">
+                        <span class="fa fa-linkedin"></span> LinkedIn
+                    </span>
+                    <span th:case="facebook" th:remove="tag">
+                        <span class="fa fa-facebook-square"></span> Facebook
+                    </span>
+                </a>
+            </li>
+        </ul>
+
+    </div>
+</div>

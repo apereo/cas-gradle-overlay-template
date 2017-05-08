@@ -1,6 +1,7 @@
 package org.apereo.cas.infusionsoft.web.controllers;
 
 import org.apereo.cas.infusionsoft.authentication.LoginResult;
+import org.apereo.cas.infusionsoft.config.properties.InfusionsoftConfigurationProperties;
 import org.apereo.cas.infusionsoft.domain.*;
 import org.apereo.cas.infusionsoft.exceptions.InfusionsoftValidationException;
 import org.apereo.cas.infusionsoft.services.*;
@@ -8,8 +9,10 @@ import org.apereo.cas.infusionsoft.support.AppHelper;
 import org.apache.commons.lang3.CharEncoding;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.validator.EmailValidator;
-import org.apache.log4j.Logger;
-import org.jasig.cas.services.RegisteredService;
+import org.apereo.cas.services.RegisteredService;
+import org.apereo.cas.services.ServicesManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
@@ -39,7 +42,7 @@ import java.util.Map;
 @Controller
 @RequestMapping(value = {"/registration", "/app/registration"})
 public class RegistrationController {
-    private static final Logger log = Logger.getLogger(RegistrationController.class);
+    private static final Logger log = LoggerFactory.getLogger(RegistrationController.class);
 
     @Autowired
     private AppHelper appHelper;
@@ -69,10 +72,10 @@ public class RegistrationController {
     private AutoLoginService autoLoginService;
 
     @Autowired
-    private CasRegisteredServiceService registeredServiceService;
+    private ServicesManager servicesManager;
 
     @Autowired
-    private SupportContactService supportContactService;
+    private InfusionsoftConfigurationProperties infusionsoftConfigurationProperties;
 
     @Value("${cas.viewResolver.basename}")
     private String viewResolverBaseName;
@@ -193,7 +196,7 @@ public class RegistrationController {
         // Validate the return URL against the service whitelist
         /** Modeled after {@link org.jasig.cas.web.LogoutController#handleRequestInternal(HttpServletRequest, HttpServletResponse)} }*/
         boolean retVal = false;
-        final RegisteredService registeredService = registeredServiceService.getEnabledRegisteredServiceByUrl(url);
+        final RegisteredService registeredService = servicesManager.findServiceBy(url);
         if (registeredService != null) {
             retVal = true;
             log.info("URL " + parameterName + " matched registered service " + registeredService.getName() + ": " + url);
@@ -420,7 +423,7 @@ public class RegistrationController {
     @RequestMapping
     public String forgot(Model model, @RequestParam(required = false) String username) {
         model.addAttribute("username", username);
-        model.addAttribute("supportPhoneNumbers", supportContactService.getSupportPhoneNumbers());
+        model.addAttribute("supportPhoneNumbers", infusionsoftConfigurationProperties.getSupportPhoneNumbers());
         return "registration/" + getViewBase() + "forgot";
     }
 
@@ -437,7 +440,7 @@ public class RegistrationController {
     public String recover(Model model, String username, String recoveryCode) {
         log.info("password recovery request for email " + username);
         model.addAttribute("username", username);
-        model.addAttribute("supportPhoneNumbers", supportContactService.getSupportPhoneNumbers());
+        model.addAttribute("supportPhoneNumbers", infusionsoftConfigurationProperties.getSupportPhoneNumbers());
         recoveryCode = StringUtils.trim(recoveryCode);
 
         if (StringUtils.isNotEmpty(recoveryCode)) {
@@ -486,7 +489,7 @@ public class RegistrationController {
      */
     @RequestMapping
     public String reset(Model model, String recoveryCode, String password1, String password2, HttpServletRequest request, HttpServletResponse response) {
-        model.addAttribute("supportPhoneNumbers", supportContactService.getSupportPhoneNumbers());
+        model.addAttribute("supportPhoneNumbers", infusionsoftConfigurationProperties.getSupportPhoneNumbers());
 
         User user = userService.findUserByRecoveryCode(recoveryCode);
 

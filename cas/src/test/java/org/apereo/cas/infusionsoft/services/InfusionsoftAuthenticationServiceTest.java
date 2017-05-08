@@ -1,13 +1,21 @@
 package org.apereo.cas.infusionsoft.services;
 
+import org.apereo.cas.configuration.CasConfigurationProperties;
+import org.apereo.cas.configuration.model.core.CasServerProperties;
 import org.apereo.cas.infusionsoft.authentication.LoginResult;
+import org.apereo.cas.infusionsoft.config.properties.HostConfigurationProperties;
+import org.apereo.cas.infusionsoft.config.properties.InfusionsoftConfigurationProperties;
 import org.apereo.cas.infusionsoft.dao.LoginAttemptDAO;
 import org.apereo.cas.infusionsoft.domain.*;
 import org.apereo.cas.infusionsoft.support.AppHelper;
+import org.apereo.cas.ticket.registry.TicketRegistry;
+import org.apereo.cas.web.support.TGCCookieRetrievingCookieGenerator;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.mockito.internal.util.reflection.Whitebox;
 
 import java.net.URL;
@@ -30,40 +38,63 @@ public class InfusionsoftAuthenticationServiceTest {
     private static final String testPassword = "passwordEncoded";
     private static final String testPasswordMD5 = "passwordEncodedMD5";
     private AppHelper appHelper;
-    private PasswordService passwordService;
+
+    @Mock
+    private TicketRegistry ticketRegistry;
+
+    @Mock
     private LoginAttemptDAO loginAttemptDAO;
+
+    @Mock
     private UserService userService;
+
+    @Mock
+    private PasswordService passwordService;
+
+    @Mock
+    private TGCCookieRetrievingCookieGenerator tgtCookieGenerator;
 
     @Before
     public void setupForMethod() {
-        CrmService crmService = new CrmService();
-        crmService.setCrmDomain("infusionsoft.com");
-        crmService.setCrmPort(443);
-        crmService.setCrmProtocol("https");
+        HostConfigurationProperties communityConfig = new HostConfigurationProperties();
+        communityConfig.setDomain("community.infusionsoft.com");
+        communityConfig.setPort(443);
+        communityConfig.setProtocol("https");
 
-        CustomerHubService customerHubService = new CustomerHubService();
-        customerHubService.setCustomerHubDomain("customerhub.net");
-        customerHubService.setCustomerHubPort(443);
-        customerHubService.setCustomerHubProtocol("https");
+        HostConfigurationProperties crmConfig = new HostConfigurationProperties();
+        crmConfig.setDomain("infusionsoft.com");
+        crmConfig.setPort(443);
+        crmConfig.setProtocol("https");
 
-        appHelper = new AppHelper();
-        appHelper.crmService = crmService;
-        appHelper.customerHubService = customerHubService;
+        HostConfigurationProperties customerHubConfig = new HostConfigurationProperties();
+        customerHubConfig.setDomain("customerhub.net");
+        customerHubConfig.setPort(443);
+        customerHubConfig.setProtocol("https");
 
-        infusionsoftAuthenticationService = new InfusionsoftAuthenticationServiceImpl();
-        Whitebox.setInternalState(infusionsoftAuthenticationService, "serverPrefix", "https://signin.infusionsoft.com");
-        Whitebox.setInternalState(infusionsoftAuthenticationService, "crmProtocol", "https");
-        Whitebox.setInternalState(infusionsoftAuthenticationService, "crmDomain", "infusionsoft.com");
-        Whitebox.setInternalState(infusionsoftAuthenticationService, "crmPort", "443");
-        Whitebox.setInternalState(infusionsoftAuthenticationService, "customerHubDomain", "customerhub.net");
-        Whitebox.setInternalState(infusionsoftAuthenticationService, "customerHubService", customerHubService);
-        Whitebox.setInternalState(infusionsoftAuthenticationService, "communityDomain", "community.infusionsoft.com");
-        userService = mock(UserService.class);
-        Whitebox.setInternalState(infusionsoftAuthenticationService, "userService", userService);
-        passwordService = mock(PasswordService.class);
-        Whitebox.setInternalState(infusionsoftAuthenticationService, "passwordService", passwordService);
-        loginAttemptDAO = mock(LoginAttemptDAO.class);
-        Whitebox.setInternalState(infusionsoftAuthenticationService, "loginAttemptDAO", loginAttemptDAO);
+        HostConfigurationProperties marketplaceConfig = new HostConfigurationProperties();
+        marketplaceConfig.setDomain("marketplace.infusionsoft.com");
+        marketplaceConfig.setPort(443);
+        marketplaceConfig.setProtocol("https");
+
+        InfusionsoftConfigurationProperties infusionsoftConfigurationProperties = new InfusionsoftConfigurationProperties();
+        infusionsoftConfigurationProperties.setCommunity(communityConfig);
+        infusionsoftConfigurationProperties.setCrm(crmConfig);
+        infusionsoftConfigurationProperties.setCustomerhub(customerHubConfig);
+        infusionsoftConfigurationProperties.setMarketplace(marketplaceConfig);
+
+        CasServerProperties casServerProperties = new CasServerProperties();
+        casServerProperties.setPrefix("https://signin.infusionsoft.com");
+
+        CasConfigurationProperties casProperties = new CasConfigurationProperties();
+        casProperties.setServer(casServerProperties);
+
+        CrmService crmService = new CrmService(crmConfig);
+        CustomerHubService customerHubService = new CustomerHubService(infusionsoftConfigurationProperties);
+        appHelper = new AppHelper(crmService, customerHubService, infusionsoftConfigurationProperties);
+
+        MockitoAnnotations.initMocks(this);
+
+        infusionsoftAuthenticationService = new InfusionsoftAuthenticationServiceImpl(ticketRegistry, loginAttemptDAO, userService, passwordService, tgtCookieGenerator, casProperties, infusionsoftConfigurationProperties);
 
         user = new User();
         when(userService.loadUser(testUsername)).thenReturn(user);
@@ -123,7 +154,8 @@ public class InfusionsoftAuthenticationServiceTest {
         // TODO: move this to a test class for AppHelper
         Assert.assertEquals(appHelper.buildAppUrl(AppType.CRM, "xy123"), "https://xy123.infusionsoft.com");
         Assert.assertEquals(appHelper.buildAppUrl(AppType.CUSTOMERHUB, "zz149"), "https://zz149.customerhub.net/admin");
-        Assert.assertEquals(appHelper.buildAppUrl(AppType.COMMUNITY, "community"), "http://community.infusionsoft.com/caslogin.php");
+        Assert.assertEquals(appHelper.buildAppUrl(AppType.COMMUNITY, "community"), "https://community.infusionsoft.com");
+        Assert.assertEquals(appHelper.buildAppUrl(AppType.MARKETPLACE, "marketplace"), "https://marketplace.infusionsoft.com");
     }
 
     @Test
@@ -137,7 +169,10 @@ public class InfusionsoftAuthenticationServiceTest {
         Assert.assertEquals("my-girlfriends-app", infusionsoftAuthenticationService.guessAppName(new URL("https://my-girlfriends-app.customerhub.net/blah?foo=bar")));
 
         // Community
-        Assert.assertEquals("community", infusionsoftAuthenticationService.guessAppName(new URL("http://community.infusionsoft.com/gobbledygook?foo=bar")));
+        Assert.assertEquals("community", infusionsoftAuthenticationService.guessAppName(new URL("https://community.infusionsoft.com/gobbledygook?foo=bar")));
+
+        // Marketplace
+        Assert.assertEquals("marketplace", infusionsoftAuthenticationService.guessAppName(new URL("https://marketplace.infusionsoft.com/gobbledygook?foo=bar")));
 
         // Unrecognized
         Assert.assertNull(infusionsoftAuthenticationService.guessAppName(new URL("http://www.google.com/search?q=lolcats")));
@@ -160,7 +195,10 @@ public class InfusionsoftAuthenticationServiceTest {
         Assert.assertEquals("my-girlfriends-app", infusionsoftAuthenticationService.guessAppName("https://my-girlfriends-app.customerhub.net/blah?foo=bar"));
 
         // Community
-        Assert.assertEquals("community", infusionsoftAuthenticationService.guessAppName("http://community.infusionsoft.com/gobbledygook?foo=bar"));
+        Assert.assertEquals("community", infusionsoftAuthenticationService.guessAppName("https://community.infusionsoft.com/gobbledygook?foo=bar"));
+
+        // Community
+        Assert.assertEquals("marketplace", infusionsoftAuthenticationService.guessAppName("https://marketplace.infusionsoft.com/gobbledygook?foo=bar"));
 
         // Unrecognized
         Assert.assertNull(infusionsoftAuthenticationService.guessAppName("http://www.google.com/search?q=lolcats"));
@@ -183,7 +221,10 @@ public class InfusionsoftAuthenticationServiceTest {
         Assert.assertEquals(AppType.CUSTOMERHUB, infusionsoftAuthenticationService.guessAppType(new URL("https://my-girlfriends-app.customerhub.net/blah?foo=bar")));
 
         // Community
-        Assert.assertEquals(AppType.COMMUNITY, infusionsoftAuthenticationService.guessAppType(new URL("http://community.infusionsoft.com/gobbledygook?foo=bar")));
+        Assert.assertEquals(AppType.COMMUNITY, infusionsoftAuthenticationService.guessAppType(new URL("https://community.infusionsoft.com/gobbledygook?foo=bar")));
+
+        // Community
+        Assert.assertEquals(AppType.MARKETPLACE, infusionsoftAuthenticationService.guessAppType(new URL("https://marketplace.infusionsoft.com/gobbledygook?foo=bar")));
 
         // Unrecognized
         Assert.assertNull(infusionsoftAuthenticationService.guessAppType(new URL("http://www.google.com/search?q=lolcats")));
@@ -206,7 +247,10 @@ public class InfusionsoftAuthenticationServiceTest {
         Assert.assertEquals(AppType.CUSTOMERHUB, infusionsoftAuthenticationService.guessAppType("https://my-girlfriends-app.customerhub.net/blah?foo=bar"));
 
         // Community
-        Assert.assertEquals(AppType.COMMUNITY, infusionsoftAuthenticationService.guessAppType("http://community.infusionsoft.com/gobbledygook?foo=bar"));
+        Assert.assertEquals(AppType.COMMUNITY, infusionsoftAuthenticationService.guessAppType("https://community.infusionsoft.com/gobbledygook?foo=bar"));
+
+        // Community
+        Assert.assertEquals(AppType.MARKETPLACE, infusionsoftAuthenticationService.guessAppType("https://marketplace.infusionsoft.com/gobbledygook?foo=bar"));
 
         // Unrecognized
         Assert.assertNull(infusionsoftAuthenticationService.guessAppType("http://www.google.com/search?q=lolcats"));

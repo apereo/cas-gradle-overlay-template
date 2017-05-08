@@ -1,18 +1,17 @@
 package org.apereo.cas.infusionsoft.services;
 
+import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apereo.cas.infusionsoft.dao.UserPasswordDAO;
 import org.apereo.cas.infusionsoft.domain.User;
 import org.apereo.cas.infusionsoft.domain.UserPassword;
 import org.apereo.cas.infusionsoft.exceptions.InfusionsoftValidationException;
-import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
-import org.jasig.cas.authentication.handler.PasswordEncoder;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
-import org.springframework.stereotype.Service;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
@@ -21,10 +20,9 @@ import java.util.List;
 /**
  * Service that validates all our funky password rules.
  */
-@Service
-@Transactional
+@Transactional(transactionManager = "transactionManager")
 public class PasswordServiceImpl implements PasswordService {
-    private static final Logger log = Logger.getLogger(PasswordServiceImpl.class);
+    private static final Logger log = LoggerFactory.getLogger(PasswordServiceImpl.class);
 
     private static final String UPPERCASE_LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     private static final String LOWERCASE_LETTERS = "abcdefghijklmnopqrstuvwxyz";
@@ -41,11 +39,13 @@ public class PasswordServiceImpl implements PasswordService {
     private static final String PASSWORD_CONTAINUSERNAME_CODE = "password.error.nousername";
     private static final String PASSWORD_CANTMATCH_CODE = "password.error.cantmatch";
 
-    @Autowired
     private PasswordEncoder passwordEncoder;
-
-    @Autowired
     private UserPasswordDAO userPasswordDAO;
+
+    public PasswordServiceImpl(PasswordEncoder passwordEncoder, UserPasswordDAO userPasswordDAO) {
+        this.passwordEncoder = passwordEncoder;
+        this.userPasswordDAO = userPasswordDAO;
+    }
 
     /**
      * Checks if a user's existing password is correct. We need this for when an already logged in user wants

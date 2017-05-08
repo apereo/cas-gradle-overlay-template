@@ -1,8 +1,13 @@
 package org.apereo.cas.infusionsoft.services;
 
+import org.apereo.cas.configuration.CasConfigurationProperties;
+import org.apereo.cas.configuration.model.core.CasServerProperties;
+import org.apereo.cas.infusionsoft.config.properties.HostConfigurationProperties;
+import org.apereo.cas.infusionsoft.config.properties.InfusionsoftConfigurationProperties;
 import org.apereo.cas.infusionsoft.dao.*;
 import org.apereo.cas.infusionsoft.domain.User;
 import org.apache.commons.lang3.StringUtils;
+import org.apereo.cas.infusionsoft.support.AppHelper;
 import org.joda.time.DateTime;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -18,17 +23,28 @@ public class UserServiceTest {
     private UserServiceImpl serviceToTest;
 
     @Mock
+    private AppHelper appHelper;
+
+    @Mock
     private AuthorityDAO authorityDAO;
+
     @Mock
     private LoginAttemptDAO loginAttemptDAO;
+
     @Mock
     private MailService mailService;
+
     @Mock
     private PasswordService passwordService;
+
     @Mock
     private UserDAO userDAO;
+
     @Mock
     private UserAccountDAO userAccountDAO;
+
+    @Mock
+    private UserIdentityDAO userIdentityDAO;
 
     private User user;
     private static final String testUsername = "test.user@infusionsoft.com";
@@ -44,15 +60,11 @@ public class UserServiceTest {
         user.setEnabled(true);
         user.setUsername(testUsername);
 
+        InfusionsoftConfigurationProperties infusionsoftConfigurationProperties = new InfusionsoftConfigurationProperties();
+
         MockitoAnnotations.initMocks(this);
 
-        serviceToTest = new UserServiceImpl();
-        Whitebox.setInternalState(serviceToTest, "authorityDAO", authorityDAO);
-        Whitebox.setInternalState(serviceToTest, "loginAttemptDAO", loginAttemptDAO);
-        Whitebox.setInternalState(serviceToTest, "mailService", mailService);
-        Whitebox.setInternalState(serviceToTest, "passwordService", passwordService);
-        Whitebox.setInternalState(serviceToTest, "userDAO", userDAO);
-        Whitebox.setInternalState(serviceToTest, "userAccountDAO", userAccountDAO);
+        serviceToTest = new UserServiceImpl(appHelper, authorityDAO, loginAttemptDAO, mailService, passwordService, userDAO, userAccountDAO, userIdentityDAO, infusionsoftConfigurationProperties);
 
         when(userDAO.findOne(user.getId())).thenReturn(user);
         when(userDAO.findByUsername(testUsername)).thenReturn(user);

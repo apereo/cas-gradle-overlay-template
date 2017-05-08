@@ -6,6 +6,7 @@ import org.apereo.cas.infusionsoft.domain.User;
 import org.apereo.cas.infusionsoft.domain.UserAccount;
 import org.apereo.cas.infusionsoft.support.AppHelper;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
@@ -89,18 +90,18 @@ public class UserDTO {
     }
 
     public UserAccountDTO[] getLinkedApps() {
-        return linkedApps;
+        return linkedApps == null ? null : Arrays.copyOf(linkedApps, linkedApps.length);
     }
 
     public void setLinkedApps(UserAccountDTO[] linkedApps) {
-        this.linkedApps = linkedApps;
+        this.linkedApps = linkedApps == null ? null : Arrays.copyOf(linkedApps, linkedApps.length);
     }
 
     public String[] getAuthorities() {
-        return authorities;
+        return authorities == null ? null : Arrays.copyOf(authorities, authorities.length);
     }
 
     public void setAuthorities(String[] authorities) {
-        this.authorities = authorities;
+        this.authorities = authorities == null ? null : Arrays.copyOf(authorities, authorities.length);
     }
 }

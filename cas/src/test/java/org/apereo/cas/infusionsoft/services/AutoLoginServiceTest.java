@@ -1,19 +1,22 @@
 package org.apereo.cas.infusionsoft.services;
 
+import org.apereo.cas.CentralAuthenticationService;
+import org.apereo.cas.authentication.AuthenticationResult;
+import org.apereo.cas.authentication.AuthenticationSystemSupport;
+import org.apereo.cas.authentication.DefaultAuthenticationResult;
 import org.apereo.cas.infusionsoft.authentication.LetMeInCredentials;
-import org.jasig.cas.CentralAuthenticationService;
-import org.jasig.cas.authentication.principal.Credentials;
-import org.jasig.cas.ticket.TicketGrantingTicket;
-import org.jasig.cas.ticket.TicketGrantingTicketImpl;
-import org.jasig.cas.ticket.registry.TicketRegistry;
-import org.jasig.cas.web.support.CookieRetrievingCookieGenerator;
+import org.apereo.cas.ticket.TicketGrantingTicket;
+import org.apereo.cas.ticket.TicketGrantingTicketImpl;
+import org.apereo.cas.ticket.registry.TicketRegistry;
+import org.apereo.cas.web.support.CookieRetrievingCookieGenerator;
+import org.apereo.cas.web.support.TGCCookieRetrievingCookieGenerator;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -25,14 +28,19 @@ public class AutoLoginServiceTest {
 
     private static final String TEST_USERNAME = "usernameForTesting";
 
-    @InjectMocks
-    private AutoLoginService serviceToTest = spy(new AutoLoginService());
+    private AutoLoginService serviceToTest;
+
+    @Mock
+    private CentralAuthenticationService centralAuthenticationService;
+
+    @Mock
+    private TGCCookieRetrievingCookieGenerator ticketGrantingTicketCookieGenerator;
 
     @Mock
     private TicketRegistry ticketRegistry;
 
     @Mock
-    private CentralAuthenticationService centralAuthenticationService;
+    private AuthenticationSystemSupport authenticationSystemSupport;
 
     @Mock
     private HttpServletRequest request;
@@ -40,12 +48,13 @@ public class AutoLoginServiceTest {
     @Mock
     private HttpServletResponse response;
 
-    @Mock(name = "ticketGrantingTicketCookieGenerator")
-    private CookieRetrievingCookieGenerator ticketGrantingTicketCookieGenerator;
+    @Mock
+    private TicketGrantingTicket ticketGrantingTicket;
 
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
+        serviceToTest = spy(new AutoLoginService(centralAuthenticationService, ticketGrantingTicketCookieGenerator, ticketRegistry, authenticationSystemSupport));
     }
 
     @Test
@@ -56,8 +65,12 @@ public class AutoLoginServiceTest {
         final TicketGrantingTicket ticket = new TicketGrantingTicketImpl();
         doReturn(ticket).when(ticketRegistry).getTicket(oldTicketGrantingTicketId, TicketGrantingTicket.class);
 
+        final AuthenticationResult authenticationResult = new DefaultAuthenticationResult(null);
+        when(authenticationSystemSupport.handleAndFinalizeSingleAuthenticationTransaction(any(), any())).thenReturn(authenticationResult);
+
         final String ticketGrantingTicketId = "newTicketGrantingTicketId";
-        doReturn(ticketGrantingTicketId).when(centralAuthenticationService).createTicketGrantingTicket(any(Credentials.class));
+        when(ticketGrantingTicket.getId()).thenReturn(ticketGrantingTicketId);
+        when(centralAuthenticationService.createTicketGrantingTicket(any(AuthenticationResult.class))).thenReturn(ticketGrantingTicket);
 
         final boolean loginResult = serviceToTest.autoLogin(TEST_USERNAME, request, response);
 
@@ -65,11 +78,13 @@ public class AutoLoginServiceTest {
 
         verify(serviceToTest, times(1)).killTGT(request);
 
-        ArgumentCaptor<Credentials> credentialsArgumentCaptor = ArgumentCaptor.forClass(Credentials.class);
-        verify(centralAuthenticationService, times(1)).createTicketGrantingTicket(credentialsArgumentCaptor.capture());
+        ArgumentCaptor<LetMeInCredentials> credentialsArgumentCaptor = ArgumentCaptor.forClass(LetMeInCredentials.class);
+        verify(authenticationSystemSupport, times(1)).handleAndFinalizeSingleAuthenticationTransaction(any(), credentialsArgumentCaptor.capture());
+        Assert.assertEquals(credentialsArgumentCaptor.getValue().getUsername(), TEST_USERNAME);
 
-        final LetMeInCredentials credentials = (LetMeInCredentials)credentialsArgumentCaptor.getValue();
-        Assert.assertEquals(credentials.getUsername(), TEST_USERNAME);
+        ArgumentCaptor<AuthenticationResult> authResultArgumentCaptor = ArgumentCaptor.forClass(AuthenticationResult.class);
+        verify(centralAuthenticationService, times(1)).createTicketGrantingTicket(authResultArgumentCaptor.capture());
+        Assert.assertSame(authenticationResult, authResultArgumentCaptor.getValue());
 
         verify(ticketGrantingTicketCookieGenerator, times(1)).addCookie(request, response, ticketGrantingTicketId);
     }
@@ -82,8 +97,12 @@ public class AutoLoginServiceTest {
         final TicketGrantingTicket ticket = new TicketGrantingTicketImpl();
         doReturn(ticket).when(ticketRegistry).getTicket(oldTicketGrantingTicketId, TicketGrantingTicket.class);
 
+        final AuthenticationResult authenticationResult = new DefaultAuthenticationResult(null);
+        when(authenticationSystemSupport.handleAndFinalizeSingleAuthenticationTransaction(any(), any())).thenReturn(authenticationResult);
+
         final String ticketGrantingTicketId = "newTicketGrantingTicketId";
-        doReturn(ticketGrantingTicketId).when(centralAuthenticationService).createTicketGrantingTicket(any(Credentials.class));
+        when(ticketGrantingTicket.getId()).thenReturn(ticketGrantingTicketId);
+        when(centralAuthenticationService.createTicketGrantingTicket(any(AuthenticationResult.class))).thenReturn(ticketGrantingTicket);
 
         doThrow(new RuntimeException()).when(ticketGrantingTicketCookieGenerator).addCookie(request, response, ticketGrantingTicketId);
 
@@ -93,11 +112,13 @@ public class AutoLoginServiceTest {
 
         verify(serviceToTest, times(1)).killTGT(request);
 
-        ArgumentCaptor<Credentials> credentialsArgumentCaptor = ArgumentCaptor.forClass(Credentials.class);
-        verify(centralAuthenticationService, times(1)).createTicketGrantingTicket(credentialsArgumentCaptor.capture());
+        ArgumentCaptor<LetMeInCredentials> credentialsArgumentCaptor = ArgumentCaptor.forClass(LetMeInCredentials.class);
+        verify(authenticationSystemSupport, times(1)).handleAndFinalizeSingleAuthenticationTransaction(any(), credentialsArgumentCaptor.capture());
+        Assert.assertEquals(credentialsArgumentCaptor.getValue().getUsername(), TEST_USERNAME);
 
-        final LetMeInCredentials credentials = (LetMeInCredentials)credentialsArgumentCaptor.getValue();
-        Assert.assertEquals(credentials.getUsername(), TEST_USERNAME);
+        ArgumentCaptor<AuthenticationResult> authResultArgumentCaptor = ArgumentCaptor.forClass(AuthenticationResult.class);
+        verify(centralAuthenticationService, times(1)).createTicketGrantingTicket(authResultArgumentCaptor.capture());
+        Assert.assertSame(authenticationResult, authResultArgumentCaptor.getValue());
 
         verify(ticketGrantingTicketCookieGenerator, times(1)).addCookie(request, response, ticketGrantingTicketId);
     }

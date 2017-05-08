@@ -3,14 +3,15 @@ package org.apereo.cas.infusionsoft.services;
 import org.apereo.cas.infusionsoft.authentication.LoginResult;
 import org.apereo.cas.infusionsoft.domain.AppType;
 import org.apereo.cas.infusionsoft.domain.User;
-import org.jasig.cas.ticket.TicketGrantingTicket;
+import org.apereo.cas.ticket.TicketGrantingTicket;
 
 import javax.servlet.http.HttpServletRequest;
 import java.net.MalformedURLException;
 import java.net.URL;
 
 public interface InfusionsoftAuthenticationService {
-    static final int ALLOWED_LOGIN_ATTEMPTS = 5; // how many tries allowed before locked
+
+    int ALLOWED_LOGIN_ATTEMPTS = 5; // how many tries allowed before locked
 
     String guessAppName(String url) throws MalformedURLException;
 

@@ -1,19 +1,19 @@
 package org.apereo.cas.infusionsoft.support;
 
-import com.github.inspektr.audit.AuditActionContext;
-import com.github.inspektr.audit.AuditTrailManager;
+import org.apache.commons.lang3.StringUtils;
 import org.apereo.cas.infusionsoft.domain.AuditEntry;
 import org.apereo.cas.infusionsoft.domain.AuditEntryType;
 import org.apereo.cas.infusionsoft.domain.User;
 import org.apereo.cas.infusionsoft.services.AuditService;
-import org.apereo.cas.infusionsoft.services.CasRegisteredServiceService;
 import org.apereo.cas.infusionsoft.services.UserService;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
-import org.jasig.cas.services.RegisteredService;
+import org.apereo.cas.services.RegisteredService;
+import org.apereo.cas.services.ServicesManager;
+import org.apereo.inspektr.audit.AuditActionContext;
+import org.apereo.inspektr.audit.AuditTrailManager;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.URL;
 
@@ -22,18 +22,18 @@ import java.net.URL;
  * and research purposes.
  */
 public class InfusionsoftAuditTrailManager implements AuditTrailManager {
-    private static final Logger log = Logger.getLogger(InfusionsoftAuditTrailManager.class);
 
-    // TODO: upgrade: replace with equivalent
+    private static final Logger log = LoggerFactory.getLogger(InfusionsoftAuditTrailManager.class);
 
-    @Autowired
     private AuditService auditService;
-
-    @Autowired
     private UserService userService;
+    private ServicesManager servicesManager;
 
-    @Autowired
-    private CasRegisteredServiceService registeredServiceService;
+    public InfusionsoftAuditTrailManager(AuditService auditService, UserService userService, ServicesManager servicesManager) {
+        this.auditService = auditService;
+        this.userService = userService;
+        this.servicesManager = servicesManager;
+    }
 
     /**
      * Handles an Inspektr audit action, logging it to our database if relevant.
@@ -108,7 +108,7 @@ public class InfusionsoftAuditTrailManager implements AuditTrailManager {
 
                 entry.setServiceBaseUrl(baseUrl.toString());
 
-                RegisteredService registeredService = registeredServiceService.getRegisteredServiceByUrl(chunks[2]);
+                RegisteredService registeredService = servicesManager.findServiceBy(chunks[2]);
 
                 if (registeredService != null) {
                     entry.setServiceId(registeredService.getId());
@@ -152,4 +152,5 @@ public class InfusionsoftAuditTrailManager implements AuditTrailManager {
 
         return principal;
     }
+
 }

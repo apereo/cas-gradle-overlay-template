@@ -8,12 +8,14 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
-import org.apache.log4j.Logger;
+import org.apereo.cas.authentication.UsernamePasswordCredential;
+import org.apereo.cas.infusionsoft.config.properties.HostConfigurationProperties;
+import org.apereo.cas.infusionsoft.config.properties.InfusionsoftConfigurationProperties;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -22,46 +24,20 @@ import java.io.InputStreamReader;
 /**
  * Service for communicating back and forth with CustomerHub.
  */
-@Service
 @Deprecated
 public class CustomerHubService {
-    private static final Logger log = Logger.getLogger(CustomerHubService.class);
+
+    private static final Logger log = LoggerFactory.getLogger(InfusionsoftPasswordManagementService.class);
 
     private DefaultHttpClient customerHubHttpClient;
 
-    private String customerHubDomain;
+    private InfusionsoftConfigurationProperties infusionsoftConfigurationProperties;
 
-    private String customerHubApiUsername;
+    private HostConfigurationProperties customerHub;
 
-    private String customerHubApiPassword;
-
-    private String customerHubProtocol;
-
-    private int customerHubPort = 443;
-
-    @Value("${infusionsoft.customerhub.domain}")
-    public void setCustomerHubDomain(String customerHubDomain) {
-        this.customerHubDomain = customerHubDomain;
-    }
-
-    @Value("${infusionsoft.customerhub.api.username}")
-    public void setCustomerHubApiUsername(String customerHubApiUsername) {
-        this.customerHubApiUsername = customerHubApiUsername;
-    }
-
-    @Value("${infusionsoft.customerhub.api.password}")
-    public void setCustomerHubApiPassword(String customerHubApiPassword) {
-        this.customerHubApiPassword = customerHubApiPassword;
-    }
-
-    @Value("${infusionsoft.customerhub.protocol}")
-    public void setCustomerHubProtocol(String customerHubProtocol) {
-        this.customerHubProtocol = customerHubProtocol;
-    }
-
-    @Value("${infusionsoft.customerhub.port}")
-    public void setCustomerHubPort(int customerHubPort) {
-        this.customerHubPort = customerHubPort;
+    public CustomerHubService(InfusionsoftConfigurationProperties infusionsoftConfigurationProperties) {
+        this.infusionsoftConfigurationProperties = infusionsoftConfigurationProperties;
+        this.customerHub = infusionsoftConfigurationProperties.getCustomerhub();
     }
 
     /**
@@ -81,12 +57,12 @@ public class CustomerHubService {
      * @return the base url
      */
     public String buildBaseUrl(String appName) {
-        StringBuilder baseUrl = new StringBuilder(customerHubProtocol + "://" + appName + "." + customerHubDomain);
+        StringBuilder baseUrl = new StringBuilder(customerHub.getProtocol() + "://" + appName + "." + customerHub.getDomain());
 
-        if (StringUtils.equals("http", customerHubProtocol) && customerHubPort != 80) {
-            baseUrl.append(":").append(customerHubPort);
-        } else if (StringUtils.equals("https", customerHubProtocol) && customerHubPort != 443) {
-            baseUrl.append(":").append(customerHubPort);
+        if (StringUtils.equals("http", customerHub.getProtocol()) && customerHub.getPort() != 80) {
+            baseUrl.append(":").append(customerHub.getPort());
+        } else if (StringUtils.equals("https", customerHub.getProtocol()) && customerHub.getPort() != 443) {
+            baseUrl.append(":").append(customerHub.getPort());
         }
 
         return baseUrl.toString();
@@ -119,7 +95,7 @@ public class CustomerHubService {
                 EntityUtils.consume(response.getEntity());
             }
         } catch (Exception e) {
-            log.error("failed to authenticate CustomerHub user", e);
+            log.error("failed to get CustomerHub logo", e);
         }
 
         return null;
@@ -130,7 +106,8 @@ public class CustomerHubService {
             customerHubHttpClient = new DefaultHttpClient();
         }
 
-        customerHubHttpClient.getCredentialsProvider().setCredentials(new AuthScope(appName + "." + customerHubDomain, customerHubPort), new UsernamePasswordCredentials(customerHubApiUsername, customerHubApiPassword));
+        final UsernamePasswordCredential customerHubApi = infusionsoftConfigurationProperties.getCustomerHubApi();
+        customerHubHttpClient.getCredentialsProvider().setCredentials(new AuthScope(appName + "." + customerHub.getDomain(), customerHub.getPort()), new UsernamePasswordCredentials(customerHubApi.getUsername(), customerHubApi.getPassword()));
 
         return customerHubHttpClient;
     }

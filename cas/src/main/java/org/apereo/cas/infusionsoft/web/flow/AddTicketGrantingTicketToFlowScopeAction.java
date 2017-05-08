@@ -1,6 +1,6 @@
 package org.apereo.cas.infusionsoft.web.flow;
 
-import org.jasig.cas.web.support.WebUtils;
+import org.apereo.cas.web.support.WebUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.webflow.action.AbstractAction;
 import org.springframework.webflow.execution.Event;

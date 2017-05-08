@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" xmlns:th="http://www.thymeleaf.org" layout:decorate="../layouts/login">
+
+<head>
+    <title th:text="#{cas.login.pagetitle}"></title>
+    <link type="text/css" rel="stylesheet" href="https://infusionmedia.s3.amazonaws.com/app/login-screen/cas-holiday.css">
+</head>
+
+<body>
+<div layout:fragment="content" class="container">
+    <div class="row">
+        <div class="col-md-6" th:if="${enableAds}">
+            <a th:href="@{${adLinkUrl}}">
+                <img th:src="@{${adDesktopImageSrcUrl}}" class="iconAd img-responsive"/>
+            </a>
+        </div>
+
+        <div class="col-md-6 login-form" th:classappend="${!enableAds}? 'noImage'">
+            <div class="logo"></div>
+
+            <form method="post" id="loginForm" class="form-horizontal" th:object="${credential}" role="form" data-toggle="validator">
+                <p class="text-error" th:if="${#fields.hasErrors('*')}">
+                    <img src="../static/infusionsoft/img/ic-exclamation-circle.svg" th:src="@{/infusionsoft/img/ic-exclamation-circle.svg}" width="16" height="16">
+                    <span th:each="err : ${#fields.errors('*')}" th:utext="${err}"></span>
+                </p>
+
+                <input type="hidden" name="execution" th:value="${flowExecutionKey}"/>
+                <input type="hidden" name="_eventId" value="submit"/>
+                <input type="hidden" name="geolocation"/>
+                <input type="hidden" name="app_version" th:value="${appVersion}"/>
+
+                <div class="row signUpRow">
+                    <p>Don't have an account? <a th:href="@{${registrationUrl}(service=${serviceUrl})}">Sign Up</a></p>
+                </div>
+
+                <div class="form-group">
+                    <div class="col-md-10">
+                        <span class="ic-envelope"></span>
+                        <input class="required form-control"
+                               id="username"
+                               size="25"
+                               tabindex="1"
+                               type="email"
+                               th:field="*{username}"
+                               th:accesskey="#{screen.welcome.label.netid.accesskey}"
+                               placeholder="Email Address"/>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-md-10">
+                        <span class="ic-lock"></span>
+                        <input class="required form-control"
+                               id="password"
+                               size="25"
+                               tabindex="2"
+                               type="password"
+                               th:field="*{password}"
+                               th:accesskey="#{screen.welcome.label.password.accesskey}"
+                               placeholder="Password"/>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-md-10">
+                        <button class="btn btn-primary btn-block" type="submit">Log In</button>
+                    </div>
+                </div>
+
+                <div th:replace="fragments/loginProviders"/>
+            </form>
+            <a th:href="@{~/app/registration/forgot}">Forgot your password?</a>
+
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12 login-footer" th:classappend="${!enableAds}? 'noImage'">
+            <p>
+                <span>Need help? Call toll free:</span>
+                <span th:each="supportPhoneNumber : ${supportPhoneNumbers}">
+                    <br><span th:text="${supportPhoneNumber}"></span>
+                </span>
+            </p>
+
+            <p th:if="${!#strings.isEmpty(appUrl) && appType == T(org.apereo.cas.infusionsoft.domain.AppType).CRM}">
+                <a th:href="@{|${appUrl}/Affiliate/|}">Referral Partner Sign-in</a>
+            </p>
+        </div>
+
+    </div>
+    <div class="navbar navbar-default navbar-fixed-bottom" th:if="${enableAds}">
+        <a th:href="@{${adLinkUrl}}">
+            <img src="" th:src="@{${adMobileImageSrcUrl}}" class="iconAdSm img-responsive"/>
+        </a>
+    </div>
+</div>
+
+<div layout:fragment="local_script">
+    <script type="text/javascript" th:src="@{/infusionsoft/js/login.js}"></script>
+</div>
+</body>
+</html>

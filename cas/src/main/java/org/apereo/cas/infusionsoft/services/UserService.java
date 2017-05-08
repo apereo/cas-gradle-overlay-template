@@ -4,11 +4,15 @@ import org.apereo.cas.infusionsoft.domain.AppType;
 import org.apereo.cas.infusionsoft.domain.Authority;
 import org.apereo.cas.infusionsoft.domain.User;
 import org.apereo.cas.infusionsoft.domain.UserAccount;
+import org.apereo.cas.infusionsoft.domain.UserIdentity;
 import org.apereo.cas.infusionsoft.exceptions.InfusionsoftValidationException;
 
+import javax.validation.constraints.NotNull;
 import java.util.List;
+import java.util.Map;
 
 public interface UserService {
+
     User saveUser(User user) throws InfusionsoftValidationException;
 
     User createUser(User user, String plainTextPassword) throws InfusionsoftValidationException;
@@ -45,4 +49,13 @@ public interface UserService {
 
     @Deprecated
     Authority findAuthorityByName(String authorityName);
+
+    Map<String, Object> createAttributeMapForUser(@NotNull User user);
+
+    User findUserByExternalId(String externalId);
+
+    UserIdentity findUserIdentityByExternalId(String externalId);
+
+    UserIdentity saveUserIdentity(UserIdentity userIdentity) throws InfusionsoftValidationException;
+
 }

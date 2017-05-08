@@ -1,9 +1,9 @@
 package org.apereo.cas.infusionsoft.web.flow;
 
+import org.apereo.cas.authentication.UsernamePasswordCredential;
 import org.apereo.cas.infusionsoft.domain.User;
 import org.apereo.cas.infusionsoft.services.SecurityQuestionService;
 import org.apereo.cas.infusionsoft.services.UserService;
-import org.jasig.cas.authentication.principal.UsernamePasswordCredentials;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.webflow.action.AbstractAction;
@@ -21,7 +21,7 @@ public class CheckSecurityQuestionsAction extends AbstractAction {
 
     @Override
     protected Event doExecute(RequestContext requestContext) throws Exception {
-        UsernamePasswordCredentials usernamePasswordCredentials = (UsernamePasswordCredentials) requestContext.getFlowScope().get("credentials");
+        UsernamePasswordCredential usernamePasswordCredentials = (UsernamePasswordCredential) requestContext.getFlowScope().get("credentials");
         User user = userService.loadUser(usernamePasswordCredentials.getUsername());
 
         boolean userHasAnsweredQuestions = user.getSecurityQuestionResponses().size() >= securityQuestionService.getNumSecurityQuestionsRequired();

@@ -4,11 +4,13 @@ import org.apereo.cas.infusionsoft.domain.AuditEntry;
 import org.apereo.cas.infusionsoft.domain.User;
 
 public interface AuditService {
-    public void logApiLoginSuccess(User user);
 
-    public void logApiLoginFailure(String username);
+    void logApiLoginSuccess(User user);
 
-    public void saveAuditEntry(AuditEntry entry);
+    void logApiLoginFailure(String username);
 
-    public void cleanupOldAuditEntries();
+    void saveAuditEntry(AuditEntry entry);
+
+    void cleanupOldAuditEntries();
+
 }

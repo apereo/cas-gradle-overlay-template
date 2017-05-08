@@ -1,16 +1,16 @@
 package org.apereo.cas.infusionsoft.services;
 
-import org.apereo.cas.infusionsoft.domain.User;
-import org.apache.log4j.Logger;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.context.Context;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.apereo.cas.infusionsoft.config.properties.InfusionsoftConfigurationProperties;
+import org.apereo.cas.infusionsoft.domain.User;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
-import org.springframework.stereotype.Service;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
@@ -20,25 +20,24 @@ import java.util.Locale;
 /**
  * Simple service for sending transactional emails, like the Forgot Password email.
  */
-@Service
 public class MailService {
     private static final String NO_REPLY_EMAIL_ADDRESS = "noreply@infusionsoft.com";
-    private static final Logger log = Logger.getLogger(MailService.class);
+    private static final Logger log = LoggerFactory.getLogger(MailService.class);
 
     @Value("${server.prefix}")
     private String serverPrefix = "";
 
-    @Autowired
     private JavaMailSender mailSender;
-
-    @Autowired
     private VelocityEngine velocityEngine;
-
-    @Autowired
     private MessageSource messageSource;
+    private InfusionsoftConfigurationProperties infusionsoftConfigurationProperties;
 
-    @Autowired
-    private SupportContactService supportContactService;
+    public MailService(JavaMailSender mailSender, VelocityEngine velocityEngine, MessageSource messageSource, InfusionsoftConfigurationProperties infusionsoftConfigurationProperties) {
+        this.mailSender = mailSender;
+        this.velocityEngine = velocityEngine;
+        this.messageSource = messageSource;
+        this.infusionsoftConfigurationProperties = infusionsoftConfigurationProperties;
+    }
 
     /**
      * Utility method for making a transactional email in a "standard" manner.
@@ -105,7 +104,7 @@ public class MailService {
             context.put("user", user);
             context.put("code", user.getPasswordRecoveryCode());
             context.put("serverPrefix", serverPrefix);
-            context.put("supportPhoneNumbers", supportContactService.getSupportPhoneNumbers());
+            context.put("supportPhoneNumbers", infusionsoftConfigurationProperties.getSupportPhoneNumbers());
 
             velocityEngine.mergeTemplate("/velocity/forgotPasswordEmail.vm", "UTF-8", context, body);
             message.setContent(body.toString(), "text/html");
@@ -134,7 +133,7 @@ public class MailService {
 
             context.put("user", user);
             context.put("oldInfusionsoftId", oldInfusionsoftId);
-            context.put("supportPhoneNumbers", supportContactService.getSupportPhoneNumbers());
+            context.put("supportPhoneNumbers", infusionsoftConfigurationProperties.getSupportPhoneNumbers());
 
             velocityEngine.mergeTemplate("/velocity/infusionsoftIdChangedEmail.vm", "UTF-8", context, body);
             message.setContent(body.toString(), "text/html");

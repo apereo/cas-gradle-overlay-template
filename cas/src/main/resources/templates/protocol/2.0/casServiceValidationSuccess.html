@@ -1,0 +1,14 @@
+<cas:serviceResponse xmlns:cas='http://www.yale.edu/tp/cas' xmlns:th="http://www.thymeleaf.org" th:inline="text">
+    <cas:authenticationSuccess>
+        <cas:user>[[${principal.id}]]</cas:user>
+        <cas:proxyGrantingTicket th:if="${pgtIou}">[[${pgtIou}]]</cas:proxyGrantingTicket>
+        <cas:proxies th:if="${not #lists.isEmpty(chainedAuthentications)}">
+            <cas:proxy th:each="proxy : ${chainedAuthentications}">[[${proxy.principal.id}]]</cas:proxy>
+        </cas:proxies>
+        <cas:attributes th:if="${not #lists.isEmpty(principal.attributes)}">
+            <div th:each="attr : ${principal.attributes}" th:remove="tag">
+                <div th:remove="tag" th:utext="|<cas:${#strings.escapeXml(attr.key)}>${#strings.escapeXml(attr.value)}</cas:${#strings.escapeXml(attr.key)}>|"></div>
+            </div>
+        </cas:attributes>
+    </cas:authenticationSuccess>
+</cas:serviceResponse>

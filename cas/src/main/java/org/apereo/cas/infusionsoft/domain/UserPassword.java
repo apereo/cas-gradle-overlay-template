@@ -55,11 +55,11 @@ public class UserPassword implements Serializable {
     @Column(name = "date_created")
     @NotNull
     public Date getDateCreated() {
-        return dateCreated;
+        return new Date(dateCreated.getTime());
     }
 
     public void setDateCreated(Date dateCreated) {
-        this.dateCreated = dateCreated;
+        this.dateCreated = new Date(dateCreated.getTime());
     }
 
     @Column(name = "active")

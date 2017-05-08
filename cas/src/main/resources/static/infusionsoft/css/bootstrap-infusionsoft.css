@@ -1,0 +1,603 @@
+/***** GENERAL STYLES AND OVERRIDES *****/
+/*Overwrites bootstrap 3.1.1*/
+body {
+    margin-top: 5px;
+    margin-bottom: 60px;
+    font-family: "Open Sans", Arial, Helvetica, Verdana, sans-serif;
+    color: #5E5E5E;
+    padding: 8px;
+}
+
+a {
+    color: #51A3DC;
+}
+p.text-info {
+    margin-bottom: 30px;
+    color: #5E5E5E;
+    position: relative;
+}
+p.text-info object {
+    display: none;
+}
+p.text-error {
+    background: none;
+    padding-left: 0;
+    margin: -15px 0 20px 0;
+    color: #E34825;
+}
+p.text-error object {
+    display: none;
+}
+h2 {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 30px;
+    text-align: center;
+}
+.logo {
+    margin: 10px auto 30px auto;
+    padding: 0;
+    text-indent: -9999px;
+    width: 159px;
+    height: 26px;
+    background: transparent url('/infusionsoft/img/is_logo.svg') no-repeat top center;
+}
+.navbar.navbar-default.navbar-fixed-bottom {
+    height: 51px;
+    background-color: #000;
+    text-align: center;
+}
+.signUpRow {
+    margin: 15px 0;
+    overflow: hidden;
+    padding: 0;
+}
+.signUpRow p {
+    margin: 0 auto 10px auto;
+    font-size: 14px;
+    text-align: center;
+}
+.login-footer {
+    margin-top: 15px;
+    text-align: center;
+    color: #5E5E5E;
+    background: url(../img/divider.png) top center no-repeat;
+}
+.login-footer p {
+    margin: 0 auto;
+    padding-top: 10px;
+}
+input[type="email"],
+input[type="password"] {
+    padding-left: 40px;
+}
+.ic-envelope {
+    height: 14px;
+    width: 20px;
+    background: url(../img/ic-envelope.svg) 0 0 no-repeat;
+    position: absolute;
+    display: block;
+    left: 27px;
+    top: 13px;
+}
+.ic-lock {
+    height: 19px;
+    width: 15px;
+    background: url(../img/ic-lock.svg) 0 0 no-repeat;
+    position: absolute;
+    display: block;
+    left: 27px;
+    top: 10px;
+}
+img.iconAd {
+    display: none;
+    width: 275px;
+}
+img.iconAdSm {
+    display: inline-block;
+    height: 51px;
+    width: 320px;
+}
+input.form-control {
+    height: 40px;
+    font-size: 16px;
+    margin-bottom: 5px;
+}
+.btn-default {
+    height: 40px;
+    font-size: 16px;
+}
+.btn-success {
+    background-color: #51A3DC;
+    /*background-color: #68B243;*/
+    border-color: #125079;
+    height: 40px;
+    font-size: 16px;
+}
+.btn-success:hover {
+    background-color: #4492c8;
+    border-color: #125079;
+}
+.login-form {
+    text-align: center;
+    margin: 0 auto;
+    border-radius: 5px;
+}
+.is-icon {
+    /*position: relative;*/
+    /*top: 1px;*/
+    /*display: inline-block;*/
+    /*line-height: 1;*/
+    /*-webkit-font-smoothing: antialiased;*/
+    /*-moz-osx-font-smoothing: grayscale;*/
+}
+
+.is-icon.is-icon-ok.form-control-feedback {
+    right: 17px;
+    top: 6px;
+}
+.is-icon.is-icon-error.form-control-feedback {
+    right: 15px;
+    top: 6px;
+}
+.rounded-box .is-icon.is-icon-error.form-control-feedback {
+    top: -8px;
+}
+.rounded-box-wide .is-icon.is-icon-error.form-control-feedback {
+    top: -13px;
+}
+.has-error .form-control,
+.has-error .form-control:focus {
+    border-color: #E34825;
+}
+.has-success .form-control,
+.has-success .form-control:focus {
+    border-color: #55B958;
+}
+.has-error .help-block {
+    color: #E34825;
+    text-align: left;
+}
+.rounded-box,
+.rounded-box-wide {
+    text-align: center;
+    padding: 0 15px;
+}
+.rounded-box-wide {
+    padding: 0;
+}
+.rounded-box object {
+    margin: 21px 0 10px 0;
+}
+.rounded-box-wide object {
+    margin: 25px 0 10px 0;
+}
+.rounded-box-wide .is-icon.is-icon-ok.form-control-feedback object {
+    margin: 0;
+}
+.need-help {
+    margin-top: 25px;
+    text-align: center;
+}
+.col-sm-4.pw-requirements {
+    display: none;
+}
+.mob-help-block {
+    color: #5E5E5E;
+    text-align: left;
+    padding: 0 10px;
+}
+.has-error {
+    color: #E34825;
+}
+/*.well {*/
+    /*min-height: 0;*/
+    /*padding: 0;*/
+    /*margin: 30px 0 0 0;*/
+    /*background-color: transparent;*/
+    /*border: none;*/
+    /*border-radius: 0;*/
+    /*-webkit-box-shadow: none;*/
+    /*box-shadow: none;*/
+/*}*/
+/*.well .btn {*/
+    /*width: 48%;*/
+/*}*/
+/*.well .btn.btn-default {*/
+    /*float: left;*/
+/*}*/
+/*.well .btn.btn-success {*/
+    /*float: right;*/
+/*}*/
+select.form-control {
+    margin-top: 15px;
+}
+
+/***** OVERRIDES FOR THE CHOSEN.JS SELECT MENU *****/
+
+.chosen-container-single .chosen-single {
+    background: #ffffff;
+    border: 1px solid #cccccc;
+    box-shadow: none;
+    color: #444444;
+    height: 35px;
+    line-height: 20px;
+    padding: 6px 0 6px 8px;
+    text-align: left;
+}
+.chosen-container-single .chosen-single div, .chosen-container-single.chosen-container-active .chosen-single div {
+    display: block;
+    height: 100%;
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 34px;
+    border-left: 1px solid #ccc;
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
+}
+.chosen-container-single.chosen-container-active .chosen-single div {
+    border-bottom-right-radius: 0px;
+}
+.chosen-container-single .chosen-single div b,
+.chosen-container-single.chosen-container-active .chosen-single div b {
+    background: #EDEDED url(../img/chosen-sprite.png) 5px 7px no-repeat;
+    background-size: 20px 20px;
+    display: block;
+    height: 100%;
+    width: 100%;
+}
+.chosen-container .chosen-drop {
+    background: none repeat scroll 0 0 #FFFFFF;
+    border-color: -moz-use-text-color #cccccc #cccccc;
+    border-image: none;
+    border-right: 1px solid #cccccc;
+    margin-top: 0px;
+    box-shadow: none;
+    text-align: left;
+}
+.chosen-container-active.chosen-with-drop .chosen-single {
+    background-image: none;
+    border: 1px solid #ccc;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    box-shadow: 0 1px 0 #FFFFFF inset;
+}
+.chosen-container .chosen-results {
+    margin-right:0px;
+    padding: 0;
+}
+.chosen-container .chosen-results li.highlighted {
+    background-color: #3875D7;
+    background-image: none;
+    background-color: #777777;
+    color: #FFFFFF;
+    padding-left: none;
+}
+.chosen-container.chosen-container-single.chosen-container-single-nosearch {
+    margin-top: 20px;
+    width: 100%;
+}
+
+/***** MEDIA QUERIES *****/
+
+@media (min-width: 495px) {
+    @-ms-viewport { /* Necessary to overcome the known Microsoft Mobile IE bug */
+        width: device-width;
+    }
+    .container {
+        width: 480px;
+    }
+    .login-form {
+        padding-left: 15px;
+    }
+}
+
+@media (min-width: 768px) {
+    body {
+        margin-top: 50px;
+    }
+    .container {
+        width: 750px;
+    }
+    .login-form {
+        text-align: left;
+        padding-left: 10px;
+    }
+    img.iconAd {
+        display: block;
+        width: 300px;
+        margin-left: 0;
+    }
+    .col-md-6 {
+        float: left;
+        width: 50%;
+    }
+    .rounded-box,
+    .rounded-box-wide {
+        width: 400px;
+        border: 1px solid #DDD;
+        border-radius: 4px;
+        padding: 10px 40px 40px;
+        margin: 0 auto;
+        text-align: left;
+    }
+    .rounded-box object {
+        margin: 25px 0 10px 0;
+    }
+    .rounded-box h2,
+    .rounded-box-wide h2 {
+        text-align: left;
+    }
+    .need-help {
+        margin-top: 15px;
+        text-align: center;
+    }
+    p.text-info {
+        padding-left: 25px;
+        position: relative;
+    }
+    p.text-info object {
+        display: block;
+        position: absolute;
+        left: 0;
+        top: -22px;
+    }
+    p.text-error {
+        padding-left: 25px;
+        position: relative;
+    }
+    p.text-error object {
+        display: block;
+        position: absolute;
+        left: 0;
+        top: 3px;
+        margin-top: 0;
+    }
+    .rounded-box-wide {
+        width: 615px;
+        text-align: left;
+        padding-right: 58px;
+    }
+    .col-sm-4.pw-requirements {
+        display: block;
+        margin-top: 128px;
+        font-size: 13px;
+        display: block;
+        background-color: #EAF2FF;
+        padding: 15px 0 10px 0;
+        border-radius: 4px;
+        line-height: 16px;
+    }
+    .col-sm-4.pw-requirements ul {
+        padding: 0 10px 0 30px;
+    }
+    .col-sm-4.pw-requirements li {
+        margin-left: 0;
+        margin-bottom: 10px;
+    }
+    .navbar.navbar-default.navbar-fixed-bottom {
+        display: none;
+    }
+    .col-sm-4.pw-requirements ul {
+        padding: 0 0 0 10px;
+    }
+    .col-sm-4.pw-requirements li {
+        list-style-type: none;
+        padding-left: 15px;
+        background: url(../img/bullet.svg) 3px 7px no-repeat;
+        background-size: 4px 4px;
+        position: relative;
+    }
+
+    .col-sm-4.pw-requirements li.valid {
+        background: none;
+    }
+    .col-sm-4.pw-requirements li.valid object {
+        background: none;
+        list-style-type: none;
+        float: left;
+        position: absolute;
+        left: 0;
+        top: 0;
+    }
+    .navbar.navbar-default.navbar-fixed-bottom {
+        display: none;
+    }
+    /*.well {*/
+        /*min-height: 0;*/
+        /*padding: 30px 0 0 0;*/
+        /*margin: 30px 0 0 0;*/
+        /*background-color: transparent;*/
+        /*border-top: 1px solid #DDD;*/
+        /*border-radius: 0;*/
+        /*-webkit-box-shadow: none;*/
+        /*box-shadow: none;*/
+    /*}*/
+    /*.well .btn {*/
+        /*width: 48%;*/
+    /*}*/
+    /*.well .btn.btn-default {*/
+        /*float: left;*/
+    /*}*/
+    /*.well .btn.btn-success {*/
+        /*float: right;*/
+    /*}*/
+    select.form-control {
+        margin-top: 15px;
+    }
+    .rounded-box .is-icon.is-icon-error.form-control-feedback,
+    .rounded-box-wide .is-icon.is-icon-error.form-control-feedback {
+        top: -13px;
+    }
+    .col-md-6.login-form.noImage {
+        width: 60%;
+        float: none;
+        border: 1px solid #DDD;
+        padding: 30px 40px 35px;
+        text-align: center;
+    }
+    .col-md-6.login-form.noImage .col-md-10 {
+        width: 100%;
+    }
+    .col-md-12.login-footer.noImage {
+        margin: 0;
+        padding: 0;
+    }
+    .col-md-12.login-footer.noImage p {
+        background: none;
+    }
+    .signUpRow {
+        margin: 25px 0 15px 0;
+    }
+    .noImage .signUpRow {
+        min-width: 323px;
+    }
+    .signUpRow p {
+        text-align: left;
+    }
+    .noImage .signUpRow p {
+        text-align: center;
+    }
+    .logo {
+        margin: 0 0 20px 0;
+    }
+    .noImage .logo {
+        margin: 0 auto 20px auto;
+    }
+}
+
+@media (min-width: 992px) {
+    body {
+        margin-top: 80px;
+    }
+    .container {
+        width: 970px;
+    }
+    .login-footer {
+        margin-top: 50px;
+    }
+    img.iconAd {
+        margin-left: 50px;
+        display: block;
+        width: 375px;
+    }
+    .login-form {
+        text-align: left;
+        padding-left: 40px;
+    }
+    .signUpRow {
+        margin: 25px 0;
+    }
+    .rounded-box,
+    .rounded-box-wide {
+        width: 400px;
+        border: 1px solid #DDD;
+        border-radius: 4px;
+        padding: 10px 40px 40px;
+        margin: 0 auto;
+    }
+    .rounded-box object,
+    .rounded-box-wide object {
+        margin: 25px 0 10px 0;
+    }
+    .rounded-box h2,
+    .rounded-box-wide h2 {
+        text-align: left;
+    }
+    .need-help {
+        margin-top: 15px;
+        text-align: center;
+    }
+    p.text-info {
+        padding-left: 25px;
+    }
+    p.text-error {
+        margin-top: -20px;
+        width: 89%;
+    }
+    .rounded-box-wide {
+        width: 615px;
+        text-align: left;
+        padding-right: 58px;
+    }
+    .col-sm-4.pw-requirements {
+        margin-top: 140px;
+        font-size: 13px;
+        display: block;
+        background-color: #EAF2FF;
+        padding: 15px 0 10px 0;
+        border-radius: 4px;
+        line-height: 16px;
+    }
+    .col-sm-4.pw-requirements ul {
+        padding: 0 0 0 10px;
+    }
+    .col-sm-4.pw-requirements li {
+        list-style-type: none;
+        padding-left: 15px;
+        background: url(../img/bullet.svg) 3px 7x no-repeat;
+        background-size: 4px 4px;
+    }
+    /* TODO: Re-check or remove this after <object> tags added to valid <li>'s */
+    .col-sm-4.pw-requirements li.valid {
+        background: url(../img/ic-message-success.svg) 0 1px no-repeat;
+        background-size: 13px 13px;
+    }
+
+    .navbar.navbar-default.navbar-fixed-bottom {
+        display: none;
+    }
+    /*.well {*/
+        /*min-height: 0;*/
+        /*padding: 30px 0 0 0;*/
+        /*margin: 30px 0 0 0;*/
+        /*background-color: transparent;*/
+        /*border-top: 1px solid #DDD;*/
+        /*border-radius: 0;*/
+        /*-webkit-box-shadow: none;*/
+        /*box-shadow: none;*/
+    /*}*/
+    /*.well .btn {*/
+        /*width: 48%;*/
+    /*}*/
+    /*.well .btn.btn-default {*/
+        /*float: left;*/
+    /*}*/
+    /*.well .btn.btn-success {*/
+        /*float: right;*/
+    /*}*/
+    select.form-control {
+        margin-top: 15px;
+    }
+    .rounded-box .is-icon.is-icon-error.form-control-feedback {
+        top: -13px;
+    }
+    .col-md-6.login-form.noImage {
+        width: 50%;
+        float: none;
+        border: 1px solid #DDD;
+        border-radius: 4px;
+        padding: 25px 40px 35px;
+    }
+    .col-md-6.login-form.noImage .col-md-10 {
+        width: 100%;
+    }
+    .col-md-12.login-footer.noImage {
+        margin: 0;
+        padding: 0;
+    }
+    .col-md-12.login-footer.noImage {
+        background: none;
+    }
+    .logo {
+        margin: 10px 0 30px 0;
+    }
+    .noImage .logo {
+        margin: 10px auto 30px auto;
+    }
+}
+
+.footer-text {
+    margin: 0 30px;
+}

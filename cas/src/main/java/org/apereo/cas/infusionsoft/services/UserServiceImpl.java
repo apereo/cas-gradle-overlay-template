@@ -1,51 +1,58 @@
 package org.apereo.cas.infusionsoft.services;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.apereo.cas.api.UserAccountDTO;
+import org.apereo.cas.infusionsoft.config.properties.InfusionsoftConfigurationProperties;
 import org.apereo.cas.infusionsoft.dao.AuthorityDAO;
 import org.apereo.cas.infusionsoft.dao.LoginAttemptDAO;
 import org.apereo.cas.infusionsoft.dao.UserAccountDAO;
 import org.apereo.cas.infusionsoft.dao.UserDAO;
+import org.apereo.cas.infusionsoft.dao.UserIdentityDAO;
 import org.apereo.cas.infusionsoft.domain.*;
 import org.apereo.cas.infusionsoft.exceptions.InfusionsoftValidationException;
+import org.apereo.cas.infusionsoft.support.AppHelper;
 import org.apereo.cas.infusionsoft.web.ValidationUtils;
 import org.joda.time.DateTime;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.validation.constraints.NotNull;
+import java.io.ByteArrayOutputStream;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-@Service
-@Transactional
+@Transactional(transactionManager = "transactionManager")
 public class UserServiceImpl implements UserService {
 
-    private static final Logger log = Logger.getLogger(UserServiceImpl.class);
+    private static final Logger log = LoggerFactory.getLogger(UserServiceImpl.class);
 
-    @Autowired
+    private AppHelper appHelper;
     private AuthorityDAO authorityDAO;
-
-    @Autowired
     private LoginAttemptDAO loginAttemptDAO;
-
-    @Autowired
     private MailService mailService;
-
-    @Autowired
     private PasswordService passwordService;
-
-    @Autowired
     private UserDAO userDAO;
-
-    @Autowired
     private UserAccountDAO userAccountDAO;
+    private UserIdentityDAO userIdentityDAO;
+    private InfusionsoftConfigurationProperties infusionsoftConfigurationProperties;
 
-    @Value("${infusionsoft.cas.garbageman.loginattemptmaxage}")
-    private long loginAttemptMaxAge = 86400000; // default to 1 day
+    public UserServiceImpl(AppHelper appHelper, AuthorityDAO authorityDAO, LoginAttemptDAO loginAttemptDAO, MailService mailService, PasswordService passwordService, UserDAO userDAO, UserAccountDAO userAccountDAO, UserIdentityDAO userIdentityDAO, InfusionsoftConfigurationProperties infusionsoftConfigurationProperties) {
+        this.appHelper = appHelper;
+        this.authorityDAO = authorityDAO;
+        this.loginAttemptDAO = loginAttemptDAO;
+        this.mailService = mailService;
+        this.passwordService = passwordService;
+        this.userDAO = userDAO;
+        this.userAccountDAO = userAccountDAO;
+        this.userIdentityDAO = userIdentityDAO;
+        this.infusionsoftConfigurationProperties = infusionsoftConfigurationProperties;
+    }
 
     @Override
     public Authority findAuthorityByName(String authorityName) {
@@ -191,6 +198,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void cleanupLoginAttempts() {
+        final long loginAttemptMaxAge = infusionsoftConfigurationProperties.getLoginAttemptMaxAge();
         log.info("cleaning up login attempts older than " + loginAttemptMaxAge + " ms");
 
         Date date = new Date(System.currentTimeMillis() - loginAttemptMaxAge);
@@ -219,5 +227,68 @@ public class UserServiceImpl implements UserService {
         }
     }
 
-}
+    @Override
+    public Map<String, Object> createAttributeMapForUser(@NotNull User user) {
+        Map<String, Object> attributes = new HashMap<>();
 
+        attributes.put("id", user.getId());
+        attributes.put("displayName", user.getFirstName() + " " + user.getLastName());
+        attributes.put("firstName", user.getFirstName());
+        attributes.put("lastName", user.getLastName());
+        attributes.put("email", user.getUsername());
+
+        // We use a query instead of user.getAccounts() so that we only include enabled accounts
+        List<UserAccount> accounts = findActiveUserAccounts(user);
+        attributes.put("accounts", getAccountsJSON(accounts));
+        attributes.put("authorities", user.getAuthorities());
+
+        return attributes;
+    }
+
+    @Override
+    public User findUserByExternalId(String externalId) {
+        User retVal = null;
+        UserIdentity userIdentity = userIdentityDAO.findByExternalId(externalId);
+
+        if (userIdentity != null) {
+            retVal = userIdentity.getUser();
+        }
+
+        return retVal;
+    }
+
+    @Override
+    public UserIdentity findUserIdentityByExternalId(String externalId) {
+        return userIdentityDAO.findByExternalId(externalId);
+    }
+
+    @Override
+    public UserIdentity saveUserIdentity(UserIdentity userIdentity) throws InfusionsoftValidationException {
+        return userIdentityDAO.save(userIdentity);
+    }
+
+    /**
+     * *************************************************************************************************
+     * * * WARNING * * *
+     * If the format/content of this JSON ever changes in a way that affects parsing on the receiving end,
+     * the TICKETGRANTINGTICKET table needs to be completely cleared, since the old tickets stored there
+     * will still have the old format
+     * **************************************************************************************************
+     */
+    private String getAccountsJSON(List<UserAccount> accounts) {
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        String json = null;
+
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            UserAccountDTO[] userAccounts = UserAccountDTO.convertFromCollection(accounts, appHelper);
+            objectMapper.writeValue(outputStream, userAccounts);
+            json = outputStream.toString("UTF-8");
+        } catch (Exception e) {
+            log.error("Error while serializing accounts to JSON", e);
+        }
+
+        return json;
+    }
+
+}

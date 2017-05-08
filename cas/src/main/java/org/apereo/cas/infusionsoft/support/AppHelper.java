@@ -1,23 +1,26 @@
 package org.apereo.cas.infusionsoft.support;
 
+import org.apereo.cas.infusionsoft.config.properties.InfusionsoftConfigurationProperties;
 import org.apereo.cas.infusionsoft.domain.AppType;
 import org.apereo.cas.infusionsoft.services.CrmService;
 import org.apereo.cas.infusionsoft.services.CustomerHubService;
-import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-@Component
 @Deprecated
 public class AppHelper {
 
-    private static final Logger log = Logger.getLogger(AppHelper.class);
+    private static final Logger log = LoggerFactory.getLogger(AppHelper.class);
 
-    @Autowired
-    public CrmService crmService;
+    private CrmService crmService;
+    private CustomerHubService customerHubService;
+    private InfusionsoftConfigurationProperties infusionsoftConfigurationProperties;
 
-    @Autowired
-    public CustomerHubService customerHubService;
+    public AppHelper(CrmService crmService, CustomerHubService customerHubService, InfusionsoftConfigurationProperties infusionsoftConfigurationProperties) {
+        this.crmService = crmService;
+        this.customerHubService = customerHubService;
+        this.infusionsoftConfigurationProperties = infusionsoftConfigurationProperties;
+    }
 
     /**
      * Builds a URL for redirecting users to an app.
@@ -42,6 +45,14 @@ public class AppHelper {
 
                 case CUSTOMERHUB:
                     retVal = customerHubService.buildUrl(appName);
+                    break;
+
+                case COMMUNITY:
+                    retVal = infusionsoftConfigurationProperties.getCommunity().getUrl();
+                    break;
+
+                case MARKETPLACE:
+                    retVal = infusionsoftConfigurationProperties.getMarketplace().getUrl();
                     break;
 
                 default:

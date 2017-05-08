@@ -9,6 +9,7 @@ import java.util.List;
 
 @Deprecated
 public interface UserAccountDAO extends PagingAndSortingRepository<UserAccount, Long> {
+
     @Deprecated
     List<UserAccount> findByUserAndDisabled(User user, Boolean disabled);
 
@@ -17,4 +18,5 @@ public interface UserAccountDAO extends PagingAndSortingRepository<UserAccount, 
 
     @Deprecated
     List<UserAccount> findByUserAndAppTypeAndDisabledOrderByAppNameAsc(User user, AppType appType, Boolean disabled);
+
 }

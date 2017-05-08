@@ -1,15 +1,14 @@
 package org.apereo.cas.infusionsoft.services;
 
+import org.apereo.cas.infusionsoft.config.properties.InfusionsoftConfigurationProperties;
 import org.apereo.cas.infusionsoft.dao.AuditEntryDAO;
 import org.apereo.cas.infusionsoft.domain.AuditEntry;
 import org.apereo.cas.infusionsoft.domain.AuditEntryType;
 import org.apereo.cas.infusionsoft.domain.User;
-import org.apache.log4j.Logger;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -17,16 +16,18 @@ import java.util.List;
 /**
  * Service for accessing our audit logs.
  */
-@Service
-@Transactional
+@Transactional(transactionManager = "transactionManager")
 public class AuditServiceImpl implements AuditService {
-    private static final Logger log = Logger.getLogger(AuditServiceImpl.class);
 
-    @Autowired
+    private static final Logger log = LoggerFactory.getLogger(AuditServiceImpl.class);
+
     private AuditEntryDAO auditEntryDAO;
+    private InfusionsoftConfigurationProperties infusionsoftConfigurationProperties;
 
-    @Value("${infusionsoft.cas.garbageman.auditentrymaxage}")
-    private long auditEntryMaxAge = 86400000 * 7; // default to 7 days
+    public AuditServiceImpl(AuditEntryDAO auditEntryDAO, InfusionsoftConfigurationProperties infusionsoftConfigurationProperties) {
+        this.auditEntryDAO = auditEntryDAO;
+        this.infusionsoftConfigurationProperties = infusionsoftConfigurationProperties;
+    }
 
     public void logApiLoginSuccess(User user) {
         AuditEntry entry = new AuditEntry();
@@ -54,6 +55,7 @@ public class AuditServiceImpl implements AuditService {
     }
 
     public void cleanupOldAuditEntries() {
+        final long auditEntryMaxAge = infusionsoftConfigurationProperties.getAuditEntryMaxAge();
         log.info("cleaning up audit entries older than " + auditEntryMaxAge + " ms");
 
         DateTime date = new DateTime(System.currentTimeMillis() - auditEntryMaxAge);
@@ -63,4 +65,5 @@ public class AuditServiceImpl implements AuditService {
 
         auditEntryDAO.delete(entries);
     }
+
 }
