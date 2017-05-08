@@ -3,6 +3,7 @@
 .project
 .settings
 target/
+classes/
 .idea/
 .DS_Store
 .idea

@@ -154,7 +154,7 @@ java -jar cas/build/libs/cas.war --cas.standalone.config=etc/cas/config
 Run the CAS web application as an executable WAR via Spring Boot. This is most useful during development and testing.
 
 ```bash
-./gradlew[.bat] bootRun
+./gradlew[.bat] bootRun --cas.standalone.config=etc/cas/config
 ```
 
 ## External
