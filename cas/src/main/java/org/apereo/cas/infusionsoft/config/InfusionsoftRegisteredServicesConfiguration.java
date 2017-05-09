@@ -24,7 +24,7 @@ public class InfusionsoftRegisteredServicesConfiguration {
         services.add(serviceMarketplaceUI());
         services.add(serviceCAM());
         services.add(serviceLocalhost());
-        services.add(serviceFoundations());
+        services.add(servicePropel());
         services.add(serviceCRM());
 
         return services;
@@ -60,7 +60,7 @@ public class InfusionsoftRegisteredServicesConfiguration {
         RegexRegisteredService service =  buildService(7, "Localhost", "https?://localhost(:[0-9]+)?((/.*)|$)", 7);
 
         service.setAccessStrategy(new InfusionsoftRegisteredServiceAccessStrategy(true, true, false, true));
-        service.setTheme("cas-theme-foundations");
+        service.setTheme("cas-theme-propel");
 
         final Map<String, RegisteredServiceProperty> serviceProperties = service.getProperties();
 
@@ -76,10 +76,10 @@ public class InfusionsoftRegisteredServicesConfiguration {
     }
 
     @Bean
-    RegisteredService serviceFoundations() {
-        RegexRegisteredService service = buildService(8, "Foundations", "https?://([^\\.]+\\.goldfishapp\\.co|propel\\.infusion(soft|test)\\.com)(:[0-9]+)?((/.*)|$)", 8);
+    RegisteredService servicePropel() {
+        RegexRegisteredService service = buildService(8, "Propel", "(mobile|https?)://([^\\.]+\\.goldfishapp\\.co|propel\\.infusion(soft|test)\\.com)(:[0-9]+)?((/.*)|$)", 8);
         service.setAccessStrategy(new InfusionsoftRegisteredServiceAccessStrategy(true, true, false, true));
-        service.setTheme("cas-theme-foundations");
+        service.setTheme("cas-theme-propel");
 
         final Map<String, RegisteredServiceProperty> serviceProperties = service.getProperties();
 
