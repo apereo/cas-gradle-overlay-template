@@ -1,6 +1,0 @@
-<ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://ehcache.org/ehcache.xsd">
-
-    <!--24 hrs = 86400 sec-->
-    <!--TODO: upgrade: remove if not needed -->
-
-</ehcache>

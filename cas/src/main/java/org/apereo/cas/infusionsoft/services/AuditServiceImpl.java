@@ -37,7 +37,7 @@ public class AuditServiceImpl implements AuditService {
         entry.setUserId(user.getId());
         entry.setDate(DateTime.now(DateTimeZone.UTC));
 
-        saveAuditEntry(entry);
+        auditEntryDAO.save(entry);
     }
 
     public void logApiLoginFailure(String username) {
@@ -47,10 +47,6 @@ public class AuditServiceImpl implements AuditService {
         entry.setUsername(username);
         entry.setDate(DateTime.now(DateTimeZone.UTC));
 
-        saveAuditEntry(entry);
-    }
-
-    public void saveAuditEntry(AuditEntry entry) {
         auditEntryDAO.save(entry);
     }
 

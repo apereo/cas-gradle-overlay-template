@@ -14,6 +14,7 @@ import org.apereo.cas.infusionsoft.config.properties.InfusionsoftConfigurationPr
 import org.apereo.cas.infusionsoft.dao.*;
 import org.apereo.cas.infusionsoft.services.*;
 import org.apereo.cas.infusionsoft.support.AppHelper;
+import org.apereo.cas.infusionsoft.support.GarbageMan;
 import org.apereo.cas.infusionsoft.web.controllers.PasswordCheckController;
 import org.apereo.cas.services.ServicesManager;
 import org.apereo.cas.ticket.registry.TicketRegistry;
@@ -26,10 +27,12 @@ import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Configuration("infusionsoftCasConfiguration")
 @EnableConfigurationProperties({CasConfigurationProperties.class, InfusionsoftConfigurationProperties.class})
+@EnableScheduling
 public class InfusionsoftCasConfiguration implements AuthenticationEventExecutionPlanConfigurer {
 
     @Autowired
@@ -73,9 +76,6 @@ public class InfusionsoftCasConfiguration implements AuthenticationEventExecutio
     private ServicesManager servicesManager;
 
     @Autowired
-    private UserDAO userDAO;
-
-    @Autowired
     @Qualifier("ticketGrantingTicketCookieGenerator")
     private CookieRetrievingCookieGenerator ticketGrantingTicketCookieGenerator;
 
@@ -84,6 +84,9 @@ public class InfusionsoftCasConfiguration implements AuthenticationEventExecutio
 
     @Autowired
     private UserAccountDAO userAccountDAO;
+
+    @Autowired
+    private UserDAO userDAO;
 
     @Autowired
     private UserIdentityDAO userIdentityDAO;
@@ -115,6 +118,12 @@ public class InfusionsoftCasConfiguration implements AuthenticationEventExecutio
     @Bean
     public CustomerHubService customerHubService() {
         return new CustomerHubService(infusionsoftConfigurationProperties);
+    }
+
+    @Bean
+    @Autowired
+    public GarbageMan garbageMan(UserService userService, AuditService auditService) {
+        return new GarbageMan(userService, auditService);
     }
 
     @Bean

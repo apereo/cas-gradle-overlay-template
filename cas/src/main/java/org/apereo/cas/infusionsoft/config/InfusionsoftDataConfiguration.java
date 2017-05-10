@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
+import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
@@ -17,9 +18,11 @@ import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
+import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
+import java.util.Map;
 
 @Configuration
 @EnableConfigurationProperties({CasConfigurationProperties.class, InfusionsoftConfigurationProperties.class})
@@ -32,6 +35,9 @@ public class InfusionsoftDataConfiguration {
 
     @Autowired
     private CasConfigurationProperties casProperties;
+
+    @Autowired
+    private MessageSource messageSource;
 
     @RefreshScope
     @Bean
@@ -52,30 +58,6 @@ public class InfusionsoftDataConfiguration {
     @Lazy
     @Bean
     public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
-
-/*
-    TODO: upgrade
-
-    <beans:bean id="validator" class="org.springframework.validation.beanvalidation.LocalValidatorFactoryBean">
-        <beans:property name="validationMessageSource" ref="messageSource"/>
-    </beans:bean>
-
-    <beans:bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
-        <beans:property name="jpaVendorAdapter">
-            <beans:bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter">
-                <beans:property name="generateDdl" value="true"/>
-                <!--<beans:property name="showSql" value="true"/>-->
-                <beans:property name="databasePlatform" value="org.hibernate.dialect.MySQL5Dialect"/>
-            </beans:bean>
-        </beans:property>
-        <beans:property name="jpaPropertyMap">
-            <beans:map>
-                <beans:entry key="javax.persistence.validation.factory" value-ref="validator" />
-            </beans:map>
-        </beans:property>
-    </beans:bean>
-*/
-
         final LocalContainerEntityManagerFactoryBean bean =
                 Beans.newHibernateEntityManagerFactoryBean(
                         new JpaConfigDataHolder(
@@ -85,8 +67,17 @@ public class InfusionsoftDataConfiguration {
                                 dataSource()),
                         infusionsoftConfigurationProperties.getJpa());
 
-        bean.getJpaPropertyMap().put("hibernate.enable_lazy_load_no_trans", Boolean.TRUE);
+        final Map<String, Object> jpaPropertyMap = bean.getJpaPropertyMap();
+        jpaPropertyMap.put("hibernate.enable_lazy_load_no_trans", Boolean.TRUE);
+        jpaPropertyMap.put("javax.persistence.validation.factory", validator());
         return bean;
+    }
+
+    @Bean
+    public LocalValidatorFactoryBean validator() {
+        final LocalValidatorFactoryBean localValidatorFactoryBean = new LocalValidatorFactoryBean();
+        localValidatorFactoryBean.setValidationMessageSource(messageSource);
+        return localValidatorFactoryBean;
     }
 
     @Autowired
@@ -97,19 +88,4 @@ public class InfusionsoftDataConfiguration {
         return mgmr;
     }
 
-/*
-    TODO: upgrade
-
-    <!--
-      Injects EntityManager/Factory instances into beans with
-      @PersistenceUnit and @PersistenceContext
-    -->
-    <beans:bean class="org.springframework.orm.jpa.support.PersistenceAnnotationBeanPostProcessor"/>
-
-    <beans:bean id="flyway" class="com.googlecode.flyway.core.Flyway" init-method="migrate" depends-on="dataSource">
-        <beans:property name="dataSource" ref="dataSource"/>
-        <beans:property name="initOnMigrate" value="true"/>
-    </beans:bean>
-
- */
 }
