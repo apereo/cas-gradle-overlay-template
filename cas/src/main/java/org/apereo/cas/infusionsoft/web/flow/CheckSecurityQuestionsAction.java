@@ -10,6 +10,7 @@ import org.springframework.webflow.action.AbstractAction;
 import org.springframework.webflow.execution.Event;
 import org.springframework.webflow.execution.RequestContext;
 
+//TODO: upgrade: this class needs added to Spring config and the webflow
 @Component
 public class CheckSecurityQuestionsAction extends AbstractAction {
 

@@ -15,10 +15,9 @@ import org.springframework.binding.message.MessageBuilder;
 import org.springframework.binding.message.MessageContext;
 import org.springframework.stereotype.Component;
 
+//TODO: upgrade: this class needs added to Spring config and the webflow
 @Component
 public class InfusionsoftSecurityQuestionsActionForm {
-
-//      TODO: upgrade: replace with equivalent
 
     @Autowired
     SecurityQuestionService securityQuestionService;
