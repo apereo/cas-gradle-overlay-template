@@ -6,7 +6,7 @@
             <PatternLayout pattern="%d %p [%c] - &lt;%m&gt;%n"/>
         </Console>
 
-        <RollingFile name="file" fileName="cas.log" append="true"
+        <RollingFile name="file" fileName="logs/cas.log" append="true"
                      filePattern="cas.log">
             <PatternLayout pattern="%d %p [%c] - &lt;%m&gt;%n"/>
             <Policies>
@@ -15,7 +15,7 @@
                 <!--<TimeBasedTriggeringPolicy />-->
             </Policies>
         </RollingFile>
-        <RollingFile name="auditlogfile" fileName="cas_audit.log" append="true"
+        <RollingFile name="auditlogfile" fileName="logs/cas_audit.log" append="true"
                      filePattern="cas_audit.log">
             <PatternLayout pattern="%d %p [%c] - %m%n"/>
             <Policies>
@@ -25,7 +25,7 @@
             </Policies>
         </RollingFile>
 
-        <RollingFile name="perfFileAppender" fileName="perfStats.log" append="true"
+        <RollingFile name="perfFileAppender" fileName="logs/perfStats.log" append="true"
                      filePattern="perfStats.log">
             <PatternLayout pattern="%m%n"/>
             <Policies>

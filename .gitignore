@@ -20,3 +20,4 @@ build
 out/
 MANIFEST.MF
 /cas/etc/
+/logs/
