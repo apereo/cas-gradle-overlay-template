@@ -1,5 +1,3 @@
-<!--<c:set var="bootstrapOverrideCss" value="${pageContext.request.contextPath}/css/bootstrap-infusionsoft.css"/>-->
-
 <!DOCTYPE html>
 
 <html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" xmlns:th="http://www.thymeleaf.org">
@@ -17,6 +15,7 @@
     <link rel="stylesheet" th:href="@{/infusionsoft/infusionsoft-icon/style.css}">
     <link rel="stylesheet" th:href="@{/infusionsoft/js/animo-1.0.3/animate-animo.min.css}">
     <link rel="stylesheet" th:href="@{/infusionsoft/bootstrap-3.2.0-dist/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/infusionsoft/css/chosen.min.css}">
     <link rel="stylesheet" th:href="@{/infusionsoft/bootstrap-chosen/bootstrap-chosen.css}">
     <link rel="stylesheet" th:href="@{/infusionsoft/css/typeahead-bootstrap-fix.css}">
     <link rel="stylesheet" th:href="@{/infusionsoft/css/bootstrap-app-central.css}">
@@ -24,8 +23,6 @@
     <link type="text/css" rel="stylesheet" th:href="@{/infusionsoft/css/bootstrap-infusionsoft.css}"/>
 
     <link rel="stylesheet" th:href="@{${#themes.code('infusionsoft.css.file')}}" />
-
-    <!--<link rel="stylesheet" th:href="@{/infusionsoft/css/chosen.min.css}">-->
 
     <script th:inline="javascript">
         //Necessary to overcome the known Microsoft Mobile IE bug
@@ -43,13 +40,10 @@
 </head>
 <body>
 
-<!--<section layout:fragment="base-content" id="base-content">-->
 <div layout:fragment="content"></div>
-<!--</section>-->
 
-<div th:insert="fragments/login-bottom"/>
+<th:block th:insert="fragments/infusionsoft-js"/>
 
-<!--<script th:inline="javascript" layout:fragment="local_script"></script>-->
 <div layout:fragment="local_script"></div>
 
 </body>
