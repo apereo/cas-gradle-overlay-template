@@ -51,7 +51,7 @@
                             <th:block th:each="error : ${#fields.globalErrors()}" th:utext="#{${error}}"/>
                         </p>
 
-                        <p class="text-error" th:if="${error != null}">
+                        <p class="text-error" th:if="${!#strings.isEmpty(error)}">
                             <img tabindex="-1" th:src="@{/infusionsoft/img/ic-exclamation-circle.svg}" width="16" height="16"/>
                             <th:block th:utext="#{${error}}"/>
                         </p>

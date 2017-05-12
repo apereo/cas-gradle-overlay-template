@@ -25,7 +25,7 @@ p.text-error {
     margin: -15px 0 20px 0;
     color: #E34825;
 }
-p.text-error object {
+p.text-error img {
     display: none;
 }
 h2 {
@@ -40,7 +40,7 @@ h2 {
     text-indent: -9999px;
     width: 159px;
     height: 26px;
-    background: transparent url('/infusionsoft/img/is_logo.svg') no-repeat top center;
+    background: transparent url('../img/is_logo.svg') no-repeat top center;
 }
 .navbar.navbar-default.navbar-fixed-bottom {
     height: 51px;
@@ -166,13 +166,13 @@ input.form-control {
 .rounded-box-wide {
     padding: 0;
 }
-.rounded-box object {
+.rounded-box img {
     margin: 21px 0 10px 0;
 }
-.rounded-box-wide object {
+.rounded-box-wide img {
     margin: 25px 0 10px 0;
 }
-.rounded-box-wide .is-icon.is-icon-ok.form-control-feedback object {
+.rounded-box-wide .is-icon.is-icon-ok.form-control-feedback img {
     margin: 0;
 }
 .need-help {
@@ -272,7 +272,7 @@ select.form-control {
     background-image: none;
     background-color: #777777;
     color: #FFFFFF;
-    padding-left: none;
+    padding-left: 0;
 }
 .chosen-container.chosen-container-single.chosen-container-single-nosearch {
     margin-top: 20px;
@@ -322,7 +322,7 @@ select.form-control {
         margin: 0 auto;
         text-align: left;
     }
-    .rounded-box object {
+    .rounded-box img {
         margin: 25px 0 10px 0;
     }
     .rounded-box h2,
@@ -337,7 +337,7 @@ select.form-control {
         padding-left: 25px;
         position: relative;
     }
-    p.text-info object {
+    p.text-info img {
         display: block;
         position: absolute;
         left: 0;
@@ -347,7 +347,7 @@ select.form-control {
         padding-left: 25px;
         position: relative;
     }
-    p.text-error object {
+    p.text-error img {
         display: block;
         position: absolute;
         left: 0;
@@ -393,7 +393,7 @@ select.form-control {
     .col-sm-4.pw-requirements li.valid {
         background: none;
     }
-    .col-sm-4.pw-requirements li.valid object {
+    .col-sm-4.pw-requirements li.valid img {
         background: none;
         list-style-type: none;
         float: left;
@@ -497,8 +497,8 @@ select.form-control {
         padding: 10px 40px 40px;
         margin: 0 auto;
     }
-    .rounded-box object,
-    .rounded-box-wide object {
+    .rounded-box img,
+    .rounded-box-wide img {
         margin: 25px 0 10px 0;
     }
     .rounded-box h2,
@@ -536,10 +536,10 @@ select.form-control {
     .col-sm-4.pw-requirements li {
         list-style-type: none;
         padding-left: 15px;
-        background: url(../img/bullet.svg) 3px 7x no-repeat;
+        background: url(../img/bullet.svg) 3px 7px no-repeat;
         background-size: 4px 4px;
     }
-    /* TODO: Re-check or remove this after <object> tags added to valid <li>'s */
+    /* TODO: Re-check or remove this after <img> tags added to valid <li>'s */
     .col-sm-4.pw-requirements li.valid {
         background: url(../img/ic-message-success.svg) 0 1px no-repeat;
         background-size: 13px 13px;
