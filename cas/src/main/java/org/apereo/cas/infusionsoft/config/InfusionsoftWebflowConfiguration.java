@@ -76,8 +76,7 @@ public class InfusionsoftWebflowConfiguration {
                 infusionsoftAuthenticationService,
                 marketingOptionsService,
                 servicesManager,
-                infusionsoftConfigurationProperties.getSupportPhoneNumbers(),
-                infusionsoftConfigurationProperties.getAccountCentral().getRegistrationUrl());
+                infusionsoftConfigurationProperties.getSupportPhoneNumbers());
     }
 
     @Bean

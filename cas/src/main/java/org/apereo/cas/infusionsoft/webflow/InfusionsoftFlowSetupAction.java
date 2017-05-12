@@ -27,7 +27,6 @@ public class InfusionsoftFlowSetupAction extends AbstractAction {
     private MarketingOptionsService marketingOptionsService;
     private ServicesManager servicesManager;
     private List<String> supportPhoneNumbers;
-    private String registrationUrl;
 
     public InfusionsoftFlowSetupAction(
             AppHelper appHelper,
@@ -35,8 +34,7 @@ public class InfusionsoftFlowSetupAction extends AbstractAction {
             InfusionsoftAuthenticationService infusionsoftAuthenticationService,
             MarketingOptionsService marketingOptionsService,
             ServicesManager servicesManager,
-            List<String> supportPhoneNumbers,
-            String registrationUrl
+            List<String> supportPhoneNumbers
     ) {
         this.appHelper = appHelper;
         this.buildProperties = buildProperties;
@@ -44,7 +42,6 @@ public class InfusionsoftFlowSetupAction extends AbstractAction {
         this.marketingOptionsService = marketingOptionsService;
         this.servicesManager = servicesManager;
         this.supportPhoneNumbers = supportPhoneNumbers;
-        this.registrationUrl = registrationUrl;
     }
 
     @Override
@@ -86,7 +83,6 @@ public class InfusionsoftFlowSetupAction extends AbstractAction {
         flowScope.put("adMobileImageSrcUrl", marketingOptions.getMobileImageSrcUrl());
         flowScope.put("adLinkUrl", marketingOptions.getHref());
         flowScope.put("supportPhoneNumbers", supportPhoneNumbers);
-        flowScope.put("registrationUrl", registrationUrl);
         flowScope.put("serviceUrl", serviceUrl);
 
         return success();

@@ -7,7 +7,6 @@
 <!--/*@thymesVar id="credential" type="org.apereo.cas.authentication.UsernamePasswordCredential"*/-->
 <!--/*@thymesVar id="flowExecutionKey" type="java.lang.String"*/-->
 <!--/*@thymesVar id="appVersion" type="java.lang.String"*/-->
-<!--/*@thymesVar id="registrationUrl" type="java.lang.String"*/-->
 <!--/*@thymesVar id="serviceUrl" type="java.lang.String"*/-->
 <!--/*@thymesVar id="supportPhoneNumbers" type="java.util.List<String>"*/-->
 <!--/*@thymesVar id="appType" type="org.apereo.cas.infusionsoft.domain.AppType"*/-->
@@ -46,7 +45,7 @@
                 <input type="hidden" name="app_version" th:value="${appVersion}"/>
 
                 <div class="row signUpRow">
-                    <p>Don't have an account? <a th:href="@{${registrationUrl}(service=${serviceUrl})}">Sign Up</a></p>
+                    <p>Don't have an account? <a th:href="@{/app/registration/createInfusionsoftId(service=${serviceUrl})}">Sign Up</a></p>
                 </div>
 
                 <div class="form-group">
