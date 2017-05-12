@@ -20,8 +20,6 @@
     <link rel="stylesheet" th:href="@{/infusionsoft/css/typeahead-bootstrap-fix.css}">
     <link rel="stylesheet" th:href="@{/infusionsoft/css/bootstrap-app-central.css}">
 
-    <link type="text/css" rel="stylesheet" th:href="@{/infusionsoft/css/bootstrap-infusionsoft.css}"/>
-
     <link rel="stylesheet" th:href="@{${#themes.code('infusionsoft.css.file')}}" />
 
     <script th:inline="javascript">
@@ -37,6 +35,8 @@
             }
         })();
     </script>
+
+    <th:block layout:fragment="local_style"></th:block>
 </head>
 <body>
 

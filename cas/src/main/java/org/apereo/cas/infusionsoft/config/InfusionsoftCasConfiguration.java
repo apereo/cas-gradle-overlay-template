@@ -15,7 +15,9 @@ import org.apereo.cas.infusionsoft.dao.*;
 import org.apereo.cas.infusionsoft.services.*;
 import org.apereo.cas.infusionsoft.support.AppHelper;
 import org.apereo.cas.infusionsoft.support.GarbageMan;
+import org.apereo.cas.infusionsoft.web.controllers.AuthenticateController;
 import org.apereo.cas.infusionsoft.web.controllers.PasswordCheckController;
+import org.apereo.cas.infusionsoft.web.controllers.RegistrationController;
 import org.apereo.cas.services.ServicesManager;
 import org.apereo.cas.ticket.registry.TicketRegistry;
 import org.apereo.cas.web.support.CookieRetrievingCookieGenerator;
@@ -34,6 +36,14 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @EnableConfigurationProperties({CasConfigurationProperties.class, InfusionsoftConfigurationProperties.class})
 @EnableScheduling
 public class InfusionsoftCasConfiguration implements AuthenticationEventExecutionPlanConfigurer {
+
+    @Autowired
+    @Lazy
+    private AuditService auditService;
+
+    @Autowired
+    @Lazy
+    private AuthenticationSystemSupport authenticationSystemSupport;
 
     @Autowired
     private AuthorityDAO authorityDAO;
@@ -100,8 +110,12 @@ public class InfusionsoftCasConfiguration implements AuthenticationEventExecutio
     }
 
     @Bean
-    @Autowired
-    public AutoLoginService autoLoginService(@Lazy AuthenticationSystemSupport authenticationSystemSupport) {
+    public AuthenticateController authenticateController() {
+        return new AuthenticateController(infusionsoftAuthenticationService(), appHelper(), userService(), messageSource, auditService);
+    }
+
+    @Bean
+    public AutoLoginService autoLoginService() {
         return new AutoLoginService(centralAuthenticationService, ticketGrantingTicketCookieGenerator, ticketRegistry, authenticationSystemSupport);
     }
 
@@ -149,6 +163,14 @@ public class InfusionsoftCasConfiguration implements AuthenticationEventExecutio
     @Bean
     public PasswordService passwordService() {
         return new PasswordServiceImpl(passwordEncoder, userPasswordDAO);
+    }
+
+    @Bean
+    public RegistrationController registrationController() {
+        return new RegistrationController(appHelper(), autoLoginService(), crmService(), customerHubService(),
+                infusionsoftAuthenticationService(), infusionsoftConfigurationProperties,
+                mailService, passwordService(), securityQuestionService(), servicesManager, userService()
+        );
     }
 
     @Bean

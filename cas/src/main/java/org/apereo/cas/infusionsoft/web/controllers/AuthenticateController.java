@@ -29,25 +29,24 @@ import java.util.Locale;
  * Really simple controller to allow authentication.
  */
 @Controller
-@RestController("authenticateController")
+@RestController
 @RequestMapping(value = "/user/authenticate")
 public class AuthenticateController {
     private static final Logger log = LoggerFactory.getLogger(AuthenticateController.class);
 
-    @Autowired
     private InfusionsoftAuthenticationService infusionsoftAuthenticationService;
-
-    @Autowired
     private AppHelper appHelper;
-
-    @Autowired
     private UserService userService;
-
-    @Autowired
     private MessageSource messageSource;
-
-    @Autowired
     private AuditService auditService;
+
+    public AuthenticateController(InfusionsoftAuthenticationService infusionsoftAuthenticationService, AppHelper appHelper, UserService userService, MessageSource messageSource, AuditService auditService) {
+        this.infusionsoftAuthenticationService = infusionsoftAuthenticationService;
+        this.appHelper = appHelper;
+        this.userService = userService;
+        this.messageSource = messageSource;
+        this.auditService = auditService;
+    }
 
     /**
      * Authenticates caller credentials against their CAS account.  Pass in a username and either a password or

@@ -43,73 +43,30 @@ import java.util.Map;
 public class RegistrationController {
     private static final Logger log = LoggerFactory.getLogger(RegistrationController.class);
 
-    @Autowired
     private AppHelper appHelper;
-
-    @Autowired
-    private CustomerHubService customerHubService;
-
-    @Autowired
+    private AutoLoginService autoLoginService;
     private CrmService crmService;
-
-    @Autowired
+    private CustomerHubService customerHubService;
     private InfusionsoftAuthenticationService infusionsoftAuthenticationService;
-
-    @Autowired
-    private PasswordService passwordService;
-
-    @Autowired
+    private InfusionsoftConfigurationProperties infusionsoftConfigurationProperties;
     private MailService mailService;
-
-    @Autowired
-    SecurityQuestionService securityQuestionService;
-
-    @Autowired
+    private PasswordService passwordService;
+    private SecurityQuestionService securityQuestionService;
+    private ServicesManager servicesManager;
     private UserService userService;
 
-    @Autowired
-    private AutoLoginService autoLoginService;
-
-    @Autowired
-    private ServicesManager servicesManager;
-
-    @Autowired
-    private InfusionsoftConfigurationProperties infusionsoftConfigurationProperties;
-
-    // TODO: upgrade what to do with this controller?
-    @Value("${cas.viewResolver.basename}")
-    private String viewResolverBaseName;
-
-    private String getViewBase() {
-        return "default_views".equals(viewResolverBaseName) ? "" : viewResolverBaseName + "/";
-    }
-
-    @PostConstruct
-    public void init() {
-
-    }
-
-    /**
-     * Uses the new action for now.  Once old registrations finish we can kill this action
-     *
-     * @param model            model
-     * @param registrationCode registrationCode
-     * @param returnUrl        returnUrl
-     * @param skipUrl          skipUrl
-     * @param userToken        userToken
-     * @param firstName        firstName
-     * @param lastName         lastName
-     * @param email            email
-     * @param request          request
-     * @return view
-     * @throws IOException e
-     */
-    //TODO: Kill after a couple weeks after any outstanding new user invites have processed.
-    // NOTE: as of March 2014 this is still being hit (828 times in the last month)!  It is showing up in Google search
-    // results, and people also must have it bookmarked.  How do we kill this without impacting customers?
-    @RequestMapping
-    public String welcome(Model model, String registrationCode, String returnUrl, String skipUrl, String userToken, String firstName, String lastName, String email, HttpServletRequest request) throws IOException {
-        return createInfusionsoftId(model, registrationCode, returnUrl, skipUrl, userToken, firstName, lastName, email, true, request);
+    public RegistrationController(AppHelper appHelper, AutoLoginService autoLoginService, CrmService crmService, CustomerHubService customerHubService, InfusionsoftAuthenticationService infusionsoftAuthenticationService, InfusionsoftConfigurationProperties infusionsoftConfigurationProperties, MailService mailService, PasswordService passwordService, SecurityQuestionService securityQuestionService, ServicesManager servicesManager, UserService userService) {
+        this.appHelper = appHelper;
+        this.autoLoginService = autoLoginService;
+        this.crmService = crmService;
+        this.customerHubService = customerHubService;
+        this.infusionsoftAuthenticationService = infusionsoftAuthenticationService;
+        this.infusionsoftConfigurationProperties = infusionsoftConfigurationProperties;
+        this.mailService = mailService;
+        this.passwordService = passwordService;
+        this.securityQuestionService = securityQuestionService;
+        this.servicesManager = servicesManager;
+        this.userService = userService;
     }
 
     /**
@@ -118,7 +75,6 @@ public class RegistrationController {
      * @param model            model
      * @param registrationCode registrationCode
      * @param returnUrl        returnUrl
-     * @param skipUrl          skipUrl
      * @param userToken        userToken
      * @param firstName        firstName
      * @param lastName         lastName
@@ -128,22 +84,18 @@ public class RegistrationController {
      * @return view
      * @throws IOException e
      */
-    @RequestMapping
-    public String createInfusionsoftId(Model model, String registrationCode, String returnUrl, String skipUrl, String userToken, String firstName, String lastName, String email, @RequestParam(defaultValue = "false") boolean skipWelcomeEmail, HttpServletRequest request) throws IOException {
-//        if(true) {
-//            throw new IOException();
-//        }
+    @RequestMapping("/createInfusionsoftId")
+    public String createInfusionsoftId(Model model, String registrationCode, String returnUrl, String userToken, String firstName, String lastName, String email, @RequestParam(defaultValue = "false") boolean skipWelcomeEmail, HttpServletRequest request) throws IOException {
 
         // If you get here, you should not have a ticket granting cookie in the request. If we don't clear it, we may be linking the wrong user account if user chooses "Already have ID" from the registration page
         autoLoginService.killTGT(request);
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        if (!(authentication instanceof AnonymousAuthenticationToken)) {
+        if (authentication != null && !(authentication instanceof AnonymousAuthenticationToken)) {
             log.debug("User is registering while already logged in as " + authentication.getName() + "; redirecting to j_spring_security_logout");
             return "redirect:/j_spring_security_logout?service=" + URLEncoder.encode(getFullRequestUrl(request), "UTF-8");
         } else {
-            //NOTE: these values get escaped by the <form:input htmlEscape=true>
             User user = new User();
             user.setFirstName(firstName);
             user.setLastName(lastName);
@@ -162,7 +114,7 @@ public class RegistrationController {
 //                }
 //            }
 
-            buildModelForCreateInfusionsoftId(model, returnUrl, skipUrl, userToken, user, registrationCode, skipWelcomeEmail);
+            buildModelForCreateInfusionsoftId(model, returnUrl, userToken, user, registrationCode, skipWelcomeEmail);
             return "registration/createInfusionsoftId";
         }
     }
@@ -175,12 +127,9 @@ public class RegistrationController {
     /**
      * Builds the model with attributes that are required for displaying the createInfusionsoftId page.
      */
-    private void buildModelForCreateInfusionsoftId(Model model, String returnUrl, String skipUrl, String userToken, User user, String registrationCode, boolean skipWelcomeEmail) {
+    private void buildModelForCreateInfusionsoftId(Model model, String returnUrl, String userToken, User user, String registrationCode, boolean skipWelcomeEmail) {
         if (isAllowedUrl(returnUrl, "returnUrl")) {
             model.addAttribute("returnUrl", returnUrl);
-        }
-        if (isAllowedUrl(skipUrl, "skipUrl")) {
-            model.addAttribute("skipUrl", skipUrl);
         }
         model.addAttribute("userToken", userToken);
         model.addAttribute("user", user);
@@ -196,12 +145,14 @@ public class RegistrationController {
         // Validate the return URL against the service whitelist
         /** Modeled after {@link org.jasig.cas.web.LogoutController#handleRequestInternal(HttpServletRequest, HttpServletResponse)} }*/
         boolean retVal = false;
-        final RegisteredService registeredService = servicesManager.findServiceBy(url);
-        if (registeredService != null) {
-            retVal = true;
-            log.info("URL " + parameterName + " matched registered service " + registeredService.getName() + ": " + url);
-        } else {
-            log.warn("URL " + parameterName + " did not match any active registered service (it will be ignored): " + url);
+        if (StringUtils.isNotBlank(url)) {
+            final RegisteredService registeredService = servicesManager.findServiceBy(url);
+            if (registeredService != null) {
+                retVal = true;
+                log.debug("URL " + parameterName + " matched registered service " + registeredService.getName() + ": " + url);
+            } else {
+                log.info("URL " + parameterName + " did not match any active registered service (it will be ignored): " + url);
+            }
         }
         return retVal;
     }
@@ -218,7 +169,7 @@ public class RegistrationController {
      * @return view
      * @throws UnsupportedEncodingException ue
      */
-    @RequestMapping
+    @RequestMapping("/linkToExisting")
     public String linkToExisting(Model model, String registrationCode, String returnUrl, String userToken, HttpServletRequest request, HttpServletResponse response) throws UnsupportedEncodingException {
         String retVal;
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -284,7 +235,6 @@ public class RegistrationController {
      * @param eula                   eula
      * @param registrationCode       registrationCode
      * @param returnUrl              returnUrl
-     * @param skipUrl                skipUrl
      * @param userToken              userToken
      * @param skipWelcomeEmail       skipWelcomeEmail
      * @param securityQuestionId     securityQuestionId
@@ -293,8 +243,8 @@ public class RegistrationController {
      * @param response               response
      * @return view
      */
-    @RequestMapping
-    public String register(Model model, String firstName, String lastName, String username, String username2, String password1, String password2, String eula, String registrationCode, String returnUrl, String skipUrl, String userToken, @RequestParam(defaultValue = "false") boolean skipWelcomeEmail, Long securityQuestionId, String securityQuestionAnswer, HttpServletRequest request, HttpServletResponse response) {
+    @RequestMapping("/register")
+    public String register(Model model, String firstName, String lastName, String username, String username2, String password1, String password2, String eula, String registrationCode, String returnUrl, String userToken, @RequestParam(defaultValue = "false") boolean skipWelcomeEmail, Long securityQuestionId, String securityQuestionAnswer, HttpServletRequest request, HttpServletResponse response) {
         boolean eulaChecked = StringUtils.equals(eula, "agreed");
         User user = new User();
 
@@ -337,6 +287,7 @@ public class RegistrationController {
                 log.warn("couldn't create new user account: " + model.asMap().get("error"));
             } else {
 
+                user.setIpAddress(request.getRemoteAddr());
                 user = userService.createUser(user, password1);
 
                 SecurityQuestion securityQuestion = securityQuestionService.fetch(securityQuestionId);
@@ -375,7 +326,7 @@ public class RegistrationController {
         }
 
         if (model.containsAttribute("error")) {
-            buildModelForCreateInfusionsoftId(model, returnUrl, skipUrl, userToken, user, registrationCode, skipWelcomeEmail);
+            buildModelForCreateInfusionsoftId(model, returnUrl, userToken, user, registrationCode, skipWelcomeEmail);
             return "registration/createInfusionsoftId";
         } else if (isAllowedUrl(returnUrl, "returnUrl") && StringUtils.isNotBlank(userToken)) {
             String redirectToAppUrl = generateRedirectToAppFromReturnUrl(returnUrl, userToken, user, true);
@@ -392,7 +343,7 @@ public class RegistrationController {
      * @param request request
      * @return ModelAndView
      */
-    @RequestMapping
+    @RequestMapping("/success")
     public ModelAndView success(HttpServletRequest request) {
         Map<String, Object> model = new HashMap<String, Object>();
         // TODO: upgrade. This looks at the TGT cookie to get the current user. Why not just use the current user from Spring security?
@@ -420,11 +371,11 @@ public class RegistrationController {
      * @param username username
      * @return view
      */
-    @RequestMapping
+    @RequestMapping("/forgot")
     public String forgot(Model model, @RequestParam(required = false) String username) {
         model.addAttribute("username", username);
         model.addAttribute("supportPhoneNumbers", infusionsoftConfigurationProperties.getSupportPhoneNumbers());
-        return "registration/" + getViewBase() + "forgot";
+        return "registration/forgot";
     }
 
     /**
@@ -436,7 +387,7 @@ public class RegistrationController {
      * @param recoveryCode recoveryCode
      * @return view
      */
-    @RequestMapping
+    @RequestMapping("/recover")
     public String recover(Model model, String username, String recoveryCode) {
         log.info("password recovery request for email " + username);
         model.addAttribute("username", username);
@@ -450,11 +401,11 @@ public class RegistrationController {
             if (user == null) {
                 log.warn("invalid password recovery code was entered: " + recoveryCode);
                 model.addAttribute("error", "forgotpassword.noSuchCode");
-                return "registration/" + getViewBase() + "recover";
+                return "registration/recover";
             } else {
                 log.info("correct password recovery code was entered for user " + user.getId());
                 model.addAttribute("recoveryCode", recoveryCode);
-                return "registration/" + getViewBase() + "reset";
+                return "registration/reset";
             }
         } else if (StringUtils.isNotEmpty(username)) {
             //Recovery Code Requested
@@ -466,13 +417,13 @@ public class RegistrationController {
             } else {
                 log.warn("password recovery attempted for non-existent user: " + username);
                 model.addAttribute("error", "forgotpassword.noSuchUser");
-                return "registration/" + getViewBase() + "forgot";
+                return "registration/forgot";
             }
 
-            return "registration/" + getViewBase() + "recover";
+            return "registration/recover";
         } else {
             //Not requesting new code nor provided existing code
-            return "registration/" + getViewBase() + "forgot";
+            return "registration/forgot";
         }
     }
 
@@ -487,7 +438,7 @@ public class RegistrationController {
      * @param response     response
      * @return view
      */
-    @RequestMapping
+    @RequestMapping("/reset")
     public String reset(Model model, String recoveryCode, String password1, String password2, HttpServletRequest request, HttpServletResponse response) {
         model.addAttribute("supportPhoneNumbers", infusionsoftConfigurationProperties.getSupportPhoneNumbers());
 
@@ -511,7 +462,7 @@ public class RegistrationController {
         if (model.containsAttribute("error")) {
             model.addAttribute("recoveryCode", recoveryCode);
 
-            return "registration/" + getViewBase() + "reset";
+            return "registration/reset";
         } else {
             if (user != null) {
                 autoLoginService.autoLogin(user.getUsername(), request, response);
@@ -521,10 +472,9 @@ public class RegistrationController {
         }
     }
 
-    @RequestMapping
-    public
+    @RequestMapping("/checkPasswordForLast4WithRecoveryCode")
     @ResponseBody
-    boolean checkPasswordForLast4WithRecoveryCode(String recoveryCode, String password1) {
+    public boolean checkPasswordForLast4WithRecoveryCode(String recoveryCode, String password1) {
         User user = userService.findUserByRecoveryCode(recoveryCode);
 
         return user != null && StringUtils.isNotBlank(password1) && !passwordService.lastFourPasswordsContains(user, password1);

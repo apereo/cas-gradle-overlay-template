@@ -1,47 +1,31 @@
-<%@ page session="true" %>
-<%@ taglib prefix="c" uri="http://java.sun.com/jstl/core_rt" %>
-<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
-<%@ taglib prefix="fmt" uri="http://java.sun.com/jstl/fmt_rt" %>
-<%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
-<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
-<%@ taglib prefix="versioned" tagdir="/WEB-INF/tags/common/page" %>
-
-<%--@elvariable id="registrationCode" type="java.lang.String"--%>
-<%--@elvariable id="returnUrl" type="java.lang.String"--%>
-<%--@elvariable id="userToken" type="java.lang.String"--%>
-<%--@elvariable id="skipUrl" type="java.lang.String"--%>
-<%--@elvariable id="skipWelcomeEmail" type="java.lang.Boolean"--%>
-<%--@elvariable id="error" type="java.lang.String"--%>
-<%--@elvariable id="user" type="org.apereo.cas.infusionsoft.domain.User"--%>
-<%--@elvariable id="securityQuestions" type="java.util.List<SecurityQuestion>"--%>
-
-<c:set var="createInfusionsoftIdJs" value="${pageContext.request.contextPath}/js/createInfusionsoftId.js"/>
-
-<c:set var="infusionsoftIdImage" value="${pageContext.request.contextPath}/img/infusionsoft_Id.png"/>
-
-<c:set var="buildVersion" value="<%=org.apereo.cas.infusionsoft.support.BuildVersion.getBuildVersion()%>"/>
-
-<%-- These form elements are used for both linkExisting and register --%>
-<c:set var="commonFormElements">
-    <input type="hidden" name="registrationCode" value="${fn:escapeXml(registrationCode)}"/>
-    <input type="hidden" name="returnUrl" value="${fn:escapeXml(returnUrl)}"/>
-    <input type="hidden" name="userToken" value="${fn:escapeXml(userToken)}"/>
-</c:set>
-
 <!DOCTYPE html>
-<html lang="en">
+<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" xmlns:th="http://www.thymeleaf.org" layout:decorate="../layouts/infusionsoft">
 <head>
-    <title><spring:message code='registration.pageTitle'/></title>
-    <meta name="decorator" content="black-header-minimal"/>
+    <title th:text="#{registration.pageTitle}"></title>
     <meta name="robots" content="noindex">
 </head>
 <body>
+<!--/*@thymesVar id="returnUrl" type="java.lang.String"*/-->
+<!--/*@thymesVar id="userToken" type="java.lang.String"*/-->
+<!--/*@thymesVar id="user" type="org.apereo.cas.infusionsoft.domain.User"*/-->
+<!--/*@thymesVar id="securityQuestions" type="java.util.List<org.apereo.cas.infusionsoft.domain.SecurityQuestion>"*/-->
+<!--/*@thymesVar id="registrationCode" type="java.lang.String"*/-->
+<!--/*@thymesVar id="skipWelcomeEmail" type="java.lang.Boolean"*/-->
+<!--/*@thymesVar id="error" type="java.lang.String"*/-->
 
+<!--/* These form elements are used for both linkToExisting and register */-->
+<template th:fragment="commonFormElements">
+    <input type="hidden" name="registrationCode" th:value="${registrationCode}"/>
+    <input type="hidden" name="returnUrl" th:value="${returnUrl}"/>
+    <input type="hidden" name="userToken" th:value="${userToken}"/>
+</template>
+
+<th:block layout:fragment="content">
 <div class="container">
     <div class="row">
         <div class="col-xs-12 text-center">
             <div class="page-header">
-                <h1><spring:message code='registration.mainTitle.newUser'/></h1>
+                <h1 th:text="#{registration.mainTitle.newUser}"></h1>
             </div>
         </div>
     </div>
@@ -50,98 +34,90 @@
         <div class="col-xs-12 col-sm-9 col-md-6 col-lg-5 col-centered">
             <div class="panel panel-default">
                 <div class="panel-heading text-center">
-                    <versioned:img src="${infusionsoftIdImage}"/>
+                    <img th:src="@{/infusionsoft/img/infusionsoft_Id.png}"/>
 
-                    <div>
-                        <spring:message code='registration.cardTop.title'/>
-                    </div>
+                    <div th:text="#{registration.cardTop.title}"></div>
                 </div>
                 <div class="panel-body">
-                    <form:form id="linkToExistingForm" action="linkToExisting" method="get">
-                        ${commonFormElements}
-                    </form:form>
+                    <form id="linkToExistingForm" th:action="@{linkToExisting}" method="get" th:include="~{::commonFormElements}">
+                    </form>
 
-                    <form:form id="registerForm" action="register" method="post" modelAttribute="user" role="form">
-                        ${commonFormElements}
-                        <input type="hidden" name="skipUrl" value="${fn:escapeXml(skipUrl)}"/>
-                        <input type="hidden" name="skipWelcomeEmail" value="${fn:escapeXml(skipWelcomeEmail)}"/>
+                    <form id="registerForm" th:action="@{register}" method="post" th:object="${user}">
+                        <th:block th:include="~{::commonFormElements}"/>
+                        <input type="hidden" name="skipWelcomeEmail" th:value="${skipWelcomeEmail}"/>
 
-                        <form:errors path="*" id="msg" cssClass="text-error" element="p">
-                            <p class="text-error">
-                                <versioned:objectSvg tabindex="-1" data="/img/ic-exclamation-circle.svg" width="16" height="16" />
-                                <c:forEach var="error" items="${messages}">
-                                    ${error}
-                                </c:forEach>
-                            </p>
-                        </form:errors>
+                        <p class="text-error" th:if="${#fields.hasGlobalErrors()}">
+                            <img tabindex="-1" th:src="@{/infusionsoft/img/ic-exclamation-circle.svg}" width="16" height="16" />
+                            <th:block th:each="error : ${#fields.globalErrors()}" th:utext="#{${error}}"/>
+                        </p>
 
-                        <c:if test="${error != null}">
-                            <p class="text-error">
-                                <versioned:objectSvg tabindex="-1" data="/img/ic-exclamation-circle.svg" width="16" height="16"/>
-                                <spring:message code="${error}" text="${error}"/>
-                            </p>
-                        </c:if>
+                        <p class="text-error" th:if="${error != null}">
+                            <img tabindex="-1" th:src="@{/infusionsoft/img/ic-exclamation-circle.svg}" width="16" height="16"/>
+                            <th:block th:utext="#{${error}}"/>
+                        </p>
 
                         <div class="form-group">
-                            <label><spring:message code="user.firstName.label"/></label>
-                            <form:input class="form-control" path="firstName" id="firstName" name="firstName" htmlEscape="true" tabindex="1" placeholder="first name"/>
+                            <label th:text="#{user.firstName.label}" for="firstName"></label>
+                            <input class="form-control" id="firstName" tabindex="1" placeholder="first name" th:field="*{firstName}"/>
                         </div>
 
                         <div class="form-group">
-                            <label><spring:message code="user.lastName.label"/></label>
-                            <form:input class="form-control" path="lastName" id="lastName" name="lastName" htmlEscape="true" tabindex="2" placeholder="last name"/>
+                            <label th:text="#{user.lastName.label}" for="lastName"></label>
+                            <input class="form-control" id="lastName" tabindex="2" placeholder="last name" th:field="*{lastName}"/>
                         </div>
 
                         <div class="form-group">
-                            <label><spring:message code='registration.form.email1'/>
-                                <small class="emailHelp">
-                                    <spring:message code='registration.form.email1.usage'/>
-                                </small>
+                            <label for="username">
+                                <span th:text="#{registration.form.email1}"></span>
+                                <small class="emailHelp" th:text="#{registration.form.email1.usage}"></small>
                             </label>
-                            <form:input class="form-control" path="username" id="username" name="username" htmlEscape="true" tabindex="3"/>
+                            <input class="form-control" id="username" name="username" tabindex="3" th:value="*{username}"/>
                         </div>
 
                         <div class="form-group">
-                            <label><spring:message code='registration.form.email2'/></label>
-                            <form:input class="form-control" path="" id="username2" name="username2" value="${fn:escapeXml(user != null ? user.username : '')}" tabindex="4"/>
+                            <label th:text="#{registration.form.email2}" for="username2"></label>
+                            <input class="form-control" id="username2" name="username2" tabindex="4" th:value="*{username}"/>
                         </div>
 
                         <div class="row">
                             <div class="col-xs-12 col-sm-5 col-lg-5">
                                 <div class="form-group">
-                                    <label><spring:message code="registration.form.password1"/></label>
-                                    <form:password class="form-control" path="" id="password1" name="password1" autocomplete="off" tabindex="5"/>
+                                    <label th:text="#{registration.form.password1}" for="password1"></label>
+                                    <input type="password" class="form-control" id="password1" name="password1" autocomplete="off" tabindex="5"/>
                                 </div>
 
                                 <div class="form-group">
-                                    <label><spring:message code="password.password2.label"/></label>
-                                    <form:password class="form-control" path="" id="password2" name="password2" autocomplete="off" tabindex="6"/>
+                                    <label th:text="#{password.password2.label}" for="password2"></label>
+                                    <input type="password" class="form-control" id="password2" name="password2" autocomplete="off" tabindex="6"/>
                                 </div>
                             </div>
                             <div class="col-xs-12 col-sm-7 col-lg-7">
                                 <div class="well well-sm">
-                                    <spring:message code="password.criteria.label"/><br/>
+                                    <span th:text="#{password.criteria.label}"></span>
+                                    <br/>
                                     <ul>
-                                        <li id="pw_length"><spring:message code="password.criteria.length"/></li>
-                                        <li id="pw_number"><spring:message code="password.criteria.number"/></li>
-                                        <li id="pw_upper"><spring:message code="password.criteria.uppercase"/></li>
-                                        <li id="pw_under"><spring:message code="password.criteria.lowercase"/></li>
+                                        <li id="pw_length" th:text="#{password.criteria.length}"></li>
+                                        <li id="pw_number" th:text="#{password.criteria.number}"></li>
+                                        <li id="pw_upper" th:text="#{password.criteria.uppercase}"></li>
+                                        <li id="pw_under" th:text="#{password.criteria.lowercase}"></li>
                                     </ul>
                                 </div>
                             </div>
                         </div>
 
                         <div class="form-group">
-                            <label><spring:message code='registration.form.security.question'/></label>
-                            <form:select path="" value="" cssClass="form-control" id="securityQuestionId" name="securityQuestionId" tabindex="7">
-                                <option value="" disabled selected><spring:message code='registration.form.security.question.placeholder'/></option>
-                                <form:options items="${securityQuestions}" itemValue="id" itemLabel="question" />
-                            </form:select>
+                            <label th:text="#{registration.form.security.question}" for="securityQuestionId"></label>
+                            <select class="form-control" id="securityQuestionId" name="securityQuestionId" tabindex="7">
+                                <option value="" disabled selected th:text="#{registration.form.security.question.placeholder}"></option>
+                                <th:block th:each="question : ${securityQuestions}">
+                                    <option th:value="${question.id}" th:text="${question.question}"></option>
+                                </th:block>
+                            </select>
                         </div>
 
                         <div class="form-group">
-                            <label><spring:message code='registration.form.security.answer'/></label>
-                            <form:input class="form-control" path="" id="securityQuestionAnswer" name="securityQuestionAnswer" tabindex="7"/>
+                            <label th:text="#{registration.form.security.answer}" for="securityQuestionAnswer"></label>
+                            <input class="form-control" id="securityQuestionAnswer" name="securityQuestionAnswer" tabindex="7"/>
                         </div>
 
                         <div class="row">
@@ -151,8 +127,8 @@
                                         <label>
                                             <input id="eula" name="eula" type="checkbox" value="agreed" tabindex="7"/>
                                             <span class="checkbox-label">
-                                                <spring:message code='registration.form.readEULA'/>
-                                                <a tabindex="-1" href="#" onclick="openLightBox(); return false;"><spring:message code='registration.link.policies'/></a>
+                                                <span th:text="#{registration.form.readEULA}"></span>
+                                                <a tabindex="-1" href="#" onclick="openLightBox(); return false;" th:text="#{registration.link.policies}"></a>
                                             </span>
                                         </label>
                                     </div>
@@ -163,15 +139,15 @@
                         <div class="form-group">
 
                             <div class="col-xs-12 col-xs-push-0 col-sm-6 col-sm-push-6 text-center">
-                                <button type="submit" class="btn btn-primary btn-block"><spring:message code="registration.button.create.id"/></button>
+                                <button type="submit" class="btn btn-primary btn-block" th:text="#{registration.button.create.id}"></button>
                             </div>
 
                             <div class="col-xs-12 col-xs-pull-0 col-sm-6 col-sm-pull-6 text-center">
-                                <a href="#" class="btn btn-link linkToExisting"><spring:message code='registration.signin'/></a>
+                                <a href="#" class="btn btn-link linkToExisting" th:text="#{registration.signin}"></a>
                             </div>
 
                         </div>
-                    </form:form>
+                    </form>
                 </div>
             </div>
         </div>
@@ -185,24 +161,23 @@
                 <button type="button" class="close" data-dismiss="modal">
                     <span aria-hidden="true">&times;</span><span class="sr-only">Close</span>
                 </button>
-                <h4><spring:message code='registration.legal.eula.title'/></h4>
+                <h4 th:text="#{registration.legal.eula.title}"></h4>
             </div>
             <div class="modal-body">
-                <div id="legal">
-                    <jsp:include page="/content/eula.html"/>
-                </div>
+                <div id="legal" th:insert="fragments/eula"></div>
                 <div id="buttons">
-                    <button id="acceptTerms" type="button" class="btn btn-primary" disabled="disabled"><spring:message code='registration.legal.accept'/></button>
+                    <button id="acceptTerms" type="button" class="btn btn-primary" disabled="disabled" th:text="#{registration.legal.accept}"></button>
                 </div>
             </div>
         </div>
     </div>
 </div>
+</th:block>
 
-<content tag="local_script">
-    <versioned:script type="text/javascript" src="${createInfusionsoftIdJs}"/>
+<th:block layout:fragment="local_script">
+    <script type="text/javascript" th:src="@{/infusionsoft/js/createInfusionsoftId.js}"></script>
 
-    <script type="text/javascript">
+    <script type="text/javascript" th:inline="javascript">
         function resetCheckPassword() {
             $("#pw_length").css({"list-style-image": ''});
             $("#pw_number").css({"list-style-image": ''});
@@ -213,16 +188,16 @@
             var currPass = $('#password1').val();
             resetCheckPassword();
             if (currPass.length >= 7) {
-                $("#pw_length").css({"list-style-image": "url('/img/checkmark.png?b=${buildVersion}')"});
+                $("#pw_length").css({"list-style-image": "url('/infusionsoft/img/checkmark.png')"});
             }
             if (/\d/.test(currPass)) {
-                $("#pw_number").css({"list-style-image": "url('/img/checkmark.png?b=${buildVersion}')"});
+                $("#pw_number").css({"list-style-image": "url('/infusionsoft/img/checkmark.png')"});
             }
             if (/[a-z]/.test(currPass)) {
-                $("#pw_under").css({"list-style-image": "url('/img/checkmark.png?b=${buildVersion}')"});
+                $("#pw_under").css({"list-style-image": "url('/infusionsoft/img/checkmark.png')"});
             }
             if (/[A-Z]/.test(currPass)) {
-                $("#pw_upper").css({"list-style-image": "url('/img/checkmark.png?b=${buildVersion}')"});
+                $("#pw_upper").css({"list-style-image": "url('/infusionsoft/img/checkmark.png')"});
             }
         }
         setInterval(function () {
@@ -232,10 +207,10 @@
         $(document).ready(function () {
             jQuery.validator.addMethod("password", function (value, element) {
                 return this.optional(element) || value.length >= 7 && /\d/.test(value) && /[a-z]/.test(value) && /[A-Z]/.test(value);
-            }, "<spring:message code='password.error.invalid'/>");
+            }, [[#{password.error.invalid}]]);
 
-            //Check to ensure that username matches
-            //Validate the form
+            // Check to ensure that username matches
+            // Validate the form
             $('#registerForm').validate({
                 errorElement: "span",
                 errorClass: "help-block",
@@ -243,7 +218,7 @@
                     if (element.parent().is('label')) {
                         element.next().after(error);
                     } else {
-                        element.after('<span class="is-icon is-icon-error form-control-feedback"><object type="image/svg+xml" tabindex="-1" data="/img/ic-message-danger.svg?b=${buildVersion}" width="4" height="16"></object></span>');
+                        element.after('<span class="is-icon is-icon-error form-control-feedback"><img tabindex="-1" src="/infusionsoft/img/ic-message-danger.svg" width="4" height="16"/></span>');
                         element.after(error);
                     }
 
@@ -283,27 +258,27 @@
                     }
                 },
                 messages: {
-                    firstName: "<spring:message code='user.error.firstName.blank'/>",
-                    lastName: "<spring:message code='user.error.lastName.blank'/>",
+                    firstName: [[#{user.error.firstName.blank}]],
+                    lastName: [[#{user.error.lastName.blank}]],
                     username: {
-                        required: "<spring:message code='user.error.email.blank'/>",
-                        email: "<spring:message code='user.error.email.invalid'/>"
+                        required: [[#{user.error.email.blank}]],
+                        email: [[#{user.error.email.invalid}]]
                     },
                     username2: {
-                        required: "<spring:message code='user.error.email.blank'/>",
-                        equalTo: "<spring:message code='user.error.emails.dont.match'/>"
+                        required: [[#{user.error.email.blank}]],
+                        equalTo: [[#{user.error.emails.dont.match}]]
                     },
                     password1: {
-                        required: "<spring:message code='password.error.blank'/>",
-                        password: "<spring:message code='password.error.invalid'/>"
+                        required: [[#{password.error.blank}]],
+                        password: [[#{password.error.invalid}]]
                     },
                     password2: {
-                        required: "<spring:message code='password.error.blank'/>",
-                        equalTo: "<spring:message code='password.error.passwords.dont.match'/>"
+                        required: [[#{password.error.blank}]],
+                        equalTo: [[#{password.error.passwords.dont.match}]]
                     },
-                    securityQuestion: "<spring:message code='user.error.security.question.blank'/>",
-                    securityQuestionAnswer: "<spring:message code='user.error.security.question.answer.blank'/>",
-                    eula: "<spring:message code='registration.error.eula'/>"
+                    securityQuestion: [[#{user.error.security.question.blank}]],
+                    securityQuestionAnswer: [[#{user.error.security.question.answer.blank}]],
+                    eula: [[#{registration.error.eula}]]
 
                 },
                 highlight: function (element) {
@@ -324,7 +299,7 @@
             });
         });
     </script>
-</content>
+</th:block>
 
 </body>
 </html>
