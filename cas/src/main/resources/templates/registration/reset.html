@@ -1,24 +1,11 @@
-<%--@elvariable id="error" type="java.lang.String"--%>
-<%--@elvariable id="recoveryCode" type="java.lang.String"--%>
-
-<%@ page session="true" %>
-<%@ page pageEncoding="UTF-8" %>
-<%@ page contentType="text/html; charset=UTF-8" %>
-<%@ taglib prefix="c" uri="http://java.sun.com/jstl/core_rt" %>
-<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
-<%@ taglib prefix="fmt" uri="http://java.sun.com/jstl/fmt_rt" %>
-<%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
-<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
-
-<c:set var="buildVersion" value="<%=org.apereo.cas.infusionsoft.support.BuildVersion.getBuildVersion()%>"/>
-
+<!DOCTYPE html>
+<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" xmlns:th="http://www.thymeleaf.org" layout:decorate="../layouts/infusionsoft">
+<!--/*@thymesVar id="error" type="java.lang.String"*/-->
+<!--/*@thymesVar id="recoveryCode" type="java.lang.String"*/-->
 <head>
-
-    <meta name="decorator" content="black-header-minimal" />
-
     <meta name="robots" content="noindex">
 
-    <style type="text/css">
+    <style type="text/css" layout:fragment="local_style">
         #recover {
             width: 420px;
             margin: 10px auto;
@@ -34,7 +21,7 @@
         }
     </style>
 
-    <script type="text/javascript">
+    <script type="text/javascript" layout:fragment="local_script" th:inline="javascript">
 
         //Password check stuff
         function resetCheckPassword() {
@@ -47,16 +34,16 @@
             var currPass = $('#password1').val();
             resetCheckPassword();
             if (currPass.length >= 7) {
-                $("#pw_length").css({"list-style-image": "url('/img/checkmark.png?b=${buildVersion}')"});
+                $("#pw_length").css({"list-style-image": "url('/infusionsoft/img/checkmark.png')"});
             }
             if (/\d/.test(currPass)) {
-                $("#pw_number").css({"list-style-image": "url('/img/checkmark.png?b=${buildVersion}')"});
+                $("#pw_number").css({"list-style-image": "url('/infusionsoft/img/checkmark.png')"});
             }
             if (/[a-z]/.test(currPass)) {
-                $("#pw_under").css({"list-style-image": "url('/img/checkmark.png?b=${buildVersion}')"});
+                $("#pw_under").css({"list-style-image": "url('/infusionsoft/img/checkmark.png')"});
             }
             if (/[A-Z]/.test(currPass)) {
-                $("#pw_upper").css({"list-style-image": "url('/img/checkmark.png?b=${buildVersion}')"});
+                $("#pw_upper").css({"list-style-image": "url('/infusionsoft/img/checkmark.png')"});
             }
         }
         setInterval(function () {
@@ -107,7 +94,7 @@
     </script>
 
 </head>
-<body>
+<body layout:fragment="content">
 
 <div id="top-spacer" style="height: 101px;"></div>
 <div id="recover">
@@ -139,7 +126,7 @@
                     </div>
                 </div>
             </fieldset>
-            <input name="recoveryCode" type="hidden" value="${fn:escapeXml(recoveryCode)}"/>
+            <input name="recoveryCode" type="hidden" th:value="${recoveryCode}"/>
             </div>
             <div style="float:left;">
                 <div class="password-info">
