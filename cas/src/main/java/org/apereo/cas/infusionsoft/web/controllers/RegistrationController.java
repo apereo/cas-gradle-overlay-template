@@ -12,8 +12,6 @@ import org.apereo.cas.services.RegisteredService;
 import org.apereo.cas.services.ServicesManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -25,7 +23,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -101,18 +98,16 @@ public class RegistrationController {
             user.setLastName(lastName);
             user.setUsername(email);
 
-            // TODO: upgrade: remove support for registration codes?
             // If there's a registration code, pre-populate from that
-//            if (StringUtils.isNotEmpty(registrationCode)) {
-//                PendingUserAccount pending = userService.findPendingUserAccount(registrationCode);
-//
-//                if (pending != null) {
-//                    //NOTE: these values get escaped by the <form:input htmlEscape=true>
-//                    user.setFirstName(pending.getFirstName());
-//                    user.setLastName(pending.getLastName());
-//                    user.setUsername(pending.getEmail());
-//                }
-//            }
+            if (StringUtils.isNotEmpty(registrationCode)) {
+                PendingUserAccount pending = userService.findPendingUserAccount(registrationCode);
+
+                if (pending != null) {
+                    user.setFirstName(pending.getFirstName());
+                    user.setLastName(pending.getLastName());
+                    user.setUsername(pending.getEmail());
+                }
+            }
 
             buildModelForCreateInfusionsoftId(model, returnUrl, userToken, user, registrationCode, skipWelcomeEmail);
             return "registration/createInfusionsoftId";
@@ -158,53 +153,11 @@ public class RegistrationController {
     }
 
     /**
-     * Either connects a pending CAS account with a real CAS account, or redirects a user to the app to finish linking an account.
-     *
-     * @param model            model
-     * @param registrationCode registrationCode
-     * @param returnUrl        returnUrl
-     * @param userToken        userToken
-     * @param request          request
-     * @param response         response
-     * @return view
-     * @throws UnsupportedEncodingException ue
+     * Redirects to the Account Central endpoint
      */
     @RequestMapping("/linkToExisting")
-    public String linkToExisting(Model model, String registrationCode, String returnUrl, String userToken, HttpServletRequest request, HttpServletResponse response) throws UnsupportedEncodingException {
-        String retVal;
-        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-
-        // TODO: upgrade: remove support for registration codes?
-//        if (StringUtils.isNotEmpty(registrationCode)) {
-//            PendingUserAccount pending = userService.findPendingUserAccount(registrationCode);
-//
-//            if (pending != null) {
-//                userService.associatePendingAccountToUser(user, registrationCode);
-//                autoLoginService.autoLogin(user.getUsername(), request, response);
-//
-//                retVal = "redirect:/app/central/home";
-//            } else {
-//                model.addAttribute("error", "Registration Code not found");
-//                retVal = "registration/createInfusionsoftId";
-//            }
-//        } else {
-            boolean urlIsAllowed = isAllowedUrl(returnUrl, "returnUrl");
-            boolean userTokenIsValid = StringUtils.isNotBlank(userToken);
-
-            if (urlIsAllowed && userTokenIsValid) {
-                String redirectToAppUrl = generateRedirectToAppFromReturnUrl(returnUrl, userToken, user, false);
-                log.info("Account linkage request for existing user " + user.getUsername() + ". Redirecting to " + redirectToAppUrl);
-                retVal = "redirect:" + redirectToAppUrl;
-            } else if (!urlIsAllowed) {
-                log.warn("Invalid account linkage request for existing user " + user.getUsername() + " (URL not allowed). Redirecting to app central.");
-                retVal = "redirect:/app/central/home";
-            } else {
-                log.warn("Invalid account linkage request for existing user " + user.getUsername() + " (user token missing). Redirecting to app central.");
-                retVal = "redirect:/app/central/home";
-            }
-//        }
-
-        return retVal;
+    public String linkToExisting(HttpServletRequest request) throws UnsupportedEncodingException {
+        return "redirect:" + infusionsoftConfigurationProperties.getAccountCentral().getUrl() + "/app/registration/linkToExisting?" + request.getQueryString();
     }
 
     /**
@@ -213,9 +166,7 @@ public class RegistrationController {
     private String generateRedirectToAppFromReturnUrl(String returnUrl, String userToken, User user, boolean isNewInfusionsoftId) {
         // Redirect back to the app, which will do the linkage
         try {
-            return returnUrl + "?userToken=" + URLEncoder.encode(userToken, CharEncoding.UTF_8) + "&casGlobalId=" + user.getId() + "&globalUserId=" + user.getId() + "&isNewInfusionsoftId=" + isNewInfusionsoftId;
-            // TODO: change to this once all apps use globalUserId instead of casGlobalId:
-            // return returnUrl + "?userToken=" + URLEncoder.encode(userToken, CharEncoding.UTF_8) + "&globalUserId=" + user.getId() + "&isNewInfusionsoftId=" + isNewInfusionsoftId;
+            return returnUrl + "?userToken=" + URLEncoder.encode(userToken, CharEncoding.UTF_8) + "&globalUserId=" + user.getId() + "&isNewInfusionsoftId=" + isNewInfusionsoftId;
         } catch (UnsupportedEncodingException e) {
             // This should never happen
             throw new RuntimeException(e);
@@ -301,16 +252,15 @@ public class RegistrationController {
 
                 model.addAttribute("user", user);
 
-                // TODO: upgrade: remove support for registration codes?
-//                if (StringUtils.isNotEmpty(registrationCode)) {
-//                    log.info("processing registration code " + registrationCode);
-//
-//                    try {
-//                        userService.associatePendingAccountToUser(user, registrationCode);
-//                    } catch (Exception e) {
-//                        log.error("failed to associate new user to registration code " + registrationCode, e);
-//                    }
-//                }
+                if (StringUtils.isNotEmpty(registrationCode)) {
+                    log.info("processing registration code " + registrationCode);
+
+                    try {
+                        userService.associatePendingAccountToUser(user, registrationCode);
+                    } catch (Exception e) {
+                        log.error("failed to associate new user to registration code " + registrationCode, e);
+                    }
+                }
 
                 if (!skipWelcomeEmail) {
                     mailService.sendWelcomeEmail(user, request.getLocale());
@@ -345,7 +295,7 @@ public class RegistrationController {
      */
     @RequestMapping("/success")
     public ModelAndView success(HttpServletRequest request) {
-        Map<String, Object> model = new HashMap<String, Object>();
+        Map<String, Object> model = new HashMap<>();
         // TODO: upgrade. This looks at the TGT cookie to get the current user. Why not just use the current user from Spring security?
         User user = infusionsoftAuthenticationService.getCurrentUser(request);
 
@@ -353,9 +303,10 @@ public class RegistrationController {
             return new ModelAndView("redirect:createInfusionsoftId");
         } else {
             model.put("user", user);
+            model.put("appCentralBase", infusionsoftConfigurationProperties.getAccountCentral().getUrl());
 
             if (user.getAccounts().size() == 1) {
-                UserAccount primary = new ArrayList<UserAccount>(user.getAccounts()).get(0);
+                UserAccount primary = new ArrayList<>(user.getAccounts()).get(0);
 
                 model.put("appUrl", appHelper.buildAppUrl(primary.getAppType(), primary.getAppName()));
             }
@@ -468,7 +419,7 @@ public class RegistrationController {
                 autoLoginService.autoLogin(user.getUsername(), request, response);
             }
 
-            return "redirect:/app/central/home";
+            return "redirect:" + infusionsoftConfigurationProperties.getAccountCentral().getUrl() + "/app/central/home";
         }
     }
 

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" xmlns:th="http://www.thymeleaf.org" layout:decorate="../layouts/infusionsoft">
+<!--/*@thymesVar id="appCentralBase" type="java.lang.String"*/-->
 <!--/*@thymesVar id="appUrl" type="java.lang.String"*/-->
 <!--/*@thymesVar id="user" type="org.apereo.cas.infusionsoft.domain.User"*/-->
 <head>
@@ -36,7 +37,7 @@
                     </p>
 
                     <p>
-                        <a class="btn btn-primary pull-right" th:href="@{${#strings.isEmpty(appUrl) ? '/app/central/home' : appUrl}}" role="button">Done</a>
+                        <a class="btn btn-primary pull-right" th:href="@{${#strings.isEmpty(appUrl) ? ${appCentralBase} + '/app/central/home' : appUrl}}" role="button">Done</a>
                     </p>
                 </div>
             </div>

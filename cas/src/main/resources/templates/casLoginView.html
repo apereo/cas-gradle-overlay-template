@@ -45,7 +45,7 @@
                 <input type="hidden" name="app_version" th:value="${appVersion}"/>
 
                 <div class="row signUpRow">
-                    <p>Don't have an account? <a th:href="@{/app/registration/createInfusionsoftId(service=${serviceUrl})}">Sign Up</a></p>
+                    <p>Don't have an account? <a th:href="@{/app/registration/createInfusionsoftId(returnUrl=${serviceUrl})}">Sign Up</a></p>
                 </div>
 
                 <div class="form-group">

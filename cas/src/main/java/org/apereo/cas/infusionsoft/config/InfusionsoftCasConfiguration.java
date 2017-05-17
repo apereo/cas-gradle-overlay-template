@@ -73,6 +73,9 @@ public class InfusionsoftCasConfiguration implements AuthenticationEventExecutio
     private PasswordEncoder passwordEncoder;
 
     @Autowired
+    private PendingUserAccountDAO pendingUserAccountDAO;
+
+    @Autowired
     private PrincipalFactory principalFactory;
 
     @Autowired
@@ -180,7 +183,7 @@ public class InfusionsoftCasConfiguration implements AuthenticationEventExecutio
 
     @Bean
     public UserService userService() {
-        return new UserServiceImpl(appHelper(), authorityDAO, loginAttemptDAO, mailService, passwordService(), userDAO, userAccountDAO, userIdentityDAO, infusionsoftConfigurationProperties);
+        return new UserServiceImpl(appHelper(), authorityDAO, loginAttemptDAO, mailService, passwordService(), pendingUserAccountDAO, userDAO, userAccountDAO, userIdentityDAO, infusionsoftConfigurationProperties);
     }
 
     @Override
