@@ -180,9 +180,7 @@ public class RegistrationController {
      * @param firstName              firstName
      * @param lastName               lastName
      * @param username               username
-     * @param username2              username2
-     * @param password1              password1
-     * @param password2              password2
+     * @param password               password
      * @param eula                   eula
      * @param registrationCode       registrationCode
      * @param returnUrl              returnUrl
@@ -195,7 +193,7 @@ public class RegistrationController {
      * @return view
      */
     @RequestMapping("/register")
-    public String register(Model model, String firstName, String lastName, String username, String username2, String password1, String password2, String eula, String registrationCode, String returnUrl, String userToken, @RequestParam(defaultValue = "false") boolean skipWelcomeEmail, Long securityQuestionId, String securityQuestionAnswer, HttpServletRequest request, HttpServletResponse response) {
+    public String register(Model model, String firstName, String lastName, String username, String password, String eula, String registrationCode, String returnUrl, String userToken, @RequestParam(defaultValue = "false") boolean skipWelcomeEmail, Long securityQuestionId, String securityQuestionAnswer, HttpServletRequest request, HttpServletResponse response) {
         boolean eulaChecked = StringUtils.equals(eula, "agreed");
         User user = new User();
 
@@ -207,14 +205,10 @@ public class RegistrationController {
 
             model.addAttribute("user", user);
 
-            if (StringUtils.isEmpty(password1)) {
+            if (StringUtils.isEmpty(password)) {
                 model.addAttribute("error", "password.error.blank");
-            } else if (!password1.equals(password2)) {
-                model.addAttribute("error", "password.error.passwords.dont.match");
             } else if (username == null || username.isEmpty() || !EmailValidator.getInstance().isValid(username)) {
                 model.addAttribute("error", "user.error.email.invalid");
-            } else if (!username.equals(username2)) {
-                model.addAttribute("error", "user.error.emails.dont.match");
             } else if (StringUtils.isEmpty(firstName)) {
                 model.addAttribute("error", "user.error.firstName.blank");
             } else if (StringUtils.isEmpty(lastName)) {
@@ -228,7 +222,7 @@ public class RegistrationController {
             } else if (securityQuestionId == null) {
                 model.addAttribute("error", "registration.error.security.question");
             } else {
-                String passwordError = passwordService.validatePassword(user, password1);
+                String passwordError = passwordService.validatePassword(user, password);
                 if (passwordError != null) {
                     model.addAttribute("error", passwordError);
                 }
@@ -239,7 +233,7 @@ public class RegistrationController {
             } else {
 
                 user.setIpAddress(request.getRemoteAddr());
-                user = userService.createUser(user, password1);
+                user = userService.createUser(user, password);
 
                 SecurityQuestion securityQuestion = securityQuestionService.fetch(securityQuestionId);
                 SecurityQuestionResponse securityQuestionResponse = new SecurityQuestionResponse();

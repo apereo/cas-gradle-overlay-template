@@ -3,6 +3,153 @@
 <head>
     <title th:text="#{registration.pageTitle}"></title>
     <meta name="robots" content="noindex">
+    <style th:inline="css">
+        .column {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+
+        #logo {
+            margin-bottom: 40px;
+            height: 80px;
+        }
+
+        #pageSection {
+            position: fixed;
+            bottom: 0;
+            top: 0;
+            left: 0;
+            right: 0;
+        }
+
+        #main {
+            padding: 15px;
+        }
+
+        #panel {
+            width: 100%;
+            max-width: 500px;
+            border-radius: 5px;
+            background-color: #FFFFFF;
+            padding: 42px;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 28px;
+            margin-bottom: 16px;
+            font-weight: bold;
+        }
+
+        p, label {
+            margin-bottom: 8px;
+            text-align: center;
+        }
+
+        label {
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            margin: auto;
+            cursor: pointer;
+        }
+
+        input, input[type="password"], input[type="email"], select {
+            height: 40px;
+            border: 1px solid #D0D2D3;
+            border-radius: 5px;
+            background-color: #FFFFFF;
+            padding: 10px 8px;
+        }
+
+        input[type="checkbox"] {
+            margin: 0 8px 0 0;
+            height: unset;
+            cursor: pointer;
+        }
+
+        #firstNameGroup {
+            padding-right: 8px;
+        }
+
+        #lastNameGroup {
+            padding-left: 8px;
+        }
+
+        #showHide {
+            position: absolute;
+            top: -22px;
+            right: 0;
+            color: #58A1D8;
+            font-weight: bold;
+            cursor: pointer;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+        }
+
+        #showPassword, #hidePassword {
+            margin-right: 12px;
+            width: 16px;
+            height: 16px;
+        }
+
+        #securityQuestionGroup {
+            margin-bottom: 8px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            margin: 16px 0;
+            position: relative;
+        }
+
+        #names .form-group {
+            flex: 1;
+        }
+
+        ul {
+            display: flex;
+            flex-wrap: wrap;
+            padding-left: 0;
+            margin: 16px 0;
+        }
+
+        li {
+            flex: 1;
+            white-space: nowrap;
+            min-width: 45%;
+            margin-left: 18px;
+            list-style-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='8' height='8'><circle fill='#58A1D8' cx='4' cy='4' r='3.5'/></svg>");
+
+        }
+
+        #names {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            flex-direction: row;
+        }
+
+        button#save {
+            height: 40px;
+            width: 300px;
+            margin-top: 16px;
+            border-radius: 5px;
+            background-color: #58A2D6;
+        }
+
+        .help-block {
+            position: absolute;
+            font-size: 12px;
+            font-weight: normal;
+            bottom: -29px;
+        }
+    </style>
 </head>
 <body>
 <!--/*@thymesVar id="returnUrl" type="java.lang.String"*/-->
@@ -21,138 +168,95 @@
 </template>
 
 <th:block layout:fragment="content">
-<div class="container">
-    <div class="row">
-        <div class="col-xs-12 text-center">
-            <div class="page-header">
-                <h1 th:text="#{registration.mainTitle.newUser}"></h1>
-            </div>
-        </div>
-    </div>
+<section id="pageSection" class="column">
+    <section id="main" class="column">
 
-    <div class="row">
-        <div class="col-xs-12 col-sm-9 col-md-6 col-lg-5 col-centered">
-            <div class="panel panel-default">
-                <div class="panel-heading text-center">
-                    <img th:src="@{/infusionsoft/img/infusionsoft_Id.png}"/>
+        <img id="logo" th:src="@{/infusionsoft/img/infusionsoft_Id.png}"/>
 
-                    <div th:text="#{registration.cardTop.title}"></div>
-                </div>
-                <div class="panel-body">
-                    <form id="linkToExistingForm" th:action="@{linkToExisting}" method="get" th:include="~{::commonFormElements}">
-                    </form>
+        <section id="panel" class="column">
+            <h1 th:text="#{registration.mainTitle.newUser}"></h1>
 
-                    <form id="registerForm" th:action="@{register}" method="post" th:object="${user}">
-                        <th:block th:include="~{::commonFormElements}"/>
-                        <input type="hidden" name="skipWelcomeEmail" th:value="${skipWelcomeEmail}"/>
+            <p th:text="#{registration.cardTop.title}"></p>
 
-                        <p class="text-error" th:if="${#fields.hasGlobalErrors()}">
-                            <img tabindex="-1" th:src="@{/infusionsoft/img/ic-exclamation-circle.svg}" width="16" height="16" />
-                            <th:block th:each="error : ${#fields.globalErrors()}" th:utext="#{${error}}"/>
-                        </p>
+            <p>
+                <span th:text="#{registration.alreadyHaveId}"></span>
+                <a href="#" id="linkToExistingLink" th:text="#{registration.login}"></a>
+            </p>
 
-                        <p class="text-error" th:if="${!#strings.isEmpty(error)}">
-                            <img tabindex="-1" th:src="@{/infusionsoft/img/ic-exclamation-circle.svg}" width="16" height="16"/>
-                            <th:block th:utext="#{${error}}"/>
-                        </p>
+            <form id="linkToExistingForm" th:action="@{linkToExisting}" method="get" th:include="~{::commonFormElements}">
+            </form>
 
-                        <div class="form-group">
-                            <label th:text="#{user.firstName.label}" for="firstName"></label>
-                            <input class="form-control" id="firstName" tabindex="1" placeholder="first name" th:field="*{firstName}"/>
+            <form id="registerForm" th:action="@{register}" method="post" th:object="${user}" >
+                <section class="column">
+                    <th:block th:include="~{::commonFormElements}"></th:block>
+                    <input type="hidden" name="skipWelcomeEmail" th:value="${skipWelcomeEmail}"/>
+
+                    <p class="text-error" th:if="${#fields.hasGlobalErrors()}">
+                        <img tabindex="-1" th:src="@{/infusionsoft/img/ic-exclamation-circle.svg}" width="16" height="16" />
+                        <th:block th:each="error : ${#fields.globalErrors()}" th:utext="#{${error}}"/>
+                    </p>
+
+                    <p class="text-error" th:if="${!#strings.isEmpty(error)}">
+                        <img tabindex="-1" th:src="@{/infusionsoft/img/ic-exclamation-circle.svg}" width="16" height="16"/>
+                        <th:block th:utext="#{${error}}"/>
+                    </p>
+
+                    <section id="names">
+                        <div class="form-group" id="firstNameGroup">
+                            <input type="text" id="firstName" tabindex="1" th:placeholder="#{user.firstName.label}" th:field="*{firstName}"/>
                         </div>
-
-                        <div class="form-group">
-                            <label th:text="#{user.lastName.label}" for="lastName"></label>
-                            <input class="form-control" id="lastName" tabindex="2" placeholder="last name" th:field="*{lastName}"/>
+                        <div class="form-group" id="lastNameGroup">
+                            <input type="text" id="lastName" tabindex="2" th:placeholder="#{user.lastName.label}" th:field="*{lastName}"/>
                         </div>
-
-                        <div class="form-group">
-                            <label for="username">
-                                <span th:text="#{registration.form.email1}"></span>
-                                <small class="emailHelp" th:text="#{registration.form.email1.usage}"></small>
-                            </label>
-                            <input class="form-control" id="username" name="username" tabindex="3" th:value="*{username}"/>
+                    </section>
+                    <div class="form-group">
+                        <input type="text" id="username" name="username" tabindex="3" th:value="*{username}" th:placeholder="#{registration.form.email}"/>
+                    </div>
+                    <div class="form-group">
+                        <input type="password" id="password" name="password" autocomplete="off" tabindex="4" th:placeholder="#{registration.form.password}"/>
+                        <div id="showHide">
+                            <img id="showPassword" th:src="@{/infusionsoft/img/visibility.svg}" th:alt-title="#{Show}"/>
+                            <img id="hidePassword" style="display: none" th:src="@{/infusionsoft/img/visibility-off.svg}" th:alt-title="#{Hide}"/>
+                            <span id="showHideLabel" th:text="#{Show}"></span>
                         </div>
+                    </div>
 
-                        <div class="form-group">
-                            <label th:text="#{registration.form.email2}" for="username2"></label>
-                            <input class="form-control" id="username2" name="username2" tabindex="4" th:value="*{username}"/>
-                        </div>
+                    <ul>
+                        <li id="pw_upper" th:text="#{password.criteria.uppercase}"></li>
+                        <li id="pw_number" th:text="#{password.criteria.number}"></li>
+                        <li id="pw_under" th:text="#{password.criteria.lowercase}"></li>
+                        <li id="pw_length" th:text="#{password.criteria.length}"></li>
+                    </ul>
 
-                        <div class="row">
-                            <div class="col-xs-12 col-sm-5 col-lg-5">
-                                <div class="form-group">
-                                    <label th:text="#{registration.form.password1}" for="password1"></label>
-                                    <input type="password" class="form-control" id="password1" name="password1" autocomplete="off" tabindex="5"/>
-                                </div>
+                    <div class="form-group" id="securityQuestionGroup">
+                        <select id="securityQuestionId" name="securityQuestionId" tabindex="5">
+                            <option value="" disabled selected th:text="#{registration.form.security.question.placeholder}"></option>
+                            <th:block th:each="question : ${securityQuestions}">
+                                <option th:value="${question.id}" th:text="${question.question}"></option>
+                            </th:block>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <input id="securityQuestionAnswer" name="securityQuestionAnswer" th:placeholder="#{registration.form.security.answer}" tabindex="6"/>
+                    </div>
 
-                                <div class="form-group">
-                                    <label th:text="#{registration.form.password2}" for="password2"></label>
-                                    <input type="password" class="form-control" id="password2" name="password2" autocomplete="off" tabindex="6"/>
-                                </div>
-                            </div>
-                            <div class="col-xs-12 col-sm-7 col-lg-7">
-                                <div class="well well-sm">
-                                    <span th:text="#{password.criteria.label}"></span>
-                                    <br/>
-                                    <ul>
-                                        <li id="pw_length" th:text="#{password.criteria.length}"></li>
-                                        <li id="pw_number" th:text="#{password.criteria.number}"></li>
-                                        <li id="pw_upper" th:text="#{password.criteria.uppercase}"></li>
-                                        <li id="pw_under" th:text="#{password.criteria.lowercase}"></li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
+                    <div class="form-group">
+                        <label>
+                            <input id="eula" name="eula" type="checkbox" value="agreed" tabindex="7"/>
+                            <span class="checkbox-label">
+                                <span th:text="#{registration.form.readEULA}" th:if="${false}"></span>
+                                <span th:text="#{registration.form.agreeEULA}"></span>&nbsp;
+                                <a tabindex="-1" href="#" onclick="openLightBox(); return false;" th:text="#{registration.link.policies}"></a>
+                            </span>
+                        </label>
+                    </div>
 
-                        <div class="form-group">
-                            <label th:text="#{registration.form.security.question}" for="securityQuestionId"></label>
-                            <select class="form-control" id="securityQuestionId" name="securityQuestionId" tabindex="7">
-                                <option value="" disabled selected th:text="#{registration.form.security.question.placeholder}"></option>
-                                <th:block th:each="question : ${securityQuestions}">
-                                    <option th:value="${question.id}" th:text="${question.question}"></option>
-                                </th:block>
-                            </select>
-                        </div>
-
-                        <div class="form-group">
-                            <label th:text="#{registration.form.security.answer}" for="securityQuestionAnswer"></label>
-                            <input class="form-control" id="securityQuestionAnswer" name="securityQuestionAnswer" tabindex="7"/>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-xs-12 text-center">
-                                <div class="form-group">
-                                    <div class="checkbox">
-                                        <label>
-                                            <input id="eula" name="eula" type="checkbox" value="agreed" tabindex="7"/>
-                                            <span class="checkbox-label">
-                                                <span th:text="#{registration.form.readEULA}"></span>
-                                                <a tabindex="-1" href="#" onclick="openLightBox(); return false;" th:text="#{registration.link.policies}"></a>
-                                            </span>
-                                        </label>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-
-                            <div class="col-xs-12 col-xs-push-0 col-sm-6 col-sm-push-6 text-center">
-                                <button type="submit" class="btn btn-primary btn-block" th:text="#{registration.button.create.id}"></button>
-                            </div>
-
-                            <div class="col-xs-12 col-xs-pull-0 col-sm-6 col-sm-pull-6 text-center">
-                                <a href="#" class="btn btn-link linkToExisting" th:text="#{registration.signin}"></a>
-                            </div>
-
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+                    <button id="save" type="submit" class="btn btn-primary btn-block" th:text="#{registration.button.create.id}"></button>
+                </section>
+            </form>
+        </section>
+    </section>
+</section>
 
 <div class="modal fade" id="lightbox-terms">
     <div class="modal-dialog legal-modal">
@@ -174,132 +278,169 @@
 </div>
 </th:block>
 
-<th:block layout:fragment="local_script">
-    <script type="text/javascript" th:src="@{/infusionsoft/js/createInfusionsoftId.js}"></script>
+<script type="text/javascript" layout:fragment="local_script" th:inline="javascript">
+    $(document).ready(function () {
 
-    <script type="text/javascript" th:inline="javascript">
-        function resetCheckPassword() {
-            $("#pw_length").css({"list-style-image": ''});
-            $("#pw_number").css({"list-style-image": ''});
-            $("#pw_upper").css({"list-style-image": ''});
-            $("#pw_under").css({"list-style-image": ''});
+        $('#linkToExistingLink').click(function() {
+            $('#linkToExistingForm').submit();
+            return false;
+        });
+
+        document.getElementById('eula').addEventListener("click", checkTheEula);
+        document.getElementById('acceptTerms').addEventListener("click", acceptTerms);
+        document.getElementById('showHide').addEventListener("click", togglePasswordVisible);
+
+        initLightBox();
+    });
+
+    var CONTAINER_ID = 'lightbox-terms';
+
+    function initLightBox() {
+
+        document.getElementById('legal').addEventListener("scroll", checkScrollHeight);
+
+        function checkScrollHeight() {
+            var termsDiv = document.getElementById('legal');
+            if ((termsDiv.scrollTop + termsDiv.offsetHeight) >= termsDiv.scrollHeight){
+                document.getElementById('acceptTerms').disabled = false;
+            }
         }
-        function checkPasswordReq() {
-            var currPass = $('#password1').val();
-            resetCheckPassword();
-            if (currPass.length >= 7) {
-                $("#pw_length").css({"list-style-image": "url('/infusionsoft/img/checkmark.png')"});
-            }
-            if (/\d/.test(currPass)) {
-                $("#pw_number").css({"list-style-image": "url('/infusionsoft/img/checkmark.png')"});
-            }
-            if (/[a-z]/.test(currPass)) {
-                $("#pw_under").css({"list-style-image": "url('/infusionsoft/img/checkmark.png')"});
-            }
-            if (/[A-Z]/.test(currPass)) {
-                $("#pw_upper").css({"list-style-image": "url('/infusionsoft/img/checkmark.png')"});
-            }
+    }
+
+    function checkTheEula(e) {
+        e.preventDefault();
+        openLightBox();
+    }
+
+    function openLightBox() {
+        var $modal = $('#' + CONTAINER_ID);
+        $modal.modal('show');
+    }
+
+    function acceptTerms() {
+        var eulaCheckbox = document.getElementById('eula');
+        eulaCheckbox.checked = true;
+
+        var $modal = $('#' + CONTAINER_ID);
+        $modal.modal('hide');
+
+        document.getElementById('eula').removeEventListener("click", checkTheEula);
+    }
+
+    function togglePasswordVisible() {
+        var showPassword = document.getElementById("showPassword");
+        var hidePassword = document.getElementById("hidePassword");
+        var showHideLabel = document.getElementById("showHideLabel");
+        var password = document.getElementById("password");
+        if (password.type === 'text') {
+            showPassword.style.display = '';
+            hidePassword.style.display = 'none';
+            showHideLabel.innerText = 'Show';
+            password.type = 'password';
+        } else {
+            showPassword.style.display = 'none';
+            hidePassword.style.display = '';
+            showHideLabel.innerText = 'Hide';
+            password.type = 'text';
         }
-        setInterval(function () {
-            checkPasswordReq();
-        }, 100);
+    }
 
-        $(document).ready(function () {
-            jQuery.validator.addMethod("password", function (value, element) {
-                return this.optional(element) || value.length >= 7 && /\d/.test(value) && /[a-z]/.test(value) && /[A-Z]/.test(value);
-            }, [[#{password.error.invalid}]]);
+    function resetCheckPassword() {
+        $("#pw_length").css({"list-style-image": ''});
+        $("#pw_number").css({"list-style-image": ''});
+        $("#pw_upper").css({"list-style-image": ''});
+        $("#pw_under").css({"list-style-image": ''});
+    }
+    function checkPasswordReq() {
+        var currPass = $('#password').val();
+        var chechmarkImage = "url('" + [[@{/infusionsoft/img/checkmark.png}]] + "')";
+        resetCheckPassword();
+        if (currPass.length >= 7) {
+            $("#pw_length").css({"list-style-image": chechmarkImage});
+        }
+        if (/\d/.test(currPass)) {
+            $("#pw_number").css({"list-style-image": chechmarkImage});
+        }
+        if (/[a-z]/.test(currPass)) {
+            $("#pw_under").css({"list-style-image": chechmarkImage});
+        }
+        if (/[A-Z]/.test(currPass)) {
+            $("#pw_upper").css({"list-style-image": chechmarkImage});
+        }
+    }
+    setInterval(function () {
+        checkPasswordReq();
+    }, 100);
 
-            // Check to ensure that username matches
-            // Validate the form
-            $('#registerForm').validate({
-                errorElement: "span",
-                errorClass: "help-block",
-                errorPlacement: function (error, element) {
-                    if (element.parent().is('label')) {
-                        element.next().after(error);
-                    } else {
-                        element.after('<span class="is-icon is-icon-error form-control-feedback"><img tabindex="-1" src="/infusionsoft/img/ic-message-danger.svg" width="4" height="16"/></span>');
-                        element.after(error);
-                    }
+    $(document).ready(function () {
+        jQuery.validator.addMethod("password", function (value, element) {
+            return this.optional(element) || value.length >= 7 && /\d/.test(value) && /[a-z]/.test(value) && /[A-Z]/.test(value);
+        }, [[#{password.error.invalid}]]);
 
-                },
-                rules: {
-                    firstName: {
-                        required: true
-                    },
-                    lastName: {
-                        required: true
-                    },
-                    username: {
-                        required: true,
-                        email: true
-                    },
-                    username2: {
-                        required: true,
-                        equalTo: "#username"
-                    },
-                    password1: {
-                        required: true,
-                        password: true
-                    },
-                    password2: {
-                        required: true,
-                        password: false,
-                        equalTo: "#password1"
-                    },
-                    securityQuestionId: {
-                        required: true
-                    },
-                    securityQuestionAnswer: {
-                        required: true
-                    },
-                    eula: {
-                        required: true
-                    }
-                },
-                messages: {
-                    firstName: [[#{user.error.firstName.blank}]],
-                    lastName: [[#{user.error.lastName.blank}]],
-                    username: {
-                        required: [[#{user.error.email.blank}]],
-                        email: [[#{user.error.email.invalid}]]
-                    },
-                    username2: {
-                        required: [[#{user.error.email.blank}]],
-                        equalTo: [[#{user.error.emails.dont.match}]]
-                    },
-                    password1: {
-                        required: [[#{password.error.blank}]],
-                        password: [[#{password.error.invalid}]]
-                    },
-                    password2: {
-                        required: [[#{password.error.blank}]],
-                        equalTo: [[#{password.error.passwords.dont.match}]]
-                    },
-                    securityQuestion: [[#{user.error.security.question.blank}]],
-                    securityQuestionAnswer: [[#{user.error.security.question.answer.blank}]],
-                    eula: [[#{registration.error.eula}]]
-
-                },
-                highlight: function (element) {
-                    $(element).closest('.form-group').addClass('has-error has-feedback');
-
-                    //Unhide error message
-                    $(element).next().removeClass("hidden");
-                },
-                success: function (element) {
-                    element.closest('.form-group').removeClass('has-error has-feedback');
-
-                    //Hide error message
-                    element.addClass("hidden");
-
-                    element.next().addClass("hidden");
+        // Check to ensure that username matches
+        // Validate the form
+        $('#registerForm').validate({
+            errorElement: "span",
+            errorClass: "help-block",
+            errorPlacement: function (error, element) {
+                if (element.parent().is('label')) {
+                    element.next().after(error);
+                } else {
+                    element.after(error);
                 }
 
-            });
+            },
+            rules: {
+                firstName: {
+                    required: true
+                },
+                lastName: {
+                    required: true
+                },
+                username: {
+                    required: true,
+                    email: true
+                },
+                password: {
+                    required: true,
+                    password: true
+                },
+                securityQuestionId: {
+                    required: true
+                },
+                securityQuestionAnswer: {
+                    required: true
+                },
+                eula: {
+                    required: true
+                }
+            },
+            messages: {
+                firstName: [[#{user.error.firstName.blank}]],
+                lastName: [[#{user.error.lastName.blank}]],
+                username: {
+                    required: [[#{user.error.email.blank}]],
+                    email: [[#{user.error.email.invalid}]]
+                },
+                password: {
+                    required: [[#{password.error.blank}]],
+                    password: [[#{password.error.invalid}]]
+                },
+                securityQuestionId: [[#{user.error.security.question.blank}]],
+                securityQuestionAnswer: [[#{user.error.security.question.answer.blank}]],
+                eula: [[#{registration.error.eula}]]
+
+            },
+            highlight: function (element) {
+                $(element).closest('.form-group').addClass('has-error has-feedback');
+            },
+            success: function (element) {
+                $(element).closest('.form-group').removeClass('has-error has-feedback');
+            }
+
         });
-    </script>
-</th:block>
+    });
+</script>
 
 </body>
 </html>

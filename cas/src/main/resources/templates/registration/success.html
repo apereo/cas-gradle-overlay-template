@@ -37,7 +37,7 @@
                     </p>
 
                     <p>
-                        <a class="btn btn-primary pull-right" th:href="@{${#strings.isEmpty(appUrl) ? ${appCentralBase} + '/app/central/home' : appUrl}}" role="button">Done</a>
+                        <a class="btn btn-primary pull-right" th:href="@{${#strings.isEmpty(appUrl) ? appCentralBase + '/app/central/home' : appUrl}}" role="button">Done</a>
                     </p>
                 </div>
             </div>
