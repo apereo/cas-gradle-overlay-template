@@ -25,6 +25,7 @@ public class InfusionsoftRegisteredServicesConfiguration {
         services.add(serviceCAM());
         services.add(serviceLocalhost());
         services.add(servicePropel());
+        services.add(serviceHackathon());
         services.add(serviceCRM());
 
         return services;
@@ -79,6 +80,25 @@ public class InfusionsoftRegisteredServicesConfiguration {
     RegisteredService servicePropel() {
         RegexRegisteredService service = buildService(8, "Propel", "(mobile|https?)://([^\\.]+\\.goldfishapp\\.co|propel\\.infusion(soft|test)\\.com)(:[0-9]+)?((/.*)|$)", 8);
         service.setAccessStrategy(new InfusionsoftRegisteredServiceAccessStrategy(true, true, false, true));
+        service.setTheme("cas-theme-propel");
+
+        final Map<String, RegisteredServiceProperty> serviceProperties = service.getProperties();
+
+        DefaultRegisteredServiceProperty property = new DefaultRegisteredServiceProperty();
+        property.getValues().add("true");
+        serviceProperties.put("jwtAsResponse", property);
+
+        property = new DefaultRegisteredServiceProperty();
+        property.getValues().add("true");
+        serviceProperties.put("disableAds", property);
+
+        return service;
+    }
+
+    @Bean
+    RegisteredService serviceHackathon() {
+        RegexRegisteredService service = buildService(9, "Hackthon Temporary", "(mobile|https?)://is-propel-app-[^\\./:]+\\.appspot\\.com(:[0-9]+)?((/.*)|$)", 9);
+        service.setAccessStrategy(new InfusionsoftRegisteredServiceAccessStrategy(true, true, false, false));
         service.setTheme("cas-theme-propel");
 
         final Map<String, RegisteredServiceProperty> serviceProperties = service.getProperties();
