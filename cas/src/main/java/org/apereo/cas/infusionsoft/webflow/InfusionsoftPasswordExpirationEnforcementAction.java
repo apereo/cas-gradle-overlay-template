@@ -86,7 +86,7 @@ public class InfusionsoftPasswordExpirationEnforcementAction extends AbstractAct
                         Boolean passwordExpired = (Boolean) authenticationResult.getAuthentication().getPrincipal().getAttributes().get("passwordExpired");
 
                         if (passwordExpired != null && passwordExpired && infusionsoftRegisteredServiceAccessStrategy.isForcePasswordExpiration()) {
-                            throw new AccountPasswordMustChangeException(messageSource.getMessage("login.passwordExpired", null, LocaleContextHolder.getLocale()));
+                            throw new AccountPasswordMustChangeException();
                         }
                     }
                 }

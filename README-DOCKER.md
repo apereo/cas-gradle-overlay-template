@@ -1,4 +1,4 @@
-##Setup cas:
+## Setup cas:
 
 1. run ./bin/bootstrap 
 
@@ -21,7 +21,7 @@
 10. Enter recovery code and create new password 
 
 
-##Configure Infusionsoft to use cas:
+## Configure Infusionsoft to use cas:
 
 1. Update your infusionsoft User.GlobalUserId field: UPDATE User SET GlobalUserId=1 WHERE Id=~yourUserId~;
 

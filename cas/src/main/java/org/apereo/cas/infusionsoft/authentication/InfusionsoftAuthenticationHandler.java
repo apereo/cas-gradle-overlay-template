@@ -44,21 +44,24 @@ public class InfusionsoftAuthenticationHandler extends AbstractUsernamePasswordA
 
             switch (loginResult.getLoginStatus()) {
                 case AccountLocked:
-                    throw new AccountLockedException(messageSource.getMessage("login.lockedTooManyFailures", null, LocaleContextHolder.getLocale()));
+                    throw new AccountLockedException();
                 case BadPassword:
                 case DisabledUser:
                 case NoSuchUser:
                 case OldPassword:
                     int failedLoginAttempts = loginResult.getFailedAttempts();
-                    String errorCode;
+
                     if (failedLoginAttempts > InfusionsoftAuthenticationService.ALLOWED_LOGIN_ATTEMPTS) {
-                        throw new AccountLockedException(messageSource.getMessage("login.lockedTooManyFailures", null, LocaleContextHolder.getLocale()));
+                        throw new AccountLockedException();
                     } else if (failedLoginAttempts == 0) { // This happens if an old password is matched
-                        errorCode = "login.failed1";
+                        throw new FailedLoginException();
                     } else {
-                        errorCode = "login.failed" + failedLoginAttempts;
+                        try {
+                            throw ((FailedLoginException) Class.forName("org.apereo.cas.infusionsoft.exceptions.FailedLoginException" + failedLoginAttempts).newInstance());
+                        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
+                            throw new FailedLoginException();
+                        }
                     }
-                    throw new FailedLoginException(messageSource.getMessage(errorCode, null, LocaleContextHolder.getLocale()));
                 case PasswordExpired:
                     return buildHandlerResult(credentials, true);
                 case Success:
