@@ -1,3 +1,4 @@
+<%@ tag import="org.apereo.cas.infusionsoft.support.BuildVersion" %>
 <%@ tag body-content="scriptless" %>
 
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
@@ -11,7 +12,7 @@
 <jsp:doBody var="body" />
 
 <object type="image/svg+xml"
-        data="${data}?b=<%=org.apereo.cas.infusionsoft.support.BuildVersion.getBuildVersion()%>"
+        data="${data}?b=<%=BuildVersion.getBuildVersion()%>"
         <c:if test="${not empty tabindex}">tabindex="${tabindex}" </c:if>
         <c:if test="${not empty cssClass}">class="${cssClass}" </c:if>
         <c:if test="${not empty height}">height="${height}" </c:if>

@@ -19,4 +19,5 @@ public class InfusionsoftSecurityConfiguration {
     PasswordEncoder passwordEncoder() {
         return Beans.newPasswordEncoder(infusionsoftProperties.getPasswordEncoder());
     }
+
 }

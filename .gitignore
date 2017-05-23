@@ -2,9 +2,9 @@
 !/.project
 .project
 .settings
-target/
-classes/
-.idea/
+/target/
+/classes/
+/.idea/
 .DS_Store
 .idea
 overlays/

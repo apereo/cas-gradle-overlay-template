@@ -1,7 +1,9 @@
 package org.apereo.cas.infusionsoft.config;
 
+import org.apereo.cas.CentralAuthenticationService;
 import org.apereo.cas.authentication.AuthenticationEventExecutionPlan;
 import org.apereo.cas.authentication.AuthenticationEventExecutionPlanConfigurer;
+import org.apereo.cas.authentication.AuthenticationSystemSupport;
 import org.apereo.cas.authentication.principal.PrincipalFactory;
 import org.apereo.cas.authentication.principal.PrincipalResolver;
 import org.apereo.cas.authentication.principal.resolvers.EchoingPrincipalResolver;
@@ -12,18 +14,25 @@ import org.apereo.cas.infusionsoft.config.properties.InfusionsoftConfigurationPr
 import org.apereo.cas.infusionsoft.dao.*;
 import org.apereo.cas.infusionsoft.services.*;
 import org.apereo.cas.infusionsoft.support.AppHelper;
+import org.apereo.cas.infusionsoft.support.GarbageMan;
 import org.apereo.cas.infusionsoft.web.controllers.PasswordCheckController;
 import org.apereo.cas.services.ServicesManager;
+import org.apereo.cas.ticket.registry.TicketRegistry;
+import org.apereo.cas.web.support.CookieRetrievingCookieGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
+import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Configuration("infusionsoftCasConfiguration")
 @EnableConfigurationProperties({CasConfigurationProperties.class, InfusionsoftConfigurationProperties.class})
+@EnableScheduling
 public class InfusionsoftCasConfiguration implements AuthenticationEventExecutionPlanConfigurer {
 
     @Autowired
@@ -33,13 +42,22 @@ public class InfusionsoftCasConfiguration implements AuthenticationEventExecutio
     private CasConfigurationProperties casConfigurationProperties;
 
     @Autowired
+    private CentralAuthenticationService centralAuthenticationService;
+
+    @Autowired
     private InfusionsoftConfigurationProperties infusionsoftConfigurationProperties;
 
     @Autowired
     private LoginAttemptDAO loginAttemptDAO;
 
     @Autowired
+    private MailService mailService;
+
+    @Autowired
     private MarketingOptionsDAO marketingOptionsDAO;
+
+    @Autowired
+    private MessageSource messageSource;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -48,14 +66,27 @@ public class InfusionsoftCasConfiguration implements AuthenticationEventExecutio
     private PrincipalFactory principalFactory;
 
     @Autowired
+    private SecurityQuestionDAO securityQuestionDAO;
+
+    @Autowired
+    private SecurityQuestionResponseDAO securityQuestionResponseDAO;
+
+    @Autowired
     @Qualifier("servicesManager")
     private ServicesManager servicesManager;
 
     @Autowired
-    private UserDAO userDAO;
+    @Qualifier("ticketGrantingTicketCookieGenerator")
+    private CookieRetrievingCookieGenerator ticketGrantingTicketCookieGenerator;
+
+    @Autowired
+    private TicketRegistry ticketRegistry;
 
     @Autowired
     private UserAccountDAO userAccountDAO;
+
+    @Autowired
+    private UserDAO userDAO;
 
     @Autowired
     private UserIdentityDAO userIdentityDAO;
@@ -65,7 +96,13 @@ public class InfusionsoftCasConfiguration implements AuthenticationEventExecutio
 
     @Bean
     public AppHelper appHelper() {
-        return new AppHelper(crmService(), customerHubService());
+        return new AppHelper(crmService(), customerHubService(), infusionsoftConfigurationProperties);
+    }
+
+    @Bean
+    @Autowired
+    public AutoLoginService autoLoginService(@Lazy AuthenticationSystemSupport authenticationSystemSupport) {
+        return new AutoLoginService(centralAuthenticationService, ticketGrantingTicketCookieGenerator, ticketRegistry, authenticationSystemSupport);
     }
 
     @Bean
@@ -84,13 +121,19 @@ public class InfusionsoftCasConfiguration implements AuthenticationEventExecutio
     }
 
     @Bean
+    @Autowired
+    public GarbageMan garbageMan(UserService userService, AuditService auditService) {
+        return new GarbageMan(userService, auditService);
+    }
+
+    @Bean
     InfusionsoftAuthenticationHandler infusionsoftAuthenticationHandler() {
-        return new InfusionsoftAuthenticationHandler("Infusionsoft Authentication Handler", servicesManager, principalFactory, 0, infusionsoftAuthenticationService(), appHelper(), userService());
+        return new InfusionsoftAuthenticationHandler("Infusionsoft Authentication Handler", servicesManager, principalFactory, 0, infusionsoftAuthenticationService(), userService());
     }
 
     @Bean
     public InfusionsoftAuthenticationService infusionsoftAuthenticationService() {
-        return new InfusionsoftAuthenticationServiceImpl(casConfigurationProperties, infusionsoftConfigurationProperties, loginAttemptDAO, userService(), passwordService());
+        return new InfusionsoftAuthenticationServiceImpl(ticketRegistry, loginAttemptDAO, userService(), passwordService(), ticketGrantingTicketCookieGenerator, casConfigurationProperties, infusionsoftConfigurationProperties);
     }
 
     @Bean
@@ -109,8 +152,13 @@ public class InfusionsoftCasConfiguration implements AuthenticationEventExecutio
     }
 
     @Bean
+    public SecurityQuestionService securityQuestionService() {
+        return new SecurityQuestionServiceImpl(securityQuestionDAO, securityQuestionResponseDAO, infusionsoftConfigurationProperties);
+    }
+
+    @Bean
     public UserService userService() {
-        return new UserServiceImpl(appHelper(), authorityDAO, userDAO, userAccountDAO, userIdentityDAO);
+        return new UserServiceImpl(appHelper(), authorityDAO, loginAttemptDAO, mailService, passwordService(), userDAO, userAccountDAO, userIdentityDAO, infusionsoftConfigurationProperties);
     }
 
     @Override
@@ -121,6 +169,7 @@ public class InfusionsoftCasConfiguration implements AuthenticationEventExecutio
     @RefreshScope
     @Bean
     public PrincipalResolver personDirectoryPrincipalResolver() {
-       return new EchoingPrincipalResolver();
+        return new EchoingPrincipalResolver();
     }
+
 }

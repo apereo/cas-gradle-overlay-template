@@ -58,4 +58,5 @@ public class InfusionsoftPasswordManagementService extends BasePasswordManagemen
     public Map<String, String> getSecurityQuestions(String username) {
         return new HashMap<>();
     }
+
 }

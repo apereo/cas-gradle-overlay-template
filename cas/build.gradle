@@ -27,6 +27,7 @@ dependencies {
     compile "org.apereo.cas:cas-server-webapp-config:${project.'cas.version'}"
     compile "org.apereo.cas:cas-server-webapp-init:${project.'cas.version'}"
     compile "org.apereo.cas:cas-server-webapp-tomcat:${project.'cas.version'}@war"
+    compile "org.apereo.cas:cas-server-core-audit:${project.'cas.version'}"
     compile "org.apereo.cas:cas-server-core-authentication:${project.'cas.version'}"
     compile "org.apereo.cas:cas-server-core-configuration:${project.'cas.version'}"
     compile "org.apereo.cas:cas-server-core-services:${project.'cas.version'}"
@@ -49,6 +50,8 @@ dependencies {
     providedCompile "javax.servlet:javax.servlet-api:3.1.0"
 
     runtime "mysql:mysql-connector-java:${project.'mysql.version'}"
+
+    testCompile "org.mockito:mockito-core:1.10.19"
 }
 
 processResources {

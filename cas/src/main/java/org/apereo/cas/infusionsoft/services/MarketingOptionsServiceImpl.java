@@ -13,6 +13,10 @@ public class MarketingOptionsServiceImpl implements MarketingOptionsService {
         this.marketingOptionsDAO = marketingOptionsDAO;
     }
 
+    public void save(MarketingOptions marketingOptions){
+        marketingOptionsDAO.save(marketingOptions);
+    }
+
     public MarketingOptions fetch() {
         Iterable<MarketingOptions> options = marketingOptionsDAO.findAll();
         if (options.iterator().hasNext()) {

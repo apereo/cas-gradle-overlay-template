@@ -9,6 +9,7 @@ import java.util.Set;
 
 @Entity(name = "Authority")
 @Table(name = "authority", uniqueConstraints = {@UniqueConstraint(columnNames = {"authority"})})
+@Deprecated
 public class Authority implements Serializable, GrantedAuthority {
     private Long id;
     private String authority;
@@ -25,6 +26,7 @@ public class Authority implements Serializable, GrantedAuthority {
     }
 
     @Column
+    @Override
     public String getAuthority() {
         return authority;
     }

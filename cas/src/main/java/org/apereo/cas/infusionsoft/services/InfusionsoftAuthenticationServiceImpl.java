@@ -1,20 +1,29 @@
 package org.apereo.cas.infusionsoft.services;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apereo.cas.authentication.principal.Principal;
 import org.apereo.cas.configuration.CasConfigurationProperties;
 import org.apereo.cas.infusionsoft.authentication.LoginResult;
 import org.apereo.cas.infusionsoft.config.properties.InfusionsoftConfigurationProperties;
 import org.apereo.cas.infusionsoft.dao.LoginAttemptDAO;
 import org.apereo.cas.infusionsoft.domain.*;
+import org.apereo.cas.infusionsoft.web.CookieUtil;
+import org.apereo.cas.ticket.Ticket;
+import org.apereo.cas.ticket.TicketGrantingTicket;
+import org.apereo.cas.ticket.registry.TicketRegistry;
+import org.apereo.cas.web.support.CookieRetrievingCookieGenerator;
 import org.joda.time.DateTime;
 import org.joda.time.Minutes;
 import org.joda.time.base.BaseSingleFieldPeriod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -30,40 +39,43 @@ public class InfusionsoftAuthenticationServiceImpl implements InfusionsoftAuthen
     private static final Logger log = LoggerFactory.getLogger(InfusionsoftAuthenticationServiceImpl.class);
     private static final Minutes lockoutTimePeriod = Minutes.minutes(30);
 
-    private CasConfigurationProperties casProperties;
-    private InfusionsoftConfigurationProperties infusionsoftProperties;
+    private TicketRegistry ticketRegistry;
     private LoginAttemptDAO loginAttemptDAO;
     private UserService userService;
     private PasswordService passwordService;
+    private CookieRetrievingCookieGenerator ticketGrantingTicketCookieGenerator;
+    private CasConfigurationProperties casProperties;
+    private InfusionsoftConfigurationProperties infusionsoftProperties;
 
-    public InfusionsoftAuthenticationServiceImpl(CasConfigurationProperties casProperties, InfusionsoftConfigurationProperties infusionsoftProperties, LoginAttemptDAO loginAttemptDAO, UserService userService, PasswordService passwordService) {
-        this.casProperties = casProperties;
-        this.infusionsoftProperties = infusionsoftProperties;
+    public InfusionsoftAuthenticationServiceImpl(TicketRegistry ticketRegistry, LoginAttemptDAO loginAttemptDAO, UserService userService, PasswordService passwordService, CookieRetrievingCookieGenerator ticketGrantingTicketCookieGenerator, CasConfigurationProperties casProperties, InfusionsoftConfigurationProperties infusionsoftProperties) {
+        this.ticketRegistry = ticketRegistry;
         this.loginAttemptDAO = loginAttemptDAO;
         this.userService = userService;
         this.passwordService = passwordService;
+        this.ticketGrantingTicketCookieGenerator = ticketGrantingTicketCookieGenerator;
+        this.casProperties = casProperties;
+        this.infusionsoftProperties = infusionsoftProperties;
     }
 
     /**
      * Guesses an app name from a URL, or null if there isn't one to be found.
      */
     @Override
-    public String guessAppName(String url) throws MalformedURLException {
-        return StringUtils.isNotEmpty(url) ? guessAppName(new URL(url)) : null;
-    }
-
-    /**
-     * Guesses an app name from a URL, or null if there isn't one to be found.
-     */
-    @Override
-    public String guessAppName(URL url) {
+    public String guessAppName(String urlString) {
         String appName = null;
-
+        URL url;
+        try {
+            url = StringUtils.isNotEmpty(urlString) ? new URL(urlString) : null;
+        } catch (MalformedURLException e) {
+            url = null;
+        }
         if (url != null && url.getHost() != null) {
             String host = url.getHost().toLowerCase();
 
             if (url.toString().startsWith(casProperties.getServer().getPrefix())) {
                 log.info("it's us");
+            } else if (host.equals(infusionsoftProperties.getCommunity().getDomain())) {
+                appName = "community";
             } else if (host.equals(infusionsoftProperties.getMarketplace().getDomain())) {
                 appName = "marketplace";
             } else if (host.endsWith(infusionsoftProperties.getCustomerhub().getDomain())) {
@@ -86,22 +98,22 @@ public class InfusionsoftAuthenticationServiceImpl implements InfusionsoftAuthen
      * Guesses an app type from a URL, or null if there isn't one to be found.
      */
     @Override
-    public AppType guessAppType(String url) throws MalformedURLException {
-        return StringUtils.isNotEmpty(url) ? guessAppType(new URL(url)) : null;
-    }
-
-    /**
-     * Guesses an app type from a URL, or null if there isn't one to be found.
-     */
-    @Override
-    public AppType guessAppType(URL url) {
+    public AppType guessAppType(String urlString) {
         AppType appType = null;
 
+        URL url;
+        try {
+            url = StringUtils.isNotEmpty(urlString) ? new URL(urlString) : null;
+        } catch (MalformedURLException e) {
+            url = null;
+        }
         if (url != null && url.getHost() != null) {
             String host = url.getHost().toLowerCase();
 
             if (url.toString().startsWith(casProperties.getServer().getPrefix())) {
                 appType = AppType.CAS;
+            } else if (host.equals(infusionsoftProperties.getCommunity().getDomain())) {
+                appType = AppType.COMMUNITY;
             } else if (host.equals(infusionsoftProperties.getMarketplace().getDomain())) {
                 appType = AppType.MARKETPLACE;
             } else if (host.endsWith(infusionsoftProperties.getCrm().getDomain())) {
@@ -121,7 +133,18 @@ public class InfusionsoftAuthenticationServiceImpl implements InfusionsoftAuthen
     }
 
     @Override
+    public LoginResult attemptLoginWithMD5Password(String username, String md5password) {
+        log.debug("Trying to authenticate " + username + " with MD5 password");
+        return attemptLoginInternal(username, null, md5password);
+    }
+
+    @Override
     public LoginResult attemptLogin(String username, String password) {
+        log.debug("Trying to authenticate " + username + " with password");
+        return attemptLoginInternal(username, password, null);
+    }
+
+    private LoginResult attemptLoginInternal(String username, String password, String md5password) {
         LoginResult loginResult = null;
         UserPassword userPassword = null;
 
@@ -132,6 +155,8 @@ public class InfusionsoftAuthenticationServiceImpl implements InfusionsoftAuthen
             loginResult = LoginResult.DisabledUser(user);
         } else if (StringUtils.isNotEmpty(password)) {
             userPassword = passwordService.getMatchingPasswordForUser(user, password);
+        } else if (StringUtils.isNotEmpty(md5password)) {
+            userPassword = passwordService.getMatchingMD5PasswordForUser(user, md5password);
         } else {
             loginResult = LoginResult.BadPassword(user);
         }
@@ -252,6 +277,15 @@ public class InfusionsoftAuthenticationServiceImpl implements InfusionsoftAuthen
         return failures;
     }
 
+    /**
+     * Checks if an account is locked due to too many login failures.
+     */
+    @Override
+    public boolean isAccountLocked(String username) {
+        int failedLoginCount = countConsecutiveFailedLogins(username);
+        return isAccountLocked(username, failedLoginCount);
+    }
+
     private boolean isAccountLocked(String username, int failedLoginCount) {
         if (failedLoginCount > ALLOWED_LOGIN_ATTEMPTS) {
             log.info("username " + username + " is locked due to more than " + ALLOWED_LOGIN_ATTEMPTS + " failures in the last " + lockoutTimePeriod.getMinutes() + " minutes");
@@ -260,4 +294,62 @@ public class InfusionsoftAuthenticationServiceImpl implements InfusionsoftAuthen
 
         return false;
     }
+
+    /**
+     * Looks at the CAS cookies to determine the current user.
+     */
+    @Override
+    public User getCurrentUser(HttpServletRequest request) {
+        User retVal = null;
+        TicketGrantingTicket tgt = getTicketGrantingTicket(request);
+        Principal principal = tgt.getAuthentication().getPrincipal();
+        User user = userService.loadUser(principal.getId());
+
+        if (user != null) {
+            retVal = user;
+
+            log.info("resolved user id=" + retVal.getId() + " for ticket " + tgt);
+        } else {
+            log.warn("couldn't find a user for ticket " + tgt);
+        }
+        return retVal;
+    }
+
+    @Override
+    public TicketGrantingTicket getTicketGrantingTicket(HttpServletRequest request) {
+        TicketGrantingTicket tgt = null;
+
+        if (request.getCookies() == null) {
+            return null;
+        }
+
+        String tgtCookieName = ticketGrantingTicketCookieGenerator.getCookieName();
+        Cookie cookie = CookieUtil.extractCookie(request, tgtCookieName);
+        if (cookie != null) {
+            log.debug("found a valid " + tgtCookieName + " cookie with value " + cookie.getValue());
+
+            Ticket ticket = ticketRegistry.getTicket(cookie.getValue());
+
+            if (ticket == null) {
+                log.warn("found a " + tgtCookieName + " cookie, but it doesn't match any known ticket!");
+            } else if (ticket instanceof TicketGrantingTicket) {
+                tgt = (TicketGrantingTicket) ticket;
+            } else {
+                tgt = ticket.getGrantingTicket();
+            }
+
+            if (tgt != null && tgt.isExpired()) {
+                tgt = null;
+            }
+        }
+
+        return tgt;
+    }
+
+    public void completePasswordReset(User user) {
+        userService.clearPasswordRecoveryCode(user.getId());
+        log.info("Password reset completed by user " + user);
+        recordLoginAttempt(LoginAttemptStatus.PasswordReset, user.getUsername());
+    }
+
 }

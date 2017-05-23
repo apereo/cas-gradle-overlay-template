@@ -1,3 +1,4 @@
+<%@ tag import="org.apereo.cas.infusionsoft.support.BuildVersion" %>
 <%@ tag body-content="empty" %>
 
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
@@ -19,7 +20,7 @@
 <%@ attribute name="vspace" required="false" description="Vspace of the image" %> <%-- Deprecated attribute. Added for backwards compatibility--%>
 
 <img <c:if test="${not empty id}">id="${id}" </c:if>
-     src="${src}?b=<%=org.apereo.cas.infusionsoft.support.BuildVersion.getBuildVersion()%>"
+     src="${src}?b=<%=BuildVersion.getBuildVersion()%>"
      <c:if test="${not empty cssClass}">class="${cssClass}" </c:if>
      <c:if test="${not empty style}">style="${style}" </c:if>
      <c:if test="${not empty alt}">alt="${alt}" </c:if>

@@ -7,6 +7,7 @@ import org.apereo.cas.infusionsoft.domain.MarketingOptions;
 import org.apereo.cas.infusionsoft.services.InfusionsoftAuthenticationService;
 import org.apereo.cas.infusionsoft.services.MarketingOptionsService;
 import org.apereo.cas.infusionsoft.support.AppHelper;
+import org.apereo.cas.infusionsoft.support.RegisteredServiceProperties;
 import org.apereo.cas.services.RegisteredService;
 import org.apereo.cas.services.RegisteredServiceProperty;
 import org.apereo.cas.services.ServicesManager;
@@ -70,7 +71,7 @@ public class InfusionsoftFlowSetupAction extends AbstractAction {
                 flowScope.put("allowSocialLogin", strategy.isAllowSocialLogin());
             }
 
-            final RegisteredServiceProperty disableAds = registeredService.getProperties().get("disableAds");
+            final RegisteredServiceProperty disableAds = registeredService.getProperties().get(RegisteredServiceProperties.DISABLE_ADS);
             if (disableAds != null) {
                 enableAds = enableAds && !Boolean.parseBoolean(disableAds.getValue());
             }

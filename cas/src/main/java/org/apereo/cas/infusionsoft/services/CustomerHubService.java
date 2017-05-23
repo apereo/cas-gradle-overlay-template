@@ -8,31 +8,30 @@ import org.apereo.cas.infusionsoft.config.properties.HostConfigurationProperties
  */
 public class CustomerHubService {
 
-    private HostConfigurationProperties hostConfigurationProperties;
+    private HostConfigurationProperties hostProperties;
 
-    public CustomerHubService(HostConfigurationProperties hostConfigurationProperties) {
-        this.hostConfigurationProperties = hostConfigurationProperties;
+    public CustomerHubService(HostConfigurationProperties hostProperties) {
+        this.hostProperties = hostProperties;
     }
 
     /**
      * Builds a URL where users of this app should be sent after login.
+     *
+     * @param appName appName
+     * @return redirect url
      */
     public String buildUrl(String appName) {
-        return buildBaseUrl(appName) + "/admin";
-    }
+        StringBuilder url = new StringBuilder(hostProperties.getProtocol());
+        url.append("://").append(appName).append(".").append(hostProperties.getDomain());
 
-    /**
-     * Builds a base URL for web services calls and what-not.
-     */
-    private String buildBaseUrl(String appName) {
-        StringBuilder baseUrl = new StringBuilder(hostConfigurationProperties.getProtocol() + "://" + appName + "." + hostConfigurationProperties.getDomain());
-
-        if (StringUtils.equals("http", hostConfigurationProperties.getProtocol()) && hostConfigurationProperties.getPort() != 80) {
-            baseUrl.append(":").append(hostConfigurationProperties.getPort());
-        } else if (StringUtils.equals("https", hostConfigurationProperties.getProtocol()) && hostConfigurationProperties.getPort() != 443) {
-            baseUrl.append(":").append(hostConfigurationProperties.getPort());
+        if (StringUtils.equals("http", hostProperties.getProtocol()) && hostProperties.getPort() != 80) {
+            url.append(":").append(hostProperties.getPort());
+        } else if (StringUtils.equals("https", hostProperties.getProtocol()) && hostProperties.getPort() != 443) {
+            url.append(":").append(hostProperties.getPort());
         }
 
-        return baseUrl.toString();
+        url.append("/admin");
+        return url.toString();
     }
+
 }

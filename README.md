@@ -1,15 +1,66 @@
-CAS Gradle Overlay
+Infusionsoft CAS
+================
+
+# Initial Setup
+For more advanced functionality reference https://wiki.infusionsoft.com/display/dev/Running+CAS+in+a+Development+Environment
+1. Checkout CAS
+		
+	```sh
+	  git clone git@github.com:infusionsoft/cas-gradle-overlay-template.git
+	```
+2. Download and install Java 8
+3. Install the Certificates of Authenticity for Java 8
+
+    Note this step is not technically needed to run CAS, but any service such as flagship connecting to the CAS API might get certificate errors if you skip this step.
+    - Switch $JAVA_HOME to Java 8
+    - Download the .sh script found here: https://wiki.infusionsoft.com/display/dev/JDK+Certificate+Store
+    - Run the sh script from terminal, pass the default password of 'changeit' into the command eg:
+    ```sh 
+        sh fix_certs.sh changeit
+    ```
+4. Create a DB schema for 'cas' in your database, make sure the default charset is latin1, use workbench OR run
+    ```sh
+        mysql createdb -u eric -p cas
+    ```
+    The default password is: eric5425
+5. Add a hosts file entry for CAS. Inside of `/etc/hosts` add: 
+    ```sh
+        127.0.0.1   devcas.infusiontest.com
+    ```
+6. Build CAS
+    ```bash
+    ./gradlew[.bat] clean build
+    ```
+7. Run CAS
+    ```bash
+    java -jar cas/build/libs/cas.war --cas.standalone.config=etc/cas/config
+    ```
+      - The first time you run CAS it should populate your cas schema
+      - Make sure that the 'success' column of cas.schema_version in your cas DB is all 1's
+8. Account Central
+CAS depends on Account Central, see that project's README for how to build and run it.
+
+# Run Flagship with CAS
+1. With CAS and Account Central running, run Flagship using the `cas` profile. **Inside of your Core directory** run:
+    ```sh
+      mvn tomcat6:run -pl webapp -P cas
+    ```
+    Now when you access your flagship app, it will redirect you to `https://devcas.infusiontest.com:7443/` with a `service` URL parameter. _If you go straight to this URL without the service parameter, you will be logging into Account Central, not your app!_
+2. Follow sign-up/registration link to create yourself a user, this will create a record in 'cas.user'. To link this user to the user in your local Core app's DB, place your cas.user.id into (localApp).User as the `GlobalUserId`.
+   ```sql
+   	UPDATE <localApp>.User SET GlobalUserId=<cas user id> WHERE id=<your local user id>;
+   ```
+3. Add permissions
+    
+    Add some rights to the cas.user_authority table, add as many of them as you'd like from the cas.authority table. 
+    If you give yourself `ROLE_CAS_ADMIN` you can then use the account central UI to grant yourself additional roles.
+
+Development Info
 ============================
-Generic CAS gradle war overlay to exercise the latest versions of CAS. This overlay could be freely
-used as a starting template for local CAS gradle war overlays.
+Infusionsoft CAS is based on the generic CAS gradle war overlay.
 
-## Versions
-
-* CAS 5.0.x
-
-## Requirements
-
-* JDK 1.8+
+* Version: CAS 5.1.x
+* Requirement: JDK 1.8+
 
 ## Configuration
 
@@ -31,7 +82,6 @@ Study material:
 
 - https://docs.gradle.org/current/userguide/artifact_dependencies_tutorial.html
 - https://docs.gradle.org/current/userguide/dependency_management.html
-
 
 ## Build
 
@@ -110,3 +160,5 @@ Run the CAS web application as an executable WAR via Spring Boot. This is most u
 ## External
 
 Deploy resultant `cas/build/libs/cas.war` to a servlet container of choice.
+
+

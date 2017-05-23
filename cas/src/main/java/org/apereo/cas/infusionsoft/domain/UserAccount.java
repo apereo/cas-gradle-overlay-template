@@ -9,6 +9,7 @@ import java.io.Serializable;
 
 @Entity
 @Table(name = "user_account", uniqueConstraints = {@UniqueConstraint(columnNames = {"user_id", "app_name", "app_type"}), @UniqueConstraint(name = "app_type_name_username", columnNames = {"app_type", "app_name", "app_username"})})
+@Deprecated
 public class UserAccount implements Serializable {
     private Long id;
     private User user;

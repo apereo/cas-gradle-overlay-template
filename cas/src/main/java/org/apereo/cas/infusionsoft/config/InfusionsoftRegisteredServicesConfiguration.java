@@ -1,6 +1,7 @@
 package org.apereo.cas.infusionsoft.config;
 
 import org.apereo.cas.infusionsoft.authentication.InfusionsoftRegisteredServiceAccessStrategy;
+import org.apereo.cas.infusionsoft.support.RegisteredServiceProperties;
 import org.apereo.cas.services.DefaultRegisteredServiceProperty;
 import org.apereo.cas.services.RegexRegisteredService;
 import org.apereo.cas.services.RegisteredService;
@@ -71,7 +72,7 @@ public class InfusionsoftRegisteredServicesConfiguration {
 
         property = new DefaultRegisteredServiceProperty();
         property.getValues().add("true");
-        serviceProperties.put("disableAds", property);
+        serviceProperties.put(RegisteredServiceProperties.DISABLE_ADS, property);
 
         return service;
     }
@@ -90,7 +91,7 @@ public class InfusionsoftRegisteredServicesConfiguration {
 
         property = new DefaultRegisteredServiceProperty();
         property.getValues().add("true");
-        serviceProperties.put("disableAds", property);
+        serviceProperties.put(RegisteredServiceProperties.DISABLE_ADS, property);
 
         return service;
     }

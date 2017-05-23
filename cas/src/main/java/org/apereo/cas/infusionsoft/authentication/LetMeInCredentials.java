@@ -7,4 +7,7 @@ import org.apereo.cas.authentication.UsernamePasswordCredential;
  * That's so we can reload the user session after a registration or something without prompting for a new password.
  */
 public class LetMeInCredentials extends UsernamePasswordCredential {
+    public LetMeInCredentials(String userName) {
+        super(userName, null);
+    }
 }

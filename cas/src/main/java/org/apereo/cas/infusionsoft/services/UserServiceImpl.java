@@ -1,24 +1,28 @@
 package org.apereo.cas.infusionsoft.services;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apereo.cas.api.UserAccountDTO;
+import org.apereo.cas.infusionsoft.config.properties.InfusionsoftConfigurationProperties;
 import org.apereo.cas.infusionsoft.dao.AuthorityDAO;
+import org.apereo.cas.infusionsoft.dao.LoginAttemptDAO;
 import org.apereo.cas.infusionsoft.dao.UserAccountDAO;
 import org.apereo.cas.infusionsoft.dao.UserDAO;
 import org.apereo.cas.infusionsoft.dao.UserIdentityDAO;
-import org.apereo.cas.infusionsoft.domain.Authority;
-import org.apereo.cas.infusionsoft.domain.User;
-import org.apereo.cas.infusionsoft.domain.UserAccount;
-import org.apereo.cas.infusionsoft.domain.UserIdentity;
+import org.apereo.cas.infusionsoft.domain.*;
 import org.apereo.cas.infusionsoft.exceptions.InfusionsoftValidationException;
 import org.apereo.cas.infusionsoft.support.AppHelper;
 import org.apereo.cas.infusionsoft.web.ValidationUtils;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.validation.constraints.NotNull;
 import java.io.ByteArrayOutputStream;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,77 +34,29 @@ public class UserServiceImpl implements UserService {
 
     private AppHelper appHelper;
     private AuthorityDAO authorityDAO;
+    private LoginAttemptDAO loginAttemptDAO;
+    private MailService mailService;
+    private PasswordService passwordService;
     private UserDAO userDAO;
     private UserAccountDAO userAccountDAO;
     private UserIdentityDAO userIdentityDAO;
+    private InfusionsoftConfigurationProperties infusionsoftConfigurationProperties;
 
-    public UserServiceImpl(AppHelper appHelper, AuthorityDAO authorityDAO, UserDAO userDAO, UserAccountDAO userAccountDAO, UserIdentityDAO userIdentityDAO) {
+    public UserServiceImpl(AppHelper appHelper, AuthorityDAO authorityDAO, LoginAttemptDAO loginAttemptDAO, MailService mailService, PasswordService passwordService, UserDAO userDAO, UserAccountDAO userAccountDAO, UserIdentityDAO userIdentityDAO, InfusionsoftConfigurationProperties infusionsoftConfigurationProperties) {
         this.appHelper = appHelper;
         this.authorityDAO = authorityDAO;
+        this.loginAttemptDAO = loginAttemptDAO;
+        this.mailService = mailService;
+        this.passwordService = passwordService;
         this.userDAO = userDAO;
         this.userAccountDAO = userAccountDAO;
         this.userIdentityDAO = userIdentityDAO;
-    }
-
-    @Override
-    public Map<String, Object> createAttributeMapForUser(@NotNull User user) {
-        Map<String, Object> attributes = new HashMap<>();
-
-        attributes.put("id", user.getId());
-        attributes.put("displayName", user.getFirstName() + " " + user.getLastName());
-        attributes.put("firstName", user.getFirstName());
-        attributes.put("lastName", user.getLastName());
-        attributes.put("email", user.getUsername());
-
-        // We use a query instead of user.getAccounts() so that we only include enabled accounts
-        List<UserAccount> accounts = findActiveUserAccounts(user);
-        attributes.put("accounts", getAccountsJSON(accounts));
-        attributes.put("authorities", user.getAuthorities());
-
-        return attributes;
-    }
-
-    @Override
-    public List<UserAccount> findActiveUserAccounts(User user) {
-        return userAccountDAO.findByUserAndDisabled(user, false);
+        this.infusionsoftConfigurationProperties = infusionsoftConfigurationProperties;
     }
 
     @Override
     public Authority findAuthorityByName(String authorityName) {
         return authorityDAO.findByAuthority(authorityName);
-    }
-
-    @Override
-    public User findUserByExternalId(String externalId) {
-        User retVal = null;
-        UserIdentity userIdentity = userIdentityDAO.findByExternalId(externalId);
-
-        if (userIdentity != null) {
-            retVal = userIdentity.getUser();
-        }
-
-        return retVal;
-    }
-
-    @Override
-    public UserIdentity findUserIdentityByExternalId(String externalId) {
-        return userIdentityDAO.findByExternalId(externalId);
-    }
-
-    @Override
-    public boolean isDuplicateUsername(User user) {
-        if (user == null) {
-            return false;
-        } else if (user.getId() == null) {
-            return userDAO.findByUsername(user.getUsername()) != null;
-        } else {
-            return userDAO.findByUsernameAndIdNot(user.getUsername(), user.getId()) != null;
-        }
-    }
-
-    @Override
-    public User loadUser(String username) {
-        return userDAO.findByUsername(username);
     }
 
     @Override
@@ -123,6 +79,187 @@ public class UserServiceImpl implements UserService {
         //TODO: if this user is currently logged in then change the object in the security context
 
         return userDAO.save(user);
+    }
+
+    @Override
+    public User createUser(User user, String plainTextPassword) throws InfusionsoftValidationException {
+        User savedUser = saveUser(user);
+        passwordService.setPasswordForUser(savedUser, plainTextPassword);
+        return savedUser;
+    }
+
+    @Override
+    @Deprecated
+    public User loadUser(String username) {
+        return userDAO.findByUsername(username);
+    }
+
+    @Override
+    public User loadUser(Long id) {
+        return userDAO.findOne(id);
+    }
+
+    @Override
+    public String resetPassword(User user) {
+        user = updatePasswordRecoveryCode(user.getId());
+        String recoveryCode = user.getPasswordRecoveryCode();
+
+        log.info("password recovery code " + recoveryCode + " created for user " + user);
+
+        mailService.sendPasswordResetEmail(user);
+
+        return recoveryCode;
+    }
+
+    /**
+     * Attempts to find a user by their recovery code.
+     */
+    @Override
+    public User findUserByRecoveryCode(String recoveryCode) {
+        User retVal = null;
+        User user = userDAO.findByPasswordRecoveryCode(recoveryCode);
+
+        // TODO: use UTC date here
+        if (user != null && user.getPasswordRecoveryCodeCreatedTime().plusMinutes(30).isAfter(new DateTime())) {
+            retVal = user;
+        }
+
+        return retVal;
+    }
+
+    /**
+     * Updates the password recovery code for a user.
+     */
+    @Override
+    public synchronized User updatePasswordRecoveryCode(long userId) {
+        String recoveryCode = generateRecoveryCode();
+        // Keep generating new codes until we find one that's not already in use
+        while (findUserByRecoveryCode(recoveryCode) != null) {
+            recoveryCode = generateRecoveryCode();
+        }
+
+        // Load the user, to avoid opening the door to updates on more than just the password recovery code
+        User user = loadUser(userId);
+        user.setPasswordRecoveryCode(recoveryCode);
+        // TODO: use UTC date here
+        user.setPasswordRecoveryCodeCreatedTime(new DateTime());
+
+        return userDAO.save(user);
+    }
+
+    @Override
+    public synchronized User clearPasswordRecoveryCode(long userId) {
+        // Load the user, to avoid opening the door to updates on more than just the password recovery code
+        User user = loadUser(userId);
+        if (StringUtils.isBlank(user.getPasswordRecoveryCode())) {
+            return user;
+        } else {
+            user.setPasswordRecoveryCode(null);
+            user.setPasswordRecoveryCodeCreatedTime(null);
+
+            log.info("Cleared password recovery code for user " + user);
+            return userDAO.save(user);
+        }
+    }
+
+    /**
+     * Creates a unique, random password recovery code.
+     */
+    private String generateRecoveryCode() {
+        return RandomStringUtils.randomAlphabetic(12).toUpperCase();
+    }
+
+    /**
+     * Finds a user account by for a user.
+     */
+    @Override
+    @Deprecated
+    public UserAccount findUserAccount(User user, String appName, AppType appType) {
+        return userAccountDAO.findByUserAndAppNameAndAppType(user, appName, appType);
+    }
+
+    /**
+     * Returns a user's accounts, sorted by type and name for consistency when displaying lists of connected accounts.
+     */
+    @Override
+    @Deprecated
+    public List<UserAccount> findSortedUserAccountsByAppType(User user, AppType appType) {
+        return userAccountDAO.findByUserAndAppTypeAndDisabledOrderByAppNameAsc(user, appType, false);
+    }
+
+    /**
+     * Finds an enabled user by username.
+     */
+    @Override
+    @Deprecated
+    public User findEnabledUser(String username) {
+        return userDAO.findByUsernameAndEnabled(username, true);
+    }
+
+    @Override
+    public void cleanupLoginAttempts() {
+        final long loginAttemptMaxAge = infusionsoftConfigurationProperties.getLoginAttemptMaxAge();
+        log.info("cleaning up login attempts older than " + loginAttemptMaxAge + " ms");
+
+        Date date = new Date(System.currentTimeMillis() - loginAttemptMaxAge);
+        List<LoginAttempt> attempts = loginAttemptDAO.findByDateAttemptedLessThan(date);
+
+        log.info("deleting " + attempts.size() + " login attempts that occurred before " + date);
+
+        loginAttemptDAO.delete(attempts);
+    }
+
+    @Override
+    @Deprecated
+    public List<UserAccount> findActiveUserAccounts(User user) {
+        return userAccountDAO.findByUserAndDisabled(user, false);
+    }
+
+    @Override
+    @Deprecated
+    public boolean isDuplicateUsername(User user) {
+        if (user == null) {
+            return false;
+        } else if (user.getId() == null) {
+            return userDAO.findByUsername(user.getUsername()) != null;
+        } else {
+            return userDAO.findByUsernameAndIdNot(user.getUsername(), user.getId()) != null;
+        }
+    }
+
+    @Override
+    public Map<String, Object> createAttributeMapForUser(@NotNull User user) {
+        Map<String, Object> attributes = new HashMap<>();
+
+        attributes.put("id", user.getId());
+        attributes.put("displayName", user.getFirstName() + " " + user.getLastName());
+        attributes.put("firstName", user.getFirstName());
+        attributes.put("lastName", user.getLastName());
+        attributes.put("email", user.getUsername());
+
+        // We use a query instead of user.getAccounts() so that we only include enabled accounts
+        List<UserAccount> accounts = findActiveUserAccounts(user);
+        attributes.put("accounts", getAccountsJSON(accounts));
+        attributes.put("authorities", user.getAuthorities());
+
+        return attributes;
+    }
+
+    @Override
+    public User findUserByExternalId(String externalId) {
+        User retVal = null;
+        UserIdentity userIdentity = userIdentityDAO.findByExternalId(externalId);
+
+        if (userIdentity != null) {
+            retVal = userIdentity.getUser();
+        }
+
+        return retVal;
+    }
+
+    @Override
+    public UserIdentity findUserIdentityByExternalId(String externalId) {
+        return userIdentityDAO.findByExternalId(externalId);
     }
 
     @Override
@@ -153,4 +290,5 @@ public class UserServiceImpl implements UserService {
 
         return json;
     }
+
 }

@@ -28,4 +28,16 @@ public class HostConfigurationProperties {
     public void setPort(int port) {
         this.port = port;
     }
+
+    public String getUrl() {
+        StringBuilder url = new StringBuilder(protocol + "://" + domain);
+
+        if ("http".equals(protocol) && port != 80) {
+            url.append(":").append(port);
+        } else if ("https".equals(protocol) && port != 443) {
+            url.append(":").append(port);
+        }
+        return url.toString();
+    }
+
 }

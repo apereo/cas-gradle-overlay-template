@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+
+# If you would like to gather heap dumps and thread dumps when the jvm runs out of heap utilize the /tools/gatherCrashData.sh %p tool in the OnOutOfMemoryError flag.
+export CATALINA_OPTS="$CATALINA_OPTS -Darchaius.deployment.environment=$APP_ENV -XX:OnOutOfMemoryError='kill %p'"
+
+case ${APP_ENV} in
+    production)
+        export ENCRYPTION_KEY='<encryption_key>';
+        cd /opt/tomcat/newrelic && $JAVA_HOME/bin/java -jar newrelic.jar install
+        export NEW_RELIC_APP_NAME=cas
+        ;;
+    development)
+        export ENCRYPTION_KEY=dev
+        export CATALINA_OPTS="$CATALINA_OPTS -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005"
+        ;;
+    *)
+esac
+
+/opt/tomcat/bin/catalina.sh run &
+PID="$!"
+trap "kill -15 $PID" exit INT TERM
+wait $PID
+trap - exit TERM INT
+wait $PID
+EXIT_STATUS=$?
+exit $EXIT_STATUS

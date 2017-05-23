@@ -7,10 +7,11 @@ import org.apereo.cas.authentication.principal.PrincipalFactory;
 import org.apereo.cas.infusionsoft.domain.User;
 import org.apereo.cas.infusionsoft.services.InfusionsoftAuthenticationService;
 import org.apereo.cas.infusionsoft.services.UserService;
-import org.apereo.cas.infusionsoft.support.AppHelper;
 import org.apereo.cas.services.ServicesManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 
 import javax.security.auth.login.AccountLockedException;
 import javax.security.auth.login.FailedLoginException;
@@ -23,19 +24,14 @@ import java.util.Map;
 public class InfusionsoftAuthenticationHandler extends AbstractUsernamePasswordAuthenticationHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(InfusionsoftAuthenticationHandler.class);
 
-    private AppHelper appHelper;
-
     private InfusionsoftAuthenticationService infusionsoftAuthenticationService;
-
     private UserService userService;
 
-    public InfusionsoftAuthenticationHandler(String name, ServicesManager servicesManager, PrincipalFactory principalFactory, int order, InfusionsoftAuthenticationService infusionsoftAuthenticationService, AppHelper appHelper, UserService userService) {
+    public InfusionsoftAuthenticationHandler(String name, ServicesManager servicesManager, PrincipalFactory principalFactory, int order, InfusionsoftAuthenticationService infusionsoftAuthenticationService, UserService userService) {
         super(name, servicesManager, principalFactory, order);
         this.infusionsoftAuthenticationService = infusionsoftAuthenticationService;
-        this.appHelper = appHelper;
         this.userService = userService;
     }
-
 
     @Override
     protected HandlerResult authenticateUsernamePasswordInternal(UsernamePasswordCredential credentials, String originalPassword) throws GeneralSecurityException {
@@ -52,13 +48,14 @@ public class InfusionsoftAuthenticationHandler extends AbstractUsernamePasswordA
                 case NoSuchUser:
                 case OldPassword:
                     int failedLoginAttempts = loginResult.getFailedAttempts();
+
                     if (failedLoginAttempts > InfusionsoftAuthenticationService.ALLOWED_LOGIN_ATTEMPTS) {
                         throw new AccountLockedException();
                     } else if (failedLoginAttempts == 0) { // This happens if an old password is matched
                         throw new FailedLoginException();
                     } else {
                         try {
-                            throw ((FailedLoginException) Class.forName("com.infusionsoft.cas.exceptions.FailedLoginException" + failedLoginAttempts).newInstance());
+                            throw ((FailedLoginException) Class.forName("org.apereo.cas.infusionsoft.exceptions.FailedLoginException" + failedLoginAttempts).newInstance());
                         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
                             throw new FailedLoginException();
                         }
@@ -87,4 +84,5 @@ public class InfusionsoftAuthenticationHandler extends AbstractUsernamePasswordA
             throw new IllegalStateException("User not found");
         }
     }
+
 }
