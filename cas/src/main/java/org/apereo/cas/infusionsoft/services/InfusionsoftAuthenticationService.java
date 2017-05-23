@@ -13,13 +13,9 @@ public interface InfusionsoftAuthenticationService {
 
     int ALLOWED_LOGIN_ATTEMPTS = 5; // how many tries allowed before locked
 
-    String guessAppName(String url) throws MalformedURLException;
+    String guessAppName(String url);
 
-    String guessAppName(URL url);
-
-    AppType guessAppType(String url) throws MalformedURLException;
-
-    AppType guessAppType(URL url);
+    AppType guessAppType(String url);
 
     LoginResult attemptLoginWithMD5Password(String username, String md5password);
 
@@ -30,8 +26,6 @@ public interface InfusionsoftAuthenticationService {
     User getCurrentUser(HttpServletRequest request);
 
     TicketGrantingTicket getTicketGrantingTicket(HttpServletRequest request);
-
-    void unlockUser(String username);
 
     void completePasswordReset(User user);
 

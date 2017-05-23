@@ -26,13 +26,11 @@ public class InfusionsoftAuthenticationHandler extends AbstractUsernamePasswordA
 
     private InfusionsoftAuthenticationService infusionsoftAuthenticationService;
     private UserService userService;
-    private MessageSource messageSource;
 
-    public InfusionsoftAuthenticationHandler(String name, ServicesManager servicesManager, PrincipalFactory principalFactory, int order, InfusionsoftAuthenticationService infusionsoftAuthenticationService, UserService userService, MessageSource messageSource) {
+    public InfusionsoftAuthenticationHandler(String name, ServicesManager servicesManager, PrincipalFactory principalFactory, int order, InfusionsoftAuthenticationService infusionsoftAuthenticationService, UserService userService) {
         super(name, servicesManager, principalFactory, order);
         this.infusionsoftAuthenticationService = infusionsoftAuthenticationService;
         this.userService = userService;
-        this.messageSource = messageSource;
     }
 
     @Override

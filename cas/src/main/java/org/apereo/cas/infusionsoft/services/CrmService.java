@@ -1,5 +1,6 @@
 package org.apereo.cas.infusionsoft.services;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apereo.cas.infusionsoft.config.properties.HostConfigurationProperties;
 
 /**
@@ -14,30 +15,22 @@ public class CrmService {
     }
 
     /**
-     * Builds a base URL to a CRM app.
+     * Builds a URL where users of this app should be sent after login.
      *
      * @param appName appName
      * @return redirect url
      */
-    public String buildCrmUrl(String appName) {
-        StringBuilder url = new StringBuilder(hostProperties.getProtocol() + "://" + buildCrmHostName(appName));
+    public String buildUrl(String appName) {
+        StringBuilder url = new StringBuilder(hostProperties.getProtocol());
+        url.append("://").append(appName).append(".").append(hostProperties.getDomain());
 
-        if (hostProperties.getProtocol().equals("http") && hostProperties.getPort() != 80) {
+        if (StringUtils.equals("http", hostProperties.getProtocol()) && hostProperties.getPort() != 80) {
             url.append(":").append(hostProperties.getPort());
-        } else if (hostProperties.getProtocol().equals("https") && hostProperties.getPort() != 443) {
+        } else if (StringUtils.equals("https", hostProperties.getProtocol()) && hostProperties.getPort() != 443) {
             url.append(":").append(hostProperties.getPort());
         }
 
         return url.toString();
-    }
-
-    @Deprecated
-    private String buildCrmHostName(String appName) {
-        return appName + "." + hostProperties.getDomain();
-    }
-
-    public String getLogoUrl(String appName) {
-        return buildCrmUrl(appName) + "/Logo?logo=weblogo";
     }
 
 }

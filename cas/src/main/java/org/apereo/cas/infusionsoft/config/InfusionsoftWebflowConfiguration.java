@@ -57,9 +57,6 @@ public class InfusionsoftWebflowConfiguration {
     private MarketingOptionsService marketingOptionsService;
 
     @Autowired
-    private MessageSource messageSource;
-
-    @Autowired
     private ServicesManager servicesManager;
 
     @Autowired
@@ -89,8 +86,7 @@ public class InfusionsoftWebflowConfiguration {
                 authenticationSystemSupport,
                 centralAuthenticationService,
                 ticketRegistrySupport,
-                servicesManager,
-                messageSource);
+                servicesManager);
     }
 
 }

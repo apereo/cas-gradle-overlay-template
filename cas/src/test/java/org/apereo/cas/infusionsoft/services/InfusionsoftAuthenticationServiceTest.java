@@ -88,7 +88,7 @@ public class InfusionsoftAuthenticationServiceTest {
         casProperties.setServer(casServerProperties);
 
         CrmService crmService = new CrmService(crmConfig);
-        CustomerHubService customerHubService = new CustomerHubService(infusionsoftConfigurationProperties);
+        CustomerHubService customerHubService = new CustomerHubService(customerHubConfig);
         appHelper = new AppHelper(crmService, customerHubService, infusionsoftConfigurationProperties);
 
         MockitoAnnotations.initMocks(this);
@@ -160,32 +160,6 @@ public class InfusionsoftAuthenticationServiceTest {
     @Test
     public void testGuessAppName() throws Exception {
         // CRM
-        Assert.assertEquals("mm999", infusionsoftAuthenticationService.guessAppName(new URL("https://mm999.infusionsoft.com/gobbledygook")));
-        Assert.assertEquals("something-long-and-weird", infusionsoftAuthenticationService.guessAppName(new URL("https://something-long-and-weird.infusionsoft.com/blah?foo=bar")));
-
-        // CustomerHub
-        Assert.assertEquals("xy231", infusionsoftAuthenticationService.guessAppName(new URL("https://xy231.customerhub.net/gobbledygook")));
-        Assert.assertEquals("my-girlfriends-app", infusionsoftAuthenticationService.guessAppName(new URL("https://my-girlfriends-app.customerhub.net/blah?foo=bar")));
-
-        // Community
-        Assert.assertEquals("community", infusionsoftAuthenticationService.guessAppName(new URL("https://community.infusionsoft.com/gobbledygook?foo=bar")));
-
-        // Marketplace
-        Assert.assertEquals("marketplace", infusionsoftAuthenticationService.guessAppName(new URL("https://marketplace.infusionsoft.com/gobbledygook?foo=bar")));
-
-        // Unrecognized
-        Assert.assertNull(infusionsoftAuthenticationService.guessAppName(new URL("http://www.google.com/search?q=lolcats")));
-
-        // Our own
-        Assert.assertNull(infusionsoftAuthenticationService.guessAppName(new URL("https://signin.infusionsoft.com/gobbledygook?foo=bar")));
-
-        // Null
-        Assert.assertNull(infusionsoftAuthenticationService.guessAppName((URL) null));
-    }
-
-    @Test
-    public void testGuessAppNameString() throws Exception {
-        // CRM
         Assert.assertEquals("mm999", infusionsoftAuthenticationService.guessAppName("https://mm999.infusionsoft.com/gobbledygook"));
         Assert.assertEquals("something-long-and-weird", infusionsoftAuthenticationService.guessAppName("https://something-long-and-weird.infusionsoft.com/blah?foo=bar"));
 
@@ -196,7 +170,7 @@ public class InfusionsoftAuthenticationServiceTest {
         // Community
         Assert.assertEquals("community", infusionsoftAuthenticationService.guessAppName("https://community.infusionsoft.com/gobbledygook?foo=bar"));
 
-        // Community
+        // Marketplace
         Assert.assertEquals("marketplace", infusionsoftAuthenticationService.guessAppName("https://marketplace.infusionsoft.com/gobbledygook?foo=bar"));
 
         // Unrecognized
@@ -212,32 +186,6 @@ public class InfusionsoftAuthenticationServiceTest {
     @Test
     public void testGuessAppType() throws Exception {
         // CRM
-        Assert.assertEquals(AppType.CRM, infusionsoftAuthenticationService.guessAppType(new URL("https://mm999.infusionsoft.com/gobbledygook")));
-        Assert.assertEquals(AppType.CRM, infusionsoftAuthenticationService.guessAppType(new URL("https://something-long-and-weird.infusionsoft.com/blah?foo=bar")));
-
-        // CustomerHub
-        Assert.assertEquals(AppType.CUSTOMERHUB, infusionsoftAuthenticationService.guessAppType(new URL("https://xy231.customerhub.net/gobbledygook")));
-        Assert.assertEquals(AppType.CUSTOMERHUB, infusionsoftAuthenticationService.guessAppType(new URL("https://my-girlfriends-app.customerhub.net/blah?foo=bar")));
-
-        // Community
-        Assert.assertEquals(AppType.COMMUNITY, infusionsoftAuthenticationService.guessAppType(new URL("https://community.infusionsoft.com/gobbledygook?foo=bar")));
-
-        // Community
-        Assert.assertEquals(AppType.MARKETPLACE, infusionsoftAuthenticationService.guessAppType(new URL("https://marketplace.infusionsoft.com/gobbledygook?foo=bar")));
-
-        // Unrecognized
-        Assert.assertNull(infusionsoftAuthenticationService.guessAppType(new URL("http://www.google.com/search?q=lolcats")));
-
-        // Our own
-        Assert.assertEquals(AppType.CAS, infusionsoftAuthenticationService.guessAppType(new URL("https://signin.infusionsoft.com/gobbledygook?foo=bar")));
-
-        // Null
-        Assert.assertNull(infusionsoftAuthenticationService.guessAppType((URL) null));
-    }
-
-    @Test
-    public void testGuessAppTypeString() throws Exception {
-        // CRM
         Assert.assertEquals(AppType.CRM, infusionsoftAuthenticationService.guessAppType("https://mm999.infusionsoft.com/gobbledygook"));
         Assert.assertEquals(AppType.CRM, infusionsoftAuthenticationService.guessAppType("https://something-long-and-weird.infusionsoft.com/blah?foo=bar"));
 
@@ -248,7 +196,7 @@ public class InfusionsoftAuthenticationServiceTest {
         // Community
         Assert.assertEquals(AppType.COMMUNITY, infusionsoftAuthenticationService.guessAppType("https://community.infusionsoft.com/gobbledygook?foo=bar"));
 
-        // Community
+        // Marketplace
         Assert.assertEquals(AppType.MARKETPLACE, infusionsoftAuthenticationService.guessAppType("https://marketplace.infusionsoft.com/gobbledygook?foo=bar"));
 
         // Unrecognized
@@ -509,16 +457,6 @@ public class InfusionsoftAuthenticationServiceTest {
 
         setupFailedLogins(999);
         Assert.assertTrue(infusionsoftAuthenticationService.isAccountLocked(testUsername));
-    }
-
-    @Test
-    public void testUnlockUser() throws Exception {
-        reset(loginAttemptDAO);
-        infusionsoftAuthenticationService.unlockUser(testUsername);
-        ArgumentCaptor<LoginAttempt> argument = ArgumentCaptor.forClass(LoginAttempt.class);
-        verify(loginAttemptDAO, times(1)).save(argument.capture());
-        Assert.assertEquals(argument.getValue().getStatus(), LoginAttemptStatus.UnlockedByAdmin);
-        Assert.assertEquals(argument.getValue().getUsername(), testUsername);
     }
 
     @Test

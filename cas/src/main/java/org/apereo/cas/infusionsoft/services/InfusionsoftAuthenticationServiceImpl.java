@@ -61,17 +61,14 @@ public class InfusionsoftAuthenticationServiceImpl implements InfusionsoftAuthen
      * Guesses an app name from a URL, or null if there isn't one to be found.
      */
     @Override
-    public String guessAppName(String url) throws MalformedURLException {
-        return StringUtils.isNotEmpty(url) ? guessAppName(new URL(url)) : null;
-    }
-
-    /**
-     * Guesses an app name from a URL, or null if there isn't one to be found.
-     */
-    @Override
-    public String guessAppName(URL url) {
+    public String guessAppName(String urlString) {
         String appName = null;
-
+        URL url;
+        try {
+            url = StringUtils.isNotEmpty(urlString) ? new URL(urlString) : null;
+        } catch (MalformedURLException e) {
+            url = null;
+        }
         if (url != null && url.getHost() != null) {
             String host = url.getHost().toLowerCase();
 
@@ -101,17 +98,15 @@ public class InfusionsoftAuthenticationServiceImpl implements InfusionsoftAuthen
      * Guesses an app type from a URL, or null if there isn't one to be found.
      */
     @Override
-    public AppType guessAppType(String url) throws MalformedURLException {
-        return StringUtils.isNotEmpty(url) ? guessAppType(new URL(url)) : null;
-    }
-
-    /**
-     * Guesses an app type from a URL, or null if there isn't one to be found.
-     */
-    @Override
-    public AppType guessAppType(URL url) {
+    public AppType guessAppType(String urlString) {
         AppType appType = null;
 
+        URL url;
+        try {
+            url = StringUtils.isNotEmpty(urlString) ? new URL(urlString) : null;
+        } catch (MalformedURLException e) {
+            url = null;
+        }
         if (url != null && url.getHost() != null) {
             String host = url.getHost().toLowerCase();
 
@@ -349,28 +344,6 @@ public class InfusionsoftAuthenticationServiceImpl implements InfusionsoftAuthen
         }
 
         return tgt;
-    }
-
-    /*
-        TODO: use CAS auditing, something like this:
-        @Audit(
-                action="UNLOCK_USER",
-                actionResolverName="UNLOCK_USER_RESOLVER",
-                resourceResolverName="UNLOCK_USER_RESOURCE_RESOLVER")
-    */
-    @Override
-    public void unlockUser(String username) {
-        recordLoginAttempt(LoginAttemptStatus.UnlockedByAdmin, username);
-
-        final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User user = (User) (authentication == null ? null : authentication.getPrincipal());
-        if (user == null) {
-            // This happens in testing, but it's a real problem if it happens in production!
-            log.error("Unknown user unlocked username " + username);
-        } else {
-            // This is a warning because we want to make sure it gets audited in the logs
-            log.warn("User " + user.getUsername() + " unlocked username " + username);
-        }
     }
 
     public void completePasswordReset(User user) {

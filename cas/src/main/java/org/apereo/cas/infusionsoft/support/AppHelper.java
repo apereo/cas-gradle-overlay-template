@@ -40,7 +40,7 @@ public class AppHelper {
                     break;
 
                 case CRM:
-                    retVal = crmService.buildCrmUrl(appName);
+                    retVal = crmService.buildUrl(appName);
                     break;
 
                 case CUSTOMERHUB:

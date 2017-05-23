@@ -530,38 +530,4 @@ public class RegistrationController {
         return user != null && StringUtils.isNotBlank(password1) && !passwordService.lastFourPasswordsContains(user, password1);
     }
 
-    /**
-     * Called from AJAX to get a URL to an app logo, if available.
-     *
-     * @param appType appType
-     * @param appName appName
-     * @return view
-     * @throws IOException e
-     */
-    @RequestMapping
-    @ResponseBody
-    public String getLogoImageUrl(AppType appType, String appName) throws IOException {
-        String url = "";
-
-        try {
-            if (appType != null && StringUtils.isNotEmpty(appName)) {
-                if (appType.equals(AppType.CRM)) {
-                    url = crmService.getLogoUrl(appName);
-                } else if (appType.equals(AppType.CUSTOMERHUB)) {
-                    url = customerHubService.getLogoUrl(appName);
-                }
-            }
-        } catch (Exception e) {
-            log.error("unable to get app url for " + appName + "/" + appType);
-        }
-
-        if (StringUtils.isNotEmpty(url)) {
-            log.debug("returning app logo url " + url + " for " + appName + "/" + appType);
-        } else {
-            log.debug("app logo url is unavailable for " + appName + "/" + appType);
-        }
-
-
-        return url;
-    }
 }

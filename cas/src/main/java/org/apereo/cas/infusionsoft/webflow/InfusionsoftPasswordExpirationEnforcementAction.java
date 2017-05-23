@@ -33,18 +33,15 @@ public class InfusionsoftPasswordExpirationEnforcementAction extends AbstractAct
     private final AuthenticationSystemSupport authenticationSystemSupport;
     private final TicketRegistrySupport ticketRegistrySupport;
     private final ServicesManager servicesManager;
-    private final MessageSource messageSource;
 
     public InfusionsoftPasswordExpirationEnforcementAction(final AuthenticationSystemSupport authenticationSystemSupport,
                                                            final CentralAuthenticationService authenticationService,
                                                            final TicketRegistrySupport ticketRegistrySupport,
-                                                           final ServicesManager servicesManager,
-                                                           final MessageSource messageSource) {
+                                                           final ServicesManager servicesManager) {
         this.authenticationSystemSupport = authenticationSystemSupport;
         this.centralAuthenticationService = authenticationService;
         this.ticketRegistrySupport = ticketRegistrySupport;
         this.servicesManager = servicesManager;
-        this.messageSource = messageSource;
     }
 
     /**

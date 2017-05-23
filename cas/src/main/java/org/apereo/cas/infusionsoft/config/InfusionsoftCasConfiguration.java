@@ -117,7 +117,7 @@ public class InfusionsoftCasConfiguration implements AuthenticationEventExecutio
 
     @Bean
     public CustomerHubService customerHubService() {
-        return new CustomerHubService(infusionsoftConfigurationProperties);
+        return new CustomerHubService(infusionsoftConfigurationProperties.getCustomerhub());
     }
 
     @Bean
@@ -128,7 +128,7 @@ public class InfusionsoftCasConfiguration implements AuthenticationEventExecutio
 
     @Bean
     InfusionsoftAuthenticationHandler infusionsoftAuthenticationHandler() {
-        return new InfusionsoftAuthenticationHandler("Infusionsoft Authentication Handler", servicesManager, principalFactory, 0, infusionsoftAuthenticationService(), userService(), messageSource);
+        return new InfusionsoftAuthenticationHandler("Infusionsoft Authentication Handler", servicesManager, principalFactory, 0, infusionsoftAuthenticationService(), userService());
     }
 
     @Bean
