@@ -31,12 +31,6 @@ public interface UserService {
     List<UserAccount> findSortedUserAccountsByAppType(User user, AppType appType);
 
     @Deprecated
-    UserAccount associatePendingAccountToUser(User user, String registrationCode);
-
-    @Deprecated
-    PendingUserAccount findPendingUserAccount(String registrationCode);
-
-    @Deprecated
     User findEnabledUser(String username);
 
     void cleanupLoginAttempts();

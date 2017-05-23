@@ -70,7 +70,6 @@ public class RegistrationController {
      * Shows the registration form.
      *
      * @param model            model
-     * @param registrationCode registrationCode
      * @param returnUrl        returnUrl
      * @param userToken        userToken
      * @param firstName        firstName
@@ -82,7 +81,7 @@ public class RegistrationController {
      * @throws IOException e
      */
     @RequestMapping("/createInfusionsoftId")
-    public String createInfusionsoftId(Model model, String registrationCode, String returnUrl, String userToken, String firstName, String lastName, String email, @RequestParam(defaultValue = "false") boolean skipWelcomeEmail, HttpServletRequest request) throws IOException {
+    public String createInfusionsoftId(Model model, String returnUrl, String userToken, String firstName, String lastName, String email, @RequestParam(defaultValue = "false") boolean skipWelcomeEmail, HttpServletRequest request) throws IOException {
 
         // If you get here, you should not have a ticket granting cookie in the request. If we don't clear it, we may be linking the wrong user account if user chooses "Already have ID" from the registration page
         autoLoginService.killTGT(request);
@@ -98,18 +97,7 @@ public class RegistrationController {
             user.setLastName(lastName);
             user.setUsername(email);
 
-            // If there's a registration code, pre-populate from that
-            if (StringUtils.isNotEmpty(registrationCode)) {
-                PendingUserAccount pending = userService.findPendingUserAccount(registrationCode);
-
-                if (pending != null) {
-                    user.setFirstName(pending.getFirstName());
-                    user.setLastName(pending.getLastName());
-                    user.setUsername(pending.getEmail());
-                }
-            }
-
-            buildModelForCreateInfusionsoftId(model, returnUrl, userToken, user, registrationCode, skipWelcomeEmail);
+            buildModelForCreateInfusionsoftId(model, returnUrl, userToken, user, skipWelcomeEmail);
             return "registration/createInfusionsoftId";
         }
     }
@@ -122,14 +110,13 @@ public class RegistrationController {
     /**
      * Builds the model with attributes that are required for displaying the createInfusionsoftId page.
      */
-    private void buildModelForCreateInfusionsoftId(Model model, String returnUrl, String userToken, User user, String registrationCode, boolean skipWelcomeEmail) {
+    private void buildModelForCreateInfusionsoftId(Model model, String returnUrl, String userToken, User user, boolean skipWelcomeEmail) {
         if (isAllowedUrl(returnUrl, "returnUrl")) {
             model.addAttribute("returnUrl", returnUrl);
         }
         model.addAttribute("userToken", userToken);
         model.addAttribute("user", user);
         model.addAttribute("securityQuestions", securityQuestionService.fetchAllEnabled());
-        model.addAttribute("registrationCode", registrationCode);
         model.addAttribute("skipWelcomeEmail", skipWelcomeEmail);
     }
 
@@ -182,7 +169,6 @@ public class RegistrationController {
      * @param username               username
      * @param password               password
      * @param eula                   eula
-     * @param registrationCode       registrationCode
      * @param returnUrl              returnUrl
      * @param userToken              userToken
      * @param skipWelcomeEmail       skipWelcomeEmail
@@ -193,7 +179,7 @@ public class RegistrationController {
      * @return view
      */
     @RequestMapping("/register")
-    public String register(Model model, String firstName, String lastName, String username, String password, String eula, String registrationCode, String returnUrl, String userToken, @RequestParam(defaultValue = "false") boolean skipWelcomeEmail, Long securityQuestionId, String securityQuestionAnswer, HttpServletRequest request, HttpServletResponse response) {
+    public String register(Model model, String firstName, String lastName, String username, String password, String eula, String returnUrl, String userToken, @RequestParam(defaultValue = "false") boolean skipWelcomeEmail, Long securityQuestionId, String securityQuestionAnswer, HttpServletRequest request, HttpServletResponse response) {
         boolean eulaChecked = StringUtils.equals(eula, "agreed");
         User user = new User();
 
@@ -246,16 +232,6 @@ public class RegistrationController {
 
                 model.addAttribute("user", user);
 
-                if (StringUtils.isNotEmpty(registrationCode)) {
-                    log.info("processing registration code " + registrationCode);
-
-                    try {
-                        userService.associatePendingAccountToUser(user, registrationCode);
-                    } catch (Exception e) {
-                        log.error("failed to associate new user to registration code " + registrationCode, e);
-                    }
-                }
-
                 if (!skipWelcomeEmail) {
                     mailService.sendWelcomeEmail(user, request.getLocale());
                 }
@@ -270,7 +246,7 @@ public class RegistrationController {
         }
 
         if (model.containsAttribute("error")) {
-            buildModelForCreateInfusionsoftId(model, returnUrl, userToken, user, registrationCode, skipWelcomeEmail);
+            buildModelForCreateInfusionsoftId(model, returnUrl, userToken, user, skipWelcomeEmail);
             return "registration/createInfusionsoftId";
         } else if (isAllowedUrl(returnUrl, "returnUrl") && StringUtils.isNotBlank(userToken)) {
             String redirectToAppUrl = generateRedirectToAppFromReturnUrl(returnUrl, userToken, user, true);
@@ -290,7 +266,6 @@ public class RegistrationController {
     @RequestMapping("/success")
     public ModelAndView success(HttpServletRequest request) {
         Map<String, Object> model = new HashMap<>();
-        // TODO: upgrade. This looks at the TGT cookie to get the current user. Why not just use the current user from Spring security?
         User user = infusionsoftAuthenticationService.getCurrentUser(request);
 
         if (user == null) {
@@ -302,6 +277,7 @@ public class RegistrationController {
             if (user.getAccounts().size() == 1) {
                 UserAccount primary = new ArrayList<>(user.getAccounts()).get(0);
 
+                // TODO: see if we can use returnUrl instead
                 model.put("appUrl", appHelper.buildAppUrl(primary.getAppType(), primary.getAppName()));
             }
 

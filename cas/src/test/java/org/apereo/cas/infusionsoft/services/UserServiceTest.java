@@ -34,9 +34,6 @@ public class UserServiceTest {
     private PasswordService passwordService;
 
     @Mock
-    private PendingUserAccountDAO pendingUserAccountDAO;
-
-    @Mock
     private UserDAO userDAO;
 
     @Mock
@@ -63,7 +60,7 @@ public class UserServiceTest {
 
         MockitoAnnotations.initMocks(this);
 
-        serviceToTest = new UserServiceImpl(appHelper, authorityDAO, loginAttemptDAO, mailService, passwordService, pendingUserAccountDAO, userDAO, userAccountDAO, userIdentityDAO, infusionsoftConfigurationProperties);
+        serviceToTest = new UserServiceImpl(appHelper, authorityDAO, loginAttemptDAO, mailService, passwordService, userDAO, userAccountDAO, userIdentityDAO, infusionsoftConfigurationProperties);
 
         when(userDAO.findOne(user.getId())).thenReturn(user);
         when(userDAO.findByUsername(testUsername)).thenReturn(user);

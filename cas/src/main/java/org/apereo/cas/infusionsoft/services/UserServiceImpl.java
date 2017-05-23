@@ -29,19 +29,17 @@ public class UserServiceImpl implements UserService {
     private LoginAttemptDAO loginAttemptDAO;
     private MailService mailService;
     private PasswordService passwordService;
-    private PendingUserAccountDAO pendingUserAccountDAO;
     private UserDAO userDAO;
     private UserAccountDAO userAccountDAO;
     private UserIdentityDAO userIdentityDAO;
     private InfusionsoftConfigurationProperties infusionsoftConfigurationProperties;
 
-    public UserServiceImpl(AppHelper appHelper, AuthorityDAO authorityDAO, LoginAttemptDAO loginAttemptDAO, MailService mailService, PasswordService passwordService, PendingUserAccountDAO pendingUserAccountDAO, UserDAO userDAO, UserAccountDAO userAccountDAO, UserIdentityDAO userIdentityDAO, InfusionsoftConfigurationProperties infusionsoftConfigurationProperties) {
+    public UserServiceImpl(AppHelper appHelper, AuthorityDAO authorityDAO, LoginAttemptDAO loginAttemptDAO, MailService mailService, PasswordService passwordService, UserDAO userDAO, UserAccountDAO userAccountDAO, UserIdentityDAO userIdentityDAO, InfusionsoftConfigurationProperties infusionsoftConfigurationProperties) {
         this.appHelper = appHelper;
         this.authorityDAO = authorityDAO;
         this.loginAttemptDAO = loginAttemptDAO;
         this.mailService = mailService;
         this.passwordService = passwordService;
-        this.pendingUserAccountDAO = pendingUserAccountDAO;
         this.userDAO = userDAO;
         this.userAccountDAO = userAccountDAO;
         this.userIdentityDAO = userIdentityDAO;
@@ -181,47 +179,6 @@ public class UserServiceImpl implements UserService {
         return userAccountDAO.findByUserAndAppTypeAndDisabledOrderByAppNameAsc(user, appType, false);
     }
 
-    /**
-     * Tries to associate a user with a pending registration. If successful, this
-     * will return the newly associated user account. If there's already a disabled user account matching the
-     * registration (unlikely), re-enable it instead of creating a duplicate.
-     */
-    @Override
-    public UserAccount associatePendingAccountToUser(User user, String registrationCode) {
-        PendingUserAccount pendingAccount = findPendingUserAccount(registrationCode);
-        ensureAccountIsNotLinkedToDifferentUser(pendingAccount.getAppName(), pendingAccount.getAppType(), pendingAccount.getAppUsername(), user);
-        UserAccount account = findUserAccount(user, pendingAccount.getAppName(), pendingAccount.getAppType());
-
-        try {
-            if (account == null) {
-                account = new UserAccount();
-
-                account.setUser(user);
-                account.setAppName(pendingAccount.getAppName());
-                account.setAppType(pendingAccount.getAppType());
-                account.setAppUsername(pendingAccount.getAppUsername());
-
-                user.getAccounts().add(account);
-
-                userAccountDAO.save(account);
-                userDAO.save(user);
-            } else {
-                account.setAppUsername(pendingAccount.getAppUsername());
-                account.setDisabled(false);
-
-                userAccountDAO.save(account);
-            }
-
-            log.info("associated user " + user + " to " + account.getAppName() + "/" + account.getAppType());
-
-            pendingUserAccountDAO.delete(pendingAccount);
-        } catch (Exception e) {
-            throw new IllegalStateException("failed to associate user " + user + " to registration code " + registrationCode, e);
-        }
-
-        return account;
-    }
-
     private void ensureAccountIsNotLinkedToDifferentUser(String appName, AppType appType, String appUsername, User user) {
         List<UserAccount> accounts = userAccountDAO.findByAppNameAndAppTypeAndAppUsernameAndUserNot(appName, appType, appUsername, user);
 
@@ -232,14 +189,6 @@ public class UserServiceImpl implements UserService {
             }
             throw new IllegalStateException("Account " + appUsername + " on " + appName + "/" + appType + " could not be linked to " + user + " since it is already linked to a different Infusionsoft ID (" + StringUtils.join(usernames, ", ") + ")");
         }
-    }
-
-    /**
-     * Finds a pending user account by its unique registration code.
-     */
-    @Override
-    public PendingUserAccount findPendingUserAccount(String registrationCode) {
-        return pendingUserAccountDAO.findByRegistrationCode(registrationCode);
     }
 
     /**

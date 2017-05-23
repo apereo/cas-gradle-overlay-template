@@ -156,13 +156,11 @@
 <!--/*@thymesVar id="userToken" type="java.lang.String"*/-->
 <!--/*@thymesVar id="user" type="org.apereo.cas.infusionsoft.domain.User"*/-->
 <!--/*@thymesVar id="securityQuestions" type="java.util.List<org.apereo.cas.infusionsoft.domain.SecurityQuestion>"*/-->
-<!--/*@thymesVar id="registrationCode" type="java.lang.String"*/-->
 <!--/*@thymesVar id="skipWelcomeEmail" type="java.lang.Boolean"*/-->
 <!--/*@thymesVar id="error" type="java.lang.String"*/-->
 
 <!--/* These form elements are used for both linkToExisting and register */-->
 <template th:fragment="commonFormElements">
-    <input type="hidden" name="registrationCode" th:value="${registrationCode}"/>
     <input type="hidden" name="returnUrl" th:value="${returnUrl}"/>
     <input type="hidden" name="userToken" th:value="${userToken}"/>
 </template>
