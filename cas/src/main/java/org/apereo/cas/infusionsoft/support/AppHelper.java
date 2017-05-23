@@ -2,23 +2,16 @@ package org.apereo.cas.infusionsoft.support;
 
 import org.apereo.cas.infusionsoft.config.properties.InfusionsoftConfigurationProperties;
 import org.apereo.cas.infusionsoft.domain.AppType;
-import org.apereo.cas.infusionsoft.services.CrmService;
-import org.apereo.cas.infusionsoft.services.CustomerHubService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@Deprecated
 public class AppHelper {
 
     private static final Logger log = LoggerFactory.getLogger(AppHelper.class);
 
-    private CrmService crmService;
-    private CustomerHubService customerHubService;
     private InfusionsoftConfigurationProperties infusionsoftConfigurationProperties;
 
-    public AppHelper(CrmService crmService, CustomerHubService customerHubService, InfusionsoftConfigurationProperties infusionsoftConfigurationProperties) {
-        this.crmService = crmService;
-        this.customerHubService = customerHubService;
+    public AppHelper(InfusionsoftConfigurationProperties infusionsoftConfigurationProperties) {
         this.infusionsoftConfigurationProperties = infusionsoftConfigurationProperties;
     }
 
@@ -40,11 +33,11 @@ public class AppHelper {
                     break;
 
                 case CRM:
-                    retVal = crmService.buildUrl(appName);
+                    retVal = infusionsoftConfigurationProperties.getCrm().getUrl(appName);
                     break;
 
                 case CUSTOMERHUB:
-                    retVal = customerHubService.buildUrl(appName);
+                    retVal = infusionsoftConfigurationProperties.getCustomerhub().getUrl(appName) + "/admin";
                     break;
 
                 case COMMUNITY:
@@ -64,4 +57,5 @@ public class AppHelper {
 
         return retVal;
     }
+
 }

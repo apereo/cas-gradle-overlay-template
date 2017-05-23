@@ -48,16 +48,14 @@ public class InfusionsoftFlowSetupAction extends AbstractAction {
     protected Event doExecute(RequestContext context) throws Exception {
         final MutableAttributeMap<Object> flowScope = context.getFlowScope();
         final WebApplicationService service = (WebApplicationService) flowScope.get("service");
-        String appName = null;
-        AppType appType = null;
-        String serviceUrl = null;
-
         if (service != null) {
-            appName = infusionsoftAuthenticationService.guessAppName(service.getOriginalUrl());
-            appType = infusionsoftAuthenticationService.guessAppType(service.getOriginalUrl());
-            serviceUrl = service.getOriginalUrl();
+            flowScope.put("serviceUrl", service.getOriginalUrl());
+            AppType appType = infusionsoftAuthenticationService.guessAppType(service.getOriginalUrl());
+            if (appType == AppType.CRM) {
+                String appName = infusionsoftAuthenticationService.guessAppName(service.getOriginalUrl());
+                flowScope.put("crmAffiliateUrl", appHelper.buildAppUrl(appType, appName) + "/Affiliate/");
+            }
         }
-        final String appUrl = appHelper.buildAppUrl(appType, appName);
 
         final MarketingOptions marketingOptions = marketingOptionsService.fetch();
         boolean enableAds = marketingOptions.getEnableAds();
@@ -74,16 +72,12 @@ public class InfusionsoftFlowSetupAction extends AbstractAction {
             }
         }
 
-        flowScope.put("appName", appName);
-        flowScope.put("appType", appType);
-        flowScope.put("appUrl", appUrl);
+        flowScope.put("adDesktopImageSrcUrl", marketingOptions.getDesktopImageSrcUrl());
+        flowScope.put("adLinkUrl", marketingOptions.getHref());
+        flowScope.put("adMobileImageSrcUrl", marketingOptions.getMobileImageSrcUrl());
         flowScope.put("appVersion", buildProperties.getVersion());
         flowScope.put("enableAds", enableAds);
-        flowScope.put("adDesktopImageSrcUrl", marketingOptions.getDesktopImageSrcUrl());
-        flowScope.put("adMobileImageSrcUrl", marketingOptions.getMobileImageSrcUrl());
-        flowScope.put("adLinkUrl", marketingOptions.getHref());
         flowScope.put("supportPhoneNumbers", supportPhoneNumbers);
-        flowScope.put("serviceUrl", serviceUrl);
 
         return success();
     }

@@ -1,5 +1,7 @@
 package org.apereo.cas.infusionsoft.config.properties;
 
+import org.apache.commons.lang3.StringUtils;
+
 public class HostConfigurationProperties {
     private String domain;
     private String protocol = "https";
@@ -30,7 +32,16 @@ public class HostConfigurationProperties {
     }
 
     public String getUrl() {
-        StringBuilder url = new StringBuilder(protocol + "://" + domain);
+        return getUrl(null);
+    }
+
+    public String getUrl(String appName) {
+        StringBuilder url = new StringBuilder(protocol);
+        url.append("://");
+        if (StringUtils.isNotBlank(appName)) {
+            url.append(appName).append(".");
+        }
+        url.append(domain);
 
         if ("http".equals(protocol) && port != 80) {
             url.append(":").append(port);

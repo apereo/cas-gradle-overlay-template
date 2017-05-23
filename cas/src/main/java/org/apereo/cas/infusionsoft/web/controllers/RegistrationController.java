@@ -4,10 +4,11 @@ import org.apache.commons.lang3.CharEncoding;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.validator.EmailValidator;
 import org.apereo.cas.infusionsoft.config.properties.InfusionsoftConfigurationProperties;
-import org.apereo.cas.infusionsoft.domain.*;
+import org.apereo.cas.infusionsoft.domain.SecurityQuestion;
+import org.apereo.cas.infusionsoft.domain.SecurityQuestionResponse;
+import org.apereo.cas.infusionsoft.domain.User;
 import org.apereo.cas.infusionsoft.exceptions.InfusionsoftValidationException;
 import org.apereo.cas.infusionsoft.services.*;
-import org.apereo.cas.infusionsoft.support.AppHelper;
 import org.apereo.cas.services.RegisteredService;
 import org.apereo.cas.services.ServicesManager;
 import org.slf4j.Logger;
@@ -20,7 +21,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.servlet.http.HttpServletRequest;
@@ -28,9 +28,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Controller that backs the new user registration and "forgot password" flows.
@@ -40,10 +37,7 @@ import java.util.Map;
 public class RegistrationController {
     private static final Logger log = LoggerFactory.getLogger(RegistrationController.class);
 
-    private AppHelper appHelper;
     private AutoLoginService autoLoginService;
-    private CrmService crmService;
-    private CustomerHubService customerHubService;
     private InfusionsoftAuthenticationService infusionsoftAuthenticationService;
     private InfusionsoftConfigurationProperties infusionsoftConfigurationProperties;
     private MailService mailService;
@@ -51,12 +45,10 @@ public class RegistrationController {
     private SecurityQuestionService securityQuestionService;
     private ServicesManager servicesManager;
     private UserService userService;
+    private String defaultRedirectUrl;
 
-    public RegistrationController(AppHelper appHelper, AutoLoginService autoLoginService, CrmService crmService, CustomerHubService customerHubService, InfusionsoftAuthenticationService infusionsoftAuthenticationService, InfusionsoftConfigurationProperties infusionsoftConfigurationProperties, MailService mailService, PasswordService passwordService, SecurityQuestionService securityQuestionService, ServicesManager servicesManager, UserService userService) {
-        this.appHelper = appHelper;
+    public RegistrationController(AutoLoginService autoLoginService, InfusionsoftAuthenticationService infusionsoftAuthenticationService, InfusionsoftConfigurationProperties infusionsoftConfigurationProperties, MailService mailService, PasswordService passwordService, SecurityQuestionService securityQuestionService, ServicesManager servicesManager, UserService userService, String defaultRedirectUrl) {
         this.autoLoginService = autoLoginService;
-        this.crmService = crmService;
-        this.customerHubService = customerHubService;
         this.infusionsoftAuthenticationService = infusionsoftAuthenticationService;
         this.infusionsoftConfigurationProperties = infusionsoftConfigurationProperties;
         this.mailService = mailService;
@@ -64,6 +56,7 @@ public class RegistrationController {
         this.securityQuestionService = securityQuestionService;
         this.servicesManager = servicesManager;
         this.userService = userService;
+        this.defaultRedirectUrl = defaultRedirectUrl;
     }
 
     /**
@@ -253,35 +246,8 @@ public class RegistrationController {
             log.info("Registration complete for new user " + user.getUsername() + ". Redirecting to " + redirectToAppUrl);
             return "redirect:" + redirectToAppUrl;
         } else {
+            model.addAttribute("redirectUrl", defaultRedirectUrl);
             return "registration/success";
-        }
-    }
-
-    /**
-     * Shows the registration success page.
-     *
-     * @param request request
-     * @return ModelAndView
-     */
-    @RequestMapping("/success")
-    public ModelAndView success(HttpServletRequest request) {
-        Map<String, Object> model = new HashMap<>();
-        User user = infusionsoftAuthenticationService.getCurrentUser(request);
-
-        if (user == null) {
-            return new ModelAndView("redirect:createInfusionsoftId");
-        } else {
-            model.put("user", user);
-            model.put("appCentralBase", infusionsoftConfigurationProperties.getAccountCentral().getUrl());
-
-            if (user.getAccounts().size() == 1) {
-                UserAccount primary = new ArrayList<>(user.getAccounts()).get(0);
-
-                // TODO: see if we can use returnUrl instead
-                model.put("appUrl", appHelper.buildAppUrl(primary.getAppType(), primary.getAppName()));
-            }
-
-            return new ModelAndView("registration/success", model);
         }
     }
 
@@ -389,7 +355,7 @@ public class RegistrationController {
                 autoLoginService.autoLogin(user.getUsername(), request, response);
             }
 
-            return "redirect:" + infusionsoftConfigurationProperties.getAccountCentral().getUrl() + "/app/central/home";
+            return "redirect:" + defaultRedirectUrl;
         }
     }
 

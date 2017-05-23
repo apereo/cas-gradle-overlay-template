@@ -1,17 +1,17 @@
 <!DOCTYPE html>
 <html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" xmlns:th="http://www.thymeleaf.org" layout:decorate="../layouts/infusionsoft">
 
-<!--/*@thymesVar id="enableAds" type="java.lang.String"*/-->
-<!--/*@thymesVar id="adLinkUrl" type="java.lang.String"*/-->
-<!--/*@thymesVar id="adDesktopImageSrcUrl" type="java.lang.String"*/-->
 <!--/*@thymesVar id="credential" type="org.apereo.cas.authentication.UsernamePasswordCredential"*/-->
 <!--/*@thymesVar id="flowExecutionKey" type="java.lang.String"*/-->
+
+<!--/*@thymesVar id="adDesktopImageSrcUrl" type="java.lang.String"*/-->
+<!--/*@thymesVar id="adLinkUrl" type="java.lang.String"*/-->
+<!--/*@thymesVar id="adMobileImageSrcUrl" type="java.lang.String"*/-->
 <!--/*@thymesVar id="appVersion" type="java.lang.String"*/-->
+<!--/*@thymesVar id="crmAffiliateUrl" type="java.lang.String"*/-->
+<!--/*@thymesVar id="enableAds" type="java.lang.String"*/-->
 <!--/*@thymesVar id="serviceUrl" type="java.lang.String"*/-->
 <!--/*@thymesVar id="supportPhoneNumbers" type="java.util.List<String>"*/-->
-<!--/*@thymesVar id="appType" type="org.apereo.cas.infusionsoft.domain.AppType"*/-->
-<!--/*@thymesVar id="appUrl" type="java.lang.String"*/-->
-<!--/*@thymesVar id="adMobileImageSrcUrl" type="java.lang.String"*/-->
 
 <head>
     <title th:text="#{cas.login.pagetitle}"></title>
@@ -95,8 +95,8 @@
                 </span>
             </p>
 
-            <p th:if="${!#strings.isEmpty(appUrl) && appType == T(org.apereo.cas.infusionsoft.domain.AppType).CRM}">
-                <a th:href="@{|${appUrl}/Affiliate/|}">Referral Partner Sign-in</a>
+            <p th:if="${!#strings.isEmpty(crmAffiliateUrl)}">
+                <a th:href="@{crmAffiliateUrl}">Referral Partner Sign-in</a>
             </p>
         </div>
 

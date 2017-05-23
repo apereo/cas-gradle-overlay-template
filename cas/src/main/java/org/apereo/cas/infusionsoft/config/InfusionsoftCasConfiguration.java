@@ -106,7 +106,7 @@ public class InfusionsoftCasConfiguration implements AuthenticationEventExecutio
 
     @Bean
     public AppHelper appHelper() {
-        return new AppHelper(crmService(), customerHubService(), infusionsoftConfigurationProperties);
+        return new AppHelper(infusionsoftConfigurationProperties);
     }
 
     @Bean
@@ -122,16 +122,6 @@ public class InfusionsoftCasConfiguration implements AuthenticationEventExecutio
     @Bean
     public PrincipalFactory clientPrincipalFactory() {
         return new InfusionsoftSocialLoginPrincipalFactory(userService());
-    }
-
-    @Bean
-    public CrmService crmService() {
-        return new CrmService(infusionsoftConfigurationProperties.getCrm());
-    }
-
-    @Bean
-    public CustomerHubService customerHubService() {
-        return new CustomerHubService(infusionsoftConfigurationProperties.getCustomerhub());
     }
 
     @Bean
@@ -167,9 +157,10 @@ public class InfusionsoftCasConfiguration implements AuthenticationEventExecutio
 
     @Bean
     public RegistrationController registrationController() {
-        return new RegistrationController(appHelper(), autoLoginService(), crmService(), customerHubService(),
+        return new RegistrationController(autoLoginService(),
                 infusionsoftAuthenticationService(), infusionsoftConfigurationProperties,
-                mailService, passwordService(), securityQuestionService(), servicesManager, userService()
+                mailService, passwordService(), securityQuestionService(), servicesManager, userService(),
+                casConfigurationProperties.getView().getDefaultRedirectUrl()
         );
     }
 
