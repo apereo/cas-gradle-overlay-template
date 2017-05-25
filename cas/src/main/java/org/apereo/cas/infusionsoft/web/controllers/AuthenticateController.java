@@ -26,7 +26,6 @@ import java.util.Locale;
 /**
  * Really simple controller to allow authentication.
  */
-@Controller
 @RestController
 @RequestMapping(value = "/user/authenticate")
 public class AuthenticateController {
