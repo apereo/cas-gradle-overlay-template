@@ -5,11 +5,7 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apereo.cas.api.UserAccountDTO;
 import org.apereo.cas.infusionsoft.config.properties.InfusionsoftConfigurationProperties;
-import org.apereo.cas.infusionsoft.dao.AuthorityDAO;
-import org.apereo.cas.infusionsoft.dao.LoginAttemptDAO;
-import org.apereo.cas.infusionsoft.dao.UserAccountDAO;
-import org.apereo.cas.infusionsoft.dao.UserDAO;
-import org.apereo.cas.infusionsoft.dao.UserIdentityDAO;
+import org.apereo.cas.infusionsoft.dao.*;
 import org.apereo.cas.infusionsoft.domain.*;
 import org.apereo.cas.infusionsoft.exceptions.InfusionsoftValidationException;
 import org.apereo.cas.infusionsoft.support.AppHelper;
@@ -17,15 +13,11 @@ import org.apereo.cas.infusionsoft.web.ValidationUtils;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.validation.constraints.NotNull;
 import java.io.ByteArrayOutputStream;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Transactional(transactionManager = "transactionManager")
 public class UserServiceImpl implements UserService {
@@ -185,6 +177,18 @@ public class UserServiceImpl implements UserService {
     @Deprecated
     public List<UserAccount> findSortedUserAccountsByAppType(User user, AppType appType) {
         return userAccountDAO.findByUserAndAppTypeAndDisabledOrderByAppNameAsc(user, appType, false);
+    }
+
+    private void ensureAccountIsNotLinkedToDifferentUser(String appName, AppType appType, String appUsername, User user) {
+        List<UserAccount> accounts = userAccountDAO.findByAppNameAndAppTypeAndAppUsernameAndUserNot(appName, appType, appUsername, user);
+
+        if (accounts != null && !accounts.isEmpty()) {
+            List<String> usernames = new ArrayList<>();
+            for (UserAccount account : accounts) {
+                usernames.add(account.getUser().getUsername());
+            }
+            throw new IllegalStateException("Account " + appUsername + " on " + appName + "/" + appType + " could not be linked to " + user + " since it is already linked to a different Infusionsoft ID (" + StringUtils.join(usernames, ", ") + ")");
+        }
     }
 
     /**

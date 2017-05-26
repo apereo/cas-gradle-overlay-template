@@ -1,104 +1,57 @@
-<%@ page session="true" %>
-<%@ page pageEncoding="UTF-8" %>
-<%@ page contentType="text/html; charset=UTF-8" %>
-<%@ taglib prefix="c" uri="http://java.sun.com/jstl/core_rt" %>
-<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
-<%@ taglib prefix="fmt" uri="http://java.sun.com/jstl/fmt_rt" %>
-<%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
-<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
-
+<!DOCTYPE html>
+<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" xmlns:th="http://www.thymeleaf.org" layout:decorate="../layouts/infusionsoft">
+<!--/*@thymesVar id="error" type="java.lang.String"*/-->
+<!--/*@thymesVar id="username" type="java.lang.String"*/-->
+<!--/*@thymesVar id="supportPhoneNumbers" type="java.util.List<String>"*/-->
 <head>
-
-    <meta name="decorator" content="black-header-minimal" />
-
     <meta name="robots" content="noindex">
-
-    <style type="text/css">
-
-        #forgot {
-            width: 299px;
-            margin: 10px auto;
-        }
-
-        #back-to-signin {
-            margin: 5px auto;
-            text-align: center;
-        }
-
-        input[type="text"] {
-            padding: 6px 6px;
-        }
-
-    </style>
-
-    <script type="text/javascript">
-
-        $(document).ready(function () {
-
-            //Validate the form
-            $('#fm1').validate(
-                    {
-                        rules: {
-                            username: {
-                                required: true,
-                                email: true
-                            }
-                        },
-                        messages: {
-                            username: {
-                                required: "<spring:message code='user.error.email.blank'/>",
-                                email: "<spring:message code='user.error.email.invalid'/>"
-                            }
-
-                        },
-                        highlight: function (element) {
-                            $(element).closest('.control-group').removeClass('success').addClass('error');
-                        },
-                        success: function (element) {
-                            element.closest('.control-group').removeClass('error');
-                            element.closest('label.error').hide().removeClass('error').addClass('valid').addClass('error');
-                        }
-
-                    });
-
-        });
-
-    </script>
-
+    <title>Password Reset</title>
+    <link type="text/css" rel="stylesheet" layout:fragment="local_style" th:href="@{/infusionsoft/css/bootstrap-infusionsoft.css}"/>
 </head>
+
 <body>
+<div class="container" layout:fragment="content">
+    <div class="row">
+        <div class="rounded-box">
+            <img tabindex="-1" th:src="@{/infusionsoft/img/is_logo.svg}" width="159" height="26" class="logo" th:title="#{Infusionsoft}"/>
 
-<div id="top-spacer" style="height: 101px;"></div>
-<div id="forgot">
-    <div class="top-blue">
-        Password Reset
-    </div>
-    <div class="bottom-brown">
+            <h2>Password Reset</h2>
 
-        <c:if test="${not empty error}">
-            <div class="alert alert-error">
-                <spring:message code="${error}"/>
-            </div>
-        </c:if>
+            <form th:action="@{recover}" method="post" id="forgotPasswordForm" class="form-horizontal" role="form">
 
-        <form:form action="recover" method="post" id="fm1" class="form-vertical">
-            <div class="control-group">
-                <label for="username" class="control-label">Please <c:if test="${empty username}">enter</c:if><c:if test="${!empty username}">verify</c:if> your email address</label>
-                <div class="controls">
-                    <input type="text" class="required" id="username" name="username" size="25" tabindex="1" style="width: 231px" value="${fn:escapeXml(username)}" />
+                <p class="text-error" th:if="${!#strings.isEmpty(error)}">
+                    <img tabindex="-1" th:src="@{/infusionsoft/img/ic-exclamation-circle.svg}" width="16" height="16"/>
+                    <th:block th:utext="#{${error}}"/>
+                </p>
+
+                <div class="form-group ">
+                    <div class="col-md-12">
+                        <span class="ic-envelope"></span>
+                        <input type="email" class="form-control" id="username" name="username" placeholder="email@example.com" size="25" tabindex="1" th:value="${username}"/>
+                    </div>
                 </div>
-            </div>
-
-            <div class="control-group" style="text-align: right">
-                <input class="btn btn-primary" name="submit" accesskey="l" value="Next" tabindex="4" type="submit" />
-            </div>
-        </form:form>
+                <div class="form-group">
+                    <div class="col-md-12">
+                        <button class="btn btn-success btn-block" type="submit">Next</button>
+                    </div>
+                </div>
+            </form>
+            <a th:href="@{/login}">Back to Sign In</a>
+        </div>
+    </div>
+    <div class="row">
+        <div class="need-help col-md-12">
+            <p>
+                <span>Need help? Call toll free:</span>
+                <span th:each="supportPhoneNumber : ${supportPhoneNumbers}">
+                    <br><span th:text="${supportPhoneNumber}"></span>
+                </span>
+            </p>
+        </div>
     </div>
 </div>
 
-<div id="back-to-signin">
-    <c:set var="loginUrl" value="${pageContext.request.contextPath}/login"/>
-    <a href="${loginUrl}">Back to Sign In</a>
-</div>
+<script type="text/javascript" layout:fragment="local_script" th:src="@{/js/password-forgot.js}"></script>
 
 </body>
+</html>

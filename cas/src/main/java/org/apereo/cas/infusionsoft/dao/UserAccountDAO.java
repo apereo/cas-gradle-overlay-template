@@ -19,4 +19,6 @@ public interface UserAccountDAO extends PagingAndSortingRepository<UserAccount, 
     @Deprecated
     List<UserAccount> findByUserAndAppTypeAndDisabledOrderByAppNameAsc(User user, AppType appType, Boolean disabled);
 
+    @Deprecated
+    List<UserAccount> findByAppNameAndAppTypeAndAppUsernameAndUserNot(String appName, AppType appType, String appUsername, User user);
 }

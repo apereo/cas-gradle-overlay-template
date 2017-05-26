@@ -1,10 +1,6 @@
 package org.apereo.cas.infusionsoft.services;
 
-import org.apereo.cas.infusionsoft.domain.AppType;
-import org.apereo.cas.infusionsoft.domain.Authority;
-import org.apereo.cas.infusionsoft.domain.User;
-import org.apereo.cas.infusionsoft.domain.UserAccount;
-import org.apereo.cas.infusionsoft.domain.UserIdentity;
+import org.apereo.cas.infusionsoft.domain.*;
 import org.apereo.cas.infusionsoft.exceptions.InfusionsoftValidationException;
 
 import javax.validation.constraints.NotNull;

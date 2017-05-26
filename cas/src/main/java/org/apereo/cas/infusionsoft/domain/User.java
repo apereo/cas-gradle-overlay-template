@@ -26,6 +26,7 @@ public class User implements Serializable {
     private String username;
     private String passwordRecoveryCode;
     private DateTime passwordRecoveryCodeCreatedTime;
+    private String ipAddress;
     private boolean enabled;
     private Set<Authority> authorities = new HashSet<>();
     private Set<UserAccount> accounts = new HashSet<>();
@@ -102,6 +103,15 @@ public class User implements Serializable {
 
     public void setPasswordRecoveryCodeCreatedTime(DateTime passwordRecoveryCodeCreatedTime) {
         this.passwordRecoveryCodeCreatedTime = passwordRecoveryCodeCreatedTime;
+    }
+
+    @Column(name = "ip_address", length = 32, nullable = true)
+    public String getIpAddress() {
+        return ipAddress;
+    }
+
+    public void setIpAddress(String ipAddress) {
+        this.ipAddress = ipAddress;
     }
 
     @NotNull

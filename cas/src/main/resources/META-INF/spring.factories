@@ -1,1 +1,12 @@
-org.springframework.boot.autoconfigure.EnableAutoConfiguration=org.apereo.cas.infusionsoft.config.InfusionsoftAuditConfiguration,org.apereo.cas.infusionsoft.config.InfusionsoftCasConfiguration,org.apereo.cas.infusionsoft.config.InfusionsoftDataConfiguration,org.apereo.cas.infusionsoft.config.InfusionsoftMailConfiguration,org.apereo.cas.infusionsoft.config.InfusionsoftPasswordManagementConfiguration,org.apereo.cas.infusionsoft.config.InfusionsoftRegisteredServicesConfiguration,org.apereo.cas.infusionsoft.config.InfusionsoftSecurityConfiguration,org.apereo.cas.infusionsoft.config.InfusionsoftWebflowConfiguration
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+  org.apereo.cas.infusionsoft.config.InfusionsoftAuditConfiguration,\
+  org.apereo.cas.infusionsoft.config.InfusionsoftCasConfiguration,\
+  org.apereo.cas.infusionsoft.config.InfusionsoftDataConfiguration,\
+  org.apereo.cas.infusionsoft.config.InfusionsoftMailConfiguration,\
+  org.apereo.cas.infusionsoft.config.InfusionsoftMvcConfiguration,\
+  org.apereo.cas.infusionsoft.config.InfusionsoftPasswordManagementConfiguration,\
+  org.apereo.cas.infusionsoft.config.InfusionsoftRegisteredServicesConfiguration,\
+  org.apereo.cas.infusionsoft.config.InfusionsoftSecurityConfiguration,\
+  org.apereo.cas.infusionsoft.config.InfusionsoftSchedulingConfiguration,\
+  org.apereo.cas.infusionsoft.config.InfusionsoftThemesConfiguration,\
+  org.apereo.cas.infusionsoft.config.InfusionsoftWebflowConfiguration

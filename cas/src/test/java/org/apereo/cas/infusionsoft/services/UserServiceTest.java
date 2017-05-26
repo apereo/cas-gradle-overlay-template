@@ -1,20 +1,16 @@
 package org.apereo.cas.infusionsoft.services;
 
-import org.apereo.cas.configuration.CasConfigurationProperties;
-import org.apereo.cas.configuration.model.core.CasServerProperties;
-import org.apereo.cas.infusionsoft.config.properties.HostConfigurationProperties;
+import org.apache.commons.lang3.StringUtils;
 import org.apereo.cas.infusionsoft.config.properties.InfusionsoftConfigurationProperties;
 import org.apereo.cas.infusionsoft.dao.*;
 import org.apereo.cas.infusionsoft.domain.User;
-import org.apache.commons.lang3.StringUtils;
 import org.apereo.cas.infusionsoft.support.AppHelper;
 import org.joda.time.DateTime;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import org.mockito.internal.util.reflection.Whitebox;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
 import static org.mockito.Mockito.*;
 

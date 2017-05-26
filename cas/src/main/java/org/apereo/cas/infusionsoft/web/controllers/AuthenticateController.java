@@ -2,7 +2,6 @@ package org.apereo.cas.infusionsoft.web.controllers;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apereo.cas.api.APIErrorDTO;
-import org.apereo.cas.api.UserAccountDTO;
 import org.apereo.cas.api.UserDTO;
 import org.apereo.cas.infusionsoft.authentication.LoginResult;
 import org.apereo.cas.infusionsoft.services.AuditService;
@@ -12,7 +11,6 @@ import org.apereo.cas.infusionsoft.support.AppHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.TypeMismatchException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,26 +26,24 @@ import java.util.Locale;
 /**
  * Really simple controller to allow authentication.
  */
-@Controller
-@RestController("authenticateController")
+@RestController
 @RequestMapping(value = "/user/authenticate")
 public class AuthenticateController {
     private static final Logger log = LoggerFactory.getLogger(AuthenticateController.class);
 
-    @Autowired
     private InfusionsoftAuthenticationService infusionsoftAuthenticationService;
-
-    @Autowired
     private AppHelper appHelper;
-
-    @Autowired
     private UserService userService;
-
-    @Autowired
     private MessageSource messageSource;
-
-    @Autowired
     private AuditService auditService;
+
+    public AuthenticateController(InfusionsoftAuthenticationService infusionsoftAuthenticationService, AppHelper appHelper, UserService userService, MessageSource messageSource, AuditService auditService) {
+        this.infusionsoftAuthenticationService = infusionsoftAuthenticationService;
+        this.appHelper = appHelper;
+        this.userService = userService;
+        this.messageSource = messageSource;
+        this.auditService = auditService;
+    }
 
     /**
      * Authenticates caller credentials against their CAS account.  Pass in a username and either a password or
@@ -114,18 +110,13 @@ public class AuthenticateController {
             if (error == null) {
                 UserDTO userDTO = new UserDTO(loginResult.getUser(), userService.findActiveUserAccounts(loginResult.getUser()), appHelper);
 
-                // TODO: This is a hack to make it lowercase.  Remove when mobile app does case-insensitive comparisons
-                for (UserAccountDTO userAccountDTO : userDTO.getLinkedApps()) {
-                    userAccountDTO.setAppType(StringUtils.lowerCase(userAccountDTO.getAppType()));
-                }
-
                 auditService.logApiLoginSuccess(loginResult.getUser());
 
-                return new ResponseEntity<UserDTO>(userDTO, HttpStatus.OK);
+                return new ResponseEntity<>(userDTO, HttpStatus.OK);
             } else {
                 auditService.logApiLoginFailure(username);
 
-                return new ResponseEntity<APIErrorDTO>(new APIErrorDTO(error, messageSource, locale), HttpStatus.UNAUTHORIZED);
+                return new ResponseEntity<>(new APIErrorDTO(error, messageSource, locale), HttpStatus.UNAUTHORIZED);
             }
         } catch (Exception e) {
             return logAndReturnError(e, "cas.exception.authenticateUser.failure", new Object[]{username}, locale);

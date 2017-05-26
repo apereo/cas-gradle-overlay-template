@@ -17,7 +17,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -87,9 +86,7 @@ public class InfusionsoftAuthenticationServiceTest {
         CasConfigurationProperties casProperties = new CasConfigurationProperties();
         casProperties.setServer(casServerProperties);
 
-        CrmService crmService = new CrmService(crmConfig);
-        CustomerHubService customerHubService = new CustomerHubService(customerHubConfig);
-        appHelper = new AppHelper(crmService, customerHubService, infusionsoftConfigurationProperties);
+        appHelper = new AppHelper(infusionsoftConfigurationProperties);
 
         MockitoAnnotations.initMocks(this);
 
