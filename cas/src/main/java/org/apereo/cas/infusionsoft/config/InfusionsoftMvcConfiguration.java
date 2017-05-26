@@ -2,6 +2,7 @@ package org.apereo.cas.infusionsoft.config;
 
 import org.apereo.cas.CentralAuthenticationService;
 import org.apereo.cas.authentication.AuthenticationSystemSupport;
+import org.apereo.cas.authentication.principal.WebApplicationServiceFactory;
 import org.apereo.cas.configuration.CasConfigurationProperties;
 import org.apereo.cas.infusionsoft.config.properties.InfusionsoftConfigurationProperties;
 import org.apereo.cas.infusionsoft.dao.SecurityQuestionDAO;
@@ -76,6 +77,9 @@ public class InfusionsoftMvcConfiguration {
     @Autowired
     UserService userService;
 
+    @Autowired
+    private WebApplicationServiceFactory webApplicationServiceFactory;
+
     @Bean
     public AuthenticateController authenticateController() {
         return new AuthenticateController(infusionsoftAuthenticationService, appHelper, userService, messageSource, auditService);
@@ -83,7 +87,7 @@ public class InfusionsoftMvcConfiguration {
 
     @Bean
     public AutoLoginService autoLoginService() {
-        return new AutoLoginService(centralAuthenticationService, ticketGrantingTicketCookieGenerator, ticketRegistry, authenticationSystemSupport);
+        return new AutoLoginService(centralAuthenticationService, ticketGrantingTicketCookieGenerator, ticketRegistry, authenticationSystemSupport, webApplicationServiceFactory);
     }
 
     @Bean

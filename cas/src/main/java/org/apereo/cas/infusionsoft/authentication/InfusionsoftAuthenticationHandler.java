@@ -1,6 +1,8 @@
 package org.apereo.cas.infusionsoft.authentication;
 
+import org.apereo.cas.authentication.Credential;
 import org.apereo.cas.authentication.HandlerResult;
+import org.apereo.cas.authentication.PreventedException;
 import org.apereo.cas.authentication.UsernamePasswordCredential;
 import org.apereo.cas.authentication.handler.support.AbstractUsernamePasswordAuthenticationHandler;
 import org.apereo.cas.authentication.principal.PrincipalFactory;
@@ -34,39 +36,44 @@ public class InfusionsoftAuthenticationHandler extends AbstractUsernamePasswordA
     }
 
     @Override
-    protected HandlerResult authenticateUsernamePasswordInternal(UsernamePasswordCredential credentials, String originalPassword) throws GeneralSecurityException {
-        if (credentials instanceof LetMeInCredentials) {
-            return buildHandlerResult(credentials, false);
+    protected HandlerResult doAuthentication(Credential credential) throws GeneralSecurityException, PreventedException {
+        if (credential instanceof LetMeInCredentials) {
+            return buildHandlerResult((LetMeInCredentials)credential, false);
         } else {
-            LoginResult loginResult = infusionsoftAuthenticationService.attemptLogin(credentials.getUsername(), originalPassword);
+            return super.doAuthentication(credential);
+        }
+    }
 
-            switch (loginResult.getLoginStatus()) {
-                case AccountLocked:
+    @Override
+    protected HandlerResult authenticateUsernamePasswordInternal(UsernamePasswordCredential credentials, String originalPassword) throws GeneralSecurityException {
+        LoginResult loginResult = infusionsoftAuthenticationService.attemptLogin(credentials.getUsername(), originalPassword);
+
+        switch (loginResult.getLoginStatus()) {
+            case AccountLocked:
+                throw new AccountLockedException();
+            case BadPassword:
+            case DisabledUser:
+            case NoSuchUser:
+            case OldPassword:
+                int failedLoginAttempts = loginResult.getFailedAttempts();
+
+                if (failedLoginAttempts > InfusionsoftAuthenticationService.ALLOWED_LOGIN_ATTEMPTS) {
                     throw new AccountLockedException();
-                case BadPassword:
-                case DisabledUser:
-                case NoSuchUser:
-                case OldPassword:
-                    int failedLoginAttempts = loginResult.getFailedAttempts();
-
-                    if (failedLoginAttempts > InfusionsoftAuthenticationService.ALLOWED_LOGIN_ATTEMPTS) {
-                        throw new AccountLockedException();
-                    } else if (failedLoginAttempts == 0) { // This happens if an old password is matched
+                } else if (failedLoginAttempts == 0) { // This happens if an old password is matched
+                    throw new FailedLoginException();
+                } else {
+                    try {
+                        throw ((FailedLoginException) Class.forName("org.apereo.cas.infusionsoft.exceptions.FailedLoginException" + failedLoginAttempts).newInstance());
+                    } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
                         throw new FailedLoginException();
-                    } else {
-                        try {
-                            throw ((FailedLoginException) Class.forName("org.apereo.cas.infusionsoft.exceptions.FailedLoginException" + failedLoginAttempts).newInstance());
-                        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
-                            throw new FailedLoginException();
-                        }
                     }
-                case PasswordExpired:
-                    return buildHandlerResult(credentials, true);
-                case Success:
-                    return buildHandlerResult(credentials, false);
-                default:
-                    throw new IllegalStateException("Unknown value for loginResult: " + loginResult);
-            }
+                }
+            case PasswordExpired:
+                return buildHandlerResult(credentials, true);
+            case Success:
+                return buildHandlerResult(credentials, false);
+            default:
+                throw new IllegalStateException("Unknown value for loginResult: " + loginResult);
         }
     }
 
