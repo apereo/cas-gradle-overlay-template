@@ -100,11 +100,11 @@
         <AsyncLogger name="org.springframework.boot.actuate.autoconfigure" level="warn" additivity="false">
             <AppenderRef ref="casConsole"/>
         </AsyncLogger>
-        <AsyncLogger name="org.springframework.webflow" level="debug" additivity="false">
+        <AsyncLogger name="org.springframework.webflow" level="warn" additivity="false">
             <AppenderRef ref="casConsole"/>
             <AppenderRef ref="casFile"/>
         </AsyncLogger>
-        <AsyncLogger name="org.springframework.security" level="debug" additivity="false">
+        <AsyncLogger name="org.springframework.security" level="warn" additivity="false">
             <AppenderRef ref="casConsole"/>
             <AppenderRef ref="casFile"/>
         </AsyncLogger>
