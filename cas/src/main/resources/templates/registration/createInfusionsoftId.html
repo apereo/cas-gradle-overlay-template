@@ -163,6 +163,8 @@
 <template th:fragment="commonFormElements">
     <input type="hidden" name="returnUrl" th:value="${returnUrl}"/>
     <input type="hidden" name="userToken" th:value="${userToken}"/>
+    <!--/* skipWelcomeEmail is included in linkToExisting so the signup link on the login page can use it */-->
+    <input type="hidden" name="skipWelcomeEmail" th:value="${skipWelcomeEmail}"/>
 </template>
 
 <th:block layout:fragment="content">
@@ -187,7 +189,6 @@
             <form id="registerForm" th:action="@{register}" method="post" th:object="${user}" >
                 <section class="column">
                     <th:block th:include="~{::commonFormElements}"></th:block>
-                    <input type="hidden" name="skipWelcomeEmail" th:value="${skipWelcomeEmail}"/>
 
                     <p class="text-error" th:if="${#fields.hasGlobalErrors()}">
                         <img tabindex="-1" th:src="@{/infusionsoft/img/ic-exclamation-circle.svg}" width="16" height="16" />

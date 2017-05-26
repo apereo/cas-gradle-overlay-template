@@ -79,10 +79,6 @@ public class RegistrationController {
      */
     @RequestMapping("/createInfusionsoftId")
     public String createInfusionsoftId(Model model, String returnUrl, String userToken, String firstName, String lastName, String email, @RequestParam(defaultValue = "false") boolean skipWelcomeEmail, HttpServletRequest request) throws IOException {
-
-        // If you get here, you should not have a ticket granting cookie in the request. If we don't clear it, we may be linking the wrong user account if user chooses "Already have ID" from the registration page
-        autoLoginService.killTGT(request);
-
         User user = new User();
         user.setFirstName(firstName);
         user.setLastName(lastName);
@@ -90,11 +86,6 @@ public class RegistrationController {
 
         buildModelForCreateInfusionsoftId(model, returnUrl, userToken, user, skipWelcomeEmail);
         return "registration/createInfusionsoftId";
-    }
-
-    private String getFullRequestUrl(HttpServletRequest request) {
-        // Force SSL (this is needed when running behind the F5, which hides the fact that we're using SSL)
-        return ServletUriComponentsBuilder.fromRequest(request).scheme("https").build().toUriString();
     }
 
     /**
@@ -132,14 +123,18 @@ public class RegistrationController {
      *
      * @param returnUrl        returnUrl
      * @param userToken        userToken
+     * @param ticket        ticket
      * @return view
      * @throws UnsupportedEncodingException ue
      */
     @RequestMapping("/linkToExisting")
-    public String linkToExisting(String returnUrl, String userToken, HttpServletRequest request, HttpServletResponse response) throws UnsupportedEncodingException {
+    public String linkToExisting(String returnUrl, String userToken, String ticket, HttpServletRequest request, HttpServletResponse response) throws UnsupportedEncodingException {
         String retVal;
-
-        final TicketGrantingTicket ticketGrantingTicket = autoLoginService.getValidTGTFromRequest(request);
+        String currentRequestUrl = ServletUriComponentsBuilder.fromRequest(request)
+                .scheme("https")
+                .replaceQueryParam("ticket")
+                .build(true).toUriString();
+        final TicketGrantingTicket ticketGrantingTicket = autoLoginService.validateServiceTicket(ticket, currentRequestUrl);
         final Authentication authentication = ticketGrantingTicket == null ? null : ticketGrantingTicket.getAuthentication();
         final Principal principal = authentication == null ? null : authentication.getPrincipal();
         User user = null;
@@ -148,8 +143,8 @@ public class RegistrationController {
             user = userService.loadUser(userId);
         }
         if (user == null) {
-            // Redirect to the login page with this url as the service parameter
-            retVal = "redirect:/login?service=" + URLEncoder.encode(request.getRequestURI(), "UTF-8");
+            // Redirect to the login page with the current url as the service parameter. Bypass single-sign-on with renew=true
+            retVal = "redirect:/login?renew=true&service=" + URLEncoder.encode(currentRequestUrl, "UTF-8");
         } else {
             final RegisteredService service = getServiceByUrl(returnUrl);
             boolean userTokenIsValid = StringUtils.isNotBlank(userToken);
@@ -397,7 +392,7 @@ public class RegistrationController {
             return "registration/reset";
         } else {
             if (user != null) {
-                autoLoginService.autoLogin(user.getUsername(), request, response);
+                autoLoginService.autoLogin(null, user.getUsername(), request, response);
             }
 
             return "redirect:" + defaultRedirectUrl;

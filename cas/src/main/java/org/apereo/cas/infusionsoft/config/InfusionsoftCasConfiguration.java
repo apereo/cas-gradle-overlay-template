@@ -12,10 +12,7 @@ import org.apereo.cas.infusionsoft.config.properties.InfusionsoftConfigurationPr
 import org.apereo.cas.infusionsoft.dao.*;
 import org.apereo.cas.infusionsoft.services.*;
 import org.apereo.cas.infusionsoft.support.AppHelper;
-import org.apereo.cas.infusionsoft.support.GarbageMan;
-import org.apereo.cas.infusionsoft.web.controllers.AuthenticateController;
 import org.apereo.cas.infusionsoft.web.controllers.PasswordCheckController;
-import org.apereo.cas.infusionsoft.web.controllers.RegistrationController;
 import org.apereo.cas.services.ServicesManager;
 import org.apereo.cas.ticket.registry.TicketRegistry;
 import org.apereo.cas.web.support.CookieRetrievingCookieGenerator;
@@ -23,10 +20,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
-import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Configuration("infusionsoftCasConfiguration")

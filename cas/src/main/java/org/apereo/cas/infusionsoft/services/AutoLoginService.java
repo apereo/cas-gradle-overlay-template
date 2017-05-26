@@ -1,5 +1,6 @@
 package org.apereo.cas.infusionsoft.services;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apereo.cas.CentralAuthenticationService;
 import org.apereo.cas.authentication.AuthenticationResult;
 import org.apereo.cas.authentication.AuthenticationResultBuilder;
@@ -8,9 +9,12 @@ import org.apereo.cas.authentication.DefaultAuthenticationResultBuilder;
 import org.apereo.cas.authentication.principal.Service;
 import org.apereo.cas.authentication.principal.WebApplicationServiceFactory;
 import org.apereo.cas.infusionsoft.authentication.LetMeInCredentials;
+import org.apereo.cas.ticket.AbstractTicketException;
 import org.apereo.cas.ticket.ServiceTicket;
+import org.apereo.cas.ticket.Ticket;
 import org.apereo.cas.ticket.TicketGrantingTicket;
 import org.apereo.cas.ticket.registry.TicketRegistry;
+import org.apereo.cas.validation.Assertion;
 import org.apereo.cas.web.support.CookieRetrievingCookieGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -77,8 +81,6 @@ public class AutoLoginService {
     public ServiceTicket autoLogin(String serviceUrl, TicketGrantingTicket ticketGrantingTicket, HttpServletRequest request, HttpServletResponse response) {
         ServiceTicket serviceTicket;
         try {
-            killTGT(request);
-
             final AuthenticationResultBuilder builder = new DefaultAuthenticationResultBuilder(authenticationSystemSupport.getPrincipalElectionStrategy());
             final Service service = webApplicationServiceFactory.createService(serviceUrl);
             final AuthenticationResult authenticationResult = builder.collect(ticketGrantingTicket.getAuthentication()).build(service);
@@ -121,4 +123,18 @@ public class AutoLoginService {
         }
     }
 
+    public TicketGrantingTicket validateServiceTicket(String serviceTicketId, String serviceUrl) {
+        try {
+            if (StringUtils.isNotBlank(serviceTicketId)) {
+                final Service service = webApplicationServiceFactory.createService(serviceUrl);
+                final Ticket serviceTicket = ticketRegistry.getTicket(serviceTicketId);
+                final Assertion assertion = centralAuthenticationService.validateServiceTicket(serviceTicketId, service);
+                if (assertion != null && serviceTicket != null) {
+                    return serviceTicket.getGrantingTicket();
+                }
+            }
+        } catch (AbstractTicketException ignored) {
+        }
+        return null;
+    }
 }
