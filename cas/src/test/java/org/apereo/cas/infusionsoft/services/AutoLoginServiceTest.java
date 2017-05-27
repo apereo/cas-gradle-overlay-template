@@ -4,12 +4,9 @@ import org.apereo.cas.CentralAuthenticationService;
 import org.apereo.cas.authentication.AuthenticationResult;
 import org.apereo.cas.authentication.AuthenticationSystemSupport;
 import org.apereo.cas.authentication.DefaultAuthenticationResult;
-import org.apereo.cas.authentication.principal.WebApplicationService;
-import org.apereo.cas.authentication.principal.WebApplicationServiceFactory;
 import org.apereo.cas.infusionsoft.authentication.LetMeInCredentials;
-import org.apereo.cas.ticket.ServiceTicket;
-import org.apereo.cas.ticket.ServiceTicketImpl;
 import org.apereo.cas.ticket.TicketGrantingTicket;
+import org.apereo.cas.ticket.TicketGrantingTicketImpl;
 import org.apereo.cas.ticket.registry.TicketRegistry;
 import org.apereo.cas.web.support.CookieRetrievingCookieGenerator;
 import org.junit.Assert;
@@ -52,13 +49,10 @@ public class AutoLoginServiceTest {
     @Mock
     private TicketGrantingTicket ticketGrantingTicket;
 
-    @Mock
-    private WebApplicationServiceFactory webApplicationServiceFactory;
-
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
-        serviceToTest = spy(new AutoLoginService(centralAuthenticationService, ticketGrantingTicketCookieGenerator, ticketRegistry, authenticationSystemSupport, webApplicationServiceFactory));
+        serviceToTest = spy(new AutoLoginService(centralAuthenticationService, ticketGrantingTicketCookieGenerator, ticketRegistry, authenticationSystemSupport));
     }
 
     @Test
@@ -66,27 +60,19 @@ public class AutoLoginServiceTest {
         final String oldTicketGrantingTicketId = "oldTicketGrantingTicketId";
         doReturn(oldTicketGrantingTicketId).when(ticketGrantingTicketCookieGenerator).retrieveCookieValue(request);
 
-        final TicketGrantingTicket ticket = mock(TicketGrantingTicket.class);
-        when(ticket.isExpired()).thenReturn(false);
+        final TicketGrantingTicket ticket = new TicketGrantingTicketImpl();
         doReturn(ticket).when(ticketRegistry).getTicket(oldTicketGrantingTicketId, TicketGrantingTicket.class);
 
         final AuthenticationResult authenticationResult = new DefaultAuthenticationResult(null);
         when(authenticationSystemSupport.handleAndFinalizeSingleAuthenticationTransaction(any(), any())).thenReturn(authenticationResult);
 
-        final String serviceUrl = "serviceUrl";
-        WebApplicationService service = mock(WebApplicationService.class);
-        when(webApplicationServiceFactory.createService(serviceUrl)).thenReturn(service);
-
         final String ticketGrantingTicketId = "newTicketGrantingTicketId";
         when(ticketGrantingTicket.getId()).thenReturn(ticketGrantingTicketId);
         when(centralAuthenticationService.createTicketGrantingTicket(any(AuthenticationResult.class))).thenReturn(ticketGrantingTicket);
-        ServiceTicket serviceTicket = new ServiceTicketImpl();
-        when(centralAuthenticationService.grantServiceTicket(ticketGrantingTicketId, service, authenticationResult)).thenReturn(serviceTicket);
 
-        final ServiceTicket serviceTicketReturned = serviceToTest.autoLogin(serviceUrl, TEST_USERNAME, request, response);
+        final boolean loginResult = serviceToTest.autoLogin(TEST_USERNAME, request, response);
 
-        Assert.assertNotNull(serviceTicketReturned);
-        Assert.assertSame(serviceTicket, serviceTicketReturned);
+        Assert.assertTrue(loginResult);
 
         verify(serviceToTest, times(1)).killTGT(request);
 
@@ -106,28 +92,21 @@ public class AutoLoginServiceTest {
         final String oldTicketGrantingTicketId = "oldTicketGrantingTicketId";
         doReturn(oldTicketGrantingTicketId).when(ticketGrantingTicketCookieGenerator).retrieveCookieValue(request);
 
-        final TicketGrantingTicket ticket = mock(TicketGrantingTicket.class);
-        when(ticket.isExpired()).thenReturn(false);
+        final TicketGrantingTicket ticket = new TicketGrantingTicketImpl();
         doReturn(ticket).when(ticketRegistry).getTicket(oldTicketGrantingTicketId, TicketGrantingTicket.class);
 
         final AuthenticationResult authenticationResult = new DefaultAuthenticationResult(null);
         when(authenticationSystemSupport.handleAndFinalizeSingleAuthenticationTransaction(any(), any())).thenReturn(authenticationResult);
 
-        final String serviceUrl = "serviceUrl";
-        WebApplicationService service = mock(WebApplicationService.class);
-        when(webApplicationServiceFactory.createService(serviceUrl)).thenReturn(service);
-
         final String ticketGrantingTicketId = "newTicketGrantingTicketId";
         when(ticketGrantingTicket.getId()).thenReturn(ticketGrantingTicketId);
         when(centralAuthenticationService.createTicketGrantingTicket(any(AuthenticationResult.class))).thenReturn(ticketGrantingTicket);
-        ServiceTicket serviceTicket = new ServiceTicketImpl();
-        when(centralAuthenticationService.grantServiceTicket(ticketGrantingTicketId, service, authenticationResult)).thenReturn(serviceTicket);
 
         doThrow(new RuntimeException()).when(ticketGrantingTicketCookieGenerator).addCookie(request, response, ticketGrantingTicketId);
 
-        final ServiceTicket serviceTicketReturned = serviceToTest.autoLogin(serviceUrl, TEST_USERNAME, request, response);
+        final boolean loginResult = serviceToTest.autoLogin(TEST_USERNAME, request, response);
 
-        Assert.assertNull(serviceTicketReturned);
+        Assert.assertFalse(loginResult);
 
         verify(serviceToTest, times(1)).killTGT(request);
 
@@ -147,9 +126,7 @@ public class AutoLoginServiceTest {
         final String oldTicketGrantingTicketId = "oldTicketGrantingTicketId";
         doReturn(oldTicketGrantingTicketId).when(ticketGrantingTicketCookieGenerator).retrieveCookieValue(request);
 
-        final TicketGrantingTicket ticket = mock(TicketGrantingTicket.class);
-        when(ticket.isExpired()).thenReturn(false);
-        when(ticket.getId()).thenReturn(oldTicketGrantingTicketId);
+        final TicketGrantingTicket ticket = new TicketGrantingTicketImpl();
         doReturn(ticket).when(ticketRegistry).getTicket(oldTicketGrantingTicketId, TicketGrantingTicket.class);
 
         serviceToTest.killTGT(request);

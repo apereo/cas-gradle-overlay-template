@@ -49,10 +49,11 @@ public class InfusionsoftFlowSetupAction extends AbstractAction {
     protected Event doExecute(RequestContext context) throws Exception {
         final MutableAttributeMap<Object> flowScope = context.getFlowScope();
         final WebApplicationService service = (WebApplicationService) flowScope.get("service");
-        String registrationUrl = "/app/registration/createInfusionsoftId";
+        String registrationUrl = "/registration/createInfusionsoftId";
         if (service != null) {
-            if (StringUtils.contains(service.getOriginalUrl(), "/registration/linkToExisting")) {
-                registrationUrl = service.getOriginalUrl().replace("/registration/linkToExisting", "/registration/createInfusionsoftId");
+            String registrationParam  = context.getRequestParameters().get("registration");
+            if (StringUtils.isNotBlank(registrationParam) && servicesManager.findServiceBy(registrationParam) != null) {
+                registrationUrl = registrationParam;
             }
             AppType appType = infusionsoftAuthenticationService.guessAppType(service.getOriginalUrl());
             if (appType == AppType.CRM) {
