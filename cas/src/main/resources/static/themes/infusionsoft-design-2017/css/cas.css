@@ -27,7 +27,7 @@ PROXIMA NOVA REGULAR SEMI-BOLD
 }
 
 body {
-    background: #58a1d8 url('/themes/propel/img/onboard-bg.svg') no-repeat top center;
+    background: #58a1d8 url('/themes/cas-theme-infusionsoft-design-2017/img/onboard-bg.svg') no-repeat top center;
     margin-top: 0;
     margin-bottom: 0;
     color: #58595B;
@@ -79,6 +79,6 @@ button.btn {
     margin: 16px auto;
     width: 94px;
     height: 94px;
-    background: transparent url('/themes/propel/img/IS-dark-logo.svg') no-repeat top center;
+    background: transparent url('/themes/cas-theme-infusionsoft-design-2017/img/IS-dark-logo.svg') no-repeat top center;
     border-radius: 100%;
 }
