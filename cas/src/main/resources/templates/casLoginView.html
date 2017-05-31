@@ -10,7 +10,7 @@
 <!--/*@thymesVar id="appVersion" type="java.lang.String"*/-->
 <!--/*@thymesVar id="crmAffiliateUrl" type="java.lang.String"*/-->
 <!--/*@thymesVar id="enableAds" type="java.lang.String"*/-->
-<!--/*@thymesVar id="serviceUrl" type="java.lang.String"*/-->
+<!--/*@thymesVar id="registrationUrl" type="java.lang.String"*/-->
 <!--/*@thymesVar id="supportPhoneNumbers" type="java.util.List<String>"*/-->
 
 <head>
@@ -45,7 +45,7 @@
                 <input type="hidden" name="app_version" th:value="${appVersion}"/>
 
                 <div class="row signUpRow">
-                    <p>Don't have an account? <a th:href="@{/app/registration/createInfusionsoftId(returnUrl=${serviceUrl})}">Sign Up</a></p>
+                    <p>Don't have an account? <a th:href="@{${registrationUrl}}">Sign Up</a></p>
                 </div>
 
                 <div class="form-group">

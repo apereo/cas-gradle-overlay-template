@@ -1,5 +1,6 @@
 package org.apereo.cas.infusionsoft.webflow;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apereo.cas.authentication.principal.WebApplicationService;
 import org.apereo.cas.infusionsoft.authentication.InfusionsoftRegisteredServiceAccessStrategy;
 import org.apereo.cas.infusionsoft.domain.AppType;
@@ -48,8 +49,12 @@ public class InfusionsoftFlowSetupAction extends AbstractAction {
     protected Event doExecute(RequestContext context) throws Exception {
         final MutableAttributeMap<Object> flowScope = context.getFlowScope();
         final WebApplicationService service = (WebApplicationService) flowScope.get("service");
+        String registrationUrl = "/registration/createInfusionsoftId";
         if (service != null) {
-            flowScope.put("serviceUrl", service.getOriginalUrl());
+            String registrationParam  = context.getRequestParameters().get("registration");
+            if (StringUtils.isNotBlank(registrationParam) && servicesManager.findServiceBy(registrationParam) != null) {
+                registrationUrl = registrationParam;
+            }
             AppType appType = infusionsoftAuthenticationService.guessAppType(service.getOriginalUrl());
             if (appType == AppType.CRM) {
                 String appName = infusionsoftAuthenticationService.guessAppName(service.getOriginalUrl());
@@ -72,6 +77,7 @@ public class InfusionsoftFlowSetupAction extends AbstractAction {
             }
         }
 
+        flowScope.put("registrationUrl", registrationUrl);
         flowScope.put("adDesktopImageSrcUrl", marketingOptions.getDesktopImageSrcUrl());
         flowScope.put("adLinkUrl", marketingOptions.getHref());
         flowScope.put("adMobileImageSrcUrl", marketingOptions.getMobileImageSrcUrl());

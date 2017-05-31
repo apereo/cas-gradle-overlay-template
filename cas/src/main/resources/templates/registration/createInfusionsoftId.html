@@ -152,18 +152,13 @@
     </style>
 </head>
 <body>
+<!--/*@thymesVar id="loginUrl" type="java.lang.String"*/-->
 <!--/*@thymesVar id="returnUrl" type="java.lang.String"*/-->
 <!--/*@thymesVar id="userToken" type="java.lang.String"*/-->
+<!--/*@thymesVar id="skipWelcomeEmail" type="java.lang.Boolean"*/-->
 <!--/*@thymesVar id="user" type="org.apereo.cas.infusionsoft.domain.User"*/-->
 <!--/*@thymesVar id="securityQuestions" type="java.util.List<org.apereo.cas.infusionsoft.domain.SecurityQuestion>"*/-->
-<!--/*@thymesVar id="skipWelcomeEmail" type="java.lang.Boolean"*/-->
 <!--/*@thymesVar id="error" type="java.lang.String"*/-->
-
-<!--/* These form elements are used for both linkToExisting and register */-->
-<template th:fragment="commonFormElements">
-    <input type="hidden" name="returnUrl" th:value="${returnUrl}"/>
-    <input type="hidden" name="userToken" th:value="${userToken}"/>
-</template>
 
 <th:block layout:fragment="content">
 <section id="pageSection" class="column">
@@ -178,15 +173,13 @@
 
             <p>
                 <span th:text="#{registration.alreadyHaveId}"></span>
-                <a href="#" id="linkToExistingLink" th:text="#{registration.login}"></a>
+                <a th:text="#{registration.login}" th:href="@{${loginUrl}}"></a>
             </p>
-
-            <form id="linkToExistingForm" th:action="@{linkToExisting}" method="get" th:include="~{::commonFormElements}">
-            </form>
 
             <form id="registerForm" th:action="@{register}" method="post" th:object="${user}" >
                 <section class="column">
-                    <th:block th:include="~{::commonFormElements}"></th:block>
+                    <input type="hidden" name="returnUrl" th:value="${returnUrl}"/>
+                    <input type="hidden" name="userToken" th:value="${userToken}"/>
                     <input type="hidden" name="skipWelcomeEmail" th:value="${skipWelcomeEmail}"/>
 
                     <p class="text-error" th:if="${#fields.hasGlobalErrors()}">
@@ -196,7 +189,12 @@
 
                     <p class="text-error" th:if="${!#strings.isEmpty(error)}">
                         <img tabindex="-1" th:src="@{/infusionsoft/img/ic-exclamation-circle.svg}" width="16" height="16"/>
-                        <th:block th:utext="#{${error}}"/>
+                        <th:block th:unless="${error == 'user.error.email.inUse.with.link'}" th:utext="#{${error}}"/>
+                        <th:block th:if="${error == 'user.error.email.inUse.with.link'}">
+                            <th:block th:text="#{user.error.email.inUse.with.link.before}"/>
+                            <a th:text="#{user.error.email.inUse.with.link}" th:href="@{${loginUrl}}"></a>
+                            <th:block th:text="#{user.error.email.inUse.with.link.after}"/>
+                        </th:block>
                     </p>
 
                     <section id="names">
@@ -278,11 +276,6 @@
 
 <script type="text/javascript" layout:fragment="local_script" th:inline="javascript">
     $(document).ready(function () {
-
-        $('#linkToExistingLink').click(function() {
-            $('#linkToExistingForm').submit();
-            return false;
-        });
 
         document.getElementById('eula').addEventListener("click", checkTheEula);
         document.getElementById('acceptTerms').addEventListener("click", acceptTerms);

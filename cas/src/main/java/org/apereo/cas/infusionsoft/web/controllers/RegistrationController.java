@@ -1,8 +1,8 @@
 package org.apereo.cas.infusionsoft.web.controllers;
 
-import org.apache.commons.lang3.CharEncoding;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.validator.EmailValidator;
+import org.apereo.cas.configuration.CasConfigurationProperties;
 import org.apereo.cas.infusionsoft.config.properties.InfusionsoftConfigurationProperties;
 import org.apereo.cas.infusionsoft.domain.SecurityQuestion;
 import org.apereo.cas.infusionsoft.domain.SecurityQuestionResponse;
@@ -13,21 +13,16 @@ import org.apereo.cas.services.RegisteredService;
 import org.apereo.cas.services.ServicesManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.security.authentication.AnonymousAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 
 /**
  * Controller that backs the new user registration and "forgot password" flows.
@@ -39,6 +34,7 @@ public class RegistrationController {
 
     private AutoLoginService autoLoginService;
     private InfusionsoftAuthenticationService infusionsoftAuthenticationService;
+    private CasConfigurationProperties casConfigurationProperties;
     private InfusionsoftConfigurationProperties infusionsoftConfigurationProperties;
     private MailService mailService;
     private PasswordService passwordService;
@@ -47,9 +43,10 @@ public class RegistrationController {
     private UserService userService;
     private String defaultRedirectUrl;
 
-    public RegistrationController(AutoLoginService autoLoginService, InfusionsoftAuthenticationService infusionsoftAuthenticationService, InfusionsoftConfigurationProperties infusionsoftConfigurationProperties, MailService mailService, PasswordService passwordService, SecurityQuestionService securityQuestionService, ServicesManager servicesManager, UserService userService, String defaultRedirectUrl) {
+    public RegistrationController(AutoLoginService autoLoginService, InfusionsoftAuthenticationService infusionsoftAuthenticationService, CasConfigurationProperties casConfigurationProperties, InfusionsoftConfigurationProperties infusionsoftConfigurationProperties, MailService mailService, PasswordService passwordService, SecurityQuestionService securityQuestionService, ServicesManager servicesManager, UserService userService, String defaultRedirectUrl) {
         this.autoLoginService = autoLoginService;
         this.infusionsoftAuthenticationService = infusionsoftAuthenticationService;
+        this.casConfigurationProperties = casConfigurationProperties;
         this.infusionsoftConfigurationProperties = infusionsoftConfigurationProperties;
         this.mailService = mailService;
         this.passwordService = passwordService;
@@ -69,44 +66,29 @@ public class RegistrationController {
      * @param lastName         lastName
      * @param email            email
      * @param skipWelcomeEmail skipWelcomeEmail
-     * @param request          request
      * @return view
      * @throws IOException e
      */
     @RequestMapping("/createInfusionsoftId")
-    public String createInfusionsoftId(Model model, String returnUrl, String userToken, String firstName, String lastName, String email, @RequestParam(defaultValue = "false") boolean skipWelcomeEmail, HttpServletRequest request) throws IOException {
+    public String createInfusionsoftId(Model model, String returnUrl, String userToken, String firstName, String lastName, String email, @RequestParam(defaultValue = "false") boolean skipWelcomeEmail) throws IOException {
+        User user = new User();
+        user.setFirstName(firstName);
+        user.setLastName(lastName);
+        user.setUsername(email);
 
-        // If you get here, you should not have a ticket granting cookie in the request. If we don't clear it, we may be linking the wrong user account if user chooses "Already have ID" from the registration page
-        autoLoginService.killTGT(request);
-
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-        if (authentication != null && !(authentication instanceof AnonymousAuthenticationToken)) {
-            log.debug("User is registering while already logged in as " + authentication.getName() + "; redirecting to j_spring_security_logout");
-            return "redirect:/j_spring_security_logout?service=" + URLEncoder.encode(getFullRequestUrl(request), "UTF-8");
-        } else {
-            User user = new User();
-            user.setFirstName(firstName);
-            user.setLastName(lastName);
-            user.setUsername(email);
-
-            buildModelForCreateInfusionsoftId(model, returnUrl, userToken, user, skipWelcomeEmail);
-            return "registration/createInfusionsoftId";
-        }
-    }
-
-    private String getFullRequestUrl(HttpServletRequest request) {
-        // Force SSL (this is needed when running behind the F5, which hides the fact that we're using SSL)
-        return ServletUriComponentsBuilder.fromRequest(request).scheme("https").build().toUriString();
+        buildModelForCreateInfusionsoftId(model, returnUrl, userToken, firstName, lastName, email, skipWelcomeEmail, user);
+        return "registration/createInfusionsoftId";
     }
 
     /**
      * Builds the model with attributes that are required for displaying the createInfusionsoftId page.
      */
-    private void buildModelForCreateInfusionsoftId(Model model, String returnUrl, String userToken, User user, boolean skipWelcomeEmail) {
-        if (isAllowedUrl(returnUrl, "returnUrl")) {
+    private void buildModelForCreateInfusionsoftId(Model model, String returnUrl, String userToken, String firstName, String lastName, String email, boolean skipWelcomeEmail, User user) {
+        if (getServiceByUrl(returnUrl) != null) {
             model.addAttribute("returnUrl", returnUrl);
         }
+
+        model.addAttribute("loginUrl", generateLoginUrl(returnUrl, userToken, firstName, lastName, email, skipWelcomeEmail, user, false));
         model.addAttribute("userToken", userToken);
         model.addAttribute("user", user);
         model.addAttribute("securityQuestions", securityQuestionService.fetchAllEnabled());
@@ -116,41 +98,77 @@ public class RegistrationController {
     /**
      * Determines if the given URL is allowed.  This ensures that we don't have unvalidated redirects.
      */
-    private boolean isAllowedUrl(String url, String parameterName) {
+    private RegisteredService getServiceByUrl(String returnUrl) {
         // Validate the return URL against the service whitelist
-        /** Modeled after {@link org.jasig.cas.web.LogoutController#handleRequestInternal(HttpServletRequest, HttpServletResponse)} }*/
-        boolean retVal = false;
-        if (StringUtils.isNotBlank(url)) {
-            final RegisteredService registeredService = servicesManager.findServiceBy(url);
-            if (registeredService != null) {
-                retVal = true;
-                log.debug("URL " + parameterName + " matched registered service " + registeredService.getName() + ": " + url);
+        RegisteredService service = null;
+        if (StringUtils.isNotBlank(returnUrl)) {
+            service = servicesManager.findServiceBy(returnUrl);
+            if (service != null) {
+                log.debug("returnUrl matched registered service " + service.getName() + ": " + returnUrl);
             } else {
-                log.info("URL " + parameterName + " did not match any active registered service (it will be ignored): " + url);
+                log.info("returnUrl did not match any active registered service (it will be ignored): " + returnUrl);
             }
         }
-        return retVal;
+        return service;
     }
 
     /**
-     * Redirects to the Account Central endpoint
+     * Creates a link to the login page with the right parameters to support linking and registration
      */
-    @RequestMapping("/linkToExisting")
-    public String linkToExisting(HttpServletRequest request) throws UnsupportedEncodingException {
-        return "redirect:" + infusionsoftConfigurationProperties.getAccountCentral().getUrl() + "/app/registration/linkToExisting?" + request.getQueryString();
+    private String generateLoginUrl(String returnUrl, String userToken, String firstName, String lastName, String email, boolean skipWelcomeEmail, User user, boolean isNewInfusionsoftId) {
+        UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromUriString(casConfigurationProperties.getServer().getLoginUrl());
+        uriBuilder.queryParam("service", generateAppLinkageUrl(returnUrl, userToken, user, isNewInfusionsoftId));
+        if (!isNewInfusionsoftId) {
+            uriBuilder.queryParam("renew", true); // Note: this bypasses SSO, forcing a login
+            uriBuilder.queryParam("registration", generateRegistrationUrl(returnUrl, userToken, firstName, lastName, email, skipWelcomeEmail));
+        }
+        return uriBuilder.toUriString();
+    }
+
+    /**
+     * Creates a link to the registration page with all supported parameters. They should correspond with {@link #createInfusionsoftId}
+     */
+    private String generateRegistrationUrl(String returnUrl, String userToken, String firstName, String lastName, String email, boolean skipWelcomeEmail) {
+        UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromUriString(casConfigurationProperties.getServer().getPrefix());
+        uriBuilder.path("/registration/createInfusionsoftId");
+        if (StringUtils.isNotBlank(returnUrl)) {
+            uriBuilder.queryParam("returnUrl", returnUrl);
+        }
+        if (StringUtils.isNotBlank(userToken)) {
+            uriBuilder.queryParam("userToken", userToken);
+        }
+        if (StringUtils.isNotBlank(firstName)) {
+            uriBuilder.queryParam("firstName", firstName);
+        }
+        if (StringUtils.isNotBlank(lastName)) {
+            uriBuilder.queryParam("lastName", lastName);
+        }
+        if (StringUtils.isNotBlank(email)) {
+            uriBuilder.queryParam("email", email);
+        }
+        if (skipWelcomeEmail) {
+            uriBuilder.queryParam("skipWelcomeEmail", skipWelcomeEmail);
+        }
+        return uriBuilder.toUriString();
     }
 
     /**
      * Creates the redirect from the return URL, user token, and user.  The page at this URL is responsible for completing the linkage of the CAS ID to an application user and displaying a success page if desired.
      */
-    private String generateRedirectToAppFromReturnUrl(String returnUrl, String userToken, User user, boolean isNewInfusionsoftId) {
-        // Redirect back to the app, which will do the linkage
-        try {
-            return returnUrl + "?userToken=" + URLEncoder.encode(userToken, CharEncoding.UTF_8) + "&globalUserId=" + user.getId() + "&isNewInfusionsoftId=" + isNewInfusionsoftId;
-        } catch (UnsupportedEncodingException e) {
-            // This should never happen
-            throw new RuntimeException(e);
+    private String generateAppLinkageUrl(String returnUrl, String userToken, User user, boolean isNewInfusionsoftId) {
+        // This is used by the login page to redirect back to the app, which will do the linkage
+        if (StringUtils.isBlank(returnUrl)) {
+            returnUrl = defaultRedirectUrl;
         }
+        UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromUriString(returnUrl);
+        if (StringUtils.isNotBlank(userToken)) {
+            uriBuilder.replaceQueryParam("userToken", userToken);
+            uriBuilder.replaceQueryParam("isNewInfusionsoftId", Boolean.toString(isNewInfusionsoftId));
+            if (user != null && user.getId() != null) {
+                uriBuilder.replaceQueryParam("globalUserId", user.getId());
+            }
+        }
+        return uriBuilder.toUriString();
     }
 
     /**
@@ -175,6 +193,7 @@ public class RegistrationController {
     public String register(Model model, String firstName, String lastName, String username, String password, String eula, String returnUrl, String userToken, @RequestParam(defaultValue = "false") boolean skipWelcomeEmail, Long securityQuestionId, String securityQuestionAnswer, HttpServletRequest request, HttpServletResponse response) {
         boolean eulaChecked = StringUtils.equals(eula, "agreed");
         User user = new User();
+        final RegisteredService registeredService = getServiceByUrl(returnUrl);
 
         try {
             user.setFirstName(firstName);
@@ -228,6 +247,7 @@ public class RegistrationController {
                 if (!skipWelcomeEmail) {
                     mailService.sendWelcomeEmail(user, request.getLocale());
                 }
+
                 autoLoginService.autoLogin(user.getUsername(), request, response);
             }
         } catch (InfusionsoftValidationException e) {
@@ -239,12 +259,12 @@ public class RegistrationController {
         }
 
         if (model.containsAttribute("error")) {
-            buildModelForCreateInfusionsoftId(model, returnUrl, userToken, user, skipWelcomeEmail);
+            buildModelForCreateInfusionsoftId(model, returnUrl, userToken, firstName, lastName, username, skipWelcomeEmail, user);
             return "registration/createInfusionsoftId";
-        } else if (isAllowedUrl(returnUrl, "returnUrl") && StringUtils.isNotBlank(userToken)) {
-            String redirectToAppUrl = generateRedirectToAppFromReturnUrl(returnUrl, userToken, user, true);
-            log.info("Registration complete for new user " + user.getUsername() + ". Redirecting to " + redirectToAppUrl);
-            return "redirect:" + redirectToAppUrl;
+        } else if (registeredService != null && StringUtils.isNotBlank(returnUrl)) {
+            String loginUrl = generateLoginUrl(returnUrl, userToken, null, null, null, true, user, true);
+            log.info("Registration complete for new user " + user.getUsername() + ". Redirecting to " + loginUrl);
+            return "redirect:" + loginUrl;
         } else {
             model.addAttribute("redirectUrl", defaultRedirectUrl);
             return "registration/success";

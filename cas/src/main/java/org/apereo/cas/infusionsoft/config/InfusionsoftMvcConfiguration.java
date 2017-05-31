@@ -89,7 +89,7 @@ public class InfusionsoftMvcConfiguration {
     @Bean
     public RegistrationController registrationController() {
         return new RegistrationController(autoLoginService(),
-                infusionsoftAuthenticationService, infusionsoftConfigurationProperties,
+                infusionsoftAuthenticationService, casConfigurationProperties, infusionsoftConfigurationProperties,
                 mailService, passwordService, securityQuestionService(), servicesManager, userService,
                 casConfigurationProperties.getView().getDefaultRedirectUrl()
         );
