@@ -62,7 +62,7 @@ public class InfusionsoftRegisteredServicesConfiguration {
         RegexRegisteredService service =  buildService(7, "Localhost", "https?://localhost(:[0-9]+)?((/.*)|$)", 7);
 
         service.setAccessStrategy(new InfusionsoftRegisteredServiceAccessStrategy(true, true, false, true));
-        service.setTheme("cas-theme-propel");
+        service.setTheme("cas-theme-infusionsoft-design-2017");
 
         final Map<String, RegisteredServiceProperty> serviceProperties = service.getProperties();
 
@@ -80,8 +80,8 @@ public class InfusionsoftRegisteredServicesConfiguration {
     @Bean
     RegisteredService servicePropel() {
         RegexRegisteredService service = buildService(8, "Propel", "(mobile|https?)://([^\\.]+\\.goldfishapp\\.co|propel\\.infusion(soft|test)\\.com)(:[0-9]+)?((/.*)|$)", 8);
-        service.setAccessStrategy(new InfusionsoftRegisteredServiceAccessStrategy(true, true, false, true));
-        service.setTheme("cas-theme-propel");
+        service.setAccessStrategy(new InfusionsoftRegisteredServiceAccessStrategy(true, true, false, false));
+        service.setTheme("cas-theme-infusionsoft-design-2017");
 
         final Map<String, RegisteredServiceProperty> serviceProperties = service.getProperties();
 
@@ -99,8 +99,8 @@ public class InfusionsoftRegisteredServicesConfiguration {
     @Bean
     RegisteredService serviceEssentials() {
         RegexRegisteredService service = buildService(9, "Essentials", "(mobile|https?)://((diamondback\\.infusion(soft|test))|(is-propel-web-[^\\./:]+\\.firebaseapp))\\.com(:[0-9]+)?((/.*)|$)", 9);
-        service.setAccessStrategy(new InfusionsoftRegisteredServiceAccessStrategy(true, true, false, true));
-        service.setTheme("cas-theme-essentials");
+        service.setAccessStrategy(new InfusionsoftRegisteredServiceAccessStrategy(true, true, false, false));
+        service.setTheme("cas-theme-infusionsoft-design-2017");
 
         final Map<String, RegisteredServiceProperty> serviceProperties = service.getProperties();
 
