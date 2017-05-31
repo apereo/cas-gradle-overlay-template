@@ -26,7 +26,7 @@ public class InfusionsoftRegisteredServicesConfiguration {
         services.add(serviceCAM());
         services.add(serviceLocalhost());
         services.add(servicePropel());
-        services.add(serviceHackathon());
+        services.add(serviceEssentials());
         services.add(serviceCRM());
 
         return services;
@@ -97,10 +97,10 @@ public class InfusionsoftRegisteredServicesConfiguration {
     }
 
     @Bean
-    RegisteredService serviceHackathon() {
-        RegexRegisteredService service = buildService(9, "Hackthon Temporary", "(mobile|https?)://is-propel-app-[^\\./:]+\\.appspot\\.com(:[0-9]+)?((/.*)|$)", 9);
-        service.setAccessStrategy(new InfusionsoftRegisteredServiceAccessStrategy(true, true, false, false));
-        service.setTheme("cas-theme-propel");
+    RegisteredService serviceEssentials() {
+        RegexRegisteredService service = buildService(9, "Essentials", "(mobile|https?)://((diamondback\\.infusion(soft|test))|(is-propel-web-[^\\./:]+\\.firebaseapp))\\.com(:[0-9]+)?((/.*)|$)", 9);
+        service.setAccessStrategy(new InfusionsoftRegisteredServiceAccessStrategy(true, true, false, true));
+        service.setTheme("cas-theme-essentials");
 
         final Map<String, RegisteredServiceProperty> serviceProperties = service.getProperties();
 
@@ -110,7 +110,7 @@ public class InfusionsoftRegisteredServicesConfiguration {
 
         property = new DefaultRegisteredServiceProperty();
         property.getValues().add("true");
-        serviceProperties.put("disableAds", property);
+        serviceProperties.put(RegisteredServiceProperties.DISABLE_ADS, property);
 
         return service;
     }
