@@ -263,7 +263,7 @@ public class RegistrationController {
             return "registration/createInfusionsoftId";
         } else if (registeredService != null && StringUtils.isNotBlank(returnUrl)) {
             String loginUrl = generateLoginUrl(returnUrl, userToken, null, null, null, true, user, true);
-            log.debug("Registration complete for new user " + user.getUsername() + ". Redirecting to " + loginUrl);
+            log.info("Registration complete for new user " + user.getUsername() + ". Redirecting to " + loginUrl);
             return "redirect:" + loginUrl;
         } else {
             model.addAttribute("redirectUrl", defaultRedirectUrl);
