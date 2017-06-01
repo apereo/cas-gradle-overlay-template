@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 import org.apereo.cas.infusionsoft.domain.Authority;
 import org.apereo.cas.infusionsoft.domain.User;
 import org.apereo.cas.infusionsoft.domain.UserAccount;
-import org.apereo.cas.infusionsoft.support.AppHelper;
+import org.apereo.cas.infusionsoft.support.UserAccountTransformer;
 
 import java.util.Arrays;
 import java.util.List;
@@ -28,13 +28,13 @@ public class UserDTO {
         // For de-serialization
     }
 
-    public UserDTO(User user, List<UserAccount> accounts, AppHelper appHelper) {
+    public UserDTO(User user, List<UserAccount> accounts, UserAccountTransformer userAccountTransformer) {
         globalUserId = user.getId();
         username = user.getUsername();
         displayName = user.getFirstName() + " " + user.getLastName();
         firstName = user.getFirstName();
         lastName = user.getLastName();
-        linkedApps = UserAccountDTO.convertFromCollection(accounts, appHelper);
+        linkedApps = UserAccountDTO.convertFromCollection(accounts, userAccountTransformer);
 
         Set<Authority> userAuthorities = user.getAuthorities();
         authorities = new String[userAuthorities.size()];

@@ -7,7 +7,7 @@ import org.apereo.cas.infusionsoft.config.properties.InfusionsoftConfigurationPr
 import org.apereo.cas.infusionsoft.dao.SecurityQuestionDAO;
 import org.apereo.cas.infusionsoft.dao.SecurityQuestionResponseDAO;
 import org.apereo.cas.infusionsoft.services.*;
-import org.apereo.cas.infusionsoft.support.AppHelper;
+import org.apereo.cas.infusionsoft.support.UserAccountTransformer;
 import org.apereo.cas.infusionsoft.web.controllers.AuthenticateController;
 import org.apereo.cas.infusionsoft.web.controllers.RegistrationController;
 import org.apereo.cas.services.ServicesManager;
@@ -25,7 +25,7 @@ import org.springframework.context.annotation.Configuration;
 public class InfusionsoftMvcConfiguration {
 
     @Autowired
-    private AppHelper appHelper;
+    private UserAccountTransformer userAccountTransformer;
 
     @Autowired
     private AuditService auditService;
@@ -78,7 +78,7 @@ public class InfusionsoftMvcConfiguration {
 
     @Bean
     public AuthenticateController authenticateController() {
-        return new AuthenticateController(infusionsoftAuthenticationService, appHelper, userService, messageSource, auditService);
+        return new AuthenticateController(infusionsoftAuthenticationService, userAccountTransformer, userService, messageSource, auditService);
     }
 
     @Bean

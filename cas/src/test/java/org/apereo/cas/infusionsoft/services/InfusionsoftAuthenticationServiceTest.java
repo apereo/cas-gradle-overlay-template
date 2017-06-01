@@ -7,7 +7,7 @@ import org.apereo.cas.infusionsoft.config.properties.HostConfigurationProperties
 import org.apereo.cas.infusionsoft.config.properties.InfusionsoftConfigurationProperties;
 import org.apereo.cas.infusionsoft.dao.LoginAttemptDAO;
 import org.apereo.cas.infusionsoft.domain.*;
-import org.apereo.cas.infusionsoft.support.AppHelper;
+import org.apereo.cas.infusionsoft.support.UserAccountTransformer;
 import org.apereo.cas.ticket.registry.TicketRegistry;
 import org.apereo.cas.web.support.CookieRetrievingCookieGenerator;
 import org.junit.Assert;
@@ -35,7 +35,7 @@ public class InfusionsoftAuthenticationServiceTest {
     private static final String testUsername = "test.user@infusionsoft.com";
     private static final String testPassword = "passwordEncoded";
     private static final String testPasswordMD5 = "passwordEncodedMD5";
-    private AppHelper appHelper;
+    private UserAccountTransformer userAccountTransformer;
 
     @Mock
     private TicketRegistry ticketRegistry;
@@ -86,7 +86,7 @@ public class InfusionsoftAuthenticationServiceTest {
         CasConfigurationProperties casProperties = new CasConfigurationProperties();
         casProperties.setServer(casServerProperties);
 
-        appHelper = new AppHelper(infusionsoftConfigurationProperties);
+        userAccountTransformer = new UserAccountTransformer(infusionsoftConfigurationProperties);
 
         MockitoAnnotations.initMocks(this);
 
@@ -147,11 +147,11 @@ public class InfusionsoftAuthenticationServiceTest {
 
     @Test
     public void testBuildAppUrl() {
-        // TODO: move this to a test class for AppHelper
-        Assert.assertEquals(appHelper.buildAppUrl(AppType.CRM, "xy123"), "https://xy123.infusionsoft.com");
-        Assert.assertEquals(appHelper.buildAppUrl(AppType.CUSTOMERHUB, "zz149"), "https://zz149.customerhub.net/admin");
-        Assert.assertEquals(appHelper.buildAppUrl(AppType.COMMUNITY, "community"), "https://community.infusionsoft.com");
-        Assert.assertEquals(appHelper.buildAppUrl(AppType.MARKETPLACE, "marketplace"), "https://marketplace.infusionsoft.com");
+        // TODO: move this to a test class for UserAccountTransformer
+        Assert.assertEquals(userAccountTransformer.buildAppUrl(AppType.CRM, "xy123"), "https://xy123.infusionsoft.com");
+        Assert.assertEquals(userAccountTransformer.buildAppUrl(AppType.CUSTOMERHUB, "zz149"), "https://zz149.customerhub.net/admin");
+        Assert.assertEquals(userAccountTransformer.buildAppUrl(AppType.COMMUNITY, "community"), "https://community.infusionsoft.com");
+        Assert.assertEquals(userAccountTransformer.buildAppUrl(AppType.MARKETPLACE, "marketplace"), "https://marketplace.infusionsoft.com");
     }
 
     @Test

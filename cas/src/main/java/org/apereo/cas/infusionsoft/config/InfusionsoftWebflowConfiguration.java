@@ -5,7 +5,7 @@ import org.apereo.cas.authentication.AuthenticationSystemSupport;
 import org.apereo.cas.infusionsoft.config.properties.InfusionsoftConfigurationProperties;
 import org.apereo.cas.infusionsoft.services.InfusionsoftAuthenticationService;
 import org.apereo.cas.infusionsoft.services.MarketingOptionsService;
-import org.apereo.cas.infusionsoft.support.AppHelper;
+import org.apereo.cas.infusionsoft.support.UserAccountTransformer;
 import org.apereo.cas.infusionsoft.webflow.InfusionsoftFlowSetupAction;
 import org.apereo.cas.infusionsoft.webflow.InfusionsoftPasswordExpirationEnforcementAction;
 import org.apereo.cas.infusionsoft.webflow.InfusionsoftWebflowConfigurer;
@@ -16,7 +16,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.info.BuildProperties;
-import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.webflow.definition.registry.FlowDefinitionRegistry;
@@ -27,7 +26,7 @@ import org.springframework.webflow.engine.builder.support.FlowBuilderServices;
 public class InfusionsoftWebflowConfiguration {
 
     @Autowired
-    private AppHelper appHelper;
+    private UserAccountTransformer userAccountTransformer;
 
     @Autowired
     @Qualifier("defaultAuthenticationSystemSupport")
@@ -71,7 +70,7 @@ public class InfusionsoftWebflowConfiguration {
     @Bean
     public InfusionsoftFlowSetupAction infusionsoftFlowSetupAction() {
         return new InfusionsoftFlowSetupAction(
-                appHelper,
+                userAccountTransformer,
                 buildProperties,
                 infusionsoftAuthenticationService,
                 marketingOptionsService,

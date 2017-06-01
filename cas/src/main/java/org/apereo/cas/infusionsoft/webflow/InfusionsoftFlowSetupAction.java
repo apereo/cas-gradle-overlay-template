@@ -7,7 +7,7 @@ import org.apereo.cas.infusionsoft.domain.AppType;
 import org.apereo.cas.infusionsoft.domain.MarketingOptions;
 import org.apereo.cas.infusionsoft.services.InfusionsoftAuthenticationService;
 import org.apereo.cas.infusionsoft.services.MarketingOptionsService;
-import org.apereo.cas.infusionsoft.support.AppHelper;
+import org.apereo.cas.infusionsoft.support.UserAccountTransformer;
 import org.apereo.cas.infusionsoft.support.RegisteredServiceProperties;
 import org.apereo.cas.services.RegisteredService;
 import org.apereo.cas.services.RegisteredServiceProperty;
@@ -22,7 +22,7 @@ import java.util.List;
 
 public class InfusionsoftFlowSetupAction extends AbstractAction {
 
-    private AppHelper appHelper;
+    private UserAccountTransformer userAccountTransformer;
     private BuildProperties buildProperties;
     private InfusionsoftAuthenticationService infusionsoftAuthenticationService;
     private MarketingOptionsService marketingOptionsService;
@@ -30,14 +30,14 @@ public class InfusionsoftFlowSetupAction extends AbstractAction {
     private List<String> supportPhoneNumbers;
 
     public InfusionsoftFlowSetupAction(
-            AppHelper appHelper,
+            UserAccountTransformer userAccountTransformer,
             BuildProperties buildProperties,
             InfusionsoftAuthenticationService infusionsoftAuthenticationService,
             MarketingOptionsService marketingOptionsService,
             ServicesManager servicesManager,
             List<String> supportPhoneNumbers
     ) {
-        this.appHelper = appHelper;
+        this.userAccountTransformer = userAccountTransformer;
         this.buildProperties = buildProperties;
         this.infusionsoftAuthenticationService = infusionsoftAuthenticationService;
         this.marketingOptionsService = marketingOptionsService;
@@ -58,7 +58,7 @@ public class InfusionsoftFlowSetupAction extends AbstractAction {
             AppType appType = infusionsoftAuthenticationService.guessAppType(service.getOriginalUrl());
             if (appType == AppType.CRM) {
                 String appName = infusionsoftAuthenticationService.guessAppName(service.getOriginalUrl());
-                flowScope.put("crmAffiliateUrl", appHelper.buildAppUrl(appType, appName) + "/Affiliate/");
+                flowScope.put("crmAffiliateUrl", userAccountTransformer.buildAppUrl(appType, appName) + "/Affiliate/");
             }
         }
 

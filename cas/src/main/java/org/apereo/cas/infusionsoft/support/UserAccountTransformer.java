@@ -5,13 +5,13 @@ import org.apereo.cas.infusionsoft.domain.AppType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class AppHelper {
+public class UserAccountTransformer {
 
-    private static final Logger log = LoggerFactory.getLogger(AppHelper.class);
+    private static final Logger log = LoggerFactory.getLogger(UserAccountTransformer.class);
 
     private InfusionsoftConfigurationProperties infusionsoftConfigurationProperties;
 
-    public AppHelper(InfusionsoftConfigurationProperties infusionsoftConfigurationProperties) {
+    public UserAccountTransformer(InfusionsoftConfigurationProperties infusionsoftConfigurationProperties) {
         this.infusionsoftConfigurationProperties = infusionsoftConfigurationProperties;
     }
 
