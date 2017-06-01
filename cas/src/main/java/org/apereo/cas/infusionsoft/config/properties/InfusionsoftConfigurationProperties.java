@@ -1,6 +1,5 @@
 package org.apereo.cas.infusionsoft.config.properties;
 
-import org.apereo.cas.authentication.UsernamePasswordCredential;
 import org.apereo.cas.configuration.model.core.authentication.PasswordEncoderProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.NestedConfigurationProperty;
@@ -9,9 +8,6 @@ import java.util.List;
 
 @ConfigurationProperties("infusionsoft")
 public class InfusionsoftConfigurationProperties {
-
-    @NestedConfigurationProperty
-    private AccountCentralConfigurationProperties accountCentral = new AccountCentralConfigurationProperties();
 
     private long auditEntryMaxAge = 86400000 * 7; // default to 7 days
 
@@ -23,9 +19,6 @@ public class InfusionsoftConfigurationProperties {
 
     @NestedConfigurationProperty
     private HostConfigurationProperties customerhub = new HostConfigurationProperties();
-
-    @NestedConfigurationProperty
-    private UsernamePasswordCredential customerHubApi;
 
     @NestedConfigurationProperty
     private InfusionsoftJpaConfigurationProperties jpa = new InfusionsoftJpaConfigurationProperties();
@@ -44,14 +37,6 @@ public class InfusionsoftConfigurationProperties {
     private PasswordEncoderProperties passwordEncoder = new PasswordEncoderProperties();
 
     private List<String> supportPhoneNumbers;
-
-    public AccountCentralConfigurationProperties getAccountCentral() {
-        return accountCentral;
-    }
-
-    public void setAccountCentral(AccountCentralConfigurationProperties accountCentral) {
-        this.accountCentral = accountCentral;
-    }
 
     public long getAuditEntryMaxAge() {
         return auditEntryMaxAge;
@@ -83,14 +68,6 @@ public class InfusionsoftConfigurationProperties {
 
     public void setCustomerhub(HostConfigurationProperties customerhub) {
         this.customerhub = customerhub;
-    }
-
-    public UsernamePasswordCredential getCustomerHubApi() {
-        return customerHubApi;
-    }
-
-    public void setCustomerHubApi(UsernamePasswordCredential customerHubApi) {
-        this.customerHubApi = customerHubApi;
     }
 
     public InfusionsoftJpaConfigurationProperties getJpa() {
