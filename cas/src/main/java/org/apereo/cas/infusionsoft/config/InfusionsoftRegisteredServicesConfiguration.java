@@ -34,7 +34,7 @@ public class InfusionsoftRegisteredServicesConfiguration {
 
     @Bean
     RegisteredService serviceCAS() {
-        return buildService(1, "Account Central", "https://(signin|devcas)\\.infusion(test|soft)\\.com(:[0-9]+)?((/.*)|$)", 1);
+        return buildService(1, "Account Central", "https://(accounts|devaccounts)\\.infusion(test|soft)\\.com(:[0-9]+)?((/.*)|$)", 1);
     }
 
     @Bean
