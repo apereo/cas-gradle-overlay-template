@@ -7,14 +7,13 @@ import org.apereo.cas.infusionsoft.authentication.LoginResult;
 import org.apereo.cas.infusionsoft.services.AuditService;
 import org.apereo.cas.infusionsoft.services.InfusionsoftAuthenticationService;
 import org.apereo.cas.infusionsoft.services.UserService;
-import org.apereo.cas.infusionsoft.support.AppHelper;
+import org.apereo.cas.infusionsoft.support.UserAccountTransformer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.TypeMismatchException;
 import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.annotation.support.HandlerMethodInvocationException;
 
@@ -32,14 +31,14 @@ public class AuthenticateController {
     private static final Logger log = LoggerFactory.getLogger(AuthenticateController.class);
 
     private InfusionsoftAuthenticationService infusionsoftAuthenticationService;
-    private AppHelper appHelper;
+    private UserAccountTransformer userAccountTransformer;
     private UserService userService;
     private MessageSource messageSource;
     private AuditService auditService;
 
-    public AuthenticateController(InfusionsoftAuthenticationService infusionsoftAuthenticationService, AppHelper appHelper, UserService userService, MessageSource messageSource, AuditService auditService) {
+    public AuthenticateController(InfusionsoftAuthenticationService infusionsoftAuthenticationService, UserAccountTransformer userAccountTransformer, UserService userService, MessageSource messageSource, AuditService auditService) {
         this.infusionsoftAuthenticationService = infusionsoftAuthenticationService;
-        this.appHelper = appHelper;
+        this.userAccountTransformer = userAccountTransformer;
         this.userService = userService;
         this.messageSource = messageSource;
         this.auditService = auditService;
@@ -108,7 +107,7 @@ public class AuthenticateController {
             }
 
             if (error == null) {
-                UserDTO userDTO = new UserDTO(loginResult.getUser(), userService.findActiveUserAccounts(loginResult.getUser()), appHelper);
+                UserDTO userDTO = new UserDTO(loginResult.getUser(), userService.findActiveUserAccounts(loginResult.getUser()), userAccountTransformer);
 
                 auditService.logApiLoginSuccess(loginResult.getUser());
 

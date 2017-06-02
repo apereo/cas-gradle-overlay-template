@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apereo.cas.infusionsoft.domain.UserAccount;
-import org.apereo.cas.infusionsoft.support.AppHelper;
+import org.apereo.cas.infusionsoft.support.UserAccountTransformer;
 
 import java.util.Collection;
 
@@ -19,11 +19,11 @@ public class UserAccountDTO {
     private String appAlias;
     private String appUrl;
 
-    public static UserAccountDTO[] convertFromCollection(final Collection<UserAccount> accountCollection, AppHelper appHelper) {
+    public static UserAccountDTO[] convertFromCollection(final Collection<UserAccount> accountCollection, UserAccountTransformer userAccountTransformer) {
         UserAccountDTO[] accounts = new UserAccountDTO[accountCollection.size()];
         int i = 0;
         for (UserAccount userAccount : accountCollection) {
-            accounts[i++] = new UserAccountDTO(userAccount, appHelper);
+            accounts[i++] = new UserAccountDTO(userAccount, userAccountTransformer);
         }
         return accounts;
     }
@@ -32,12 +32,12 @@ public class UserAccountDTO {
         // For de-serialization
     }
 
-    public UserAccountDTO(UserAccount userAccount, AppHelper appHelper) {
+    public UserAccountDTO(UserAccount userAccount, UserAccountTransformer userAccountTransformer) {
         this.appType = ObjectUtils.toString(userAccount.getAppType());
         this.appName = userAccount.getAppName();
         this.appUsername = userAccount.getAppUsername();
         this.appAlias = StringUtils.defaultIfEmpty(userAccount.getAlias(), userAccount.getAppName());
-        this.appUrl = appHelper.buildAppUrl(userAccount.getAppType(), userAccount.getAppName());
+        this.appUrl = userAccountTransformer.buildAppUrl(userAccount.getAppType(), userAccount.getAppName());
     }
 
     public String getAppType() {

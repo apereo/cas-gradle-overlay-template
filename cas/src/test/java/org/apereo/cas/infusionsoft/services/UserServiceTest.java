@@ -4,7 +4,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apereo.cas.infusionsoft.config.properties.InfusionsoftConfigurationProperties;
 import org.apereo.cas.infusionsoft.dao.*;
 import org.apereo.cas.infusionsoft.domain.User;
-import org.apereo.cas.infusionsoft.support.AppHelper;
+import org.apereo.cas.infusionsoft.support.UserAccountTransformer;
 import org.joda.time.DateTime;
 import org.junit.Assert;
 import org.junit.Before;
@@ -19,7 +19,7 @@ public class UserServiceTest {
     private UserServiceImpl serviceToTest;
 
     @Mock
-    private AppHelper appHelper;
+    private UserAccountTransformer userAccountTransformer;
 
     @Mock
     private AuthorityDAO authorityDAO;
@@ -60,7 +60,7 @@ public class UserServiceTest {
 
         MockitoAnnotations.initMocks(this);
 
-        serviceToTest = new UserServiceImpl(appHelper, authorityDAO, loginAttemptDAO, mailService, passwordService, userDAO, userAccountDAO, userIdentityDAO, infusionsoftConfigurationProperties);
+        serviceToTest = new UserServiceImpl(userAccountTransformer, authorityDAO, loginAttemptDAO, mailService, passwordService, userDAO, userAccountDAO, userIdentityDAO, infusionsoftConfigurationProperties);
 
         when(userDAO.findOne(user.getId())).thenReturn(user);
         when(userDAO.findByUsername(testUsername)).thenReturn(user);

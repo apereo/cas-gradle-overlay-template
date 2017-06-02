@@ -11,7 +11,7 @@ import org.apereo.cas.infusionsoft.authentication.InfusionsoftSocialLoginPrincip
 import org.apereo.cas.infusionsoft.config.properties.InfusionsoftConfigurationProperties;
 import org.apereo.cas.infusionsoft.dao.*;
 import org.apereo.cas.infusionsoft.services.*;
-import org.apereo.cas.infusionsoft.support.AppHelper;
+import org.apereo.cas.infusionsoft.support.UserAccountTransformer;
 import org.apereo.cas.infusionsoft.web.controllers.PasswordCheckController;
 import org.apereo.cas.services.ServicesManager;
 import org.apereo.cas.ticket.registry.TicketRegistry;
@@ -76,8 +76,8 @@ public class InfusionsoftCasConfiguration implements AuthenticationEventExecutio
     private UserPasswordDAO userPasswordDAO;
 
     @Bean
-    public AppHelper appHelper() {
-        return new AppHelper(infusionsoftConfigurationProperties);
+    public UserAccountTransformer userAccountTransformer() {
+        return new UserAccountTransformer(infusionsoftConfigurationProperties);
     }
 
     @Bean
@@ -118,7 +118,7 @@ public class InfusionsoftCasConfiguration implements AuthenticationEventExecutio
 
     @Bean
     public UserService userService() {
-        return new UserServiceImpl(appHelper(), authorityDAO, loginAttemptDAO, mailService, passwordService(), userDAO, userAccountDAO, userIdentityDAO, infusionsoftConfigurationProperties);
+        return new UserServiceImpl(userAccountTransformer(), authorityDAO, loginAttemptDAO, mailService, passwordService(), userDAO, userAccountDAO, userIdentityDAO, infusionsoftConfigurationProperties);
     }
 
     @Override

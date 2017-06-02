@@ -8,7 +8,7 @@ import org.apereo.cas.infusionsoft.config.properties.InfusionsoftConfigurationPr
 import org.apereo.cas.infusionsoft.dao.*;
 import org.apereo.cas.infusionsoft.domain.*;
 import org.apereo.cas.infusionsoft.exceptions.InfusionsoftValidationException;
-import org.apereo.cas.infusionsoft.support.AppHelper;
+import org.apereo.cas.infusionsoft.support.UserAccountTransformer;
 import org.apereo.cas.infusionsoft.web.ValidationUtils;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -24,7 +24,7 @@ public class UserServiceImpl implements UserService {
 
     private static final Logger log = LoggerFactory.getLogger(UserServiceImpl.class);
 
-    private AppHelper appHelper;
+    private UserAccountTransformer userAccountTransformer;
     private AuthorityDAO authorityDAO;
     private LoginAttemptDAO loginAttemptDAO;
     private MailService mailService;
@@ -34,8 +34,8 @@ public class UserServiceImpl implements UserService {
     private UserIdentityDAO userIdentityDAO;
     private InfusionsoftConfigurationProperties infusionsoftConfigurationProperties;
 
-    public UserServiceImpl(AppHelper appHelper, AuthorityDAO authorityDAO, LoginAttemptDAO loginAttemptDAO, MailService mailService, PasswordService passwordService, UserDAO userDAO, UserAccountDAO userAccountDAO, UserIdentityDAO userIdentityDAO, InfusionsoftConfigurationProperties infusionsoftConfigurationProperties) {
-        this.appHelper = appHelper;
+    public UserServiceImpl(UserAccountTransformer userAccountTransformer, AuthorityDAO authorityDAO, LoginAttemptDAO loginAttemptDAO, MailService mailService, PasswordService passwordService, UserDAO userDAO, UserAccountDAO userAccountDAO, UserIdentityDAO userIdentityDAO, InfusionsoftConfigurationProperties infusionsoftConfigurationProperties) {
+        this.userAccountTransformer = userAccountTransformer;
         this.authorityDAO = authorityDAO;
         this.loginAttemptDAO = loginAttemptDAO;
         this.mailService = mailService;
@@ -67,8 +67,6 @@ public class UserServiceImpl implements UserService {
         // NOTE: these are enforced by the annotation "@SafeHtml(whitelistType = SafeHtml.WhiteListType.NONE)" but this way the tags are just removed instead of throwing an error
         user.setFirstName(ValidationUtils.removeAllHtmlTags(user.getFirstName()));
         user.setLastName(ValidationUtils.removeAllHtmlTags(user.getLastName()));
-
-        //TODO: if this user is currently logged in then change the object in the security context
 
         return userDAO.save(user);
     }
@@ -285,7 +283,7 @@ public class UserServiceImpl implements UserService {
 
         try {
             ObjectMapper objectMapper = new ObjectMapper();
-            UserAccountDTO[] userAccounts = UserAccountDTO.convertFromCollection(accounts, appHelper);
+            UserAccountDTO[] userAccounts = UserAccountDTO.convertFromCollection(accounts, userAccountTransformer);
             objectMapper.writeValue(outputStream, userAccounts);
             json = outputStream.toString("UTF-8");
         } catch (Exception e) {
