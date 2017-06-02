@@ -2,6 +2,15 @@ apply plugin: 'org.springframework.boot'
 apply from: 'http://dl.bintray.com/scalding/generic/waroverlay.gradle'
 apply from: 'https://raw.githubusercontent.com/apereo/cas/5.0.x/gradle/overrides.gradle'
 
+apply plugin: 'eclipse'
+
+eclipse {
+    classpath {
+	   downloadSources=true
+	   downloadJavadoc = true
+    }
+}
+
 bootRepackage {
     enabled = false
 }
@@ -74,11 +83,50 @@ task generateKeys {
   }
 }
 
-task runit {    
+task runit {
     doLast{
-        javaexec { 
+        javaexec {
             main="-jar";
-            args = [ "build/libs/cas.war" ]
+            jvmArgs = [
+                // Reduce the memory usage
+                "-Xmx2048M"
+                ]
+            args = [
+                "build/libs/cas.war"
+                ]
         }
-    }  
+    }
+}
+
+task runit_debug {
+    doLast {
+        javaexec {
+            main="-jar";
+            //debug=true; Debug port is 5005, not possible to change, does the same than -Xrunjdwp below
+            jvmArgs = [
+                // Reduce the memory usage
+                "-Xmx2048M",
+                // Improve start up speed
+                "-XX:+TieredCompilation",
+                "-XX:TieredStopAtLevel=1",
+                // Run debug mode
+                "-Xdebug",
+                "-Xrunjdwp:transport=dt_socket,address=5005,server=y,suspend=y"
+                ]
+            args = [
+                "build/libs/cas.war",
+                ]
+                
+            println "Started ${commandLine}"
+        }
+    }
+}
+
+// You can find your source into ~/.gradle/caches/modules-2/files-2.1
+// needs eclipse plugin dependency
+task buildsource(dependsOn: ['cleanEclipse', 'eclipse']){
+    tasks.findByPath('eclipse').mustRunAfter tasks.findByPath('cleanEclipse')
+    doLast{
+        println '---- CleanEclipse - Eclipse tasks Executed ----'
+    }
 }
