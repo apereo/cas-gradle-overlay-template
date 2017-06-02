@@ -99,7 +99,6 @@ public class InfusionsoftRegisteredServicesConfiguration {
     @Bean
     RegisteredService serviceEssentials() {
         RegexRegisteredService service = buildService(9, "Essentials", "(mobile|https?)://((diamondback\\.infusion(soft|test))|(is-propel-web-[^\\./:]+\\.firebaseapp))\\.com(:[0-9]+)?((/.*)|$)", 9);
-        service.setAccessStrategy(new InfusionsoftRegisteredServiceAccessStrategy(true, true, false, false));
         service.setTheme("cas-theme-infusionsoft-design-2017");
 
         final Map<String, RegisteredServiceProperty> serviceProperties = service.getProperties();
