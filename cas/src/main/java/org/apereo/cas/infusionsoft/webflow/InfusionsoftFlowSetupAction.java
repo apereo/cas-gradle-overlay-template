@@ -3,43 +3,37 @@ package org.apereo.cas.infusionsoft.webflow;
 import org.apache.commons.lang3.StringUtils;
 import org.apereo.cas.authentication.principal.WebApplicationService;
 import org.apereo.cas.infusionsoft.authentication.InfusionsoftRegisteredServiceAccessStrategy;
-import org.apereo.cas.infusionsoft.domain.AppType;
 import org.apereo.cas.infusionsoft.domain.MarketingOptions;
-import org.apereo.cas.infusionsoft.services.InfusionsoftAuthenticationService;
 import org.apereo.cas.infusionsoft.services.MarketingOptionsService;
-import org.apereo.cas.infusionsoft.support.UserAccountTransformer;
 import org.apereo.cas.infusionsoft.support.RegisteredServiceProperties;
 import org.apereo.cas.services.RegisteredService;
 import org.apereo.cas.services.RegisteredServiceProperty;
 import org.apereo.cas.services.ServicesManager;
 import org.springframework.boot.info.BuildProperties;
+import org.springframework.web.util.UriComponentsBuilder;
 import org.springframework.webflow.action.AbstractAction;
 import org.springframework.webflow.core.collection.MutableAttributeMap;
 import org.springframework.webflow.execution.Event;
 import org.springframework.webflow.execution.RequestContext;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.List;
 
 public class InfusionsoftFlowSetupAction extends AbstractAction {
 
-    private UserAccountTransformer userAccountTransformer;
     private BuildProperties buildProperties;
-    private InfusionsoftAuthenticationService infusionsoftAuthenticationService;
     private MarketingOptionsService marketingOptionsService;
     private ServicesManager servicesManager;
     private List<String> supportPhoneNumbers;
 
     public InfusionsoftFlowSetupAction(
-            UserAccountTransformer userAccountTransformer,
             BuildProperties buildProperties,
-            InfusionsoftAuthenticationService infusionsoftAuthenticationService,
             MarketingOptionsService marketingOptionsService,
             ServicesManager servicesManager,
             List<String> supportPhoneNumbers
     ) {
-        this.userAccountTransformer = userAccountTransformer;
         this.buildProperties = buildProperties;
-        this.infusionsoftAuthenticationService = infusionsoftAuthenticationService;
         this.marketingOptionsService = marketingOptionsService;
         this.servicesManager = servicesManager;
         this.supportPhoneNumbers = supportPhoneNumbers;
@@ -55,11 +49,6 @@ public class InfusionsoftFlowSetupAction extends AbstractAction {
             if (StringUtils.isNotBlank(registrationParam) && servicesManager.findServiceBy(registrationParam) != null) {
                 registrationUrl = registrationParam;
             }
-            AppType appType = infusionsoftAuthenticationService.guessAppType(service.getOriginalUrl());
-            if (appType == AppType.CRM) {
-                String appName = infusionsoftAuthenticationService.guessAppName(service.getOriginalUrl());
-                flowScope.put("crmAffiliateUrl", userAccountTransformer.buildAppUrl(appType, appName) + "/Affiliate/");
-            }
         }
 
         final MarketingOptions marketingOptions = marketingOptionsService.fetch();
@@ -74,6 +63,22 @@ public class InfusionsoftFlowSetupAction extends AbstractAction {
             final RegisteredServiceProperty disableAds = registeredService.getProperties().get(RegisteredServiceProperties.DISABLE_ADS);
             if (disableAds != null) {
                 enableAds = enableAds && !Boolean.parseBoolean(disableAds.getValue());
+            }
+
+            final RegisteredServiceProperty affiliateUrl = registeredService.getProperties().get(RegisteredServiceProperties.AFFILIATE_URL);
+            if (affiliateUrl != null && service != null) {
+                try {
+                    final URI serviceOriginalUrl = new URI(service.getOriginalUrl());
+                    final UriComponentsBuilder uriBuilder = UriComponentsBuilder.newInstance()
+                            .scheme(serviceOriginalUrl.getScheme())
+                            .host(serviceOriginalUrl.getHost())
+                            .port(serviceOriginalUrl.getPort())
+                            .path(affiliateUrl.getValue());
+
+                    flowScope.put("affiliateUrl", uriBuilder.toUriString());
+                } catch (URISyntaxException e) {
+                    logger.warn("Service URL not a valid URL", e);
+                }
             }
         }
 

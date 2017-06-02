@@ -5,7 +5,6 @@ package org.apereo.cas.infusionsoft.domain;
  */
 public enum AppType {
 
-    CAS(false, false, false),
     COMMUNITY(true, false, false),
     CRM(true, true, true),
     CUSTOMERHUB(true, true, false),

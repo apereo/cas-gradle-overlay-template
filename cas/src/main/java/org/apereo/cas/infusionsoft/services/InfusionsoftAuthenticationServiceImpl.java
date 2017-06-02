@@ -1,32 +1,22 @@
 package org.apereo.cas.infusionsoft.services;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apereo.cas.authentication.principal.Principal;
-import org.apereo.cas.configuration.CasConfigurationProperties;
 import org.apereo.cas.infusionsoft.authentication.LoginResult;
-import org.apereo.cas.infusionsoft.config.properties.InfusionsoftConfigurationProperties;
 import org.apereo.cas.infusionsoft.dao.LoginAttemptDAO;
-import org.apereo.cas.infusionsoft.domain.*;
-import org.apereo.cas.infusionsoft.web.CookieUtil;
-import org.apereo.cas.ticket.Ticket;
-import org.apereo.cas.ticket.TicketGrantingTicket;
-import org.apereo.cas.ticket.registry.TicketRegistry;
-import org.apereo.cas.web.support.CookieRetrievingCookieGenerator;
+import org.apereo.cas.infusionsoft.domain.LoginAttempt;
+import org.apereo.cas.infusionsoft.domain.LoginAttemptStatus;
+import org.apereo.cas.infusionsoft.domain.User;
+import org.apereo.cas.infusionsoft.domain.UserPassword;
 import org.joda.time.DateTime;
 import org.joda.time.Minutes;
 import org.joda.time.base.BaseSingleFieldPeriod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.Date;
 import java.util.List;
 
@@ -39,97 +29,14 @@ public class InfusionsoftAuthenticationServiceImpl implements InfusionsoftAuthen
     private static final Logger log = LoggerFactory.getLogger(InfusionsoftAuthenticationServiceImpl.class);
     private static final Minutes lockoutTimePeriod = Minutes.minutes(30);
 
-    private TicketRegistry ticketRegistry;
     private LoginAttemptDAO loginAttemptDAO;
     private UserService userService;
     private PasswordService passwordService;
-    private CookieRetrievingCookieGenerator ticketGrantingTicketCookieGenerator;
-    private CasConfigurationProperties casProperties;
-    private InfusionsoftConfigurationProperties infusionsoftProperties;
 
-    public InfusionsoftAuthenticationServiceImpl(TicketRegistry ticketRegistry, LoginAttemptDAO loginAttemptDAO, UserService userService, PasswordService passwordService, CookieRetrievingCookieGenerator ticketGrantingTicketCookieGenerator, CasConfigurationProperties casProperties, InfusionsoftConfigurationProperties infusionsoftProperties) {
-        this.ticketRegistry = ticketRegistry;
+    public InfusionsoftAuthenticationServiceImpl(LoginAttemptDAO loginAttemptDAO, UserService userService, PasswordService passwordService) {
         this.loginAttemptDAO = loginAttemptDAO;
         this.userService = userService;
         this.passwordService = passwordService;
-        this.ticketGrantingTicketCookieGenerator = ticketGrantingTicketCookieGenerator;
-        this.casProperties = casProperties;
-        this.infusionsoftProperties = infusionsoftProperties;
-    }
-
-    /**
-     * Guesses an app name from a URL, or null if there isn't one to be found.
-     */
-    @Override
-    public String guessAppName(String urlString) {
-        String appName = null;
-        URL url;
-        try {
-            url = StringUtils.isNotEmpty(urlString) ? new URL(urlString) : null;
-        } catch (MalformedURLException e) {
-            url = null;
-        }
-        if (url != null && url.getHost() != null) {
-            String host = url.getHost().toLowerCase();
-
-            if (url.toString().startsWith(casProperties.getServer().getPrefix())) {
-                log.info("it's us");
-            } else if (host.equals(infusionsoftProperties.getCommunity().getDomain())) {
-                appName = "community";
-            } else if (host.equals(infusionsoftProperties.getMarketplace().getDomain())) {
-                appName = "marketplace";
-            } else if (host.endsWith(infusionsoftProperties.getCustomerhub().getDomain())) {
-                appName = host.replace("." + infusionsoftProperties.getCustomerhub().getDomain(), "");
-            } else if (host.endsWith(infusionsoftProperties.getCrm().getDomain())) {
-                appName = host.replace("." + infusionsoftProperties.getCrm().getDomain(), "");
-            } else {
-                log.warn("unable to guess app name for url " + url);
-            }
-
-            if (appName != null) {
-                log.debug("app name for url " + url + " is " + appName);
-            }
-        }
-
-        return appName;
-    }
-
-    /**
-     * Guesses an app type from a URL, or null if there isn't one to be found.
-     */
-    @Override
-    public AppType guessAppType(String urlString) {
-        AppType appType = null;
-
-        URL url;
-        try {
-            url = StringUtils.isNotEmpty(urlString) ? new URL(urlString) : null;
-        } catch (MalformedURLException e) {
-            url = null;
-        }
-        if (url != null && url.getHost() != null) {
-            String host = url.getHost().toLowerCase();
-
-            if (url.toString().startsWith(casProperties.getServer().getPrefix())) {
-                appType = AppType.CAS;
-            } else if (host.equals(infusionsoftProperties.getCommunity().getDomain())) {
-                appType = AppType.COMMUNITY;
-            } else if (host.equals(infusionsoftProperties.getMarketplace().getDomain())) {
-                appType = AppType.MARKETPLACE;
-            } else if (host.endsWith(infusionsoftProperties.getCrm().getDomain())) {
-                appType = AppType.CRM;
-            } else if (host.endsWith(infusionsoftProperties.getCustomerhub().getDomain())) {
-                appType = AppType.CUSTOMERHUB;
-            } else {
-                log.warn("unable to guess app type for url " + url);
-            }
-
-            if (appType != null) {
-                log.debug("app type for url " + url + " is " + appType);
-            }
-        }
-
-        return appType;
     }
 
     @Override
@@ -293,57 +200,6 @@ public class InfusionsoftAuthenticationServiceImpl implements InfusionsoftAuthen
         }
 
         return false;
-    }
-
-    /**
-     * Looks at the CAS cookies to determine the current user.
-     */
-    @Override
-    public User getCurrentUser(HttpServletRequest request) {
-        User retVal = null;
-        TicketGrantingTicket tgt = getTicketGrantingTicket(request);
-        Principal principal = tgt.getAuthentication().getPrincipal();
-        User user = userService.loadUser(principal.getId());
-
-        if (user != null) {
-            retVal = user;
-
-            log.info("resolved user id=" + retVal.getId() + " for ticket " + tgt);
-        } else {
-            log.warn("couldn't find a user for ticket " + tgt);
-        }
-        return retVal;
-    }
-
-    @Override
-    public TicketGrantingTicket getTicketGrantingTicket(HttpServletRequest request) {
-        TicketGrantingTicket tgt = null;
-
-        if (request.getCookies() == null) {
-            return null;
-        }
-
-        String tgtCookieName = ticketGrantingTicketCookieGenerator.getCookieName();
-        Cookie cookie = CookieUtil.extractCookie(request, tgtCookieName);
-        if (cookie != null) {
-            log.debug("found a valid " + tgtCookieName + " cookie with value " + cookie.getValue());
-
-            Ticket ticket = ticketRegistry.getTicket(cookie.getValue());
-
-            if (ticket == null) {
-                log.warn("found a " + tgtCookieName + " cookie, but it doesn't match any known ticket!");
-            } else if (ticket instanceof TicketGrantingTicket) {
-                tgt = (TicketGrantingTicket) ticket;
-            } else {
-                tgt = ticket.getGrantingTicket();
-            }
-
-            if (tgt != null && tgt.isExpired()) {
-                tgt = null;
-            }
-        }
-
-        return tgt;
     }
 
     public void completePasswordReset(User user) {
