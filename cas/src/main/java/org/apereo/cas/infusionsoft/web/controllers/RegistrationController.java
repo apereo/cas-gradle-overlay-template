@@ -161,9 +161,9 @@ public class RegistrationController {
             returnUrl = defaultRedirectUrl;
         }
         UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromUriString(returnUrl);
+        uriBuilder.replaceQueryParam("isNewInfusionsoftId", Boolean.toString(isNewInfusionsoftId));
         if (StringUtils.isNotBlank(userToken)) {
             uriBuilder.replaceQueryParam("userToken", userToken);
-            uriBuilder.replaceQueryParam("isNewInfusionsoftId", Boolean.toString(isNewInfusionsoftId));
             if (user != null && user.getId() != null) {
                 uriBuilder.replaceQueryParam("globalUserId", user.getId());
             }
