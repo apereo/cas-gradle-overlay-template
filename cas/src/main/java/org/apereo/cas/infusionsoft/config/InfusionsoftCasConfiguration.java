@@ -76,7 +76,7 @@ public class InfusionsoftCasConfiguration implements AuthenticationEventExecutio
     private UserPasswordDAO userPasswordDAO;
 
     @Bean
-    public UserAccountTransformer appHelper() {
+    public UserAccountTransformer userAccountTransformer() {
         return new UserAccountTransformer(infusionsoftConfigurationProperties);
     }
 
@@ -118,7 +118,7 @@ public class InfusionsoftCasConfiguration implements AuthenticationEventExecutio
 
     @Bean
     public UserService userService() {
-        return new UserServiceImpl(appHelper(), authorityDAO, loginAttemptDAO, mailService, passwordService(), userDAO, userAccountDAO, userIdentityDAO, infusionsoftConfigurationProperties);
+        return new UserServiceImpl(userAccountTransformer(), authorityDAO, loginAttemptDAO, mailService, passwordService(), userDAO, userAccountDAO, userIdentityDAO, infusionsoftConfigurationProperties);
     }
 
     @Override
