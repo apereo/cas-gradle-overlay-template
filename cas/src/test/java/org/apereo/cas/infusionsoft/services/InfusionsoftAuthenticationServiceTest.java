@@ -90,7 +90,7 @@ public class InfusionsoftAuthenticationServiceTest {
 
         MockitoAnnotations.initMocks(this);
 
-        infusionsoftAuthenticationService = new InfusionsoftAuthenticationServiceImpl(ticketRegistry, loginAttemptDAO, userService, passwordService, ticketGrantingTicketCookieGenerator, casProperties, infusionsoftConfigurationProperties);
+        infusionsoftAuthenticationService = new InfusionsoftAuthenticationServiceImpl(loginAttemptDAO, userService, passwordService);
 
         user = new User();
         when(userService.loadUser(testUsername)).thenReturn(user);
@@ -152,58 +152,6 @@ public class InfusionsoftAuthenticationServiceTest {
         Assert.assertEquals(userAccountTransformer.buildAppUrl(AppType.CUSTOMERHUB, "zz149"), "https://zz149.customerhub.net/admin");
         Assert.assertEquals(userAccountTransformer.buildAppUrl(AppType.COMMUNITY, "community"), "https://community.infusionsoft.com");
         Assert.assertEquals(userAccountTransformer.buildAppUrl(AppType.MARKETPLACE, "marketplace"), "https://marketplace.infusionsoft.com");
-    }
-
-    @Test
-    public void testGuessAppName() throws Exception {
-        // CRM
-        Assert.assertEquals("mm999", infusionsoftAuthenticationService.guessAppName("https://mm999.infusionsoft.com/gobbledygook"));
-        Assert.assertEquals("something-long-and-weird", infusionsoftAuthenticationService.guessAppName("https://something-long-and-weird.infusionsoft.com/blah?foo=bar"));
-
-        // CustomerHub
-        Assert.assertEquals("xy231", infusionsoftAuthenticationService.guessAppName("https://xy231.customerhub.net/gobbledygook"));
-        Assert.assertEquals("my-girlfriends-app", infusionsoftAuthenticationService.guessAppName("https://my-girlfriends-app.customerhub.net/blah?foo=bar"));
-
-        // Community
-        Assert.assertEquals("community", infusionsoftAuthenticationService.guessAppName("https://community.infusionsoft.com/gobbledygook?foo=bar"));
-
-        // Marketplace
-        Assert.assertEquals("marketplace", infusionsoftAuthenticationService.guessAppName("https://marketplace.infusionsoft.com/gobbledygook?foo=bar"));
-
-        // Unrecognized
-        Assert.assertNull(infusionsoftAuthenticationService.guessAppName("http://www.google.com/search?q=lolcats"));
-
-        // Our own
-        Assert.assertNull(infusionsoftAuthenticationService.guessAppName("https://signin.infusionsoft.com/gobbledygook?foo=bar"));
-
-        // Null
-        Assert.assertNull(infusionsoftAuthenticationService.guessAppName((String) null));
-    }
-
-    @Test
-    public void testGuessAppType() throws Exception {
-        // CRM
-        Assert.assertEquals(AppType.CRM, infusionsoftAuthenticationService.guessAppType("https://mm999.infusionsoft.com/gobbledygook"));
-        Assert.assertEquals(AppType.CRM, infusionsoftAuthenticationService.guessAppType("https://something-long-and-weird.infusionsoft.com/blah?foo=bar"));
-
-        // CustomerHub
-        Assert.assertEquals(AppType.CUSTOMERHUB, infusionsoftAuthenticationService.guessAppType("https://xy231.customerhub.net/gobbledygook"));
-        Assert.assertEquals(AppType.CUSTOMERHUB, infusionsoftAuthenticationService.guessAppType("https://my-girlfriends-app.customerhub.net/blah?foo=bar"));
-
-        // Community
-        Assert.assertEquals(AppType.COMMUNITY, infusionsoftAuthenticationService.guessAppType("https://community.infusionsoft.com/gobbledygook?foo=bar"));
-
-        // Marketplace
-        Assert.assertEquals(AppType.MARKETPLACE, infusionsoftAuthenticationService.guessAppType("https://marketplace.infusionsoft.com/gobbledygook?foo=bar"));
-
-        // Unrecognized
-        Assert.assertNull(infusionsoftAuthenticationService.guessAppType("http://www.google.com/search?q=lolcats"));
-
-        // Our own
-        Assert.assertEquals(AppType.CAS, infusionsoftAuthenticationService.guessAppType("https://signin.infusionsoft.com/gobbledygook?foo=bar"));
-
-        // Null
-        Assert.assertNull(infusionsoftAuthenticationService.guessAppType((String) null));
     }
 
     @Test

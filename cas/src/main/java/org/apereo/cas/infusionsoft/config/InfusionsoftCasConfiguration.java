@@ -14,8 +14,6 @@ import org.apereo.cas.infusionsoft.services.*;
 import org.apereo.cas.infusionsoft.support.UserAccountTransformer;
 import org.apereo.cas.infusionsoft.web.controllers.PasswordCheckController;
 import org.apereo.cas.services.ServicesManager;
-import org.apereo.cas.ticket.registry.TicketRegistry;
-import org.apereo.cas.web.support.CookieRetrievingCookieGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -30,9 +28,6 @@ public class InfusionsoftCasConfiguration implements AuthenticationEventExecutio
 
     @Autowired
     private AuthorityDAO authorityDAO;
-
-    @Autowired
-    private CasConfigurationProperties casConfigurationProperties;
 
     @Autowired
     private InfusionsoftConfigurationProperties infusionsoftConfigurationProperties;
@@ -55,13 +50,6 @@ public class InfusionsoftCasConfiguration implements AuthenticationEventExecutio
     @Autowired
     @Qualifier("servicesManager")
     private ServicesManager servicesManager;
-
-    @Autowired
-    @Qualifier("ticketGrantingTicketCookieGenerator")
-    private CookieRetrievingCookieGenerator ticketGrantingTicketCookieGenerator;
-
-    @Autowired
-    private TicketRegistry ticketRegistry;
 
     @Autowired
     private UserAccountDAO userAccountDAO;
@@ -92,7 +80,7 @@ public class InfusionsoftCasConfiguration implements AuthenticationEventExecutio
 
     @Bean
     public InfusionsoftAuthenticationService infusionsoftAuthenticationService() {
-        return new InfusionsoftAuthenticationServiceImpl(ticketRegistry, loginAttemptDAO, userService(), passwordService(), ticketGrantingTicketCookieGenerator, casConfigurationProperties, infusionsoftConfigurationProperties);
+        return new InfusionsoftAuthenticationServiceImpl(loginAttemptDAO, userService(), passwordService());
     }
 
     @Bean

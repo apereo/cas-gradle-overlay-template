@@ -28,10 +28,6 @@ public class UserAccountTransformer {
 
         if (appType != null) {
             switch (appType) {
-                case CAS:
-                    retVal = "";
-                    break;
-
                 case CRM:
                     retVal = infusionsoftConfigurationProperties.getCrm().getUrl(appName);
                     break;

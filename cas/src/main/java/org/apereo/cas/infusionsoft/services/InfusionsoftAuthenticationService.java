@@ -13,19 +13,11 @@ public interface InfusionsoftAuthenticationService {
 
     int ALLOWED_LOGIN_ATTEMPTS = 5; // how many tries allowed before locked
 
-    String guessAppName(String url);
-
-    AppType guessAppType(String url);
-
     LoginResult attemptLoginWithMD5Password(String username, String md5password);
 
     LoginResult attemptLogin(String username, String password);
 
     boolean isAccountLocked(String username);
-
-    User getCurrentUser(HttpServletRequest request);
-
-    TicketGrantingTicket getTicketGrantingTicket(HttpServletRequest request);
 
     void completePasswordReset(User user);
 

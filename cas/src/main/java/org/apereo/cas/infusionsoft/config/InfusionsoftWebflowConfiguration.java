@@ -3,7 +3,6 @@ package org.apereo.cas.infusionsoft.config;
 import org.apereo.cas.CentralAuthenticationService;
 import org.apereo.cas.authentication.AuthenticationSystemSupport;
 import org.apereo.cas.infusionsoft.config.properties.InfusionsoftConfigurationProperties;
-import org.apereo.cas.infusionsoft.services.InfusionsoftAuthenticationService;
 import org.apereo.cas.infusionsoft.services.MarketingOptionsService;
 import org.apereo.cas.infusionsoft.support.UserAccountTransformer;
 import org.apereo.cas.infusionsoft.webflow.InfusionsoftFlowSetupAction;
@@ -47,9 +46,6 @@ public class InfusionsoftWebflowConfiguration {
     private FlowDefinitionRegistry loginFlowDefinitionRegistry;
 
     @Autowired
-    private InfusionsoftAuthenticationService infusionsoftAuthenticationService;
-
-    @Autowired
     private InfusionsoftConfigurationProperties infusionsoftConfigurationProperties;
 
     @Autowired
@@ -70,9 +66,7 @@ public class InfusionsoftWebflowConfiguration {
     @Bean
     public InfusionsoftFlowSetupAction infusionsoftFlowSetupAction() {
         return new InfusionsoftFlowSetupAction(
-                userAccountTransformer,
                 buildProperties,
-                infusionsoftAuthenticationService,
                 marketingOptionsService,
                 servicesManager,
                 infusionsoftConfigurationProperties.getSupportPhoneNumbers());

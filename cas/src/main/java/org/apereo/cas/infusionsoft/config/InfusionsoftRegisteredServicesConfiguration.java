@@ -118,7 +118,13 @@ public class InfusionsoftRegisteredServicesConfiguration {
     @Bean
     RegisteredService serviceCRM() {
         // Must be last, because it's a wildcard on infusionsoft/test.com
-        return buildService(9999, "Infusionsoft CRM", "https://.+\\.infusion(soft|test)\\.com(:[0-9]+)?((/.*)|$)", 9999);
+        final RegexRegisteredService service = buildService(9999, "Infusionsoft CRM", "https://.+\\.infusion(soft|test)\\.com(:[0-9]+)?((/.*)|$)", 9999);
+
+        DefaultRegisteredServiceProperty property = new DefaultRegisteredServiceProperty();
+        property.getValues().add("/Affiliate/");
+        service.getProperties().put(RegisteredServiceProperties.AFFILIATE_URL, property);
+
+        return service;
     }
 
     private RegexRegisteredService buildService(long id, String name, String serviceId, int evaluationOrder) {
