@@ -12,6 +12,7 @@
 <!--/*@thymesVar id="enableAds" type="java.lang.String"*/-->
 <!--/*@thymesVar id="registrationUrl" type="java.lang.String"*/-->
 <!--/*@thymesVar id="supportPhoneNumbers" type="java.util.List<String>"*/-->
+<!--/*@thymesVar id="allowSocialLogin" type="boolean"*/-->
 
 <head>
     <title th:text="#{cas.login.pagetitle}"></title>
@@ -80,7 +81,9 @@
                     </div>
                 </div>
 
-                <div th:replace="fragments/loginProviders"/>
+                <th:block th:if="${allowSocialLogin}">
+                    <div th:replace="fragments/loginProviders"/>
+                </th:block>
             </form>
             <a th:href="@{~/app/registration/forgot}">Forgot your password?</a>
 
