@@ -15,6 +15,9 @@
     <link rel="stylesheet" th:href="@{/infusionsoft/infusionsoft-icon/style.css}">
     <link rel="stylesheet" th:href="@{/infusionsoft/bootstrap-3.2.0-dist/css/bootstrap.min.css}">
     <link rel="stylesheet" th:href="@{/infusionsoft/css/bootstrap-app-central.css}">
+    <link rel="stylesheet" th:href="@{/infusionsoft/css/bootstrap-infusionsoft.css}"/>
+
+    <th:block layout:fragment="local_style"></th:block>
 
     <link rel="stylesheet" th:href="@{${#themes.code('infusionsoft.css.file')}}" />
 
@@ -31,8 +34,6 @@
             }
         })();
     </script>
-
-    <th:block layout:fragment="local_style"></th:block>
 </head>
 <body>
 
