@@ -32,7 +32,6 @@ Study material:
 - https://docs.gradle.org/current/userguide/artifact_dependencies_tutorial.html
 - https://docs.gradle.org/current/userguide/dependency_management.html
 
-
 ## Build
 
 ```bash
@@ -50,6 +49,9 @@ If you are on a `SNAPSHOT` version, you can force redownloads of modules/depende
 ```bash
  ./gradlew[.bat] clean build --parallel --refresh-dependencies
 ```
+
+    = TIPS =
+    Those options can be added to 'gradle.properties' for example '--parallel' => 'org.gradle.parallel=true'.
 
 If you need to, on Linux/Unix systems, you can delete all the existing artifacts (artifacts and metadata)
 Gradle has downloaded using:
@@ -102,6 +104,7 @@ java -jar cas/build/libs/cas.war
 Or via Gradle:
 
 ```bash
+# You need to check your project path into cas/build.gradle for this command
 ./gradlew[.bat] runit
 ```
 
@@ -120,3 +123,29 @@ Be careful with this method of deployment. `bootRun` is not designed to work wit
 ## External
 
 Deploy resultant `cas/build/libs/cas.war` to a servlet container of choice.
+
+# DEBUG
+
+## Build
+
+```bash
+# You can find your source into ~/.gradle/caches/modules-2/files-2.1
+# for debug purposes
+./gradlew[.bat] buildsource
+```
+
+## Executable WAR
+
+See the unzipped source jar in 'cas/build/cas'
+
+```bash
+./gradlew[.bat] explodeWar
+```
+
+Run debug server
+
+```bash
+# run debug port 5005
+# You need to check your project path into cas/build.gradle for this command
+./gradlew[.bat] runit_debug
+```
