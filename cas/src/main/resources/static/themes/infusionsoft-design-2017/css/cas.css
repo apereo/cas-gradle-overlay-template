@@ -79,8 +79,18 @@ button.btn {
 
 .noImage .logo {
     margin: 16px auto;
-    width: 94px;
-    height: 94px;
+    width: 80px;
+    height: 80px;
     background: transparent url('/themes/infusionsoft-design-2017/img/IS-dark-logo.svg') no-repeat top center;
     border-radius: 100%;
+}
+
+.form-group {
+    margin-bottom: 32px;
+}
+
+.sign-in-description {
+    display: block;
+    font-weight: bold;
+    font-size: 26px;
 }

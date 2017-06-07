@@ -190,6 +190,10 @@ input.form-control {
 .has-error {
     color: #E34825;
 }
+
+.sign-in-description {
+    display: none;
+}
 /*.well {*/
     /*min-height: 0;*/
     /*padding: 0;*/

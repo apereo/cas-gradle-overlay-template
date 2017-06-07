@@ -31,6 +31,7 @@
         <div class="col-md-6 login-form" th:classappend="${!enableAds}? 'noImage'">
             <div class="logo"></div>
             <div class="form-wrapper">
+                <h4 class="sign-in-description">Log in</h4>
                 <form method="post" id="loginForm" class="form-horizontal" th:object="${credential}" role="form" data-toggle="validator">
                     <p class="text-error" th:if="${#fields.hasErrors('*')}">
                         <img src="../static/infusionsoft/img/ic-exclamation-circle.svg" th:src="@{/infusionsoft/img/ic-exclamation-circle.svg}" width="16" height="16">
