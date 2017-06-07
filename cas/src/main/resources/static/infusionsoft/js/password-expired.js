@@ -38,19 +38,19 @@ $(document).ready(function() {
             rules: {
                 password: {
                     required: true,
-                    password: true,
-                    remote: {
-                        url: "/password/check",
-                        type: "post",
-                        data: {
-                            username: function() {
-                                return $("#username").val();
-                            },
-                            currentPassword: function() {
-                                return $("#currentPassword").val();
-                            }
-                        }
-                    }
+                    password: true
+                    // remote: {
+                    //     url: "/password/check",
+                    //     type: "post",
+                    //     data: {
+                    //         username: function() {
+                    //             return $("#username").val();
+                    //         },
+                    //         currentPassword: function() {
+                    //             return $("#currentPassword").val();
+                    //         }
+                    //     }
+                    // }
                 },
                 confirmedPassword: {
                     required: true,

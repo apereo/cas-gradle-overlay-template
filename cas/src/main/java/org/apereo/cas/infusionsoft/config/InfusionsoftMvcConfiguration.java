@@ -9,6 +9,7 @@ import org.apereo.cas.infusionsoft.dao.SecurityQuestionResponseDAO;
 import org.apereo.cas.infusionsoft.services.*;
 import org.apereo.cas.infusionsoft.support.UserAccountTransformer;
 import org.apereo.cas.infusionsoft.web.controllers.AuthenticateController;
+import org.apereo.cas.infusionsoft.web.controllers.PasswordCheckController;
 import org.apereo.cas.infusionsoft.web.controllers.RegistrationController;
 import org.apereo.cas.services.ServicesManager;
 import org.apereo.cas.ticket.registry.TicketRegistry;
@@ -84,6 +85,11 @@ public class InfusionsoftMvcConfiguration {
     @Bean
     public AutoLoginService autoLoginService() {
         return new AutoLoginService(centralAuthenticationService, ticketGrantingTicketCookieGenerator, ticketRegistry, authenticationSystemSupport);
+    }
+
+    @Bean
+    public PasswordCheckController passwordCheckController() {
+        return new PasswordCheckController(ticketGrantingTicketCookieGenerator, passwordService, ticketRegistry, userService);
     }
 
     @Bean

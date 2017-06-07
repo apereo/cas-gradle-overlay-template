@@ -11,6 +11,11 @@
             </p>
 
             <form id="resetPasswordForm" class="form-horizontal" th:object="${password}">
+                <p class="text-error" th:if="${#fields.hasErrors('*')}">
+                    <img src="../static/infusionsoft/img/ic-exclamation-circle.svg" th:src="@{/infusionsoft/img/ic-exclamation-circle.svg}" width="16" height="16">
+                    <span th:each="err : ${#fields.errors('*')}" th:utext="${err}"></span>
+                </p>
+
                 <input id="username" name="username" type="hidden" th:value="${credential.username}"/>
                 <input id="currentPassword" name="currentPassword" type="hidden" th:value="${credential.password}"/>
 

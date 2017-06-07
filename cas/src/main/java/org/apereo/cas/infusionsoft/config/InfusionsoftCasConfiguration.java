@@ -89,11 +89,6 @@ public class InfusionsoftCasConfiguration implements AuthenticationEventExecutio
     }
 
     @Bean
-    public PasswordCheckController passwordCheckController() {
-        return new PasswordCheckController(infusionsoftAuthenticationService(), passwordService());
-    }
-
-    @Bean
     public PasswordService passwordService() {
         return new PasswordServiceImpl(passwordEncoder, userPasswordDAO);
     }
