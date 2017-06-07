@@ -1,0 +1,16 @@
+.registration-logo {
+    margin: 16px auto;
+    width: 120px;
+    height: 60px;
+    background: transparent url('/themes/infusionsoft/img/isID_logo.svg') no-repeat top center;
+}
+
+.registration-panel {
+    border: solid 1px #DDD;
+}
+
+@media (max-width: 992px) {
+    .registration-panel {
+        border: none;
+    }
+}
