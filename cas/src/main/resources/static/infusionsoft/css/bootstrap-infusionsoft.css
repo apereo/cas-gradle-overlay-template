@@ -121,7 +121,6 @@ input.form-control {
 .login-form {
     text-align: center;
     margin: 0 auto;
-    border-radius: 5px;
 }
 .is-icon {
     /*position: relative;*/
@@ -189,6 +188,10 @@ input.form-control {
 }
 .has-error {
     color: #E34825;
+}
+
+.sign-in-description {
+    display: none;
 }
 /*.well {*/
     /*min-height: 0;*/
@@ -367,10 +370,9 @@ select.form-control {
     .col-md-6.login-form.noImage {
         width: 60%;
         float: none;
-        border: 1px solid #DDD;
-        padding: 30px 40px 35px;
         text-align: center;
     }
+
     .col-md-6.login-form.noImage .col-md-10 {
         width: 100%;
     }
@@ -510,10 +512,14 @@ select.form-control {
     .col-md-6.login-form.noImage {
         width: 50%;
         float: none;
+    }
+
+    .col-md-6.login-form.noImage .form-wrapper {
         border: 1px solid #DDD;
         border-radius: 4px;
         padding: 25px 40px 35px;
     }
+
     .col-md-6.login-form.noImage .col-md-10 {
         width: 100%;
     }
