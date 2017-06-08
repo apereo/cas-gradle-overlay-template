@@ -1,6 +1,6 @@
 apply plugin: 'org.springframework.boot'
 apply from: 'http://dl.bintray.com/scalding/generic/waroverlay.gradle'
-apply from: 'https://raw.githubusercontent.com/apereo/cas/5.0.x/gradle/overrides.gradle'
+apply from: 'https://raw.githubusercontent.com/apereo/cas/5.1.x/gradle/overrides.gradle'
 
 bootRepackage {
     enabled = false
@@ -22,13 +22,13 @@ repositories {
 }
 
 dependencies {
-    compile "org.apereo.cas:cas-server-webapp:${project.'cas.version'}@war"
+    compile "org.apereo.cas:cas-server-webapp-tomcat:${project.'cas.version'}@war"
 }
 
 task copyConfig(type: Copy) {
     println "Copying configuration to /etc/cas/config"
-    from "${project.rootDir}/etc/cas/config"
-    into '/etc/cas/config'
+//    from "${project.rootDir}/etc/cas/config"
+//    into '/etc/cas/config'
 }
 
 war {

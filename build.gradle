@@ -7,7 +7,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath "org.bitbucket.b_c:jose4j:0.5.2"
+        classpath "org.bitbucket.b_c:jose4j:0.5.6"
         classpath "org.springframework.boot:spring-boot-gradle-plugin:${project.'springboot.version'}"
     }
 }
@@ -23,7 +23,7 @@ task wrapper(type: Wrapper, description: "Update the Gradle wrapper") {
 
 task generateKeys {
   group = 'CAS'
-  description = 'generate keys for CAS. These keys can be added to your cas.properties file'
+  description = 'Generate keys for CAS. These keys can be added to your cas.properties file'
   doLast {
     println 'Generating keys for CAS...'
     ['cas.tgc.encryptionKey': 256, 'cas.tgc.signingKey': 512, 'cas.webflow.encryption.key': 96, 'cas.webflow.signing.key': 512].each { key, size ->

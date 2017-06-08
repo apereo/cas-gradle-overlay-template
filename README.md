@@ -5,7 +5,7 @@ used as a starting template for local CAS gradle war overlays.
 
 ## Versions
 
-* CAS 5.0.x
+* CAS 5.1.x
 
 ## Requirements
 
@@ -21,7 +21,7 @@ CAS modules may be specified under the `dependencies` block of the [CAS subproje
 
 ```gradle
 dependencies {
-    compile "org.apereo.cas:cas-server-webapp:${project.'cas.version'}@war"
+    compile "org.apereo.cas:cas-server-webapp-tomcat:${project.'cas.version'}@war"
     compile "org.apereo.cas:cas-server-some-module:${project.'cas.version'}"
     ...
 }
