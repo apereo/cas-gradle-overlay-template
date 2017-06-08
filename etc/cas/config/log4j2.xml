@@ -9,8 +9,8 @@
             <PatternLayout pattern="%d %p [%c] - &lt;%m&gt;%n"/>
         </Console>
 
-        <RollingFile name="file" fileName="${baseDir}/cas.log" append="true"
-                     filePattern="${baseDir}/cas-%d{yyyy-MM-dd-HH}-%i.log">
+        <RollingFile name="file" fileName="log/cas.log" append="true"
+                     filePattern="log/logArchive/cas-%d{yyyy-MM-dd-HH}-%i.log">
             <PatternLayout pattern="%highlight{%d %p [%c] - &lt;%m&gt;}%n"/>
             <Policies>
                 <OnStartupTriggeringPolicy />
@@ -24,8 +24,8 @@
                 </Delete>
             </DefaultRolloverStrategy>
         </RollingFile>
-        <RollingFile name="auditlogfile" fileName="${baseDir}/cas_audit.log" append="true"
-                     filePattern="${baseDir}/cas_audit-%d{yyyy-MM-dd-HH}-%i.log">
+        <RollingFile name="auditlogfile" fileName="log/cas_audit.log" append="true"
+                     filePattern="log/logArchive/cas_audit-%d{yyyy-MM-dd-HH}-%i.log">
             <PatternLayout pattern="%d %p [%c] - %m%n"/>
             <Policies>
                 <OnStartupTriggeringPolicy />
@@ -40,8 +40,8 @@
             </DefaultRolloverStrategy>
         </RollingFile>
 
-        <RollingFile name="perfFileAppender" fileName="${baseDir}/perfStats.log" append="true"
-                     filePattern="${baseDir}/perfStats-%d{yyyy-MM-dd-HH}-%i.log">
+        <RollingFile name="perfFileAppender" fileName="log/perfStats.log" append="true"
+                     filePattern="log/logArchive/perfStats-%d{yyyy-MM-dd-HH}-%i.log">
             <PatternLayout pattern="%m%n"/>
             <Policies>
                 <OnStartupTriggeringPolicy />
