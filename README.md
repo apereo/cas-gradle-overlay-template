@@ -1,3 +1,12 @@
+<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+<!-- Optional theme -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+
+<!-- Latest compiled and minified JavaScript -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+
 CAS Gradle Overlay
 ============================
 Generic CAS gradle war overlay to exercise the latest versions of CAS. This overlay could be freely
@@ -38,20 +47,23 @@ Study material:
 ./gradlew[.bat] clean build
 ```
 
-Or faster builds on subsequent attempts once modules/dependencies are resolved:
+Faster builds on subsequent attempts once modules/dependencies are resolved:
 
 ```bash
 ./gradlew[.bat] clean build --parallel --offline
 ```
 
-If you are on a `SNAPSHOT` version, you can force redownloads of modules/dependencies:
+Note: A number of options can be made default in `gradle.properties`. For example, `--parallel` can be defaulted via  `org.gradle.parallel=true`.
+
+### Updating SNAPSHOT Builds
+
+If you are on a `SNAPSHOT` version, you can force re-downloads of modules/dependencies:
 
 ```bash
  ./gradlew[.bat] clean build --parallel --refresh-dependencies
 ```
 
-    = TIPS =
-    Those options can be added to 'gradle.properties' for example '--parallel' => 'org.gradle.parallel=true'.
+### Clear Gradle Cache
 
 If you need to, on Linux/Unix systems, you can delete all the existing artifacts (artifacts and metadata)
 Gradle has downloaded using:
@@ -63,11 +75,15 @@ rm -rf $HOME/.gradle/caches/
 
 Same strategy applies to Windows too, provided you switch `$HOME` to its equivalent in the above command.
 
+### Build Tasks
+
 To see what commands are available in the build, use:
 
 ```bash
  ./gradlew[.bat] tasks
 ```
+
+### Project Dependencies
 
 To see where certain dependencies come from in the build:
 
@@ -93,7 +109,7 @@ On a successful deployment via the following methods, CAS will be available at:
 * `http://cas.server.name:8080/cas`
 * `https://cas.server.name:8443/cas`
 
-## Executable WAR
+### Executable WAR
 
 Run the CAS web application as an executable WAR.
 
@@ -105,10 +121,10 @@ Or via Gradle:
 
 ```bash
 # You need to check your project path into cas/build.gradle for this command
-./gradlew[.bat] runit
+./gradlew[.bat] run
 ```
 
-## Spring Boot
+### Spring Boot
 
 Run the CAS web application as an executable WAR via Spring Boot. This is most useful during development and testing.
 
@@ -116,36 +132,44 @@ Run the CAS web application as an executable WAR via Spring Boot. This is most u
 ./gradlew[.bat] bootrun
 ```
 
-### Warning!
+#### Warning!
 
 Be careful with this method of deployment. `bootRun` is not designed to work with already executable WAR artifacts such that CAS server web application. YMMV. Today, uses of this mode ONLY work when there is **NO OTHER** dependency added to the build script and the `cas-server-webapp` is the only present module. See [this issue](https://github.com/apereo/cas/issues/2334) and [this issue](https://github.com/spring-projects/spring-boot/issues/8320) for more info.
 
-## External
+### External
 
 Deploy resultant `cas/build/libs/cas.war` to a servlet container of choice.
 
-# DEBUG
+## Troubleshooting
 
-## Build
+You can also run the CAS server in `DEBUG` mode to step into the code
+via an IDE that is able to connect to the port `5005`.
 
 ```bash
-# You can find your source into ~/.gradle/caches/modules-2/files-2.1
-# for debug purposes
-./gradlew[.bat] buildsource
+./gradlew[.bat] debug
 ```
 
-## Executable WAR
+To setup a development environment for either eclipse or IDEA:
 
-See the unzipped source jar in 'cas/build/cas'
+```bash
+# ./gradlew[.bat] eclipse
+# ./gradlew[.bat] idea
+```
+
+The above tasks help to setup a project for your development environment. If you find that something has gone wrong, you can always start anew by using the following:
+
+```bash
+# ./gradlew[.bat] cleanEclipse
+# ./gradlew[.bat] cleanIdea
+```
+
+
+## Explode WAR
+
+You may explode/unzip the generated CAS web application if you wish to peek into the artifact
+to examine dependencies, configuration files and such that are merged as part of the overlay build process.
 
 ```bash
 ./gradlew[.bat] explodeWar
 ```
 
-Run debug server
-
-```bash
-# run debug port 5005
-# You need to check your project path into cas/build.gradle for this command
-./gradlew[.bat] runit_debug
-```

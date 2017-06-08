@@ -3,13 +3,22 @@ apply from: 'http://dl.bintray.com/scalding/generic/waroverlay.gradle'
 apply from: 'https://raw.githubusercontent.com/apereo/cas/5.1.x/gradle/overrides.gradle'
 
 apply plugin: 'eclipse'
+apply plugin: 'idea'
 
 eclipse {
     classpath {
-	   downloadSources=true
-	   downloadJavadoc = true
+       downloadSources = true
+       downloadJavadoc = true
     }
 }
+
+idea {
+    module {
+        downloadJavadoc = true
+        downloadSources = true
+    }
+}
+
 
 bootRepackage {
     enabled = false
@@ -36,8 +45,8 @@ dependencies {
 
 task copyConfig(type: Copy) {
     println "Copying configuration to /etc/cas/config"
-//    from "${project.rootDir}/etc/cas/config"
-//    into '/etc/cas/config'
+    from "${project.rootDir}/etc/cas/config"
+    into '/etc/cas/config'
 }
 
 war {
@@ -55,6 +64,9 @@ task explodeWar(type: Copy) {
     description = "Explode the cas.war"
     from zipTree(project.war.outputs.files.singleFile)
     into "${buildDir}/cas"
+    doLast {
+        println "CAS web application artifact exploded into [cas/build/cas]"
+    }
 }
 
 File manifestFile() {
@@ -83,12 +95,12 @@ task generateKeys {
   }
 }
 
-task runit {
+task run {
+    dependsOn build
     doLast{
         javaexec {
             main="-jar";
             jvmArgs = [
-                // Reduce the memory usage
                 "-Xmx2048M"
                 ]
             args = [
@@ -98,18 +110,15 @@ task runit {
     }
 }
 
-task runit_debug {
+task debug {
+    dependsOn build
     doLast {
         javaexec {
             main="-jar";
-            //debug=true; Debug port is 5005, not possible to change, does the same than -Xrunjdwp below
             jvmArgs = [
-                // Reduce the memory usage
                 "-Xmx2048M",
-                // Improve start up speed
                 "-XX:+TieredCompilation",
                 "-XX:TieredStopAtLevel=1",
-                // Run debug mode
                 "-Xdebug",
                 "-Xrunjdwp:transport=dt_socket,address=5005,server=y,suspend=y"
                 ]
@@ -119,14 +128,5 @@ task runit_debug {
                 
             println "Started ${commandLine}"
         }
-    }
-}
-
-// You can find your source into ~/.gradle/caches/modules-2/files-2.1
-// needs eclipse plugin dependency
-task buildsource(dependsOn: ['cleanEclipse', 'eclipse']){
-    tasks.findByPath('eclipse').mustRunAfter tasks.findByPath('cleanEclipse')
-    doLast{
-        println '---- CleanEclipse - Eclipse tasks Executed ----'
     }
 }
