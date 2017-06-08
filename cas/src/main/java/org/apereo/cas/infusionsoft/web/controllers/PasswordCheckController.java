@@ -39,8 +39,8 @@ public class PasswordCheckController {
         TicketGrantingTicket ticket = ticketRegistry.getTicket(tgtCookie, TicketGrantingTicket.class);
 
         if (ticket != null && !ticket.isExpired()) {
-            String username = ticket.getAuthentication().getPrincipal().getId();
-            User user = userService.loadUser(username);
+            Long userId = Long.parseLong(ticket.getAuthentication().getPrincipal().getId());
+            User user = userService.loadUser(userId);
             retVal = !passwordService.lastFourPasswordsContains(user, password);
         }
 
