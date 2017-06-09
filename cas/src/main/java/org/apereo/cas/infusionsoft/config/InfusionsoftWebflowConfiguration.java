@@ -4,6 +4,8 @@ import org.apereo.cas.CentralAuthenticationService;
 import org.apereo.cas.authentication.AuthenticationSystemSupport;
 import org.apereo.cas.infusionsoft.config.properties.InfusionsoftConfigurationProperties;
 import org.apereo.cas.infusionsoft.services.MarketingOptionsService;
+import org.apereo.cas.infusionsoft.services.PasswordService;
+import org.apereo.cas.infusionsoft.services.UserService;
 import org.apereo.cas.infusionsoft.support.UserAccountTransformer;
 import org.apereo.cas.infusionsoft.webflow.InfusionsoftFlowSetupAction;
 import org.apereo.cas.infusionsoft.webflow.InfusionsoftPasswordExpirationEnforcementAction;
@@ -52,11 +54,17 @@ public class InfusionsoftWebflowConfiguration {
     private MarketingOptionsService marketingOptionsService;
 
     @Autowired
+    private PasswordService passwordService;
+
+    @Autowired
     private ServicesManager servicesManager;
 
     @Autowired
     @Qualifier("defaultTicketRegistrySupport")
     private TicketRegistrySupport ticketRegistrySupport;
+
+    @Autowired
+    private UserService userService;
 
     @Bean
     public CasWebflowConfigurer infusionsoftWebflowConfigurer() {
@@ -77,8 +85,10 @@ public class InfusionsoftWebflowConfiguration {
         return new InfusionsoftPasswordExpirationEnforcementAction(
                 authenticationSystemSupport,
                 centralAuthenticationService,
+                passwordService,
+                servicesManager,
                 ticketRegistrySupport,
-                servicesManager);
+                userService);
     }
 
 }
