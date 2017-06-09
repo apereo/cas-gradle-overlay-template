@@ -12,8 +12,6 @@ import org.apereo.cas.infusionsoft.services.UserService;
 import org.apereo.cas.services.ServicesManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.MessageSource;
-import org.springframework.context.i18n.LocaleContextHolder;
 
 import javax.security.auth.login.AccountLockedException;
 import javax.security.auth.login.FailedLoginException;
@@ -38,7 +36,7 @@ public class InfusionsoftAuthenticationHandler extends AbstractUsernamePasswordA
     @Override
     protected HandlerResult doAuthentication(Credential credential) throws GeneralSecurityException, PreventedException {
         if (credential instanceof LetMeInCredentials) {
-            return buildHandlerResult((LetMeInCredentials)credential, false);
+            return buildHandlerResult((LetMeInCredentials) credential);
         } else {
             return super.doAuthentication(credential);
         }
@@ -69,20 +67,18 @@ public class InfusionsoftAuthenticationHandler extends AbstractUsernamePasswordA
                     }
                 }
             case PasswordExpired:
-                return buildHandlerResult(credentials, true);
             case Success:
-                return buildHandlerResult(credentials, false);
+                return buildHandlerResult(credentials);
             default:
                 throw new IllegalStateException("Unknown value for loginResult: " + loginResult);
         }
     }
 
-    private HandlerResult buildHandlerResult(UsernamePasswordCredential credential, boolean expired) {
+    private HandlerResult buildHandlerResult(UsernamePasswordCredential credential) {
         User user = userService.loadUser(credential.getUsername());
 
         if (user != null && user.getId() != null) {
             Map<String, Object> attributes = userService.createAttributeMapForUser(user);
-            attributes.put("passwordExpired", expired);
 
             String principalId = user.getId().toString();
             return this.createHandlerResult(credential, this.principalFactory.createPrincipal(principalId, attributes), null);
