@@ -32,7 +32,7 @@ public class AutoLoginService {
     public boolean autoLogin(String username, HttpServletRequest request, HttpServletResponse response) {
         boolean retVal;
         try {
-            killTGT(request);
+            killTGT(request, response);
 
             final LetMeInCredentials letMeInCredentials = new LetMeInCredentials(username);
             final AuthenticationResult authenticationResult = authenticationSystemSupport.handleAndFinalizeSingleAuthenticationTransaction(null, letMeInCredentials);
@@ -49,10 +49,23 @@ public class AutoLoginService {
         return retVal;
     }
 
-    public void killTGT(HttpServletRequest request) {
+    public TicketGrantingTicket getValidTGTFromRequest(HttpServletRequest request) {
+        String oldTicketGrantingTicketId = ticketGrantingTicketCookieGenerator.retrieveCookieValue(request);
+        TicketGrantingTicket ticket = null;
+        if (oldTicketGrantingTicketId != null) {
+            ticket = ticketRegistry.getTicket(oldTicketGrantingTicketId, TicketGrantingTicket.class);
+            if (ticket != null && ticket.isExpired()) {
+                ticket = null;
+            }
+        }
+        return ticket;
+    }
+
+    public void killTGT(HttpServletRequest request, HttpServletResponse response) {
         //killing the TGT will force CAS to kill the security session for the service the TGT was established for
         String oldTicketGrantingTicketId = ticketGrantingTicketCookieGenerator.retrieveCookieValue(request);
         if (oldTicketGrantingTicketId != null) {
+            ticketGrantingTicketCookieGenerator.removeCookie(response);
             TicketGrantingTicket ticket = ticketRegistry.getTicket(oldTicketGrantingTicketId, TicketGrantingTicket.class);
 
             if (ticket != null) {
