@@ -74,7 +74,7 @@ public class AutoLoginServiceTest {
 
         Assert.assertTrue(loginResult);
 
-        verify(serviceToTest, times(1)).killTGT(request);
+        verify(serviceToTest, times(1)).killTGT(request, response);
 
         ArgumentCaptor<LetMeInCredentials> credentialsArgumentCaptor = ArgumentCaptor.forClass(LetMeInCredentials.class);
         verify(authenticationSystemSupport, times(1)).handleAndFinalizeSingleAuthenticationTransaction(any(), credentialsArgumentCaptor.capture());
@@ -108,7 +108,7 @@ public class AutoLoginServiceTest {
 
         Assert.assertFalse(loginResult);
 
-        verify(serviceToTest, times(1)).killTGT(request);
+        verify(serviceToTest, times(1)).killTGT(request, response);
 
         ArgumentCaptor<LetMeInCredentials> credentialsArgumentCaptor = ArgumentCaptor.forClass(LetMeInCredentials.class);
         verify(authenticationSystemSupport, times(1)).handleAndFinalizeSingleAuthenticationTransaction(any(), credentialsArgumentCaptor.capture());
@@ -129,7 +129,7 @@ public class AutoLoginServiceTest {
         final TicketGrantingTicket ticket = new TicketGrantingTicketImpl();
         doReturn(ticket).when(ticketRegistry).getTicket(oldTicketGrantingTicketId, TicketGrantingTicket.class);
 
-        serviceToTest.killTGT(request);
+        serviceToTest.killTGT(request, response);
 
         verify(ticketGrantingTicketCookieGenerator, times(1)).retrieveCookieValue(request);
         verify(ticketRegistry, times(1)).getTicket(oldTicketGrantingTicketId, TicketGrantingTicket.class);
@@ -140,7 +140,7 @@ public class AutoLoginServiceTest {
     public void testKillTGTNoCookie() {
         doReturn(null).when(ticketGrantingTicketCookieGenerator).retrieveCookieValue(request);
 
-        serviceToTest.killTGT(request);
+        serviceToTest.killTGT(request, response);
 
         verify(ticketGrantingTicketCookieGenerator, times(1)).retrieveCookieValue(request);
         verifyZeroInteractions(ticketRegistry, centralAuthenticationService);
@@ -153,7 +153,7 @@ public class AutoLoginServiceTest {
 
         doReturn(null).when(ticketRegistry).getTicket(oldTicketGrantingTicketId, TicketGrantingTicket.class);
 
-        serviceToTest.killTGT(request);
+        serviceToTest.killTGT(request, response);
 
         verify(ticketGrantingTicketCookieGenerator, times(1)).retrieveCookieValue(request);
         verify(ticketRegistry, times(1)).getTicket(oldTicketGrantingTicketId, TicketGrantingTicket.class);

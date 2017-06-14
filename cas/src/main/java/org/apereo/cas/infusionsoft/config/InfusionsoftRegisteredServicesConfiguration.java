@@ -19,6 +19,7 @@ public class InfusionsoftRegisteredServicesConfiguration {
     @Bean
     List<RegisteredService> inMemoryRegisteredServices() {
         List<RegisteredService> services = new ArrayList<>();
+        services.add(serviceCAS());
         services.add(serviceAccountCentral());
         services.add(serviceCustomerHub());
         services.add(serviceMarketplaceAPI());
@@ -33,8 +34,13 @@ public class InfusionsoftRegisteredServicesConfiguration {
     }
 
     @Bean
+    RegisteredService serviceCAS() {
+        return buildService(1, "CAS", "https://(signin|devcas)\\.infusion(test|soft)\\.com(:[0-9]+)?((/.*)|$)", 1);
+    }
+
+    @Bean
     RegisteredService serviceAccountCentral() {
-        return buildService(1, "Account Central", "https://(accounts|devaccounts)\\.infusion(test|soft)\\.com(:[0-9]+)?((/.*)|$)", 1);
+        return buildService(2, "Account Central", "https://(accounts|devaccounts)\\.infusion(test|soft)\\.com(:[0-9]+)?((/.*)|$)", 2);
     }
 
     @Bean

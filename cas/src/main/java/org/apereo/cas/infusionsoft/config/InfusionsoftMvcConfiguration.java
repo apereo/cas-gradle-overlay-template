@@ -89,7 +89,7 @@ public class InfusionsoftMvcConfiguration {
 
     @Bean
     public PasswordCheckController passwordCheckController() {
-        return new PasswordCheckController(ticketGrantingTicketCookieGenerator, passwordService, ticketRegistry, userService);
+        return new PasswordCheckController(passwordService, userService, autoLoginService());
     }
 
     @Bean
