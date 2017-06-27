@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" xmlns:th="http://www.thymeleaf.org" layout:decorate="../layouts/infusionsoft">
+
+<head>
+    <meta name="robots" content="noindex">
+    <title th:text="#{screen.accountlocked.heading}"></title>
+</head>
+
+<body id="cas">
+<div layout:fragment="content" class="container">
+    <div class="rounded-box-wide">
+        <div class="row">
+            <div class="col-sm-8">
+                <div class="logo"></div>
+
+                <h2 th:utext="#{screen.logout.header}"/>
+
+                <p class="text-info">
+                    <img src="../../static/infusionsoft/img/ic-message-info.svg" th:src="@{/infusionsoft/img/ic-message-success.svg}" width="16" height="16">
+                    <span th:utext="#{screen.logout.success}"></span>
+                </p>
+
+                <p th:utext="#{screen.logout.security}" />
+
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
