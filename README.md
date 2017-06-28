@@ -94,6 +94,12 @@ Or:
 - Create a keystore file `thekeystore` under `/etc/cas` on Linux. Use `c:/etc/cas` on Windows.
 - Use the password `changeit` for both the keystore and the key/certificate entries.
 - Ensure the keystore is loaded up with keys and certificates of the server.
+    - Add the following to ./etc/cas/config/cas.properties
+    ```
+    server.ssl.keyStore=file:/etc/cas/thekeystore
+    server.ssl.keyStorePassword=changeit
+    server.ssl.keyPassword=changeit
+    ```
 
 On a successful deployment via the following methods, CAS will be available at:
 
