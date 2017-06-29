@@ -3,6 +3,7 @@ org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
   org.apereo.cas.infusionsoft.config.InfusionsoftCasConfiguration,\
   org.apereo.cas.infusionsoft.config.InfusionsoftDataConfiguration,\
   org.apereo.cas.infusionsoft.config.InfusionsoftMailConfiguration,\
+  org.apereo.cas.infusionsoft.config.InfusionsoftMetricsConfiguration,\
   org.apereo.cas.infusionsoft.config.InfusionsoftMvcConfiguration,\
   org.apereo.cas.infusionsoft.config.InfusionsoftPasswordManagementConfiguration,\
   org.apereo.cas.infusionsoft.config.InfusionsoftRegisteredServicesConfiguration,\
