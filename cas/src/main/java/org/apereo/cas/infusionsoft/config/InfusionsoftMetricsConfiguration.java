@@ -1,11 +1,9 @@
 package org.apereo.cas.infusionsoft.config;
 
-import com.codahale.metrics.ConsoleReporter;
 import com.codahale.metrics.MetricFilter;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.graphite.Graphite;
 import com.codahale.metrics.graphite.GraphiteReporter;
-import com.ryantenney.metrics.spring.config.annotation.EnableMetrics;
 import org.apereo.cas.infusionsoft.config.properties.InfusionsoftConfigurationProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -19,7 +17,6 @@ import java.util.concurrent.TimeUnit;
 
 @Configuration
 @EnableConfigurationProperties(InfusionsoftConfigurationProperties.class)
-//@EnableMetrics(proxyTargetClass = true)
 public class InfusionsoftMetricsConfiguration {
 
     @Autowired
