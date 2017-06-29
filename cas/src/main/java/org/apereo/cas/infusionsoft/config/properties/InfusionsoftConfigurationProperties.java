@@ -21,6 +21,9 @@ public class InfusionsoftConfigurationProperties {
     private HostConfigurationProperties customerhub = new HostConfigurationProperties();
 
     @NestedConfigurationProperty
+    private GraphiteConfigurationProperties graphite = new GraphiteConfigurationProperties();
+
+    @NestedConfigurationProperty
     private InfusionsoftJpaConfigurationProperties jpa = new InfusionsoftJpaConfigurationProperties();
 
     private long loginAttemptMaxAge = 86400000; // default to 1 day
@@ -68,6 +71,14 @@ public class InfusionsoftConfigurationProperties {
 
     public void setCustomerhub(HostConfigurationProperties customerhub) {
         this.customerhub = customerhub;
+    }
+
+    public GraphiteConfigurationProperties getGraphite() {
+        return graphite;
+    }
+
+    public void setGraphite(GraphiteConfigurationProperties graphite) {
+        this.graphite = graphite;
     }
 
     public InfusionsoftJpaConfigurationProperties getJpa() {

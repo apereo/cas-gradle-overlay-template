@@ -24,6 +24,8 @@ repositories {
 
 dependencies {
     compile "com.googlecode.json-simple:json-simple:${project.'json.simple.version'}"
+    compile "io.dropwizard.metrics:metrics-core:${project.'metrics.version'}"
+    compile "io.dropwizard.metrics:metrics-graphite:${project.'metrics.version'}"
     compile "org.apereo.cas:cas-server-webapp-config:${project.'cas.version'}"
     compile "org.apereo.cas:cas-server-webapp-init:${project.'cas.version'}"
     compile "org.apereo.cas:cas-server-webapp-tomcat:${project.'cas.version'}@war"
