@@ -121,6 +121,11 @@ public class InfusionsoftRegisteredServicesConfiguration {
     }
 
     @Bean
+    RegisteredService serviceHelpCenter() {
+        return buildService(10, "Help Center", "https?://(help(center)?\\.infusionsoft|dev-help-center\\.gotpantheon)\\.com/.*", 10);
+    }
+
+    @Bean
     RegisteredService serviceCRM() {
         // Must be last, because it's a wildcard on infusionsoft/test.com
         final RegexRegisteredService service = buildService(9999, "Infusionsoft CRM", "https://.+\\.infusion(soft|test)\\.com(:[0-9]+)?((/.*)|$)", 9999);
