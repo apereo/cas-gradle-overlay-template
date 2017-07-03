@@ -28,6 +28,7 @@ public class InfusionsoftRegisteredServicesConfiguration {
         services.add(serviceLocalhost());
         services.add(servicePropel());
         services.add(serviceEssentials());
+        services.add(serviceHelpCenter());
         services.add(serviceCRM());
 
         return services;
