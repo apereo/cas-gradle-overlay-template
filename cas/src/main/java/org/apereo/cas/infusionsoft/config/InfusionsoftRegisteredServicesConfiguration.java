@@ -28,6 +28,7 @@ public class InfusionsoftRegisteredServicesConfiguration {
         services.add(serviceLocalhost());
         services.add(servicePropel());
         services.add(serviceEssentials());
+        services.add(serviceHelpCenter());
         services.add(serviceCRM());
 
         return services;
@@ -118,6 +119,11 @@ public class InfusionsoftRegisteredServicesConfiguration {
         serviceProperties.put(RegisteredServiceProperties.DISABLE_ADS, property);
 
         return service;
+    }
+
+    @Bean
+    RegisteredService serviceHelpCenter() {
+        return buildService(10, "Help Center", "https?://(help(center)?\\.infusionsoft|dev-help-center\\.gotpantheon)\\.com/.*", 10);
     }
 
     @Bean
