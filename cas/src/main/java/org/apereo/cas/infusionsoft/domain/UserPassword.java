@@ -8,6 +8,8 @@ import java.util.Date;
 @Entity
 @Table(name = "user_password")
 public class UserPassword implements Serializable {
+    private static final long serialVersionUID = 1483769070620358546L;
+
     private Long id;
     private User user;
     private String passwordEncoded;
