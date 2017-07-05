@@ -5,11 +5,9 @@ import org.apereo.cas.infusionsoft.domain.UserPassword;
 import org.apereo.cas.infusionsoft.exceptions.InfusionsoftValidationException;
 
 public interface PasswordService {
-    boolean isPasswordCorrect(User user, String password);
-
     boolean isPasswordExpired(UserPassword password);
 
-    UserPassword getActivePasswordForUser(User user);
+    UserPassword getLatestPassword(User user);
 
     UserPassword getMatchingPasswordForUser(User user, String password);
 

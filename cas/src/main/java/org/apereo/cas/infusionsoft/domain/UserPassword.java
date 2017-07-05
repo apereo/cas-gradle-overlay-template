@@ -13,7 +13,6 @@ public class UserPassword implements Serializable {
     private String passwordEncoded;
     private String passwordEncodedMD5;
     private Date dateCreated;
-    private boolean active = false;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -62,12 +61,4 @@ public class UserPassword implements Serializable {
         this.dateCreated = new Date(dateCreated.getTime());
     }
 
-    @Column(name = "active")
-    public boolean isActive() {
-        return active;
-    }
-
-    public void setActive(boolean active) {
-        this.active = active;
-    }
 }

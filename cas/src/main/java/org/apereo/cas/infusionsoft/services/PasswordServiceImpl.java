@@ -15,7 +15,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
-import java.util.List;
 
 /**
  * Service that validates all our funky password rules.
@@ -47,22 +46,6 @@ public class PasswordServiceImpl implements PasswordService {
         this.userPasswordDAO = userPasswordDAO;
     }
 
-    /**
-     * Checks if a user's existing password is correct. We need this for when an already logged in user wants
-     * to update his user profile.
-     */
-    @Override
-    public boolean isPasswordCorrect(User user, String password) {
-        UserPassword userPassword = getActivePasswordForUser(user);
-        boolean isPasswordCorrect = userPassword != null && StringUtils.equals(userPassword.getPasswordEncoded(), encodePassword(password));
-        if (isPasswordCorrect) {
-            log.debug("Password is valid for user " + user);
-        } else {
-            log.debug("Password is not valid for user " + user);
-        }
-        return isPasswordCorrect;
-    }
-
     private String encodePassword(String password) {
         return passwordEncoder.encode(password);
     }
@@ -70,18 +53,15 @@ public class PasswordServiceImpl implements PasswordService {
     /**
      * Returns a UserPassword where the user and passwords match. The password might be active or inactive.
      * If there is more than one password that matches, the first one that matches will be returned, ordered by
-     * whether the password is active (active first, then inactive) and date created (most recently created first).
+     * date created (most recently created first).
      */
     @Override
     public UserPassword getMatchingPasswordForUser(User user, String password) {
-        List<UserPassword> userPasswords = userPasswordDAO.findByUserAndPasswordEncodedOrderByActiveDescDateCreatedDesc(user, encodePassword(password));
-        UserPassword userPassword = getFirstPassword(userPasswords);
+        UserPassword userPassword = userPasswordDAO.findFirstByUserAndPasswordEncodedOrderByDateCreatedDesc(user, encodePassword(password));
         if (userPassword == null) {
             log.debug("No matching password found for user " + user);
-        } else if (userPassword.isActive()) {
-            log.debug("Active matching password found for user " + user);
         } else {
-            log.debug("Inactive matching password found for user " + user);
+            log.debug("Matching password found for user " + user);
         }
         return userPassword;
     }
@@ -89,28 +69,17 @@ public class PasswordServiceImpl implements PasswordService {
     /**
      * Returns a UserPassword where the user and MD5 encoded passwords match. The password might be active or inactive.
      * If there is more than one password that matches, the first one that matches will be returned, ordered by
-     * whether the password is active (active first, then inactive) and date created (most recently created first).
+     * date created (most recently created first).
      */
     @Override
     public UserPassword getMatchingMD5PasswordForUser(User user, String passwordEncodedMD5) {
-        List<UserPassword> userPasswords = userPasswordDAO.findByUserAndPasswordEncodedMD5OrderByActiveDescDateCreatedDesc(user, passwordEncodedMD5);
-        UserPassword userPassword = getFirstPassword(userPasswords);
+        UserPassword userPassword = userPasswordDAO.findFirstByUserAndPasswordEncodedMD5OrderByDateCreatedDesc(user, passwordEncodedMD5);
         if (userPassword == null) {
             log.debug("No matching MD5 password found for user " + user);
-        } else if (userPassword.isActive()) {
-            log.debug("Active matching MD5 password found for user " + user);
         } else {
-            log.debug("Inactive matching MD5 password found for user " + user);
+            log.debug("Matching MD5 password found for user " + user);
         }
         return userPassword;
-    }
-
-    private UserPassword getFirstPassword(List<UserPassword> userPasswords) {
-        if (userPasswords.isEmpty()) {
-            return null;
-        } else {
-            return userPasswords.iterator().next();
-        }
     }
 
     /**
@@ -128,8 +97,8 @@ public class PasswordServiceImpl implements PasswordService {
      * active.
      */
     @Override
-    public UserPassword getActivePasswordForUser(User user) {
-        return userPasswordDAO.findByUserAndActiveTrue(user);
+    public UserPassword getLatestPassword(User user) {
+        return userPasswordDAO.findFirstByUserOrderByDateCreatedDesc(user);
     }
 
     /**
@@ -146,12 +115,6 @@ public class PasswordServiceImpl implements PasswordService {
             userPassword.setPasswordEncodedMD5(DigestUtils.md5Hex(plainTextPassword));
             // TODO: use UTC date here
             userPassword.setDateCreated(new Date());
-            userPassword.setActive(true);
-
-            for (UserPassword p : user.getPasswords()) {
-                p.setActive(false);
-                userPasswordDAO.save(p);
-            }
 
             userPasswordDAO.save(userPassword);
 

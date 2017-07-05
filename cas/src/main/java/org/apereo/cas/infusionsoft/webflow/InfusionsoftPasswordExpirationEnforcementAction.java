@@ -90,7 +90,7 @@ public class InfusionsoftPasswordExpirationEnforcementAction extends AbstractAct
                         final Long userId = Long.parseLong(authenticationResult.getAuthentication().getPrincipal().getId());
 
                         User user = userService.loadUser(userId);
-                        UserPassword userPassword =  passwordService.getActivePasswordForUser(user);
+                        UserPassword userPassword =  passwordService.getLatestPassword(user);
                         Boolean passwordExpired = passwordService.isPasswordExpired(userPassword);
 
                         if (passwordExpired && infusionsoftRegisteredServiceAccessStrategy.isForcePasswordExpiration()) {

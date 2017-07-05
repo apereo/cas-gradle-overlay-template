@@ -32,9 +32,12 @@ public class InfusionsoftAuthenticationServiceTest {
     private InfusionsoftAuthenticationServiceImpl infusionsoftAuthenticationService;
     private User user;
     private UserPassword password;
+    private UserPassword newPassword;
     private static final String testUsername = "test.user@infusionsoft.com";
     private static final String testPassword = "passwordEncoded";
     private static final String testPasswordMD5 = "passwordEncodedMD5";
+    private static final String testNewPassword = "newPasswordEncoded";
+    private static final String testNewPasswordMD5 = "newPasswordEncodedMD5";
     private UserAccountTransformer userAccountTransformer;
 
     @Mock
@@ -100,6 +103,11 @@ public class InfusionsoftAuthenticationServiceTest {
         password.setPasswordEncoded(testPassword);
         password.setPasswordEncodedMD5(testPasswordMD5);
 
+        newPassword = new UserPassword();
+        newPassword.setUser(user);
+        newPassword.setPasswordEncoded(testNewPassword);
+        newPassword.setPasswordEncodedMD5(testNewPasswordMD5);
+
         when(passwordService.getMatchingPasswordForUser(any(User.class), anyString())).thenReturn(null);
         when(passwordService.getMatchingMD5PasswordForUser(any(User.class), anyString())).thenReturn(null);
 
@@ -111,11 +119,13 @@ public class InfusionsoftAuthenticationServiceTest {
 
         // TODO: use UTC date here
         password.setDateCreated(new Date());
-        password.setActive(true);
 
         setupFailedLogins(0);
         when(passwordService.getMatchingPasswordForUser(user, testPassword)).thenReturn(password);
         when(passwordService.getMatchingMD5PasswordForUser(user, testPasswordMD5)).thenReturn(password);
+        when(passwordService.getMatchingPasswordForUser(user, testNewPassword)).thenReturn(newPassword);
+        when(passwordService.getMatchingMD5PasswordForUser(user, testNewPasswordMD5)).thenReturn(newPassword);
+        when(passwordService.getLatestPassword(user)).thenReturn(password);
         when(passwordService.isPasswordExpired(password)).thenReturn(false);
     }
 
@@ -258,7 +268,7 @@ public class InfusionsoftAuthenticationServiceTest {
 
     @Test
     public void testAttemptLoginOldPassword() {
-        password.setActive(false);
+        when(passwordService.getLatestPassword(user)).thenReturn(newPassword);
         LoginResult loginResult = infusionsoftAuthenticationService.attemptLogin(testUsername, testPassword);
         Assert.assertEquals(loginResult.getLoginStatus(), LoginAttemptStatus.OldPassword);
         Assert.assertEquals(loginResult.getFailedAttempts(), 0);
@@ -368,7 +378,7 @@ public class InfusionsoftAuthenticationServiceTest {
 
     @Test
     public void testAttemptLoginWithMD5OldPassword() {
-        password.setActive(false);
+        when(passwordService.getLatestPassword(user)).thenReturn(newPassword);
         LoginResult loginResult = infusionsoftAuthenticationService.attemptLoginWithMD5Password(testUsername, testPasswordMD5);
         Assert.assertEquals(loginResult.getLoginStatus(), LoginAttemptStatus.OldPassword);
         Assert.assertEquals(loginResult.getFailedAttempts(), 0);

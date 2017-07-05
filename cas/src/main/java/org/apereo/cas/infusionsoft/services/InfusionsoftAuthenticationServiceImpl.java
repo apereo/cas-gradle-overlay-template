@@ -72,10 +72,11 @@ public class InfusionsoftAuthenticationServiceImpl implements InfusionsoftAuthen
         if (loginResult != null) {
             incrementFailedLoginCount = loginResult.getLoginStatus() != LoginAttemptStatus.Success;
         } else {
+            UserPassword currentUserPassword = passwordService.getLatestPassword(user);
             if (userPassword == null) {
                 loginResult = LoginResult.BadPassword(user);
                 incrementFailedLoginCount = true;
-            } else if (!userPassword.isActive()) {
+            } else if (userPassword != currentUserPassword) {
                 loginResult = LoginResult.OldPassword(user);
                 incrementFailedLoginCount = false;  // Bad logins that used an old password don't increment the failure count
             } else {
