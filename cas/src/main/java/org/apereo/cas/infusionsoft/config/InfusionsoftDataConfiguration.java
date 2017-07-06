@@ -48,7 +48,7 @@ public class InfusionsoftDataConfiguration {
     @RefreshScope
     @Bean
     public DataSource dataSource() {
-        return Beans.newHickariDataSource(infusionsoftConfigurationProperties.getJpa());
+        return Beans.newDataSource(infusionsoftConfigurationProperties.getJpa());
     }
 
     public String[] jpaInfusionsoftPackagesToScan() {

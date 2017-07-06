@@ -12,7 +12,7 @@ buildscript {
         }
     }
     dependencies {
-        classpath "org.bitbucket.b_c:jose4j:0.5.2"
+        classpath "org.bitbucket.b_c:jose4j:0.5.6"
         classpath "org.springframework.boot:spring-boot-gradle-plugin:${project.'springboot.version'}"
         classpath 'com.infusionsoft.pancakes:pancakes-google-cloud-build-plugin:3.+'
     }

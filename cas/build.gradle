@@ -1,6 +1,23 @@
 apply plugin: 'org.springframework.boot'
 apply from: 'http://dl.bintray.com/scalding/generic/waroverlay.gradle'
-apply from: 'https://raw.githubusercontent.com/apereo/cas/v5.1.0-RC3/gradle/overrides.gradle'
+apply from: 'https://raw.githubusercontent.com/apereo/cas/5.1.x/gradle/overrides.gradle'
+
+apply plugin: 'eclipse'
+apply plugin: 'idea'
+
+eclipse {
+    classpath {
+        downloadSources = true
+        downloadJavadoc = true
+    }
+}
+
+idea {
+    module {
+        downloadJavadoc = true
+        downloadSources = true
+    }
+}
 
 bootRepackage {
     enabled = false
@@ -24,8 +41,8 @@ repositories {
 
 dependencies {
     compile "com.googlecode.json-simple:json-simple:${project.'json.simple.version'}"
-    compile "io.dropwizard.metrics:metrics-core:${project.'metrics.version'}"
-    compile "io.dropwizard.metrics:metrics-graphite:${project.'metrics.version'}"
+    compile "io.dropwizard.metrics:metrics-core:${project.'dropwizard-metrics.version'}"
+    compile "io.dropwizard.metrics:metrics-graphite:${project.'dropwizard-metrics.version'}"
     compile "org.apereo.cas:cas-server-webapp-config:${project.'cas.version'}"
     compile "org.apereo.cas:cas-server-webapp-init:${project.'cas.version'}"
     compile "org.apereo.cas:cas-server-webapp-tomcat:${project.'cas.version'}@war"
@@ -86,6 +103,9 @@ task explodeWar(type: Copy) {
     description = "Explode the cas.war"
     from zipTree(project.war.outputs.files.singleFile)
     into "${buildDir}/cas"
+    doLast {
+        println "CAS web application artifact exploded into [cas/build/cas]"
+    }
 }
 
 File manifestFile() {
@@ -99,4 +119,40 @@ File manifestFile() {
     dst.delete()
     dst << manifest.singleFile.text
     return dst
+}
+
+task run {
+    dependsOn build
+    doLast {
+        javaexec {
+            main = "-jar";
+            jvmArgs = [
+                    "-Xmx2048M"
+            ]
+            args = [
+                    "build/libs/cas.war"
+            ]
+        }
+    }
+}
+
+task debug {
+    dependsOn build
+    doLast {
+        javaexec {
+            main = "-jar";
+            jvmArgs = [
+                    "-Xmx2048M",
+                    "-XX:+TieredCompilation",
+                    "-XX:TieredStopAtLevel=1",
+                    "-Xdebug",
+                    "-Xrunjdwp:transport=dt_socket,address=5005,server=y,suspend=y"
+            ]
+            args = [
+                    "build/libs/cas.war",
+            ]
+
+            println "Started ${commandLine}"
+        }
+    }
 }
