@@ -5,7 +5,7 @@ used as a starting template for local CAS gradle war overlays.
 
 ## Versions
 
-* CAS 5.1.x
+* CAS 5.2.0-RC2
 
 ## Requirements
 
