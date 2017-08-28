@@ -44,9 +44,11 @@ dependencies {
 }
 
 task copyConfig(type: Copy) {
-    println "Copying configuration to /etc/cas/config"
-    from "${project.rootDir}/etc/cas/config"
-    into '/etc/cas/config'
+    doLast {
+        log.info "Copying configuration to /etc/cas/config"
+        from "${project.rootDir}/etc/cas/config"
+        into '/etc/cas/config'
+    }
 }
 
 war {
