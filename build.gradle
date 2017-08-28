@@ -1,7 +1,6 @@
 buildscript {
     repositories {
         mavenLocal()
-        mavenCentral()
         jcenter()
     }
     dependencies {
@@ -18,23 +17,30 @@ task wrapper(type: Wrapper, description: "Update the Gradle wrapper") {
     gradleVersion = project."gradle.version"
 }
 
-task command(type: JavaExec, description: "Invokes the CAS Command Line Shell. Use -q to quiet Gradle output. To pass arguments, use '-Pcargs=arg1,arg2,arg3,...'") {
+task command(type: JavaExec, description: "Invokes the CAS Command Line Shell. To pass arguments, use '-Pcargs=arg1,arg2,arg3,...'") {
     doFirst {
         main = '-jar'
         standardInput = System.in
-        if (project.hasProperty("cas.version")) {
-            def casVersion = project.getProperty("cas.version")
-            def commandFilePath = System.getProperty("user.dir") + File.separator + "cas" + File.separator + "build" + File.separator + "cas-server-support-shell-${casVersion}.jar"
-            def commandFile = new File(commandFilePath)
-            if (!commandFile.exists()) {
-                new URL("http://repo1.maven.org/maven2/org/apereo/cas/cas-server-support-shell/${casVersion}/cas-server-support-shell-${casVersion}.jar").withInputStream{ i -> commandFile.withOutputStream{ it << i }}
+       
+        def casVersion = project.'cas.version'
+        def casShellJarName = "cas-server-support-shell-${casVersion}.jar"
+        def casShellMavenCoordinates = "http://repo1.maven.org/maven2/org/apereo/cas/cas-server-support-shell";
+
+        def commandFile = new File(new File(project.projectDir, "shell"), casShellJarName)
+        
+        if (!commandFile.exists()) {
+            def casShellDownloadUrl = "$casShellMavenCoordinates/$casVersion/$casShellJarName"
+            println "Downloading $casShellDownloadUrl"
+            new URL(casShellDownloadUrl).withInputStream { i -> 
+                commandFile.withOutputStream{ it << i }
             }
-            def args2 = [commandFile]
-            if (project.hasProperty('cargs')) {
-                args2.addAll(cargs.trim().split(','))
-            }
-            args = args2
         }
-    }
-  
+
+        def args2 = [commandFile]
+        if (project.hasProperty('cargs')) {
+            args2.addAll(cargs.trim().split(','))
+        }
+        args = args2
+        
+    } 
 }
