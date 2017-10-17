@@ -19,13 +19,9 @@ idea {
     }
 }
 
-
 bootRepackage {
-    enabled = false
-}
-
-springBoot  {
-    mainClass = "org.springframework.boot.loader.WarLauncher"
+    mainClass = "org.apereo.cas.web.CasWebApplication"
+    executable = true
 }
 
 bootRun {
@@ -57,9 +53,6 @@ war {
     baseName 'cas'
     includeWarJars = true
     entryCompression = ZipEntryCompression.STORED
-    manifest {
-        from manifestFile()
-    }
 }
 
 task explodeWar(type: Copy, group: "build", description: "Explodes the cas.war") {
@@ -68,19 +61,6 @@ task explodeWar(type: Copy, group: "build", description: "Explodes the cas.war")
         into "${buildDir}/cas"
         println "CAS web application artifact exploded into [cas/build/cas]"
     }
-}
-
-File manifestFile() {
-    def warfile = configurations.runtime.asFileTree.matching {
-        include '**/*.war'
-    }
-    def manifest = zipTree(warfile.singleFile).matching {
-        include '**/*.MF'
-    }
-    def dst = new File("${project.rootDir}/etc/cas/MANIFEST.MF")
-    dst.delete()
-    dst << manifest.singleFile.text
-    return dst
 }
 
 task run(group: "build", description: "Run the CAS web application in embedded container mode") {
