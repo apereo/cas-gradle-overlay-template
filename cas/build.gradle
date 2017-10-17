@@ -1,5 +1,5 @@
 apply plugin: 'org.springframework.boot'
-apply from: 'http://dl.bintray.com/scalding/generic/waroverlay.gradle'
+apply from: 'https://dl.bintray.com/scalding/generic/waroverlay.gradle'
 apply from: 'https://raw.githubusercontent.com/apereo/cas/5.2.x/gradle/overrides.gradle'
 
 apply plugin: 'eclipse'
