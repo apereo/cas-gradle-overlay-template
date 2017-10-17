@@ -1,6 +1,6 @@
 apply plugin: 'org.springframework.boot'
 apply from: 'http://dl.bintray.com/scalding/generic/waroverlay.gradle'
-apply from: 'https://raw.githubusercontent.com/apereo/cas/5.1.x/gradle/overrides.gradle'
+apply from: 'https://raw.githubusercontent.com/apereo/cas/5.2.x/gradle/overrides.gradle'
 
 apply plugin: 'eclipse'
 apply plugin: 'idea'
@@ -43,10 +43,13 @@ dependencies {
     compile "org.apereo.cas:cas-server-webapp-tomcat:${project.'cas.version'}@war"
 }
 
-task copyConfig(type: Copy) {
-    println "Copying configuration to /etc/cas/config"
-    from "${project.rootDir}/etc/cas/config"
-    into '/etc/cas/config'
+task copyConfig(type: Copy, description: "Copy CAS configuration over to /etc/cas/config") {
+    doLast {
+        from "${project.rootDir}/etc/cas/config"
+        into '/etc/cas/config'
+
+        println "Copied configuration files into /etc/cas/config"
+    }
 }
 
 war {
@@ -59,12 +62,10 @@ war {
     }
 }
 
-task explodeWar(type: Copy) {
-    group = "build"
-    description = "Explode the cas.war"
-    from zipTree(project.war.outputs.files.singleFile)
-    into "${buildDir}/cas"
+task explodeWar(type: Copy, group: "build", description: "Explodes the cas.war") {
     doLast {
+        from zipTree(project.war.outputs.files.singleFile)
+        into "${buildDir}/cas"
         println "CAS web application artifact exploded into [cas/build/cas]"
     }
 }
@@ -82,51 +83,31 @@ File manifestFile() {
     return dst
 }
 
-task generateKeys {
-  group = 'CAS'
-  description = 'generate keys for CAS. These keys can be added to your application.properties file'
-  doLast {
-    println 'Generating keys for CAS...'
-    ['cas.tgc.encryptionKey': 256, 'cas.tgc.signingKey': 512, 'cas.webflow.encryption.key': 96, 'cas.webflow.signing.key': 512].each { key, size ->
-        def octetKey = OctJwkGenerator.generateJwk(size)
-        def params = octetKey.toParams(JsonWebKey.OutputControlLevel.INCLUDE_SYMMETRIC)
-        println "${key}=${params.get('k')}"
-    }
-  }
-}
-
-task run {
+task run(group: "build", description: "Run the CAS web application in embedded container mode") {
     dependsOn build
-    doLast{
+    doLast {
+        def casRunArgs = Arrays.asList(project.'cas.run.jvmArgs'.split(" "))
         javaexec {
-            main="-jar";
-            jvmArgs = [
-                "-Xmx2048M"
-                ]
-            args = [
-                "build/libs/cas.war"
-                ]
+            main = "-jar";
+            jvmArgs = casRunArgs
+            args = ["build/libs/cas.war"]
+            
+            log.info "Started ${commandLine}"
         }
     }
 }
 
-task debug {
+task debug(group: "build", description: "Debug the CAS web application in embedded mode on port 5005") {
     dependsOn build
     doLast {
+        def casDebugArgs = Arrays.asList(project.'cas.debug.jvmArgs'.split(" "))
+
         javaexec {
-            main="-jar";
-            jvmArgs = [
-                "-Xmx2048M",
-                "-XX:+TieredCompilation",
-                "-XX:TieredStopAtLevel=1",
-                "-Xdebug",
-                "-Xrunjdwp:transport=dt_socket,address=5005,server=y,suspend=y"
-                ]
-            args = [
-                "build/libs/cas.war",
-                ]
-                
-            println "Started ${commandLine}"
+            main = "-jar";
+            jvmArgs = casDebugArgs
+            args = ["build/libs/cas.war"]
+            
+            log.info "Started ${commandLine}"
         }
     }
 }

@@ -5,7 +5,7 @@ used as a starting template for local CAS gradle war overlays.
 
 ## Versions
 
-* CAS 5.1.x
+* CAS `5.2.x`
 
 ## Requirements
 
@@ -168,5 +168,15 @@ to examine dependencies, configuration files and such that are merged as part of
 
 ```bash
 ./gradlew[.bat] explodeWar
+```
+
+
+## Command Line Shell
+
+Invokes the CAS Command Line Shell. Use -q to quiet Gradle output. To pass arguments, use '-Pcargs=arg1,arg2,arg3,...'.
+For a list of commands either use no arguments or use -h. To enter the interactive shell use -sh.
+
+```bash
+./gradlew[.bat] -q command
 ```
 
