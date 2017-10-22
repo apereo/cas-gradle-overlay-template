@@ -17,30 +17,8 @@ task wrapper(type: Wrapper, description: "Update the Gradle wrapper") {
     gradleVersion = project."gradle.version"
 }
 
-task command(type: JavaExec, description: "Invokes the CAS Command Line Shell. To pass arguments, use '-Pcargs=arg1,arg2,arg3,...'") {
+task casVersion() {
     doFirst {
-        main = '-jar'
-        standardInput = System.in
-       
-        def casVersion = project.'cas.version'
-        def casShellJarName = "cas-server-support-shell-${casVersion}.jar"
-        def casShellMavenCoordinates = "http://repo1.maven.org/maven2/org/apereo/cas/cas-server-support-shell";
-
-        def commandFile = new File(new File(project.projectDir, "shell"), casShellJarName)
-        
-        if (!commandFile.exists()) {
-            def casShellDownloadUrl = "$casShellMavenCoordinates/$casVersion/$casShellJarName"
-            println "Downloading $casShellDownloadUrl"
-            new URL(casShellDownloadUrl).withInputStream { i -> 
-                commandFile.withOutputStream{ it << i }
-            }
-        }
-
-        def args2 = [commandFile]
-        if (project.hasProperty('cargs')) {
-            args2.addAll(cargs.trim().split(','))
-        }
-        args = args2
-        
-    } 
+        println "${project.'cas.version'}"
+    }
 }
