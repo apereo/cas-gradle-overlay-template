@@ -72,7 +72,7 @@ task run(group: "build", description: "Run the CAS web application in embedded c
             jvmArgs = casRunArgs
             args = ["build/libs/cas.war"]
             
-            log.info "Started ${commandLine}"
+            logger.info "Started ${commandLine}"
         }
     }
 }
@@ -87,7 +87,7 @@ task debug(group: "build", description: "Debug the CAS web application in embedd
             jvmArgs = casDebugArgs
             args = ["build/libs/cas.war"]
             
-            log.info "Started ${commandLine}"
+            logger.info "Started ${commandLine}"
         }
     }
 }
