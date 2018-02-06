@@ -28,7 +28,7 @@ function clean() {
 
 function package() {
 	./gradlew clean build "$@"
-	copy
+#	copy
 }
 
 function bootrun() {
