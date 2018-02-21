@@ -19,13 +19,19 @@ idea {
     }
 }
 
+springBoot {
+    mainClass = "org.springframework.boot.loader.WarLauncher"
+}
+
 bootRepackage {
     mainClass = "org.apereo.cas.web.CasWebApplication"
-    executable = true
+    executable = false
+    excludeDevtools = false
 }
 
 bootRun {
     addResources = true
+    classpath = sourceSets.main.compileClasspath
 }
 
 repositories {
@@ -71,7 +77,7 @@ task run(group: "build", description: "Run the CAS web application in embedded c
             main = "-jar";
             jvmArgs = casRunArgs
             args = ["build/libs/cas.war"]
-            
+
             logger.info "Started ${commandLine}"
         }
     }
