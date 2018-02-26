@@ -43,6 +43,11 @@ repositories {
 
 dependencies {
     compile "org.apereo.cas:cas-server-webapp-tomcat:${project.'cas.version'}@war"
+    if (!project.hasProperty('bootiful')) {
+        // Other dependencies may be listed here...
+    } else {
+        println "Running CAS in Bootiful mode; all dependencies except the CAS web application are ignored."
+    }
 }
 
 task copyConfig(type: Copy, description: "Copy CAS configuration over to /etc/cas/config") {
@@ -92,7 +97,7 @@ task debug(group: "build", description: "Debug the CAS web application in embedd
             main = "-jar";
             jvmArgs = casDebugArgs
             args = ["build/libs/cas.war"]
-            
+
             logger.info "Started ${commandLine}"
         }
     }

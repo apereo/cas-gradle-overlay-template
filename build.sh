@@ -32,7 +32,7 @@ function package() {
 }
 
 function bootrun() {
-	./gradlew clean build bootRun "$@"
+	./gradlew clean build bootRun -Pbootiful=true "$@"
 }
 
 function debug() {
