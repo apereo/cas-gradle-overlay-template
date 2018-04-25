@@ -16,7 +16,7 @@ function help() {
 	echo "	package: Clean and build CAS war, also call copy"
 	echo "	run: Build and run cas.war via Spring Boot (java -jar cas/build/libs/cas.war)"
 	echo "	runalone: Build and run cas.war on its own (cas/build/libs/cas.war)"
-	echo "	debug: Run CAS.war and listen for Java debugger on port 5000"
+	echo "	debug: Run CAS.war and listen for Java debugger on port 5005"
 	echo "	bootrun: Run with the Spring Boot plugin, doesn't work with multiple dependencies"
 	echo "	gencert: Create keystore with SSL certificate in location where CAS looks by default"
 	echo "	command: Run the CAS command line shell and pass commands"
