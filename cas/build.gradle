@@ -1,6 +1,16 @@
-apply plugin: 'org.springframework.boot'
-apply from: 'https://dl.bintray.com/scalding/generic/waroverlay.gradle'
-apply from: 'https://raw.githubusercontent.com/apereo/cas/5.2.x/gradle/overrides.gradle'
+apply plugin: "org.springframework.boot"
+apply from: "https://dl.bintray.com/scalding/generic/waroverlay.gradle"
+
+def currentBranch = "master"
+def currentVersion = "${project.'cas.version'}"
+if (!currentVersion.contains("RC")) {
+    def matcher = currentVersion =~ /(\d+\.\d+\.).+/
+    if (matcher.find()) {
+        currentBranch = matcher.group(1) + "x"
+    }
+}
+logger.info "Using CAS branch [${currentBranch}] to handle overrides"
+apply from: "https://raw.githubusercontent.com/apereo/cas/${currentBranch}/gradle/overrides.gradle"
 
 apply plugin: 'eclipse'
 apply plugin: 'idea'

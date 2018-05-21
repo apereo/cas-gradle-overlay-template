@@ -48,7 +48,7 @@ function runalone() {
 }
 
 function gencert() {
-	if [[ ! -d /etc/cas ]] ; then 
+	if [[ ! -d /etc/cas ]] ; then
 		copy
 	fi
 	which keytool
@@ -65,7 +65,7 @@ function gencert() {
 }
 
 function cli() {
-	
+
 	CAS_VERSION=$(./gradlew casVersion --quiet)
 	# echo "CAS version: $CAS_VERSION"
 	JAR_FILE_NAME="cas-server-support-shell-${CAS_VERSION}.jar"
@@ -100,12 +100,12 @@ fi
 
 case "$1" in
 "copy")
-    copy 
+    copy
     ;;
 "clean")
 	shift
     clean "$@"
-    ;;   
+    ;;
 "package")
 	shift
     package "$@"
