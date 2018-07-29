@@ -9,7 +9,22 @@ used as a starting template for local CAS Gradle war overlays.
 
 ## Requirements
 
-* JDK 1.8+
+* JDK 1.8.x
+
+## Getting started
+
+First make sure that you have both git and Java 8 installed. Apereo
+CAS will not work with Java 9.
+
+```shell
+$ git clone git@github.com:apereo/cas-gradle-overlay-template.git
+$ sudo ./build.sh gencert
+$ sudo ./build.sh run
+$ xdg-open https://localhost:8443/cas
+```
+
+A CAS login page should now, after accepting the self signed HTPPS
+certificate, be visible in your browser.
 
 ## Configuration
 
